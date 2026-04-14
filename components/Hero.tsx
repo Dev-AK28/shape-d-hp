@@ -75,13 +75,13 @@ export default function Hero() {
       }} />
 
       {/* Content */}
-      <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '24px', maxWidth: '960px', margin: '0 auto' }}>
+      <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '120px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         {/* Logo */}
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          style={{ marginBottom: '48px' }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          style={{ marginBottom: '80px' }}
         >
           <h1 style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 300, letterSpacing: '0.1em', color: 'white' }}>
             SHAPE<span style={{ display: 'inline-block' }}>
@@ -108,23 +108,23 @@ export default function Hero() {
 
         {/* Main copy */}
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2 }}
+          transition={{ duration: 1.5, delay: 0.3, ease: "easeOut" }}
           style={{ textAlign: 'center', zIndex: 20, position: 'relative' }}
         >
           <motion.h1
-            initial={{ opacity: 1, y: 30 }}
+            initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.2 }}
-            style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontFamily: 'serif', color: 'white', marginBottom: '24px', lineHeight: 1.2, fontWeight: 300, textShadow: '0 0 30px rgba(96, 165, 250, 0.3)' }}
+            transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+            style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontFamily: 'serif', color: 'white', marginBottom: '32px', lineHeight: 1.2, fontWeight: 300, textShadow: '0 0 30px rgba(96, 165, 250, 0.3)' }}
           >
             AIに代替不可能な、あなただけの"輪郭"を。 
           </motion.h1>
           <motion.p
-            initial={{ opacity: 1, y: 30 }}
+            initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.4 }}
+            transition={{ duration: 1.5, delay: 0.7, ease: "easeOut" }}
             style={{ fontSize: 'clamp(18px, 2vw, 24px)', color: '#d1d5db', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.6, fontFamily: 'serif', fontWeight: 300 }}
           >
             効率化の果てに、なお残る人間社会の価値と豊かさを再定義する。
@@ -133,10 +133,10 @@ export default function Hero() {
 
         {/* Scroll indicator */}
         <motion.div
-          initial={{ opacity: 1, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.8 }}
-          style={{ position: 'absolute', bottom: '32px', left: '50%', transform: 'translateX(-50%)' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 1.2, ease: "easeOut" }}
+          style={{ position: 'absolute', bottom: '48px', left: '50%', transform: 'translateX(-50%)' }}
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}

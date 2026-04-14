@@ -59,7 +59,7 @@ export default function Vision() {
   ];
 
   return (
-    <section style={{ position: 'relative', padding: '96px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
+    <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
       {/* Stars */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
         {stars.map((star) => (
@@ -80,13 +80,13 @@ export default function Vision() {
         ))}
       </div>
 
-      <div style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: '64px' }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+          style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
             理念
@@ -95,11 +95,11 @@ export default function Vision() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: '64px' }}
+          transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+          style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: '#93c5fd', marginBottom: '32px', fontFamily: 'serif' }}>
             SHAPE∞D（シェイプディー）
@@ -109,18 +109,21 @@ export default function Vision() {
           </p>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '64px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '32px', marginBottom: '120px' }}>
           {visionPoints.map((point, index) => (
             <motion.div
-              initial={{ opacity: 1, x: index % 2 === 0 ? -30 : 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 + index * 0.1 }}
-              viewport={{ once: true }}
-              style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '24px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
+              key={index}
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.3 + index * 0.1, ease: "easeOut" }}
+              viewport={{ once: true, margin: "-100px" }}
+              style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
             >
+              <div style={{ fontSize: '48px', fontWeight: 300, color: '#60a5fa', fontFamily: 'serif', lineHeight: 1 }}>
+                {point.title}
+              </div>
               <div>
-                <h4 style={{ fontSize: '20px', fontWeight: 300, color: 'white', marginBottom: '12px' }}>{point.title}</h4>
-                <p style={{ color: '#9ca3af', lineHeight: 1.6 }}>
+                <p style={{ color: '#9ca3af', lineHeight: 1.8, fontSize: '16px' }}>
                   {point.description}
                 </p>
               </div>
@@ -129,19 +132,19 @@ export default function Vision() {
         </div>
 
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          viewport={{ once: true }}
-          style={{ textAlign: 'center', padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2))', backdropFilter: 'blur(10px)' }}
+          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+          style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2))', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
             開発中プロジェクト
           </h3>
-          <p style={{ fontSize: '20px', color: '#93c5fd', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.6, marginBottom: '16px', fontFamily: 'serif' }}>
+          <p style={{ fontSize: '24px', color: '#93c5fd', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.6, marginBottom: '16px', fontFamily: 'serif' }}>
             Scopa
           </p>
-          <p style={{ fontSize: '16px', color: '#d1d5db', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '16px', color: '#d1d5db', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.6, fontFamily: 'serif' }}>
             構造的思考OSアプリ／日本語対応
           </p>
         </motion.div>

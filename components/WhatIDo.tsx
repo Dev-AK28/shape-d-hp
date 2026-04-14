@@ -54,7 +54,7 @@ export default function WhatIDo() {
   ];
 
   return (
-    <section style={{ position: 'relative', padding: '96px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
+    <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
       {/* Stars */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
         {stars.map((star) => (
@@ -75,33 +75,35 @@ export default function WhatIDo() {
         ))}
       </div>
 
-      <div style={{ maxWidth: '960px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: '64px' }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+          style={{ textAlign: 'right', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
             コア・バリュー
           </h2>
-          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
+          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', marginLeft: 'auto' }}></div>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '48px', marginBottom: '120px' }}>
           {services.map((service, index) => (
             <motion.div
-              initial={{ opacity: 1, y: 30 }}
+              key={index}
+              initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              style={{ padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
+              transition={{ duration: 1.2, delay: index * 0.15, ease: "easeOut" }}
+              viewport={{ once: true, margin: "-100px" }}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              style={{ padding: '40px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', cursor: 'pointer' }}
             >
-              <h3 style={{ fontSize: '20px', fontWeight: 300, color: 'white', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '22px', fontWeight: 300, color: 'white', marginBottom: '20px', fontFamily: 'serif' }}>
                 {service.title}
               </h3>
-              <p style={{ color: '#9ca3af', lineHeight: 1.6 }}>
+              <p style={{ color: '#9ca3af', lineHeight: 1.8, fontSize: '16px' }}>
                 {service.description}
               </p>
             </motion.div>
@@ -109,27 +111,39 @@ export default function WhatIDo() {
         </div>
 
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          viewport={{ once: true }}
-          style={{ marginTop: '64px', textAlign: 'center' }}
+          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-100px" }}
+          style={{ textAlign: 'left' }}
         >
-          <div style={{ padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}>
-            <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '24px', fontFamily: 'serif' }}>
-              GoDDによる開発可能領域
-            </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>
-              {goddAreas.map((area, index) => (
-                <span key={index} style={{ padding: '8px 16px', border: '1px solid rgba(96, 165, 250, 0.5)', borderRadius: '9999px', color: '#93c5fd', fontSize: '14px' }}>
-                  {area}
-                </span>
-              ))}
-            </div>
-            <p style={{ color: '#d1d5db', fontSize: '16px', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.6, fontFamily: 'serif' }}>
-              <strong style={{ color: '#93c5fd' }}>メリット:</strong> 安全性を兼ね備えた、相場の半額程度の費用での爆速開発。
-            </p>
+          <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#93c5fd', marginBottom: '48px', fontFamily: 'serif' }}>
+            GoDDによる開発可能領域
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            {goddAreas.map((area, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.4 + index * 0.05, ease: "easeOut" }}
+                viewport={{ once: true, margin: "-100px" }}
+                whileHover={{ scale: 1.05, borderColor: 'rgba(96, 165, 250, 0.8)', transition: { duration: 0.3 } }}
+                style={{ padding: '24px 32px', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <span style={{ color: '#93c5fd', fontSize: '16px', fontWeight: 300 }}>{area}</span>
+              </motion.div>
+            ))}
           </div>
+          <motion.p
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+            viewport={{ once: true, margin: "-100px" }}
+            style={{ color: '#d1d5db', fontSize: '16px', maxWidth: '48rem', marginTop: '48px', lineHeight: 1.8, fontFamily: 'serif' }}
+          >
+            <strong style={{ color: '#93c5fd' }}>メリット:</strong> 安全性を兼ね備えた、相場の半額程度の費用での爆速開発。
+          </motion.p>
         </motion.div>
       </div>
     </section>
