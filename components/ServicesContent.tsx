@@ -184,7 +184,7 @@ export default function ServicesContent() {
             プロジェクトの規模や要件に合わせて、最適なソリューションをご提案します。まずはお気軽にご相談ください。
           </p>
           <motion.a
-            href="/"
+            href="/contact"
             whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
             whileTap={{ scale: 0.95 }}
             style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}

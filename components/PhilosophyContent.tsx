@@ -247,7 +247,7 @@ export default function PhilosophyContent() {
               それが、SHAPE∞Dの哲学。
             </motion.p>
             <motion.a
-              href="/"
+              href="/contact"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.5, delay: 1, ease: "easeOut" }}
@@ -256,7 +256,7 @@ export default function PhilosophyContent() {
               whileTap={{ scale: 0.95 }}
               style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
             >
-              トップに戻る
+              お問い合わせ
             </motion.a>
           </motion.div>
         </div>

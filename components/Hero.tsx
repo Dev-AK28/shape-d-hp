@@ -111,67 +111,69 @@ export default function Hero() {
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, delay: 0.3, ease: "easeOut" }}
-          style={{ textAlign: 'center', zIndex: 20, position: 'relative' }}
+          style={{ textAlign: 'center', zIndex: 20, position: 'relative', maxWidth: '900px', margin: '0 auto' }}
         >
           <motion.h1
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-            style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontFamily: 'serif', color: 'white', marginBottom: '32px', lineHeight: 1.2, fontWeight: 300, textShadow: '0 0 30px rgba(96, 165, 250, 0.3)' }}
+            style={{ fontSize: 'clamp(36px, 6vw, 64px)', fontFamily: 'serif', color: 'white', marginBottom: '48px', lineHeight: 1.3, fontWeight: 300, letterSpacing: '0.05em' }}
           >
-            AIに代替不可能な、あなただけの"輪郭"を。 
+            AIで効率化し、本来の創造に集中する環境を作る。
           </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 60 }}
+
+          {/* Value Proposition */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, delay: 0.7, ease: "easeOut" }}
-            style={{ fontSize: 'clamp(18px, 2vw, 24px)', color: '#d1d5db', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.6, fontFamily: 'serif', fontWeight: 300 }}
+            style={{ display: 'flex', justifyContent: 'center', gap: '64px', marginBottom: '64px', flexWrap: 'wrap' }}
           >
-            効率化の果てに、なお残る人間社会の価値と豊かさを再定義する。
-          </motion.p>
-          <motion.a
-            href="/services"
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 300, color: '#60a5fa', fontFamily: 'serif', marginBottom: '8px' }}>
+                爆速
+              </div>
+              <div style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em' }}>
+                SPEED
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 300, color: '#60a5fa', fontFamily: 'serif', marginBottom: '8px' }}>
+                安全
+              </div>
+              <div style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em' }}>
+                SAFE
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 300, color: '#60a5fa', fontFamily: 'serif', marginBottom: '8px' }}>
+                低コスト
+              </div>
+              <div style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em' }}>
+                COST
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.p
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, delay: 0.9, ease: "easeOut" }}
-            whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
-            whileTap={{ scale: 0.95 }}
-            style={{ display: 'inline-block', marginTop: '48px', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
+            style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#9ca3af', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.8, fontFamily: 'serif', fontWeight: 300, marginBottom: '48px' }}
           >
-            商品・サービスを見る
-          </motion.a>
+            AIエンジニア / 事業家としての提供価値
+          </motion.p>
+
           <motion.a
-            href="/works"
+            href="/contact"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, delay: 1.0, ease: "easeOut" }}
             whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
             whileTap={{ scale: 0.95 }}
-            style={{ display: 'inline-block', marginTop: '48px', marginLeft: '16px', padding: '16px 48px', border: '1px solid rgba(255, 255, 255, 0.3)', borderRadius: '9999px', color: '#d1d5db', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
+            style={{ display: 'inline-block', padding: '20px 64px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '18px', fontFamily: 'serif', textDecoration: 'none' }}
           >
-            実績を見る
-          </motion.a>
-          <motion.a
-            href="/process"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5, delay: 1.1, ease: "easeOut" }}
-            whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
-            whileTap={{ scale: 0.95 }}
-            style={{ display: 'inline-block', marginTop: '48px', marginLeft: '16px', padding: '16px 48px', border: '1px solid rgba(255, 255, 255, 0.3)', borderRadius: '9999px', color: '#d1d5db', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
-          >
-            制作の流れを見る
-          </motion.a>
-          <motion.a
-            href="/philosophy"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5, delay: 1.2, ease: "easeOut" }}
-            whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
-            whileTap={{ scale: 0.95 }}
-            style={{ display: 'inline-block', marginTop: '48px', marginLeft: '16px', padding: '16px 48px', border: '1px solid rgba(255, 255, 255, 0.3)', borderRadius: '9999px', color: '#d1d5db', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
-          >
-            哲学を見る
+            お問い合わせ
           </motion.a>
         </motion.div>
 
