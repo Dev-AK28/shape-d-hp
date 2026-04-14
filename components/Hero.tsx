@@ -140,6 +140,17 @@ export default function Hero() {
           >
             商品・サービスを見る
           </motion.a>
+          <motion.a
+            href="/works"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5, delay: 1.0, ease: "easeOut" }}
+            whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
+            whileTap={{ scale: 0.95 }}
+            style={{ display: 'inline-block', marginTop: '48px', marginLeft: '16px', padding: '16px 48px', border: '1px solid rgba(255, 255, 255, 0.3)', borderRadius: '9999px', color: '#d1d5db', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
+          >
+            実績を見る
+          </motion.a>
         </motion.div>
 
         {/* Scroll indicator */}
