@@ -159,9 +159,9 @@ export default function Hero() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, delay: 0.9, ease: "easeOut" }}
-            style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#9ca3af', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.8, fontFamily: 'serif', fontWeight: 300, marginBottom: '48px' }}
+            style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#93c5fd', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.8, fontFamily: 'serif', fontWeight: 300, marginBottom: '48px', letterSpacing: '0.05em' }}
           >
-            AIエンジニア / 事業家としての提供価値
+            最新のAIスタックによる、安全かつ圧倒的な開発速度の実現。
           </motion.p>
 
           <motion.a
