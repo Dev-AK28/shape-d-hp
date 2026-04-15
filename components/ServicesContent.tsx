@@ -49,7 +49,7 @@ export default function ServicesContent() {
       tool: "GoDD",
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
-      processUrl: "/process",
+      processUrl: "/process/development",
       isCoaching: false
     },
     {
@@ -69,7 +69,7 @@ export default function ServicesContent() {
       tool: "GoDD",
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
-      processUrl: "/process",
+      processUrl: "/process/development",
       isCoaching: false
     },
     {
@@ -89,7 +89,7 @@ export default function ServicesContent() {
       tool: "GoDD",
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
-      processUrl: "/process",
+      processUrl: "/process/development",
       isCoaching: false
     }
   ];
@@ -110,7 +110,7 @@ export default function ServicesContent() {
         "体系的スキル習得"
       ],
       price: "初回無料相談",
-      processUrl: "/process",
+      processUrl: "/process/consulting",
       isCoaching: true
     }
   ];
