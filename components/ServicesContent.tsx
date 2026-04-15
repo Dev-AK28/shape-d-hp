@@ -36,7 +36,8 @@ export default function ServicesContent() {
       id: 1,
       title: "AIプロダクト開発",
       category: "Development",
-      description: "機械学習、自然言語処理、データ分析を活用したAIソリューションの開発。ビジネス課題に合わせた最適なAI製品を設計・実装します。",
+      description: "最新のAI活用手法による圧倒的な納期短縮。機械学習、自然言語処理、データ分析を活用したAIソリューションの開発。",
+      connection: "AIで効率化し、本来の創造に集中する環境を作る。",
       features: [
         "機械学習モデルの統合",
         "自然言語処理（NLP）",
@@ -44,13 +45,17 @@ export default function ServicesContent() {
         "AIチャットボット・RAG",
         "予測モデル・推薦システム"
       ],
-      price: "お見積り"
+      tool: "GoDD",
+      toolUrl: "https://www.getgodd.dev/",
+      price: "個別見積もり",
+      isCoaching: false
     },
     {
       id: 2,
       title: "業務自動化・DX支援",
       category: "Automation",
-      description: "既存業務プロセスの自動化とデジタルトランスフォーメーション。効率化を実現し、人間本来の創造的な作業に集中できる環境を構築します。",
+      description: "最新のAI活用手法による圧倒的な納期短縮。既存業務プロセスの自動化とデジタルトランスフォーメーション。",
+      connection: "AIで効率化し、本来の創造に集中する環境を作る。",
       features: [
         "社内業務システムDX",
         "SaaSプラットフォーム開発",
@@ -58,13 +63,17 @@ export default function ServicesContent() {
         "ワークフロー自動化",
         "レガシーモダナイゼーション"
       ],
-      price: "お見積り"
+      tool: "GoDD",
+      toolUrl: "https://www.getgodd.dev/",
+      price: "個別見積もり",
+      isCoaching: false
     },
     {
       id: 3,
       title: "Webアプリ・モバイルアプリ開発",
       category: "Application",
-      description: "モダンな技術スタックを使用したWebアプリおよびモバイルアプリの開発。ユーザー体験を重視した直感的で美しい製品を作成します。",
+      description: "最新のAI活用手法による圧倒的な納期短縮。モダンな技術スタックを使用したWebアプリおよびモバイルアプリの開発。",
+      connection: "AIで効率化し、本来の創造に集中する環境を作る。",
       features: [
         "React/Next.js開発",
         "モバイルアプリ+API",
@@ -72,21 +81,26 @@ export default function ServicesContent() {
         "IoTダッシュボード",
         "ゲーム開発"
       ],
-      price: "お見積り"
+      tool: "GoDD",
+      toolUrl: "https://www.getgodd.dev/",
+      price: "個別見積もり",
+      isCoaching: false
     },
     {
       id: 4,
       title: "自己表現コーチング",
       category: "Consulting",
-      description: "心理学の専門的知見と実践的経験に基づき、自己表現力の向上を支援。個人のキャリア構築からビジネスにおけるコミュニケーション改善まで、あなた本来の表現力を引き出します。",
+      description: "自己表現力を「本音の自覚力・適切な言語化力・相手に伝える表現力」の3要素を磨くスキル習得プログラム。心理学の専門的知見に基づき、体系的なスキル構築を支援します。",
+      connection: "内なる価値観と言語化の技術を融合し、本来の創造性を解放する。",
       features: [
-        "キャリア構築支援",
-        "コミュニケーション改善",
-        "自己表現力向上",
-        "ビジネススキル習得",
-        "メンタルヘルスケア"
+        "本音の自覚力の習得",
+        "適切な言語化力の構築",
+        "相手に伝える表現力の向上",
+        "ビジネスコミュニケーション改善",
+        "体系的スキル習得"
       ],
-      price: "個人・有料"
+      price: "初回無料相談",
+      isCoaching: true
     }
   ];
 
@@ -126,16 +140,16 @@ export default function ServicesContent() {
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '48px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '48px' }}>
           {services.map((service, index) => (
             <motion.div
               key={service.id}
               initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: index * 0.15, ease: "easeOut" }}
+              transition={{ duration: 1.2, delay: index * 0.2, ease: "easeOut" }}
               viewport={{ once: true, margin: "-100px" }}
               whileHover={{ y: -12, transition: { duration: 0.3 } }}
-              style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', cursor: 'pointer' }}
+              style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
             >
               <div style={{ marginBottom: '24px' }}>
                 <span style={{ fontSize: '12px', color: '#60a5fa', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
@@ -145,9 +159,14 @@ export default function ServicesContent() {
               <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
                 {service.title}
               </h3>
-              <p style={{ color: '#9ca3af', lineHeight: 1.8, marginBottom: '32px', fontSize: '16px' }}>
+              <p style={{ color: '#d1d5db', lineHeight: 1.8, marginBottom: '32px', fontSize: '16px', fontFamily: 'serif' }}>
                 {service.description}
               </p>
+              <div style={{ marginBottom: '32px', padding: '24px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <p style={{ color: '#9ca3af', lineHeight: 1.6, fontSize: '14px', fontFamily: 'serif', fontStyle: 'italic' }}>
+                  {service.connection}
+                </p>
+              </div>
               <div style={{ marginBottom: '32px' }}>
                 <h4 style={{ fontSize: '14px', color: '#93c5fd', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   提供内容
@@ -161,10 +180,36 @@ export default function ServicesContent() {
                   ))}
                 </ul>
               </div>
+              {service.tool && (
+                <div style={{ marginBottom: '24px' }}>
+                  <span style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '0.1em' }}>
+                    活用ツール:{' '}
+                    <a
+                      href={service.toolUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#60a5fa', textDecoration: 'none', borderBottom: '1px solid rgba(96, 165, 250, 0.3)' }}
+                    >
+                      {service.tool}
+                    </a>
+                  </span>
+                </div>
+              )}
               <div style={{ paddingTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                <span style={{ fontSize: '14px', color: '#9ca3af' }}>
-                  料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
-                </span>
+                {service.isCoaching ? (
+                  <motion.a
+                    href="/contact"
+                    whileHover={{ scale: 1.05, borderColor: '#93c5fa' }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ display: 'inline-block', padding: '12px 32px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none' }}
+                  >
+                    無料で初回相談をする
+                  </motion.a>
+                ) : (
+                  <span style={{ fontSize: '14px', color: '#9ca3af' }}>
+                    料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
+                  </span>
+                )}
               </div>
             </motion.div>
           ))}
