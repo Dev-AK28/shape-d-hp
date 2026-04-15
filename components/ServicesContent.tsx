@@ -36,8 +36,8 @@ export default function ServicesContent() {
       id: 1,
       title: "AIプロダクト開発",
       category: "Development",
-      description: "最新のAI活用手法による圧倒的な納期短縮。機械学習、自然言語処理、データ分析を活用したAIソリューションの開発。",
-      connection: "AIで効率化し、本来の創造に集中する環境を作る。",
+      description: "アイデアを、熱量が冷めないうちに形にする。最新のAI指揮（GoDD）により、構想からプロトタイプまでを最短で繋ぎます。",
+      connection: "技術の余白に、創造性を。",
       features: [
         "機械学習モデルの統合",
         "自然言語処理（NLP）",
@@ -54,8 +54,8 @@ export default function ServicesContent() {
       id: 2,
       title: "業務自動化・DX支援",
       category: "Automation",
-      description: "最新のAI活用手法による圧倒的な納期短縮。既存業務プロセスの自動化とデジタルトランスフォーメーション。",
-      connection: "AIで効率化し、本来の創造に集中する環境を作る。",
+      description: "思考を止めない、淀みのないワークフローの構築。ルーティンワークをAIに委ね、人間が『本来の創造』に立ち戻る時間を創出します。",
+      connection: "技術の余白に、創造性を。",
       features: [
         "社内業務システムDX",
         "SaaSプラットフォーム開発",
@@ -73,7 +73,7 @@ export default function ServicesContent() {
       title: "Webアプリ・モバイルアプリ開発",
       category: "Application",
       description: "最新のAI活用手法による圧倒的な納期短縮。モダンな技術スタックを使用したWebアプリおよびモバイルアプリの開発。",
-      connection: "AIで効率化し、本来の創造に集中する環境を作る。",
+      connection: "技術の余白に、創造性を。",
       features: [
         "React/Next.js開発",
         "モバイルアプリ+API",

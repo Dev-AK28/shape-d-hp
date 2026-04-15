@@ -161,7 +161,7 @@ export default function Hero() {
             transition={{ duration: 1.5, delay: 0.9, ease: "easeOut" }}
             style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#93c5fd', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.8, fontFamily: 'serif', fontWeight: 300, marginBottom: '48px', letterSpacing: '0.05em' }}
           >
-            最新のAIスタックによる、安全かつ圧倒的な開発速度の実現。
+            技術の余白に、創造性を。AIを指揮し、本来の事業価値を形にする環境を創ります。
           </motion.p>
 
           <motion.a

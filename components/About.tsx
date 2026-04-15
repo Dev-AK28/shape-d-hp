@@ -83,10 +83,10 @@ export default function About() {
           style={{ marginBottom: '80px' }}
         >
           <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: '#93c5fd', marginBottom: '48px', fontFamily: 'serif' }}>
-            あかし / Kota Akashi
+            Kota Akashi
           </h3>
           <p style={{ fontSize: '18px', color: '#d1d5db', lineHeight: 1.8, marginBottom: '24px', fontFamily: 'serif' }}>
-            AIエンジニア / 事業家
+            事業家 / 表現者 / 心理学士
           </p>
         </motion.div>
 
