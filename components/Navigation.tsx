@@ -55,9 +55,18 @@ export default function Navigation() {
           <Link href="/" style={{ textDecoration: 'none' }}>
             <motion.div
               whileHover={{ scale: 1.05 }}
-              style={{ fontSize: '24px', fontWeight: 300, color: 'white', fontFamily: 'serif', letterSpacing: '0.1em' }}
+              style={{ display: 'flex', alignItems: 'center' }}
             >
-              SHAPE<span style={{ color: '#60a5fa' }}>∞</span>D
+              <img
+                src="/image_2.png"
+                alt="SHAPE∞D Logo"
+                style={{
+                  height: '48px',
+                  width: 'auto',
+                  maxWidth: '200px',
+                  objectFit: 'contain'
+                }}
+              />
             </motion.div>
           </Link>
 
