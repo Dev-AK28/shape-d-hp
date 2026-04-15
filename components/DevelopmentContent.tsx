@@ -220,7 +220,7 @@ export default function DevelopmentContent() {
             whileTap={{ scale: 0.95 }}
             style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
-            お問い合わせ
+            爆速でプロトタイプを試す（初回相談）
           </motion.a>
         </motion.div>
       </div>

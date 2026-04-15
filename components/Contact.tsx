@@ -156,7 +156,7 @@ export default function Contact() {
               whileTap={{ scale: 0.95 }}
               style={{ padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif' }}
             >
-              お問い合わせ
+              対話を始める（無料）
             </motion.button>
           </div>
         </motion.div>

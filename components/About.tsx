@@ -117,6 +117,18 @@ export default function About() {
             </ul>
           </div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5, delay: 0.6, ease: "easeOut" }}
+            viewport={{ once: true, margin: "-200px" }}
+            style={{ marginBottom: '48px', padding: '48px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
+          >
+            <p style={{ color: '#60a5fa', lineHeight: 2, fontSize: '16px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              技術（AI）による圧倒的な『速度』と、心理学による深い『人間理解』。この両極端な手段を指揮し、事業の本質を形にする『環境』を創り出すことが、私の表現です。
+            </p>
+          </motion.div>
+
           <div style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}>
             <p style={{ fontSize: '16px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '24px' }}>
               ストーリー

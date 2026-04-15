@@ -247,7 +247,7 @@ export default function ConsultingContent() {
             whileTap={{ scale: 0.95 }}
             style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
-            無料で初回相談をする
+            『自分の言葉』を取り戻す対話を始める（初回無料）
           </motion.a>
         </motion.div>
       </div>
