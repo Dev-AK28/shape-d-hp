@@ -61,16 +61,6 @@ export default function ConsultingContent() {
     }
   ];
 
-  const perspectives = [
-    { perspective: "時代", reason: "個を語れない人間が選ばれない時代になった" },
-    { perspective: "AI", reason: "AIに代替されない唯一の領域が個性・言語化力" },
-    { perspective: "日本社会", reason: "抑圧の構造が自己不一致を生み、大多数が損をし続けている" },
-    { perspective: "既存解決策", reason: "カウンセリングもコーチングも届かない層が存在する" },
-    { perspective: "心理学", reason: "自己一致こそが心理的健康の根本であり、それを促す手段が自己表現力" },
-    { perspective: "スキル", reason: "習得可能と定義することで、諦めていた人に出口を提示できる" },
-    { perspective: "組織", reason: "個人の自己表現力が組織のパフォーマンスに直結する" },
-    { perspective: "社会", reason: "自己表現力の普及が国力の向上につながる" }
-  ];
 
   return (
     <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
@@ -202,35 +192,42 @@ export default function ConsultingContent() {
           </div>
         </motion.div>
 
-        {/* 8 Perspectives Grid */}
+        {/* 8 Perspectives Narrative */}
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
           viewport={{ once: true, margin: "-100px" }}
-          style={{ marginBottom: '120px' }}
+          style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
         >
-          <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+          <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '48px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             なぜ「自己表現力」が最も必要なスキルなのか
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
-            {perspectives.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, delay: 0.7 + index * 0.1, ease: "easeOut" }}
-                viewport={{ once: true, margin: "-100px" }}
-                style={{ padding: '32px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
-              >
-                <h4 style={{ fontSize: '14px', color: '#a78bfa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '16px', fontFamily: 'serif' }}>
-                  {item.perspective}
-                </h4>
-                <p style={{ color: '#d1d5db', fontSize: '14px', lineHeight: 1.8, fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  {item.reason}
-                </p>
-              </motion.div>
-            ))}
+          <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              まず、時代の変化だ。終身雇用・年功序列が崩壊し、転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく「自分が何者で、何を提供できるか」を語れることが生存戦略として機能する。つまり、個を語れない人間は選ばれない時代になった。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              AI時代の到来も重要だ。AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが個性・価値観・視点・言語化力であり、それを形にする力こそが自己表現力に他ならない。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              日本社会の構造的問題も無視できない。教育・文化的背景が集団の調和を優先する価値観を強く持っていることで、多くの日本人は幼少期から「自分の本音を表に出すことを抑圧される経験」を積み重ねてきた。この抑圧が自己不一致を生み、大多数が損をし続けている。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              既存の解決策にも限界がある。カウンセリングは「精神的に末期の人が行く場所」という認識が強く、日常的に通うことへの心理的ハードルが極めて高い。コーチングはコンフォートゾーンを抜け出すことを前提とするため、ある程度の精神的強さが必要。コミュニケーション研修は抽象的・再現性が弱く、現場に落ちないという問題が多い。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              心理学的根拠も明確だ。カール・ロジャーズが提唱した「自己一致（Congruence）」の概念によれば、自分の内的経験・自己概念・表現が一致している状態が、人間の心理的健康の根本である。自己表現力を磨くプロセスは、この自己一致を促すプロセスと本質的に同じだ。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              スキルとして定義することの意義も大きい。「性格の問題」「生まれつきの才能」として諦められてきたものを、習得可能なスキルとして再定義することで、これまで「自分はそういう人間だから」と諦めてきた人に、初めて具体的な出口を提示できる。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              組織レベルでも、個人の自己表現力が組織のパフォーマンスに直結する。会話設計が変わることで認識ズレがなくなり、手戻り・修正が減り、マネジメント工数が削減される。部下が自走できる組織になる。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              社会レベルでは、自己表現力の普及が国力の向上につながる。自分らしく生きられる人が増え、真性的な努力の積み重ねができる人間が増え、個人の成長が社会の成長につながる。
+            </p>
           </div>
         </motion.div>
 
