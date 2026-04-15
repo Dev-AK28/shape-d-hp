@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
+import Navigation from '@/components/Navigation';
 
 const CONTACT_EMAIL = 'kota.icehockey2016@gmail.com';
 
@@ -47,6 +48,7 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0A192F] to-black">
+      <Navigation />
       <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
         <motion.div
           initial={{ opacity: 0, y: 60 }}
