@@ -119,7 +119,17 @@ export default function ConsultingContent() {
             backgroundImage: 'url(/image_10.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.15,
+            opacity: 0.1,
+            zIndex: 0
+          }} />
+          {/* Dark overlay for better text contrast */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.4) 100%)',
             zIndex: 0
           }} />
           
@@ -219,30 +229,30 @@ export default function ConsultingContent() {
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '48px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             なぜ「自己表現力」が最も必要なスキルなのか
           </h3>
-          <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              まず、時代の変化だ。終身雇用・年功序列が崩壊し、転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく「自分が何者で、何を提供できるか」を語れることが生存戦略として機能する。つまり、個を語れない人間は選ばれない時代になった。
+              まず、<span style={{ color: '#a78bfa', fontWeight: 500 }}>時代の変化</span>だ。終身雇用・年功序列が崩壊し、転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく<span style={{ color: '#a78bfa', fontWeight: 500 }}>「自分が何者で、何を提供できるか」を語れる</span>ことが生存戦略として機能する。つまり、個を語れない人間は選ばれない時代になった。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              AI時代の到来も重要だ。AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが個性・価値観・視点・言語化力であり、それを形にする力こそが自己表現力に他ならない。
+              <span style={{ color: '#a78bfa', fontWeight: 500 }}>AI時代の到来</span>も重要だ。AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが<span style={{ color: '#a78bfa', fontWeight: 500 }}>個性・価値観・視点・言語化力</span>であり、それを形にする力こそが自己表現力に他ならない。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              日本社会の構造的問題も無視できない。教育・文化的背景が集団の調和を優先する価値観を強く持っていることで、多くの日本人は幼少期から「自分の本音を表に出すことを抑圧される経験」を積み重ねてきた。この抑圧が自己不一致を生み、大多数が損をし続けている。
+              <span style={{ color: '#a78bfa', fontWeight: 500 }}>日本社会の構造的問題</span>も無視できない。教育・文化的背景が集団の調和を優先する価値観を強く持っていることで、多くの日本人は幼少期から「自分の本音を表に出すことを抑圧される経験」を積み重ねてきた。この<span style={{ color: '#a78bfa', fontWeight: 500 }}>抑圧</span>が自己不一致を生み、大多数が損をし続けている。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              既存の解決策にも限界がある。カウンセリングは「精神的に末期の人が行く場所」という認識が強く、日常的に通うことへの心理的ハードルが極めて高い。コーチングはコンフォートゾーンを抜け出すことを前提とするため、ある程度の精神的強さが必要。コミュニケーション研修は抽象的・再現性が弱く、現場に落ちないという問題が多い。
+              <span style={{ color: '#a78bfa', fontWeight: 500 }}>既存の解決策</span>にも限界がある。カウンセリングは「精神的に末期の人が行く場所」という認識が強く、日常的に通うことへの心理的ハードルが極めて高い。コーチングはコンフォートゾーンを抜け出すことを前提とするため、ある程度の精神的強さが必要。コミュニケーション研修は抽象的・再現性が弱く、現場に落ちないという問題が多い。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              心理学的根拠も明確だ。カール・ロジャーズが提唱した「自己一致（Congruence）」の概念によれば、自分の内的経験・自己概念・表現が一致している状態が、人間の心理的健康の根本である。自己表現力を磨くプロセスは、この自己一致を促すプロセスと本質的に同じだ。
+              <span style={{ color: '#a78bfa', fontWeight: 500 }}>心理学的根拠</span>も明確だ。カール・ロジャーズが提唱した「自己一致（Congruence）」の概念によれば、自分の内的経験・自己概念・表現が一致している状態が、人間の心理的健康の根本である。自己表現力を磨くプロセスは、この<span style={{ color: '#a78bfa', fontWeight: 500 }}>自己一致を促す</span>プロセスと本質的に同じだ。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              スキルとして定義することの意義も大きい。「性格の問題」「生まれつきの才能」として諦められてきたものを、習得可能なスキルとして再定義することで、これまで「自分はそういう人間だから」と諦めてきた人に、初めて具体的な出口を提示できる。
+              <span style={{ color: '#a78bfa', fontWeight: 500 }}>スキルとして定義</span>することの意義も大きい。「性格の問題」「生まれつきの才能」として諦められてきたものを、習得可能なスキルとして再定義することで、これまで「自分はそういう人間だから」と諦めてきた人に、初めて<span style={{ color: '#a78bfa', fontWeight: 500 }}>具体的な出口</span>を提示できる。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              組織レベルでも、個人の自己表現力が組織のパフォーマンスに直結する。会話設計が変わることで認識ズレがなくなり、手戻り・修正が減り、マネジメント工数が削減される。部下が自走できる組織になる。
+              <span style={{ color: '#a78bfa', fontWeight: 500 }}>組織レベル</span>でも、個人の自己表現力が組織のパフォーマンスに直結する。会話設計が変わることで認識ズレがなくなり、手戻り・修正が減り、マネジメント工数が削減される。部下が自走できる組織になる。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              社会レベルでは、自己表現力の普及が国力の向上につながる。自分らしく生きられる人が増え、真性的な努力の積み重ねができる人間が増え、個人の成長が社会の成長につながる。
+              <span style={{ color: '#a78bfa', fontWeight: 500 }}>社会レベル</span>では、自己表現力の普及が国力の向上につながる。自分らしく生きられる人が増え、真性的な努力の積み重ねができる人間が増え、個人の成長が社会の成長につながる。
             </p>
           </div>
         </motion.div>

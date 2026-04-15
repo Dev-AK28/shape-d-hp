@@ -225,9 +225,9 @@ export default function ServicesContent() {
                   </div>
                   <motion.a
                     href={service.processUrl}
-                    whileHover={{ scale: 1.05, borderColor: '#93c5fa' }}
+                    whileHover={{ scale: 1.05, borderColor: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)', boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)' }}
                     whileTap={{ scale: 0.95 }}
-                    style={{ display: 'inline-block', padding: '10px 24px', border: '1px solid rgba(96, 165, 250, 0.4)', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '13px', fontFamily: 'serif', textDecoration: 'none' }}
+                    style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #60a5fa', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
                   </motion.a>
@@ -296,9 +296,9 @@ export default function ServicesContent() {
                   </div>
                   <motion.a
                     href={service.processUrl}
-                    whileHover={{ scale: 1.05, borderColor: '#c4b5fd' }}
+                    whileHover={{ scale: 1.05, borderColor: '#a78bfa', background: 'rgba(167, 139, 250, 0.1)', boxShadow: '0 0 20px rgba(167, 139, 250, 0.3)' }}
                     whileTap={{ scale: 0.95 }}
-                    style={{ display: 'inline-block', padding: '10px 24px', border: '1px solid rgba(167, 139, 250, 0.4)', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '13px', fontFamily: 'serif', textDecoration: 'none' }}
+                    style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
                   </motion.a>

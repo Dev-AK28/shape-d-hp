@@ -122,11 +122,13 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5, delay: 0.6, ease: "easeOut" }}
             viewport={{ once: true, margin: "-200px" }}
-            style={{ marginBottom: '48px', padding: '48px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
+            style={{ marginBottom: '80px', padding: '64px', border: '2px solid rgba(96, 165, 250, 0.3)', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(96, 165, 250, 0.02) 100%)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
           >
-            <p style={{ color: '#60a5fa', lineHeight: 2, fontSize: '16px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              技術（AI）による圧倒的な『速度』と、心理学による深い『人間理解』。この両極端な手段を指揮し、事業の本質を形にする『環境』を創り出すことが、私の表現です。
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, transparent, #60a5fa, transparent)' }} />
+            <p style={{ color: '#60a5fa', lineHeight: 2.4, fontSize: '18px', fontFamily: 'serif', letterSpacing: '0.05em', fontWeight: 400, textAlign: 'center', textShadow: '0 0 30px rgba(96, 165, 250, 0.2)' }}>
+              技術（AI）による圧倒的な<span style={{ fontWeight: 600, fontSize: '20px' }}>『速度』</span>と、心理学による深い<span style={{ fontWeight: 600, fontSize: '20px' }}>『人間理解』</span>。この両極端な手段を指揮し、事業の本質を形にする<span style={{ fontWeight: 600, fontSize: '20px' }}>『環境』</span>を創り出すことが、私の表現です。
             </p>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, transparent, #60a5fa, transparent)' }} />
           </motion.div>
 
           <div style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}>
