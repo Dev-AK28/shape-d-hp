@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -16,6 +17,15 @@ export default function Navigation() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const navItems = [
@@ -52,7 +62,7 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+          <div style={{ display: isMobile ? 'none' : 'flex', gap: '32px', alignItems: 'center' }}>
             {navItems.map((item) => (
               <Link key={item.name} href={item.href} style={{ textDecoration: 'none' }}>
                 <motion.div
@@ -76,7 +86,7 @@ export default function Navigation() {
             onClick={() => setIsOpen(!isOpen)}
             whileTap={{ scale: 0.95 }}
             style={{
-              display: window.innerWidth < 768 ? 'block' : 'none',
+              display: isMobile ? 'block' : 'none',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
