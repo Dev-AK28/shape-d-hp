@@ -107,17 +107,33 @@ export default function ConsultingContent() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
           viewport={{ once: true, margin: "-100px" }}
-          style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
+          style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
         >
-          <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '32px', fontFamily: 'serif', lineHeight: 1.3 }}>
-            「自分を語れない人間は、選ばれない時代」
-          </h3>
-          <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-            終身雇用・年功序列という日本型雇用モデルが崩壊しつつある。転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく「自分が何者で、何を提供できるか」を語れることが、生存戦略として機能する時代になった。
-          </p>
-          <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, fontFamily: 'serif', letterSpacing: '0.02em' }}>
-            AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが個性・価値観・視点・言語化力であり、それを形にする力こそが自己表現力に他ならない。
-          </p>
+          {/* Background Image */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: 'url(/image_10.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.15,
+            zIndex: 0
+          }} />
+          
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '32px', fontFamily: 'serif', lineHeight: 1.3 }}>
+              「自分を語れない人間は、選ばれない時代」
+            </h3>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              終身雇用・年功序列という日本型雇用モデルが崩壊しつつある。転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく「自分が何者で、何を提供できるか」を語れることが、生存戦略として機能する時代になった。
+            </p>
+            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, fontFamily: 'serif', letterSpacing: '0.02em' }}>
+              AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが個性・価値観・視点・言語化力であり、それを形にする力こそが自己表現力に他ならない。
+            </p>
+          </div>
         </motion.div>
 
         {/* 3 Steps */}
