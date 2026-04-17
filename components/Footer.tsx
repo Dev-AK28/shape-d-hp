@@ -4,6 +4,23 @@ export default function Footer() {
   return (
     <footer style={{ padding: '64px 24px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <Link href="/">
+            <img
+              src="/image_13.png"
+              alt="SHAPE∞D Logo"
+              style={{
+                height: '40px',
+                width: 'auto',
+                maxWidth: '180px',
+                objectFit: 'contain',
+                opacity: 0.8
+              }}
+            />
+          </Link>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '48px', marginBottom: '48px' }}>
           <div>
             <h4 style={{ fontSize: '14px', color: '#60a5fa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '24px', fontFamily: 'serif' }}>

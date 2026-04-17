@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   title: "SHAPE∞D - AIで効率化し、本来の創造に集中する環境を作る",
   description: "最新のAIスタックによる、安全かつ圧倒的な開発速度の実現。AIエンジニア / 事業家としての提供価値",
   icons: {
-    icon: "/image_2.png",
+    icon: "/image_13.png",
+    apple: "/image_13.png",
   },
 };
 

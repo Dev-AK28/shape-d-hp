@@ -218,8 +218,13 @@ export default function DevelopmentContent() {
             href="/contact"
             whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
             whileTap={{ scale: 0.95 }}
-            style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
+            <img
+              src="/image_13.png"
+              alt="Logo"
+              style={{ width: '16px', height: 'auto' }}
+            />
             爆速でプロトタイプを試す（初回相談）
           </motion.a>
         </motion.div>

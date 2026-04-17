@@ -58,7 +58,7 @@ export default function Navigation() {
               style={{ display: 'flex', alignItems: 'center' }}
             >
               <img
-                src="/image_2.png"
+                src="/image_13.png"
                 alt="SHAPE∞D Logo"
                 style={{
                   height: '48px',
