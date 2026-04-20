@@ -21,35 +21,35 @@ export default function Footer() {
           </Link>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '48px', marginBottom: '48px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '48px', marginBottom: '48px' }}>
           <div>
             <h4 style={{ fontSize: '14px', color: '#60a5fa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '24px', fontFamily: 'serif' }}>
-              Navigation
+              ナビゲーション
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               <li style={{ marginBottom: '12px' }}>
                 <Link href="/services" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  Services
+                  サービス <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '4px' }}>| SERVICES</span>
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link href="/works" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  Works
+                  実績 <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '4px' }}>| WORKS</span>
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link href="/process" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  Process
+                  プロセス <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '4px' }}>| PROCESS</span>
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link href="/about" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  About
+                  プロフィール <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '4px' }}>| ABOUT</span>
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
                 <Link href="/contact" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  Contact
+                  お問い合わせ <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '4px' }}>| CONTACT</span>
                 </Link>
               </li>
             </ul>
@@ -57,17 +57,17 @@ export default function Footer() {
 
           <div>
             <h4 style={{ fontSize: '14px', color: '#60a5fa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '24px', fontFamily: 'serif' }}>
-              Process
+              プロセス
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               <li style={{ marginBottom: '12px' }}>
-                <Link href="/process/development" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  Development
+                <Link href="/process/development" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em', lineHeight: 1.6 }}>
+                  システム開発プロセス
                 </Link>
               </li>
               <li style={{ marginBottom: '12px' }}>
-                <Link href="/process/consulting" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-                  Consulting
+                <Link href="/process/consulting" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em', lineHeight: 1.6 }}>
+                  自己表現力向上プロセス
                 </Link>
               </li>
             </ul>
@@ -75,18 +75,17 @@ export default function Footer() {
 
           <div>
             <h4 style={{ fontSize: '14px', color: '#60a5fa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '24px', fontFamily: 'serif' }}>
-              Technology
+              テクノロジー
             </h4>
             <p style={{ color: '#d1d5db', lineHeight: 1.8, fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              Powered by{' '}
-              <a
+              AIによる超速開発（<a
                 href="https://www.getgodd.dev/"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: '#60a5fa', textDecoration: 'none', borderBottom: '1px solid rgba(96, 165, 250, 0.3)' }}
               >
                 GoDD
-              </a>
+              </a>）
             </p>
           </div>
         </div>
