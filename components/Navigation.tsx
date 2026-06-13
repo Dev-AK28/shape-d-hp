@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import BrandLogo from '@/components/BrandLogo';
+
+const MOBILE_MENU_ID = 'mobile-nav-menu';
 
 export default function Navigation() {
+  const reduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -38,35 +42,20 @@ export default function Navigation() {
   ];
 
   return (
-    <nav style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      background: isScrolled ? 'rgba(0, 0, 0, 0.95)' : 'transparent',
-      backdropFilter: isScrolled ? 'blur(20px)' : 'none',
-      borderBottom: isScrolled ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
-      transition: 'all 0.3s ease'
-    }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {/* Logo */}
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              style={{ display: 'flex', alignItems: 'center' }}
-            >
-              <img
-                src="/image_13.png"
-                alt="SHAPE∞D Logo"
-                style={{
-                  height: '48px',
-                  width: 'auto',
-                  maxWidth: '200px',
-                  objectFit: 'contain'
-                }}
-              />
+    <nav
+      className={`fixed top-0 left-0 right-0 z-[1000] ${
+        reduceMotion ? '' : 'transition-all duration-300'
+      } ${
+        isScrolled
+          ? 'border-b border-white/10 bg-black/95 backdrop-blur-xl'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="mx-auto max-w-[1400px] px-6 py-5">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="no-underline">
+            <motion.div whileHover={reduceMotion ? undefined : { scale: 1.05 }} className="flex items-center">
+              <BrandLogo height={48} priority />
             </motion.div>
           </Link>
 
@@ -75,11 +64,11 @@ export default function Navigation() {
             {navItems.map((item) => (
               <Link key={item.name} href={item.href} style={{ textDecoration: 'none' }}>
                 <motion.div
-                  whileHover={{ y: -2 }}
+                  whileHover={reduceMotion ? undefined : { y: -2 }}
                   style={{
                     fontSize: '14px',
                     color: pathname === item.href ? '#60a5fa' : '#9ca3af',
-                    transition: 'color 0.3s ease',
+                    transition: reduceMotion ? undefined : 'color 0.3s ease',
                     fontFamily: 'serif',
                     letterSpacing: '0.1em'
                   }}
@@ -92,8 +81,12 @@ export default function Navigation() {
 
           {/* Mobile Menu Button */}
           <motion.button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
-            whileTap={{ scale: 0.95 }}
+            whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+            aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
+            aria-expanded={isOpen}
+            aria-controls={MOBILE_MENU_ID}
             style={{
               display: isMobile ? 'block' : 'none',
               background: 'none',
@@ -104,35 +97,38 @@ export default function Navigation() {
           >
             <div style={{ width: '24px', height: '20px', position: 'relative' }}>
               <motion.span
-                animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 8 : 0 }}
+                animate={reduceMotion ? undefined : { rotate: isOpen ? 45 : 0, y: isOpen ? 8 : 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.3 }}
                 style={{
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
                   background: '#60a5fa',
-                  transition: 'all 0.3s ease'
+                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
               <motion.span
-                animate={{ opacity: isOpen ? 0 : 1 }}
+                animate={reduceMotion ? undefined : { opacity: isOpen ? 0 : 1 }}
+                transition={{ duration: reduceMotion ? 0 : 0.3 }}
                 style={{
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
                   background: '#60a5fa',
                   top: '9px',
-                  transition: 'all 0.3s ease'
+                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
               <motion.span
-                animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -8 : 0 }}
+                animate={reduceMotion ? undefined : { rotate: isOpen ? -45 : 0, y: isOpen ? -8 : 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.3 }}
                 style={{
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
                   background: '#60a5fa',
                   top: '18px',
-                  transition: 'all 0.3s ease'
+                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
             </div>
@@ -144,10 +140,11 @@ export default function Navigation() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            id={MOBILE_MENU_ID}
+            initial={reduceMotion ? false : { opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            exit={reduceMotion ? undefined : { opacity: 0, y: -20 }}
+            transition={{ duration: reduceMotion ? 0 : 0.3 }}
             style={{
               position: 'absolute',
               top: '100%',
@@ -162,9 +159,9 @@ export default function Navigation() {
             {navItems.map((item, index) => (
               <motion.div
                 key={item.name}
-                initial={{ opacity: 0, x: -20 }}
+                initial={reduceMotion ? false : { opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: reduceMotion ? 0 : index * 0.1 }}
               >
                 <Link
                   href={item.href}
@@ -172,7 +169,7 @@ export default function Navigation() {
                   style={{ textDecoration: 'none' }}
                 >
                   <motion.div
-                    whileHover={{ x: 8 }}
+                    whileHover={reduceMotion ? undefined : { x: 8 }}
                     style={{
                       padding: '16px 0',
                       fontSize: '16px',

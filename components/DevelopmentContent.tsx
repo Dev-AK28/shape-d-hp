@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function DevelopmentContent() {
+  const reduceMotion = useReducedMotion();
   const steps = [
     {
       id: 1,
@@ -50,9 +51,9 @@ export default function DevelopmentContent() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
@@ -69,18 +70,18 @@ export default function DevelopmentContent() {
           {steps.map((step, index) => (
             <motion.div
               key={step.id}
-              initial={{ opacity: 0, y: 60 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: index * 0.15, ease: "easeOut" }}
+              transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15, ease: 'easeOut' }}
               viewport={{ once: true, margin: "-100px" }}
               style={{ marginBottom: index < steps.length - 1 ? '100px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '64px', alignItems: 'start' }}>
                 {/* Step Number */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={reduceMotion ? false : { opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1.2, delay: index * 0.15 + 0.1, ease: "easeOut" }}
+                  transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15 + 0.1, ease: 'easeOut' }}
                   viewport={{ once: true, margin: "-100px" }}
                   style={{
                     position: 'relative',
@@ -158,9 +159,9 @@ export default function DevelopmentContent() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.2))', backdropFilter: 'blur(10px)' }}
         >
@@ -172,8 +173,8 @@ export default function DevelopmentContent() {
           </p>
           <motion.a
             href="/contact"
-            whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
+            whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
             <BrandLogo height={16} className="max-w-4" />

@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function WorksContent() {
+  const reduceMotion = useReducedMotion();
   const projects = [
     {
       id: 1,
@@ -76,9 +77,9 @@ export default function WorksContent() {
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
@@ -90,9 +91,9 @@ export default function WorksContent() {
 
         {/* PROJECTS Section */}
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ marginBottom: '160px' }}
         >
@@ -102,18 +103,18 @@ export default function WorksContent() {
           {projects.map((work, index) => (
             <motion.div
               key={work.id}
-              initial={{ opacity: 0, y: 60 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: index * 0.2, ease: "easeOut" }}
+              transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.2, ease: 'easeOut' }}
               viewport={{ once: true, margin: "-100px" }}
               style={{ marginBottom: index < projects.length - 1 ? '160px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '64px', alignItems: 'center' }}>
                 {/* Image Placeholder */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
+                  initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1.2, delay: index * 0.2 + 0.2, ease: "easeOut" }}
+                  transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.2 + 0.2, ease: 'easeOut' }}
                   viewport={{ once: true, margin: "-100px" }}
                   style={{
                     aspectRatio: '16/10',
@@ -185,9 +186,9 @@ export default function WorksContent() {
 
         {/* CONCEPT WORKS Section */}
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ marginBottom: '120px' }}
         >
@@ -198,9 +199,9 @@ export default function WorksContent() {
             {conceptWorks.map((work, index) => (
               <motion.div
                 key={work.id}
-                initial={{ opacity: 0, y: 60 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, delay: 0.5 + index * 0.15, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.5 + index * 0.15, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-100px" }}
                 style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
               >
@@ -272,9 +273,9 @@ export default function WorksContent() {
 
         {/* GoDD Footer */}
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'center', paddingTop: '64px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
         >

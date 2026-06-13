@@ -4,41 +4,51 @@ import { contactFormSchema } from '@/lib/contact/schema';
 describe('contactFormSchema', () => {
   it('accepts valid input', () => {
     const result = contactFormSchema.safeParse({
-      name: '山田 太郎',
+      name: '山田太郎',
       email: 'test@example.com',
-      company: '株式会社テスト',
-      message: 'お問い合わせ内容です。',
+      company: 'Shape-D',
+      message: 'お問い合わせ内容',
     });
 
     expect(result.success).toBe(true);
   });
 
-  it('rejects missing required fields', () => {
+  it('rejects empty name', () => {
     const result = contactFormSchema.safeParse({
       name: '',
       email: 'test@example.com',
-      message: 'hello',
+      message: 'message',
     });
 
     expect(result.success).toBe(false);
   });
 
-  it('rejects invalid email format', () => {
+  it('rejects invalid email', () => {
     const result = contactFormSchema.safeParse({
-      name: 'Test User',
+      name: 'Test',
       email: 'not-an-email',
-      message: 'hello',
+      message: 'message',
     });
 
     expect(result.success).toBe(false);
   });
 
-  it('ignores extra fields such as client-supplied to', () => {
+  it('rejects empty message', () => {
     const result = contactFormSchema.safeParse({
-      name: 'Test User',
+      name: 'Test',
       email: 'test@example.com',
-      message: 'hello',
-      to: 'attacker@evil.com',
+      message: '',
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('strips unknown fields such as client-provided to', () => {
+    const result = contactFormSchema.safeParse({
+      name: 'Test',
+      email: 'test@example.com',
+      message: 'Hello',
+      to: 'attacker@example.com',
     });
 
     expect(result.success).toBe(true);

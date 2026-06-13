@@ -2,18 +2,16 @@
 
 import { useEffect, type ReactNode } from 'react';
 import Lenis from 'lenis';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
-import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
+import 'lenis/dist/lenis.css';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;
 };
 
 export default function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
-  const { profile, isReady } = useDeviceProfile();
-
   useEffect(() => {
-    if (!isReady || shouldDisableSmoothScroll(profile)) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
       return;
     }
 
@@ -34,7 +32,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       cancelAnimationFrame(frame);
       lenis.destroy();
     };
-  }, [isReady, profile]);
+  }, []);
 
   return <>{children}</>;
 }
