@@ -34,6 +34,15 @@ When apple-touch-icon が読み込まれる
 Then 180×180 の最適化済みアイコンが表示される
 ```
 
+## 検証
+
+```bash
+npm run build
+npm run test:e2e -- e2e/favicon.spec.ts
+```
+
+- E2E: `e2e/favicon.spec.ts`（サイズ / content-type / metadata 非参照）
+
 ## 関連 Issue
 
 - #50 fix: ファビコンをグラデーション＋投影で最適化し違和感を解消
