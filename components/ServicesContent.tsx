@@ -1,9 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 
 export default function ServicesContent() {
+  const reduceMotion = useReducedMotion();
   const digitalServices = [
     {
       id: 1,
@@ -94,9 +95,9 @@ export default function ServicesContent() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
@@ -108,9 +109,9 @@ export default function ServicesContent() {
 
         {/* Digital Solution Section */}
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ marginBottom: '160px' }}
         >
@@ -121,11 +122,11 @@ export default function ServicesContent() {
             {digitalServices.map((service, index) => (
               <motion.div
                 key={service.id}
-                initial={{ opacity: 0, y: 60 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, delay: index * 0.15, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-100px" }}
-                whileHover={{ y: -12, transition: { duration: 0.3 } }}
+                whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
                 style={{ padding: '48px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
                 <div style={{ marginBottom: '24px' }}>
@@ -180,8 +181,8 @@ export default function ServicesContent() {
                   </div>
                   <motion.a
                     href={service.processUrl}
-                    whileHover={{ scale: 1.05, borderColor: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)', boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)' }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)', boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)' }}
+                    whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                     style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #60a5fa', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
@@ -194,9 +195,9 @@ export default function ServicesContent() {
 
         {/* Human Solution Section */}
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ marginBottom: '120px' }}
         >
@@ -207,11 +208,11 @@ export default function ServicesContent() {
             {humanServices.map((service, index) => (
               <motion.div
                 key={service.id}
-                initial={{ opacity: 0, y: 60 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, delay: 0.5 + index * 0.15, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.5 + index * 0.15, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-100px" }}
-                whileHover={{ y: -12, transition: { duration: 0.3 } }}
+                whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
                 style={{ padding: '48px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
                 <div style={{ marginBottom: '24px' }}>
@@ -251,8 +252,8 @@ export default function ServicesContent() {
                   </div>
                   <motion.a
                     href={service.processUrl}
-                    whileHover={{ scale: 1.05, borderColor: '#a78bfa', background: 'rgba(167, 139, 250, 0.1)', boxShadow: '0 0 20px rgba(167, 139, 250, 0.3)' }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#a78bfa', background: 'rgba(167, 139, 250, 0.1)', boxShadow: '0 0 20px rgba(167, 139, 250, 0.3)' }}
+                    whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                     style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
@@ -264,9 +265,9 @@ export default function ServicesContent() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ marginTop: '120px', textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.1))', backdropFilter: 'blur(10px)' }}
         >
@@ -278,8 +279,8 @@ export default function ServicesContent() {
           </p>
           <motion.a
             href="/contact"
-            whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
+            whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
             お問い合わせ

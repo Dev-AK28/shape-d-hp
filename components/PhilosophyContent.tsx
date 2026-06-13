@@ -1,9 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 
 export default function PhilosophyContent() {
+  const reduceMotion = useReducedMotion();
   const acronym = [
     {
       letter: "S",
@@ -68,7 +69,7 @@ export default function PhilosophyContent() {
         filter: 'blur(200px)',
         left: '10%',
         top: '20%',
-        animation: 'nebula1 40s infinite ease-in-out'
+        animation: reduceMotion ? undefined : 'nebula1 40s infinite ease-in-out'
       }} />
       <div style={{
         position: 'fixed',
@@ -78,7 +79,7 @@ export default function PhilosophyContent() {
         filter: 'blur(150px)',
         right: '10%',
         bottom: '20%',
-        animation: 'nebula2 35s infinite ease-in-out'
+        animation: reduceMotion ? undefined : 'nebula2 35s infinite ease-in-out'
       }} />
 
       <div style={{ position: 'relative', zIndex: 10 }}>
@@ -89,9 +90,9 @@ export default function PhilosophyContent() {
           >
             <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
               <motion.div
-                initial={{ opacity: 0, y: 100 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 100 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 2, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 2, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-200px" }}
                 style={{ textAlign: 'center', marginBottom: '80px' }}
               >
@@ -105,24 +106,20 @@ export default function PhilosophyContent() {
                     textShadow: '0 0 100px rgba(96, 165, 250, 0.5)',
                     marginBottom: '40px'
                   }}
-                  animate={{
+                  animate={reduceMotion ? undefined : {
                     opacity: [0.8, 1, 0.8],
                     scale: [1, 1.02, 1]
                   }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  transition={{ duration: reduceMotion ? 0 : 6, repeat: reduceMotion ? 0 : Infinity, ease: 'easeInOut' }}
                 >
                   {item.letter}
                 </motion.div>
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, y: 60 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.5, delay: 0.3, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-200px" }}
                 style={{ textAlign: 'center', marginBottom: '64px' }}
               >
@@ -135,9 +132,9 @@ export default function PhilosophyContent() {
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, y: 60 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.5, delay: 0.6, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.6, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-200px" }}
                 style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto', marginBottom: '64px' }}
               >
@@ -147,9 +144,9 @@ export default function PhilosophyContent() {
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, y: 60 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.5, delay: 0.9, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.9, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-200px" }}
                 style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}
               >
@@ -164,9 +161,9 @@ export default function PhilosophyContent() {
         {/* Final Section */}
         <div style={{ minHeight: '100vh', padding: '120px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 2, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 2, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-200px" }}
             style={{ textAlign: 'center', maxWidth: '1000px', margin: '0 auto' }}
           >
@@ -179,22 +176,18 @@ export default function PhilosophyContent() {
                 lineHeight: 1.4,
                 marginBottom: '64px'
               }}
-              animate={{
+              animate={reduceMotion ? undefined : {
                 opacity: [0.8, 1, 0.8]
               }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+              transition={{ duration: reduceMotion ? 0 : 8, repeat: reduceMotion ? 0 : Infinity, ease: 'easeInOut' }}
             >
               心理学とエンジニアリングの融合が<br />
               自己一致への道を照らす
             </motion.h1>
             <motion.p
-              initial={{ opacity: 0, y: 40 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+              transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.5, ease: 'easeOut' }}
               viewport={{ once: true, margin: "-200px" }}
               style={{ fontSize: 'clamp(18px, 2vw, 24px)', color: '#9ca3af', lineHeight: 2, fontFamily: 'serif', marginBottom: '64px' }}
             >
@@ -203,12 +196,12 @@ export default function PhilosophyContent() {
             </motion.p>
             <motion.a
               href="/contact"
-              initial={{ opacity: 0, y: 40 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.5, delay: 1, ease: "easeOut" }}
+              transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 1, ease: 'easeOut' }}
               viewport={{ once: true, margin: "-200px" }}
-              whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
+              whileTap={reduceMotion ? undefined : { scale: 0.95 }}
               style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
             >
               お問い合わせ

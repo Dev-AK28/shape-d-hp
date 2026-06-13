@@ -1,19 +1,20 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import Link from 'next/link';
 
 export default function ProcessNavigation() {
+  const reduceMotion = useReducedMotion();
   return (
     <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
       <StarBackground config={{ count: 100 }} />
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
@@ -29,11 +30,11 @@ export default function ProcessNavigation() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '64px', maxWidth: '900px', margin: '0 auto' }}>
           {/* Development Process Card */}
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-100px" }}
-            whileHover={{ y: -12, transition: { duration: 0.3 } }}
+            whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
             style={{ padding: '64px', border: '1px solid rgba(96, 165, 250, 0.3)', borderRadius: '12px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
           >
             <h3 style={{ fontSize: '32px', fontWeight: 300, color: '#60a5fa', marginBottom: '24px', fontFamily: 'serif' }}>
@@ -44,8 +45,8 @@ export default function ProcessNavigation() {
             </p>
             <Link href="/process/development">
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={reduceMotion ? undefined : { scale: 1.05 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                 style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
               >
                 詳細を見る
@@ -55,11 +56,11 @@ export default function ProcessNavigation() {
 
           {/* Consulting Process Card */}
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-100px" }}
-            whileHover={{ y: -12, transition: { duration: 0.3 } }}
+            whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
             style={{ padding: '64px', border: '1px solid rgba(167, 139, 250, 0.3)', borderRadius: '12px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
           >
             <h3 style={{ fontSize: '32px', fontWeight: 300, color: '#a78bfa', marginBottom: '24px', fontFamily: 'serif' }}>
@@ -70,8 +71,8 @@ export default function ProcessNavigation() {
             </p>
             <Link href="/process/consulting">
               <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={reduceMotion ? undefined : { scale: 1.05 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                 style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
               >
                 詳細を見る
