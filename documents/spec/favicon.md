@@ -43,9 +43,9 @@ Vitest の `committed favicon assets` テストが、コミット済み `app/ico
 | ファイル | サイズ | 上限 |
 |----------|--------|------|
 | `app/icon.png` | 32×32 | 10 KB |
-
-32px はパレット量子化を使わず truecolor PNG とする。libvips の OS 差で SHA-256 一致テストがフレークしないようにする。
 | `app/apple-icon.png` | 180×180 | 60 KB |
+
+32px はパレット量子化を使わず truecolor PNG とする。macOS / Linux 間で SHA-256 一致テストが決定論的に通るようにする。
 
 ## 受け入れ基準
 
@@ -73,8 +73,8 @@ npm run generate:favicons
 
 ### SHA-256 一致テストが失敗した場合
 
-`committed favicon assets` テストは、コミット済み PNG と生成ロジック出力のバイト列が完全一致することを検証する。libvips / OS 差により、macOS で再生成した PNG が Linux CI と一致しない場合がある。
+`committed favicon assets` テストは、コミット済み PNG と生成ロジック出力のバイト列が完全一致することを検証する。32px は truecolor PNG のため、通常は macOS / Linux 両方で一致する。
 
 **Given** CI で SHA-256 一致テストが失敗している  
-**When** 原画像または生成ロジックを変更した直後である  
-**Then** CI と同じ Linux 環境（GitHub Actions または Linux マシン）で `npm run generate:favicons` を実行し、更新された PNG をコミットする
+**When** 原画像・生成ロジック・`sharp` バージョンを変更した直後である  
+**Then** `npm run generate:favicons` を実行し、更新された `app/icon.png` / `app/apple-icon.png` をコミットする
