@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 
 const CONTACT_EMAIL = 'kota.icehockey2016@gmail.com';
@@ -39,7 +38,7 @@ export default function ContactPage() {
       } else {
         setSubmitStatus('error');
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
