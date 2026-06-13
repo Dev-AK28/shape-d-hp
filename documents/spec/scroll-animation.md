@@ -9,7 +9,7 @@ Octaboot 風のスクロール連動体験を、既存の framer-motion + Lenis 
 | コンポーネント | 用途 |
 |--------------|------|
 | `SmoothScrollProvider` | Lenis スムーズスクロール（`prefers-reduced-motion` 時無効） |
-| `PageLoader` | 初回訪問時の軽量ローディング体験 |
+| `PageLoader` | 初回訪問時の軽量ローディング体験（背景透明・LCP 非ブロック） |
 | `ScrollReveal` | セクション単位のフェードリビール |
 | `TextReveal` | 見出しのグラフェム/ワード単位リビール |
 | `ParallaxSection` | スクロール連動パララックス（`prefers-reduced-motion` 時無効） |
@@ -30,7 +30,7 @@ Octaboot 風のスクロール連動体験を、既存の framer-motion + Lenis 
 
 | パス | 適用内容 |
 |------|---------|
-| `/` | Hero 入場 + About / MissionVision リビール + TextReveal 見出し |
+| `/` | Hero 入場 + Server `h1`（LCP）+ About / MissionVision リビール + TextReveal 見出し |
 | `/services` | ServicesContent セクション/カード スタガー + TextReveal |
 | `/works` | WorksContent 同上 |
 | `/process` | ProcessNavigation / ProcessContent |

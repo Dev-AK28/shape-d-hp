@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import { PUBLIC_CONTACT_EMAIL } from '@/lib/contact/constants';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function Contact() {
   const reduceMotion = useReducedMotion();
@@ -35,10 +36,7 @@ export default function Contact() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'left', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
@@ -49,10 +47,7 @@ export default function Contact() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '80px', alignItems: 'center', marginBottom: '120px' }}>
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-            viewport={{ once: true, margin: "-100px" }}
+            {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
           >
             <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: '#93c5fd', marginBottom: '32px', fontFamily: 'serif' }}>
               お気軽にご連絡ください
@@ -66,24 +61,19 @@ export default function Contact() {
           </motion.div>
 
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
-            viewport={{ once: true, margin: "-100px" }}
+            {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
             style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
           >
             {contactMethods.map((method, index) => (
               <motion.a
-                key={index}
+                key={method.label}
                 href={method.href}
-                initial={reduceMotion ? false : { opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: reduceMotion ? 0 : 1,
-                  delay: reduceMotion ? 0 : 0.5 + index * 0.1,
-                  ease: 'easeOut',
-                }}
-                viewport={{ once: true, margin: '-100px' }}
+                {...getScrollRevealProps(reduceMotion, {
+                  delay: 0.5,
+                  staggerIndex: index,
+                  staggerStep: 'item',
+                  variant: 'fadeUp',
+                })}
                 whileHover={reduceMotion ? undefined : { y: -8, borderColor: 'rgba(96, 165, 250, 0.8)', transition: { duration: 0.3 } }}
                 style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
               >
@@ -99,10 +89,7 @@ export default function Contact() {
         </div>
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
           style={{ textAlign: 'center' }}
         >
           <div style={{ padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2))', backdropFilter: 'blur(10px)' }}>
