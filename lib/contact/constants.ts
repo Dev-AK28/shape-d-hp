@@ -1,5 +1,4 @@
-export const CONTACT_EMAIL =
-  process.env.CONTACT_EMAIL ?? 'hello@shape-d.com';
+export const CONTACT_EMAIL = 'kota.icehockey2016@gmail.com';
 
-export const PUBLIC_CONTACT_EMAIL =
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? CONTACT_EMAIL;
+/** Client-visible contact address for mailto links */
+export const PUBLIC_CONTACT_EMAIL = CONTACT_EMAIL;

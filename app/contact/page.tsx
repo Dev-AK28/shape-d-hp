@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 
-const CONTACT_EMAIL = 'kota.icehockey2016@gmail.com';
-
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -26,10 +24,7 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          to: CONTACT_EMAIL
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
