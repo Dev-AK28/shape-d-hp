@@ -15,7 +15,9 @@
 
 16×16 や `.ico` を個別に用意しない。Next.js App Router は `app/icon.png` から適切なサイズの favicon を配信し、ブラウザ側でスケールする。従来の `app/favicon.ico` は file-based metadata に統一するため削除する。
 
-`generate:favicons` は Node.js 22 以上（`--experimental-strip-types` 利用）が必要。
+`generate:favicons` は Node.js 22 以上が必要（`tsx` で TypeScript を実行）。
+
+Vitest の `committed favicon assets` テストが、コミット済み `app/icon.png` / `app/apple-icon.png` と生成ロジックの出力が一致することを CI で検証する。原画像または生成ロジックを変更した場合は `npm run generate:favicons` を実行し、更新された PNG をコミットする。
 
 `app/layout.tsx` の `metadata.icons` では `image_13.png` を参照しない。
 

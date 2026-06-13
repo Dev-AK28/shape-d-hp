@@ -1,4 +1,4 @@
-import { writeFaviconAssets } from '../lib/brand/favicon.ts';
+import { writeFaviconAssets } from '../lib/brand/favicon';
 
 const results = await writeFaviconAssets();
 
