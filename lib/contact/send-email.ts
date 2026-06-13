@@ -1,4 +1,9 @@
 import { CONTACT_EMAIL } from './constants';
+import {
+  buildContactEmailBody,
+  buildContactEmailSubject,
+  formatFromAddress,
+} from './email-format';
 import type { ContactFormInput } from './schema';
 
 type SendResult = { ok: true } | { ok: false; error: string };
@@ -20,17 +25,11 @@ export async function sendContactEmail(data: ContactFormInput): Promise<SendResu
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev',
+      from: formatFromAddress(),
       to: [CONTACT_EMAIL],
       reply_to: data.email,
-      subject: `[Shape-D] お問い合わせ: ${data.name}`,
-      text: [
-        `お名前: ${data.name}`,
-        `メール: ${data.email}`,
-        `会社名: ${data.company || '（未入力）'}`,
-        '',
-        data.message,
-      ].join('\n'),
+      subject: buildContactEmailSubject(data.name),
+      text: buildContactEmailBody(data),
     }),
   });
 
