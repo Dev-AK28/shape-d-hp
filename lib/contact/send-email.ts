@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL, RESEND_TIMEOUT_MS } from './constants';
+import { CONTACT_RECIPIENTS, RESEND_TIMEOUT_MS } from './constants';
 import {
   buildContactEmailBody,
   buildContactEmailSubject,
@@ -28,7 +28,7 @@ export async function sendContactEmail(data: ContactFormInput): Promise<SendResu
       },
       body: JSON.stringify({
         from: formatFromAddress(),
-        to: [CONTACT_EMAIL],
+        to: [...CONTACT_RECIPIENTS],
         reply_to: sanitizeEmailHeaderValue(data.email),
         subject: buildContactEmailSubject(data.name),
         text: buildContactEmailBody(data),
