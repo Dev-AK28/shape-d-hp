@@ -24,7 +24,6 @@ export function FaviconImage({ size }: FaviconImageProps) {
           justifyContent: 'center',
           fontSize: symbolSize,
           fontWeight: 700,
-          fontFamily: 'serif',
           background: 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 45%, #a78bfa 100%)',
           backgroundClip: 'text',
           color: 'transparent',
