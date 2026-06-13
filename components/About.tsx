@@ -1,36 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import StarBackground from '@/components/StarBackground';
 
 export default function About() {
-  const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
-
-  useEffect(() => {
-    const newStars = Array.from({ length: 80 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.5 + 0.1,
-      speed: Math.random() * 0.3 + 0.05
-    }));
-    setStars(newStars);
-
-    const interval = setInterval(() => {
-      setStars(prevStars => prevStars.map(star => {
-        const newX = star.x + (Math.random() - 0.5) * 0.1;
-        return {
-          ...star,
-          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
-          x: newX < 0 ? 100 : (newX > 100 ? 0 : newX)
-        };
-      }));
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const career = [
     "心理学専攻で学士号を取得。学術的な人間理解の素地を築く。",
     "コカコーラボトラーズジャパンベンディングに入社。",
@@ -41,25 +14,7 @@ export default function About() {
 
   return (
     <section style={{ position: 'relative', padding: '200px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      {/* Stars */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            style={{
-              position: 'absolute',
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              background: 'white',
-              borderRadius: '50%',
-              opacity: star.opacity,
-              boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.3)`
-            }}
-          />
-        ))}
-      </div>
+      <StarBackground config={{ count: 80 }} />
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
