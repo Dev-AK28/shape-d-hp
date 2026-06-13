@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
+import TextReveal from '@/components/scroll/TextReveal';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function DevelopmentContent() {
@@ -51,14 +53,11 @@ export default function DevelopmentContent() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            Development Process
+            <TextReveal as="span" text="Development Process" />
           </h2>
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
           <p style={{ color: '#9ca3af', marginTop: '32px', maxWidth: '48rem', margin: '32px auto 0', lineHeight: 1.8, fontSize: '16px', fontFamily: 'serif' }}>
@@ -70,19 +69,18 @@ export default function DevelopmentContent() {
           {steps.map((step, index) => (
             <motion.div
               key={step.id}
-              initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15, ease: 'easeOut' }}
-              viewport={{ once: true, margin: "-100px" }}
+              {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 'card' })}
               style={{ marginBottom: index < steps.length - 1 ? '100px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '64px', alignItems: 'start' }}>
                 {/* Step Number */}
                 <motion.div
-                  initial={reduceMotion ? false : { opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15 + 0.1, ease: 'easeOut' }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  {...getScrollRevealProps(reduceMotion, {
+                    variant: 'scale',
+                    staggerIndex: index,
+                    staggerStep: 'card',
+                    delay: 0.1,
+                  })}
                   style={{
                     position: 'relative',
                     display: 'flex',
@@ -159,10 +157,7 @@ export default function DevelopmentContent() {
         </div>
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.2))', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>

@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
+import TextReveal from '@/components/scroll/TextReveal';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function WhoIAm() {
   const reduceMotion = useReducedMotion();
@@ -11,24 +13,18 @@ export default function WhoIAm() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'left', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            自己紹介
+            <TextReveal as="span" text="自己紹介" />
           </h2>
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)' }}></div>
         </motion.div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '80px', alignItems: 'center' }}>
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-            viewport={{ once: true, margin: "-100px" }}
+            {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
           >
             <h3 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 300, color: '#93c5fd', marginBottom: '32px', fontFamily: 'serif' }}>
               あかし / Kota Akashi
@@ -42,10 +38,7 @@ export default function WhoIAm() {
           </motion.div>
 
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
-            viewport={{ once: true, margin: "-100px" }}
+            {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
             style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
           >
             <div style={{ padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}>

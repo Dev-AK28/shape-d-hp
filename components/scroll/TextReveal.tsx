@@ -1,7 +1,12 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { scrollEase, scrollViewport } from '@/lib/scroll/easing';
+import {
+  scrollEase,
+  scrollTransition,
+  scrollViewport,
+  textRevealStagger,
+} from '@/lib/scroll/easing';
 
 type TextRevealProps = {
   text: string;
@@ -40,14 +45,15 @@ export default function TextReveal({
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{
-            duration: 0.6,
-            delay: delay + index * 0.06,
+            duration: scrollTransition.duration * 0.65,
+            delay: delay + index * textRevealStagger,
             ease: scrollEase,
           }}
           viewport={scrollViewport}
           className="inline-block"
         >
           {segment}
+          {text.includes(' ') && index < segments.length - 1 ? '\u00A0' : ''}
         </motion.span>
       ))}
     </Tag>

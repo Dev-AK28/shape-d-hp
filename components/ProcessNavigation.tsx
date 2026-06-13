@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
+import TextReveal from '@/components/scroll/TextReveal';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import Link from 'next/link';
 
 export default function ProcessNavigation() {
@@ -12,14 +14,11 @@ export default function ProcessNavigation() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            PROCESS
+            <TextReveal as="span" text="PROCESS" />
           </h2>
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
           <p style={{ color: '#9ca3af', marginTop: '32px', maxWidth: '48rem', margin: '32px auto 0', lineHeight: 1.8, fontSize: '16px', fontFamily: 'serif' }}>
@@ -30,10 +29,7 @@ export default function ProcessNavigation() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '64px', maxWidth: '900px', margin: '0 auto' }}>
           {/* Development Process Card */}
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-            viewport={{ once: true, margin: "-100px" }}
+            {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
             whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
             style={{ padding: '64px', border: '1px solid rgba(96, 165, 250, 0.3)', borderRadius: '12px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
           >
@@ -56,10 +52,7 @@ export default function ProcessNavigation() {
 
           {/* Consulting Process Card */}
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
-            viewport={{ once: true, margin: "-100px" }}
+            {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
             whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
             style={{ padding: '64px', border: '1px solid rgba(167, 139, 250, 0.3)', borderRadius: '12px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
           >

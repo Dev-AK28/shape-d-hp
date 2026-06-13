@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
+import TextReveal from '@/components/scroll/TextReveal';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function Vision() {
   const reduceMotion = useReducedMotion();
@@ -38,23 +40,17 @@ export default function Vision() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            理念
+            <TextReveal as="span" text="理念" />
           </h2>
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
         </motion.div>
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: '#93c5fd', marginBottom: '32px', fontFamily: 'serif' }}>
@@ -69,10 +65,11 @@ export default function Vision() {
           {visionPoints.map((point, index) => (
             <motion.div
               key={index}
-              initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.3 + index * 0.1, ease: 'easeOut' }}
-              viewport={{ once: true, margin: "-100px" }}
+              {...getScrollRevealProps(reduceMotion, {
+                delay: 0.3,
+                staggerIndex: index,
+                staggerStep: 'item',
+              })}
               style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
             >
               <div style={{ fontSize: '48px', fontWeight: 300, color: '#60a5fa', fontFamily: 'serif', lineHeight: 1 }}>
@@ -88,10 +85,7 @@ export default function Vision() {
         </div>
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2))', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>

@@ -10,3 +10,31 @@ export const scrollTransition = {
   duration: 0.9,
   ease: scrollEase,
 };
+
+export const textRevealStagger = 0.06;
+
+export const scrollVariants = {
+  fadeUp: {
+    hidden: { opacity: 0, y: 48 },
+    visible: { opacity: 1, y: 0 },
+  },
+  fadeUpLarge: {
+    hidden: { opacity: 0, y: 60 },
+    visible: { opacity: 1, y: 0 },
+  },
+  fadeLeft: {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 },
+  },
+  scale: {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 },
+  },
+} as const;
+
+export type ScrollVariant = keyof typeof scrollVariants;
+
+export const scrollStagger = {
+  item: 0.1,
+  card: 0.15,
+} as const;
