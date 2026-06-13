@@ -25,13 +25,14 @@ export default function NebulaBackground({ layers, position = 'absolute' }: Nebu
   const { profile, isReady } = useDeviceProfile();
   const { isMobile, prefersReducedMotion } = profile;
   const containerRef = useRef<HTMLDivElement>(null);
-  const intersectionVisible = useIntersectionVisible(
+  const { visible: intersectionVisible, observed } = useIntersectionVisible(
     containerRef,
     NEBULA_INTERSECTION_OPTIONS,
     isReady,
   );
-  const visible = position === 'fixed' || intersectionVisible;
-  const animate = visible && !prefersReducedMotion;
+  const isFixed = position === 'fixed';
+  const showEffects = isFixed || !observed || intersectionVisible;
+  const animate = showEffects && !prefersReducedMotion;
 
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -47,7 +48,7 @@ export default function NebulaBackground({ layers, position = 'absolute' }: Nebu
                 width: `${layer.width}px`,
                 height: `${layer.height}px`,
                 background: `radial-gradient(circle, ${layer.color} 0%, transparent 60%)`,
-                filter: visible ? `blur(${blur}px)` : 'none',
+                filter: showEffects ? `blur(${blur}px)` : 'none',
                 animation: animate ? layer.animation : undefined,
                 ...layer.position,
               }}

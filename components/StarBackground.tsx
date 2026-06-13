@@ -106,7 +106,11 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const starsRef = useRef<Star[]>([]);
   const elementsRef = useRef<HTMLDivElement[]>([]);
-  const visible = useIntersectionVisible(containerRef, STAR_INTERSECTION_OPTIONS, isReady);
+  const { visible, observed } = useIntersectionVisible(
+    containerRef,
+    STAR_INTERSECTION_OPTIONS,
+    isReady,
+  );
 
   useEffect(() => {
     if (!isReady) {
@@ -139,6 +143,10 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
     }
 
     if (!visible) {
+      if (!observed) {
+        return;
+      }
+
       const clearFrame = requestAnimationFrame(() => {
         const stars = starsRef.current;
         const starElements = elementsRef.current;
@@ -153,7 +161,17 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
     }
 
     if (!shouldAnimateStars(profile)) {
-      return;
+      const restoreFrame = requestAnimationFrame(() => {
+        const stars = starsRef.current;
+        const starElements = elementsRef.current;
+        for (let index = 0; index < starElements.length; index += 1) {
+          applyStarStyle(starElements[index], stars[index], merged.glowMultiplier);
+        }
+      });
+
+      return () => {
+        cancelAnimationFrame(restoreFrame);
+      };
     }
 
     let frame = 0;
@@ -189,7 +207,7 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [isReady, visible, profile, merged]);
+  }, [isReady, visible, observed, profile, merged]);
 
   return <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" />;
 }

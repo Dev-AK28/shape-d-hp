@@ -10,10 +10,10 @@ Issue: #51
 
 | 領域 | 対策 |
 |------|------|
-| `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止し `box-shadow` グローを解除、`prefers-reduced-motion` 時は静止。IO は `threshold: 0.15` + `rootMargin` で複数インスタンスの同時稼働を抑制。`isReady` 後に IO を有効化 |
+| `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止し `box-shadow` グローを解除（IO 初回判定前はスキップ）、`prefers-reduced-motion` 時は静止しスクロールイン後にグローを復元。IO は `threshold: 0.15` + `rootMargin` で複数インスタンスの同時稼働を抑制。`isReady` 後に IO を有効化 |
 | `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効。プロファイル変更時に Lenis を create/destroy |
-| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時）。単一 container + `{isReady && layers.map(...)}` で IO を安定化。`@keyframes` は `app/globals.css` に集約（`nebula-hero-*` / `nebula-philosophy-*`） |
-| `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1500ms）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
+| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時）。IO 初回判定前は blur を維持してフラッシュを回避。単一 container + `{isReady && layers.map(...)}` で IO を安定化。`@keyframes` は `app/globals.css` に集約（`nebula-hero-*` / `nebula-philosophy-*`） |
+| `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
 
 ## デバイスプロファイル
