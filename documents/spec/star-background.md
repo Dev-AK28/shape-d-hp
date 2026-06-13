@@ -13,7 +13,8 @@ Issue: #1
 - **コンポーネント**: `components/StarBackground.tsx`
 - **デフォルト値**: `StarBackground.tsx` 内 `DEFAULT_CONFIG`（`StarConfig` 型: `count`, `maxSize`/`minSize`, `maxOpacity`/`minOpacity`, `maxSpeed`/`minSpeed`, `drift`, `glowMultiplier`）
 - **スケーリング / 更新間隔**: `lib/performance/star-config.ts`（`scaleStarConfig`, `getStarUpdateIntervalMs`）
-- **描画方式**: `useRef` + 間引き `requestAnimationFrame` + imperative DOM（effect 内の同期的 `setState` を回避）
+- **描画方式**: `useRef` + 間引き `setInterval` + imperative DOM 位置更新（effect 内の同期的 `setState` を回避）
+- **パフォーマンス層**: `useDeviceProfile` + `useIntersectionVisible` + `scaleStarConfig` / `getStarUpdateIntervalMs` を配線済み（[`mobile-performance.md`](./mobile-performance.md)）
 - **ページ別上書き**: 各利用コンポーネントは `config={{ count: ... }}` 等で上書き可能（例: Hero は `count: 300`、PhilosophyContent は `count: 150, maxSize: 3.5`）
 - **利用コンポーネント**: Hero, About, Contact, MissionVision, PhilosophyContent, ProcessContent, ProcessNavigation, ServicesContent, Vision, WhatIDo, WhoIAm, ConsultingContent, DevelopmentContent, WorksContent
 

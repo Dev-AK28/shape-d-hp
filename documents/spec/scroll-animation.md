@@ -51,7 +51,14 @@ Octaboot 風のスクロール連動体験を、既存の framer-motion + Lenis 
 
 `documents/spec/acceptance-criteria.md` の「スクロールアニメーション」セクションを参照。
 
-## 関連 Issue
+## 検証
 
-- #16 feat: Octaboot 風スクロールアニメーションの導入
-- #1 星アニメーション共通化（将来: StarBackground パフォーマンス層統合）
+```bash
+npm test
+npm run build
+npm run test:e2e
+npm run lighthouse:check   # サーバー起動後。Performance >= 70（モバイル）
+```
+
+- E2E: `e2e/scroll-animation.spec.ts`（セクションリビール / reduced-motion）
+- Lighthouse: `scripts/lighthouse-check.mjs` + CI `lighthouse` job（閾値 0.7）
