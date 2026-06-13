@@ -6,13 +6,13 @@ const ACQUIRE_SCRIPT = `
 local key = KEYS[1]
 local max = tonumber(ARGV[1])
 local window = tonumber(ARGV[2])
-local current = redis.call('GET', key)
-if current and tonumber(current) >= max then
-  return 0
-end
 local count = redis.call('INCR', key)
 if count == 1 then
   redis.call('PEXPIRE', key, window)
+end
+if count > max then
+  redis.call('DECR', key)
+  return 0
 end
 return 1
 `;

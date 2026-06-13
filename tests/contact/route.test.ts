@@ -245,4 +245,26 @@ describe('POST /api/contact', () => {
 
     expect(sendContactEmail).toHaveBeenCalledTimes(6);
   });
+
+  it('awaits rate limit release when sendContactEmail fails with Redis backend', async () => {
+    const release = vi.fn().mockResolvedValue(undefined);
+    const tryAcquire = vi.fn().mockResolvedValue(true);
+
+    vi.doMock('@/lib/contact/rate-limit-service', () => ({
+      getRateLimitService: () => ({ tryAcquire, release }),
+    }));
+
+    vi.mocked(sendContactEmail).mockResolvedValue({ ok: false, error: 'Resend error' });
+    vi.resetModules();
+    const route = await import('@/app/api/contact/route');
+    const POST = route.POST;
+
+    const response = await POST(createRequest(JSON.stringify(validPayload), { ip: '203.0.113.60' }));
+
+    expect(response.status).toBe(500);
+    expect(tryAcquire).toHaveBeenCalledOnce();
+    expect(release).toHaveBeenCalledOnce();
+
+    vi.doUnmock('@/lib/contact/rate-limit-service');
+  });
 });

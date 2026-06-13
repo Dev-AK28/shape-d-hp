@@ -78,6 +78,10 @@ export function releaseRateLimitSlot(
   entry.count -= 1;
 }
 
+export function shouldTrustCloudflareIp(): boolean {
+  return process.env.CONTACT_TRUST_CLOUDFLARE_IP?.trim().toLowerCase() === 'true';
+}
+
 /**
  * Whether to trust `x-forwarded-for` / `x-real-ip`.
  * On Vercel the edge overwrites these headers; clients cannot forge them.
@@ -95,9 +99,11 @@ export function shouldTrustProxyIpHeaders(): boolean {
 }
 
 export function extractClientIp(headers: Headers): string | null {
-  const cfConnectingIp = headers.get('cf-connecting-ip')?.trim();
-  if (cfConnectingIp) {
-    return cfConnectingIp;
+  if (shouldTrustCloudflareIp()) {
+    const cfConnectingIp = headers.get('cf-connecting-ip')?.trim();
+    if (cfConnectingIp) {
+      return cfConnectingIp;
+    }
   }
 
   if (!shouldTrustProxyIpHeaders()) {

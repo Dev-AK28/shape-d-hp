@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MAX_CONTACT_BODY_BYTES } from '@/lib/contact/constants';
 import { readRequestBodyWithLimit } from '@/lib/contact/read-body';
 import { extractClientIp } from '@/lib/contact/rate-limit';
-import { getRateLimitService } from '@/lib/contact/rate-limit-service';
+import { getRateLimitService, type RateLimitService } from '@/lib/contact/rate-limit-service';
 import { contactFormSchema } from '@/lib/contact/schema';
 import { sendContactEmail } from '@/lib/contact/send-email';
+
 const SERVER_ERROR_MESSAGE = 'Failed to process form';
 
 function parseJsonBody(rawBody: string): unknown | null {
@@ -20,7 +21,17 @@ function serverErrorResponse() {
 }
 
 export async function POST(request: NextRequest) {
-  let releaseSlot: (() => void) | null = null;
+  let rateLimit: RateLimitService | null = null;
+  let clientIp: string | null = null;
+  let slotAcquired = false;
+
+  async function releaseAcquiredSlot(): Promise<void> {
+    if (!slotAcquired || !clientIp || !rateLimit) {
+      return;
+    }
+    slotAcquired = false;
+    await rateLimit.release(clientIp);
+  }
 
   try {
     const contentLength = request.headers.get('content-length');
@@ -60,34 +71,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const clientIp = extractClientIp(request.headers);
+    clientIp = extractClientIp(request.headers);
 
     if (clientIp) {
-      const rateLimit = getRateLimitService();
+      rateLimit = getRateLimitService();
       if (!(await rateLimit.tryAcquire(clientIp))) {
         return NextResponse.json(
           { success: false, error: 'Too many requests. Please try again later.' },
           { status: 429 },
         );
       }
-      releaseSlot = () => {
-        void rateLimit.release(clientIp);
-      };
+      slotAcquired = true;
     }
 
     const result = await sendContactEmail(parsed.data);
 
     if (!result.ok) {
-      releaseSlot?.();
-      releaseSlot = null;
+      await releaseAcquiredSlot();
       console.error('Contact email failed', { error: result.error });
       return serverErrorResponse();
     }
 
-    releaseSlot = null;
+    slotAcquired = false;
     return NextResponse.json({ success: true });
   } catch {
-    releaseSlot?.();
+    await releaseAcquiredSlot();
     return serverErrorResponse();
   }
 }

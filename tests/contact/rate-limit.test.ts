@@ -94,13 +94,28 @@ describe('extractClientIp', () => {
     expect(extractClientIp(new Headers())).toBeNull();
   });
 
-  it('prefers cf-connecting-ip', () => {
+  it('prefers cf-connecting-ip when Cloudflare trust is enabled', () => {
+    vi.stubEnv('CONTACT_TRUST_CLOUDFLARE_IP', 'true');
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'true');
     const headers = new Headers({
       'cf-connecting-ip': '192.0.2.1',
       'x-forwarded-for': '203.0.113.1',
     });
 
     expect(extractClientIp(headers)).toBe('192.0.2.1');
+    vi.unstubAllEnvs();
+  });
+
+  it('ignores spoofed cf-connecting-ip when Cloudflare trust is disabled', () => {
+    vi.stubEnv('CONTACT_TRUST_CLOUDFLARE_IP', 'false');
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'true');
+    const headers = new Headers({
+      'cf-connecting-ip': '192.0.2.1',
+      'x-forwarded-for': '203.0.113.1',
+    });
+
+    expect(extractClientIp(headers)).toBe('203.0.113.1');
+    vi.unstubAllEnvs();
   });
 
   it('ignores x-forwarded-for when proxy headers are not trusted', () => {
