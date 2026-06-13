@@ -63,4 +63,5 @@ Then アニメーションは無効化または最小限に抑えられる
 | E2E（お問い合わせ） | `e2e/contact.spec.ts`（Playwright） |
 | E2E（トップ Hero） | `e2e/home.spec.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
+| スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
