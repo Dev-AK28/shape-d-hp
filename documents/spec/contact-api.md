@@ -71,11 +71,11 @@
 - Zod による入力検証
 - IP ベースレート制限（60秒あたり5回）
   - 送信前に `tryAcquireRateLimitSlot` で枠を原子的に確保（並行リクエストの TOCTOU を防止）
-  - メール送信失敗（500）時および未捕捉例外時は `releaseRateLimitSlot` で枠を返却
+  - メール送信失敗（500）時および未捕捉例外時は `await rateLimit.release()` で枠を返却（サーバーレス打ち切り防止）
   - 400 / 413 は枠を消費しない
   - 429 判定は送信前に実施
-  - IP は `cf-connecting-ip` → `x-forwarded-for`（先頭）→ `x-real-ip` の順で取得
-  - `cf-connecting-ip` は Cloudflare 経由時に常に信頼
+  - IP は `cf-connecting-ip`（`CONTACT_TRUST_CLOUDFLARE_IP=true` 時のみ）→ `x-forwarded-for`（先頭）→ `x-real-ip` の順で取得
+  - `cf-connecting-ip` は **Cloudflare 経由と確認できる場合のみ** 信頼（`CONTACT_TRUST_CLOUDFLARE_IP=true` を明示設定）。未設定時はクライアント偽装を防止するため無視
   - `x-forwarded-for` / `x-real-ip` は **信頼できるプロキシ背後でのみ** 使用（Vercel では `VERCEL=1` により自動信頼。それ以外は `CONTACT_TRUST_PROXY_IP_HEADERS=true` を明示設定）
   - 信頼しない環境では forwarded ヘッダーを無視し、IP 取得不可時と同様にレート制限を適用しない（クライアントによるヘッダー偽装を防止）
   - IP 取得不可時はレート制限を**適用しない**（共有 `'unknown'` バケットによる誤 429 を防止）

@@ -43,6 +43,7 @@ http://localhost:3000 で確認できます。
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 任意 | レート制限の共有ストア（Upstash Redis） |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | 任意 | レート制限の共有ストア（Vercel KV） |
 | `CONTACT_TRUST_PROXY_IP_HEADERS` | 任意 | `true` で `x-forwarded-for` を信頼。Vercel では自動。非プロキシ環境では `false` 推奨 |
+| `CONTACT_TRUST_CLOUDFLARE_IP` | 任意 | `true` で `cf-connecting-ip` を信頼（Cloudflare 経由時のみ設定） |
 
 ## デプロイ
 
