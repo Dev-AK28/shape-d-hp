@@ -10,8 +10,8 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
+/.lighthouse/
+
 /test-results/
 /playwright-report/
 /blob-report/
