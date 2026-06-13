@@ -43,7 +43,7 @@ npm run build
 npm run test:e2e -- e2e/favicon.spec.ts
 ```
 
-- E2E: `e2e/favicon.spec.ts`（サイズ / content-type / PNG 寸法 / metadata 非参照 / 旧 favicon.ico 非配信）
+- E2E: `e2e/favicon.spec.ts`（サイズ / content-type / PNG シグネチャ・寸法 / metadata が `/icon`・`/apple-icon` を指すこと / 旧 favicon.ico は 404）
 
 ## 関連 Issue
 

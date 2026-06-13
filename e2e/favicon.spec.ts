@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 const MAX_FAVICON_BYTES = 50 * 1024;
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-function readPngDimensions(buffer: Buffer): { width: number; height: number } {
+function assertPngBuffer(buffer: Buffer): { width: number; height: number } {
+  expect(buffer.subarray(0, 8)).toEqual(PNG_SIGNATURE);
+
   const width = buffer.readUInt32BE(16);
   const height = buffer.readUInt32BE(20);
   return { width, height };
@@ -14,11 +17,11 @@ test.describe('Favicon assets', () => {
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toContain('image/png');
 
-    const body = await response.body();
+    const body = Buffer.from(await response.body());
     expect(body.byteLength).toBeGreaterThan(0);
     expect(body.byteLength).toBeLessThan(MAX_FAVICON_BYTES);
 
-    const { width, height } = readPngDimensions(Buffer.from(body));
+    const { width, height } = assertPngBuffer(body);
     expect(width).toBe(32);
     expect(height).toBe(32);
   });
@@ -28,30 +31,45 @@ test.describe('Favicon assets', () => {
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toContain('image/png');
 
-    const body = await response.body();
+    const body = Buffer.from(await response.body());
     expect(body.byteLength).toBeGreaterThan(0);
     expect(body.byteLength).toBeLessThan(MAX_FAVICON_BYTES);
 
-    const { width, height } = readPngDimensions(Buffer.from(body));
+    const { width, height } = assertPngBuffer(body);
     expect(width).toBe(180);
     expect(height).toBe(180);
   });
 
   test('does not serve the legacy static favicon.ico asset', async ({ request }) => {
     const response = await request.get('/favicon.ico');
-    expect(response.status()).not.toBe(200);
+    expect(response.status()).toBe(404);
   });
 
-  test('exposes generated icon metadata without image_13.png', async ({ page }) => {
+  test('exposes generated icon metadata linked to live routes', async ({ page, request }) => {
     await page.goto('/');
 
-    const iconLinks = page.locator('link[rel="icon"], link[rel="apple-touch-icon"]');
-    await expect(iconLinks).not.toHaveCount(0);
+    const iconLink = page.locator('link[rel="icon"]').first();
+    const appleIconLink = page.locator('link[rel="apple-touch-icon"]').first();
 
-    for (let index = 0; index < (await iconLinks.count()); index += 1) {
-      const href = await iconLinks.nth(index).getAttribute('href');
-      expect(href ?? '').not.toContain('image_13.png');
-      expect(href ?? '').not.toMatch(/favicon\.ico(?:\?|$)/);
-    }
+    await expect(iconLink).toHaveCount(1);
+    await expect(appleIconLink).toHaveCount(1);
+
+    const iconHref = await iconLink.getAttribute('href');
+    const appleIconHref = await appleIconLink.getAttribute('href');
+
+    expect(iconHref ?? '').toMatch(/\/icon(?:\?|$)/);
+    expect(iconHref ?? '').not.toContain('image_13.png');
+    expect(iconHref ?? '').not.toMatch(/favicon\.ico(?:\?|$)/);
+
+    expect(appleIconHref ?? '').toMatch(/\/apple-icon(?:\?|$)/);
+    expect(appleIconHref ?? '').not.toContain('image_13.png');
+
+    const iconResponse = await request.get(iconHref!);
+    expect(iconResponse.status()).toBe(200);
+    expect(iconResponse.headers()['content-type']).toContain('image/png');
+
+    const appleIconResponse = await request.get(appleIconHref!);
+    expect(appleIconResponse.status()).toBe(200);
+    expect(appleIconResponse.headers()['content-type']).toContain('image/png');
   });
 });
