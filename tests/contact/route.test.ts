@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { MAX_CONTACT_BODY_BYTES } from '@/lib/contact/constants';
 
 vi.mock('@/lib/contact/send-email', () => ({
   sendContactEmail: vi.fn(),
@@ -14,14 +15,23 @@ const validPayload = {
   message: 'Hello from integration test',
 };
 
-function createRequest(body: string, ip = '203.0.113.50') {
+function createRequest(body: string, options: { ip?: string; contentLength?: string } = {}) {
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+  };
+
+  if (options.ip !== undefined) {
+    headers['x-forwarded-for'] = options.ip;
+  }
+
+  if (options.contentLength !== undefined) {
+    headers['content-length'] = options.contentLength;
+  }
+
   return new NextRequest('http://localhost/api/contact', {
     method: 'POST',
     body,
-    headers: {
-      'content-type': 'application/json',
-      'x-forwarded-for': ip,
-    },
+    headers,
   });
 }
 
@@ -62,46 +72,63 @@ describe('POST /api/contact', () => {
 
   it('returns 413 when content-length exceeds the limit', async () => {
     const POST = await loadPostHandler();
-    const request = new NextRequest('http://localhost/api/contact', {
-      method: 'POST',
-      body: JSON.stringify(validPayload),
-      headers: {
-        'content-type': 'application/json',
-        'content-length': String(33 * 1024),
-      },
-    });
-
-    const response = await POST(request);
+    const response = await POST(
+      createRequest(JSON.stringify(validPayload), {
+        contentLength: String(MAX_CONTACT_BODY_BYTES + 1),
+      }),
+    );
 
     expect(response.status).toBe(413);
     await expect(response.json()).resolves.toEqual({
       success: false,
       error: 'Payload too large',
     });
+    expect(sendContactEmail).not.toHaveBeenCalled();
+  });
+
+  it('returns 413 when body exceeds the limit without content-length', async () => {
+    const POST = await loadPostHandler();
+    const oversizedBody = JSON.stringify({
+      ...validPayload,
+      message: 'x'.repeat(MAX_CONTACT_BODY_BYTES),
+    });
+
+    const response = await POST(createRequest(oversizedBody));
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: 'Payload too large',
+    });
+    expect(sendContactEmail).not.toHaveBeenCalled();
   });
 
   it('returns 200 when email send succeeds', async () => {
     vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
     const POST = await loadPostHandler();
-    const response = await POST(createRequest(JSON.stringify(validPayload), '203.0.113.51'));
+    const response = await POST(createRequest(JSON.stringify(validPayload), { ip: '203.0.113.51' }));
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ success: true });
     expect(sendContactEmail).toHaveBeenCalledOnce();
   });
 
-  it('returns 500 and releases the rate limit slot when send fails', async () => {
+  it('returns 500 with a fixed message and releases the rate limit slot when send fails', async () => {
     vi.mocked(sendContactEmail).mockResolvedValue({ ok: false, error: 'Resend error' });
     const POST = await loadPostHandler();
     const ip = '203.0.113.52';
 
     for (let i = 0; i < 5; i += 1) {
-      const okResponse = await POST(createRequest(JSON.stringify(validPayload), ip));
-      expect(okResponse.status).toBe(500);
+      const failedResponse = await POST(createRequest(JSON.stringify(validPayload), { ip }));
+      expect(failedResponse.status).toBe(500);
+      await expect(failedResponse.json()).resolves.toEqual({
+        success: false,
+        error: 'Failed to process form',
+      });
     }
 
     vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
-    const recoveryResponse = await POST(createRequest(JSON.stringify(validPayload), ip));
+    const recoveryResponse = await POST(createRequest(JSON.stringify(validPayload), { ip }));
     expect(recoveryResponse.status).toBe(200);
   });
 
@@ -111,15 +138,63 @@ describe('POST /api/contact', () => {
     const ip = '203.0.113.53';
 
     for (let i = 0; i < 5; i += 1) {
-      const response = await POST(createRequest(JSON.stringify(validPayload), ip));
+      const response = await POST(createRequest(JSON.stringify(validPayload), { ip }));
       expect(response.status).toBe(200);
     }
 
-    const limited = await POST(createRequest(JSON.stringify(validPayload), ip));
+    vi.mocked(sendContactEmail).mockClear();
+    const limited = await POST(createRequest(JSON.stringify(validPayload), { ip }));
     expect(limited.status).toBe(429);
     await expect(limited.json()).resolves.toEqual({
       success: false,
       error: 'Too many requests. Please try again later.',
     });
+    expect(sendContactEmail).not.toHaveBeenCalled();
+  });
+
+  it('does not consume rate limit slots for 400 responses', async () => {
+    vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
+    const POST = await loadPostHandler();
+    const ip = '203.0.113.54';
+
+    for (let i = 0; i < 6; i += 1) {
+      const response = await POST(createRequest('not-json', { ip }));
+      expect(response.status).toBe(400);
+    }
+
+    const successResponse = await POST(createRequest(JSON.stringify(validPayload), { ip }));
+    expect(successResponse.status).toBe(200);
+    expect(sendContactEmail).toHaveBeenCalledOnce();
+  });
+
+  it('does not consume rate limit slots for 413 responses', async () => {
+    vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
+    const POST = await loadPostHandler();
+    const ip = '203.0.113.55';
+    const oversizedBody = JSON.stringify({
+      ...validPayload,
+      message: 'x'.repeat(MAX_CONTACT_BODY_BYTES),
+    });
+
+    for (let i = 0; i < 6; i += 1) {
+      const response = await POST(createRequest(oversizedBody, { ip }));
+      expect(response.status).toBe(413);
+    }
+
+    const successResponse = await POST(createRequest(JSON.stringify(validPayload), { ip }));
+    expect(successResponse.status).toBe(200);
+    expect(sendContactEmail).toHaveBeenCalledOnce();
+  });
+
+  it('skips rate limiting when no IP headers are present', async () => {
+    vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
+    const POST = await loadPostHandler();
+
+    for (let i = 0; i < 6; i += 1) {
+      const response = await POST(createRequest(JSON.stringify(validPayload)));
+      expect(response.status).toBe(200);
+    }
+
+    expect(sendContactEmail).toHaveBeenCalledTimes(6);
   });
 });
