@@ -9,7 +9,7 @@ export const size = {
 export const contentType = 'image/png';
 
 export default function Icon() {
-  return new ImageResponse(<FaviconImage size={32} />, {
+  return new ImageResponse(<FaviconImage size={size.width} />, {
     ...size,
   });
 }
