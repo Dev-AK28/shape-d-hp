@@ -124,6 +124,7 @@ export default function ContactPage() {
                 <motion.div
                   initial={reduceMotion ? false : { opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.3 }}
                   className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-4 text-center text-green-400"
                 >
                   送信しました。お問い合わせありがとうございます。
@@ -134,6 +135,7 @@ export default function ContactPage() {
                 <motion.div
                   initial={reduceMotion ? false : { opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.3 }}
                   className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-4 text-center text-red-400"
                 >
                   {errorMessage}

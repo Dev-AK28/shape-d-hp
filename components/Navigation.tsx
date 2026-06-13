@@ -41,7 +41,9 @@ export default function Navigation() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-[1000] ${
+        reduceMotion ? '' : 'transition-all duration-300'
+      } ${
         isScrolled
           ? 'border-b border-white/10 bg-black/95 backdrop-blur-xl'
           : 'bg-transparent'
@@ -96,7 +98,7 @@ export default function Navigation() {
                   width: '100%',
                   height: '2px',
                   background: '#60a5fa',
-                  transition: 'all 0.3s ease'
+                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
               <motion.span
@@ -108,7 +110,7 @@ export default function Navigation() {
                   height: '2px',
                   background: '#60a5fa',
                   top: '9px',
-                  transition: 'all 0.3s ease'
+                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
               <motion.span
@@ -120,7 +122,7 @@ export default function Navigation() {
                   height: '2px',
                   background: '#60a5fa',
                   top: '18px',
-                  transition: 'all 0.3s ease'
+                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
             </div>
