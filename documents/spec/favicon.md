@@ -20,6 +20,7 @@
 - 背景: インディゴ系グラデーション（`#0A192F` → `#1e1b4b` → `#312e81`）
 - シンボル: `∞`（SHAPE∞D ブランド）
 - シンボル: ブルー〜パープルグラデーション + ドロップシャドウ
+- フォント: Satori 既定（環境依存の `serif` 指定は使わない）
 - 1.5MB の `public/image_13.png` は favicon 参照から除外
 
 ## 受け入れ基準
@@ -43,7 +44,7 @@ npm run build
 npm run test:e2e -- e2e/favicon.spec.ts
 ```
 
-- E2E: `e2e/favicon.spec.ts`（サイズ / content-type / PNG シグネチャ・寸法 / metadata が `/icon`・`/apple-icon` を指すこと / 旧 favicon.ico は 404）
+- E2E: `e2e/favicon.spec.ts`（サイズ / content-type / PNG シグネチャ・寸法 / 中心と背景の色差・チャンネル分散 / metadata が `/icon`・`/apple-icon` を指すこと / 旧 favicon.ico は 404）
 
 ## 関連 Issue
 
