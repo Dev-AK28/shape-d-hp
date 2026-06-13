@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
+import TextReveal from '@/components/scroll/TextReveal';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function WorksContent() {
@@ -77,24 +79,18 @@ export default function WorksContent() {
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            WORKS
+            <TextReveal as="span" text="WORKS" />
           </h2>
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
         </motion.div>
 
         {/* PROJECTS Section */}
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ marginBottom: '160px' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
@@ -103,19 +99,18 @@ export default function WorksContent() {
           {projects.map((work, index) => (
             <motion.div
               key={work.id}
-              initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.2, ease: 'easeOut' }}
-              viewport={{ once: true, margin: "-100px" }}
+              {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 0.2 })}
               style={{ marginBottom: index < projects.length - 1 ? '160px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '64px', alignItems: 'center' }}>
                 {/* Image Placeholder */}
                 <motion.div
-                  initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.2 + 0.2, ease: 'easeOut' }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  {...getScrollRevealProps(reduceMotion, {
+                    variant: 'scale',
+                    staggerIndex: index,
+                    staggerStep: 0.2,
+                    delay: 0.2,
+                  })}
                   style={{
                     aspectRatio: '16/10',
                     background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%)',
@@ -186,10 +181,7 @@ export default function WorksContent() {
 
         {/* CONCEPT WORKS Section */}
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
           style={{ marginBottom: '120px' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
@@ -199,10 +191,11 @@ export default function WorksContent() {
             {conceptWorks.map((work, index) => (
               <motion.div
                 key={work.id}
-                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.5 + index * 0.15, ease: 'easeOut' }}
-                viewport={{ once: true, margin: "-100px" }}
+                {...getScrollRevealProps(reduceMotion, {
+                  delay: 0.5,
+                  staggerIndex: index,
+                  staggerStep: 'card',
+                })}
                 style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
               >
                 {/* Image */}
@@ -273,10 +266,7 @@ export default function WorksContent() {
 
         {/* GoDD Footer */}
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
           style={{ textAlign: 'center', paddingTop: '64px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
         >
           <p style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em', fontFamily: 'serif' }}>

@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
+import TextReveal from '@/components/scroll/TextReveal';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function ProcessContent() {
   const reduceMotion = useReducedMotion();
@@ -80,14 +82,11 @@ export default function ProcessContent() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'center', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            PROCESS
+            <TextReveal as="span" text="PROCESS" />
           </h2>
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
           <p style={{ color: '#9ca3af', marginTop: '32px', maxWidth: '48rem', margin: '32px auto 0', lineHeight: 1.8, fontSize: '16px', fontFamily: 'serif' }}>
@@ -97,10 +96,7 @@ export default function ProcessContent() {
 
         {/* Development Flow Section */}
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ marginBottom: '160px' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#60a5fa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -110,19 +106,18 @@ export default function ProcessContent() {
             {developmentSteps.map((step, index) => (
               <motion.div
                 key={step.id}
-                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15, ease: 'easeOut' }}
-                viewport={{ once: true, margin: "-100px" }}
+                {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 'card' })}
                 style={{ marginBottom: index < developmentSteps.length - 1 ? '100px' : '0' }}
               >
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '64px', alignItems: 'start' }}>
                   {/* Step Number */}
                   <motion.div
-                    initial={reduceMotion ? false : { opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15 + 0.1, ease: 'easeOut' }}
-                    viewport={{ once: true, margin: "-100px" }}
+                    {...getScrollRevealProps(reduceMotion, {
+                      variant: 'scale',
+                      staggerIndex: index,
+                      staggerStep: 'card',
+                      delay: 0.1,
+                    })}
                     style={{
                       position: 'relative',
                       display: 'flex',
@@ -201,10 +196,7 @@ export default function ProcessContent() {
 
         {/* Consulting Flow Section */}
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
           style={{ marginBottom: '120px' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -214,10 +206,11 @@ export default function ProcessContent() {
             {consultingSteps.map((step, index) => (
               <motion.div
                 key={step.id}
-                initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.5 + index * 0.15, ease: 'easeOut' }}
-                viewport={{ once: true, margin: "-100px" }}
+                {...getScrollRevealProps(reduceMotion, {
+                  delay: 0.5,
+                  staggerIndex: index,
+                  staggerStep: 'card',
+                })}
                 style={{ padding: '48px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
                 <div style={{ marginBottom: '24px' }}>
@@ -272,10 +265,7 @@ export default function ProcessContent() {
         </motion.div>
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.1))', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>

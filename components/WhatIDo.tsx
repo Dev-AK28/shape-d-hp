@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
+import TextReveal from '@/components/scroll/TextReveal';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function WhatIDo() {
   const reduceMotion = useReducedMotion();
@@ -33,14 +35,11 @@ export default function WhatIDo() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion)}
           style={{ textAlign: 'right', marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            コア・バリュー
+            <TextReveal as="span" text="コア・バリュー" />
           </h2>
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', marginLeft: 'auto' }}></div>
         </motion.div>
@@ -49,10 +48,7 @@ export default function WhatIDo() {
           {services.map((service, index) => (
             <motion.div
               key={index}
-              initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15, ease: 'easeOut' }}
-              viewport={{ once: true, margin: "-100px" }}
+              {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 'card' })}
               whileHover={reduceMotion ? undefined : { y: -8, transition: { duration: 0.3 } }}
               style={{ padding: '40px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', cursor: 'pointer' }}
             >
@@ -67,10 +63,7 @@ export default function WhatIDo() {
         </div>
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
-          viewport={{ once: true, margin: "-100px" }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.3 })}
           style={{ textAlign: 'left' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#93c5fd', marginBottom: '48px', fontFamily: 'serif' }}>
@@ -80,10 +73,12 @@ export default function WhatIDo() {
             {goddAreas.map((area, index) => (
               <motion.div
                 key={index}
-                initial={reduceMotion ? false : { opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduceMotion ? 0 : 1, delay: reduceMotion ? 0 : 0.4 + index * 0.05, ease: 'easeOut' }}
-                viewport={{ once: true, margin: "-100px" }}
+                {...getScrollRevealProps(reduceMotion, {
+                  variant: 'fadeUp',
+                  delay: 0.4,
+                  staggerIndex: index,
+                  staggerStep: 0.05,
+                })}
                 whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: 'rgba(96, 165, 250, 0.8)', transition: { duration: 0.3 } }}
                 style={{ padding: '24px 32px', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
               >
@@ -92,10 +87,7 @@ export default function WhatIDo() {
             ))}
           </div>
           <motion.p
-            initial={reduceMotion ? false : { opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
-            viewport={{ once: true, margin: "-100px" }}
+            {...getScrollRevealProps(reduceMotion, { variant: 'fadeUp', delay: 0.8 })}
             style={{ color: '#d1d5db', fontSize: '16px', maxWidth: '48rem', marginTop: '48px', lineHeight: 1.8, fontFamily: 'serif' }}
           >
             <strong style={{ color: '#93c5fd' }}>メリット:</strong> 安全性を兼ね備えた、相場の半額程度の費用での爆速開発。

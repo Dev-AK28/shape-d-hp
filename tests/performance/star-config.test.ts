@@ -31,8 +31,8 @@ describe('star-config', () => {
     };
     const scaled = scaleStarConfig(BASE_CONFIG, mobileProfile);
 
-    expect(scaled.count).toBe(135);
-    expect(scaled.glowMultiplier).toBe(1);
+    expect(scaled.count).toBe(105);
+    expect(scaled.glowMultiplier).toBe(0);
     expect(getStarUpdateIntervalMs(mobileProfile)).toBe(STAR_UPDATE_INTERVAL_MS.mobile);
   });
 

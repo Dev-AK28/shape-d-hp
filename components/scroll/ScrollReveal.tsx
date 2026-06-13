@@ -1,27 +1,47 @@
 'use client';
 
 import { motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
-import { scrollTransition, scrollViewport } from '@/lib/scroll/easing';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import type { ScrollVariant } from '@/lib/scroll/easing';
 
 type ScrollRevealProps = HTMLMotionProps<'div'> & {
   delay?: number;
+  duration?: number;
+  variant?: ScrollVariant;
   y?: number;
 };
 
 export default function ScrollReveal({
   children,
   delay = 0,
-  y = 48,
+  duration,
+  variant = 'fadeUp',
+  y,
   ...props
 }: ScrollRevealProps) {
   const reduceMotion = useReducedMotion();
+  const resolvedVariant =
+    y !== undefined && variant === 'fadeUp'
+      ? ('fadeUpLarge' as const)
+      : variant;
+
+  const revealProps = getScrollRevealProps(reduceMotion, {
+    delay,
+    duration,
+    variant: resolvedVariant,
+  });
+
+  const initial =
+    y !== undefined && !reduceMotion && resolvedVariant === 'fadeUpLarge'
+      ? { opacity: 0, y }
+      : revealProps.initial;
 
   return (
     <motion.div
-      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ ...scrollTransition, delay, duration: reduceMotion ? 0 : scrollTransition.duration }}
-      viewport={scrollViewport}
+      initial={initial}
+      whileInView={revealProps.whileInView}
+      transition={revealProps.transition}
+      viewport={revealProps.viewport}
       {...props}
     >
       {children}

@@ -1,0 +1,41 @@
+import { describe, expect, it } from 'vitest';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+
+describe('getScrollRevealProps', () => {
+  it('returns static visible state when reduced motion is enabled', () => {
+    const props = getScrollRevealProps(true);
+
+    expect(props.initial).toBe(false);
+    expect(props.transition.duration).toBe(0);
+    expect(props.transition.delay).toBe(0);
+  });
+
+  it('applies fadeUpLarge by default', () => {
+    const props = getScrollRevealProps(false);
+
+    expect(props.initial).toEqual({ opacity: 0, y: 60 });
+    expect(props.whileInView).toEqual({ opacity: 1, y: 0 });
+  });
+
+  it('supports fadeLeft variant with stagger delay', () => {
+    const props = getScrollRevealProps(false, {
+      variant: 'fadeLeft',
+      delay: 0.5,
+      staggerIndex: 2,
+      staggerStep: 0.1,
+    });
+
+    expect(props.initial).toEqual({ opacity: 0, x: -20 });
+    expect(props.transition.delay).toBeCloseTo(0.7);
+  });
+
+  it('uses shared viewport settings', () => {
+    const props = getScrollRevealProps(false);
+
+    expect(props.viewport).toEqual({
+      once: true,
+      margin: '-80px',
+      amount: 0.2,
+    });
+  });
+});

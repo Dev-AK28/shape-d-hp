@@ -24,6 +24,7 @@ export default function BrandLogo({
       height={height}
       priority={priority}
       className={`h-auto w-auto max-w-[200px] object-contain ${className}`}
+      style={{ width, height }}
     />
   );
 }
