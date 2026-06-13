@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shape-D コーポレートサイト
 
-## Getting Started
+Shape-D の公式コーポレートサイト（Next.js App Router）。
 
-First, run the development server:
+## 技術スタック
+
+- Next.js 16 / React 19 / TypeScript
+- Tailwind CSS 4
+- Framer Motion + Lenis（スクロールアニメーション）
+- Resend（お問い合わせメール送信）
+
+## セットアップ
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 で確認できます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## スクリプト
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| コマンド | 説明 |
+|---------|------|
+| `npm run dev` | 開発サーバー起動 |
+| `npm run build` | 本番ビルド |
+| `npm run start` | 本番サーバー起動 |
+| `npm run lint` | ESLint |
+| `npm run test` | Vitest 単体テスト |
+| `npm run test:e2e` | Playwright E2E テスト |
+| `npx tsc --noEmit` | 型チェック |
 
-## Learn More
+## 環境変数
 
-To learn more about Next.js, take a look at the following resources:
+| 変数 | 必須 | 説明 |
+|------|------|------|
+| `CONTACT_EMAIL` | 推奨 | お問い合わせ送信先（デフォルト: hello@shape-d.com） |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | 任意 | 画面表示用メールアドレス |
+| `RESEND_API_KEY` | 本番必須 | Resend API キー |
+| `RESEND_FROM_EMAIL` | 推奨 | 送信元メールアドレス |
+| `RESEND_FROM_NAME` | 任意 | 送信者表示名（デフォルト: shape-d-hp） |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 任意 | レート制限の共有ストア（Upstash Redis） |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | 任意 | レート制限の共有ストア（Vercel KV） |
+| `CONTACT_TRUST_PROXY_IP_HEADERS` | 任意 | `true` で `x-forwarded-for` を信頼。Vercel では自動。非プロキシ環境では `false` 推奨 |
+| `CONTACT_TRUST_CLOUDFLARE_IP` | 任意 | `true` で `cf-connecting-ip` を信頼（Cloudflare 経由時のみ設定） |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## デプロイ
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Vercel へのデプロイを想定しています。環境変数を Vercel ダッシュボードで設定してください。
 
-## Deploy on Vercel
+### 本番チェックリスト（shape-d-hp）
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| 項目 | 状態 | 備考 |
+|------|------|------|
+| Upstash KV（レート制限共有） | 設定済み | リソース名 `shape-d-hp-rate-limit`（東京 `hnd1`）。`KV_REST_API_*` が Production / Preview / Development に注入 |
+| Resend API キー | 設定済み | Production |
+| 送信元メール | 設定済み | `RESEND_FROM_EMAIL=onboarding@resend.dev`（ドメイン検証前の暫定） |
+| Resend ドメイン検証 | **要対応** | [resend.com/domains](https://resend.com/domains) で `shape-d.com` を追加し DNS レコードを設定後、`RESEND_FROM_EMAIL` を `hello@shape-d.com` 等に変更 |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> Resend の Send-only API キーではドメイン追加 API は利用不可。ダッシュボードからドメイン検証を行ってください。検証完了までは `hello@shape-d.com` 宛送信が 403 になります。
+
+## ドキュメント
+
+- 仕様: `documents/spec/`
+- Issue 運用: GitHub Issues
+
+## ライセンス
+
+Copyright (c) 2026 Kota Akashi. All rights reserved.（`LICENSE` 参照）

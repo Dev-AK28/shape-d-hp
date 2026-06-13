@@ -1,9 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 
 export default function About() {
+  const reduceMotion = useReducedMotion();
   const career = [
     "心理学専攻で学士号を取得。学術的な人間理解の素地を築く。",
     "コカコーラボトラーズジャパンベンディングに入社。",
@@ -18,10 +19,10 @@ export default function About() {
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-200px" }}
+          transition={{ duration: reduceMotion ? 0 : 1.5, ease: 'easeOut' }}
+          viewport={{ once: true, margin: '-200px' }}
           style={{ marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(48px, 6vw, 64px)', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -31,10 +32,10 @@ export default function About() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-200px" }}
+          transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
+          viewport={{ once: true, margin: '-200px' }}
           style={{ marginBottom: '80px' }}
         >
           <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: '#93c5fd', marginBottom: '48px', fontFamily: 'serif' }}>
@@ -46,10 +47,10 @@ export default function About() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.4, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-200px" }}
+          transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
+          viewport={{ once: true, margin: '-200px' }}
         >
           <div style={{ marginBottom: '48px' }}>
             <p style={{ fontSize: '16px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}>
@@ -59,10 +60,14 @@ export default function About() {
               {career.map((item, index) => (
                 <motion.li
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={reduceMotion ? false : { opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 1, delay: 0.5 + index * 0.1, ease: "easeOut" }}
-                  viewport={{ once: true, margin: "-200px" }}
+                  transition={{
+                    duration: reduceMotion ? 0 : 1,
+                    delay: reduceMotion ? 0 : 0.5 + index * 0.1,
+                    ease: 'easeOut',
+                  }}
+                  viewport={{ once: true, margin: '-200px' }}
                   style={{ marginBottom: '24px', paddingLeft: '24px', position: 'relative', color: '#d1d5db', fontSize: '16px', lineHeight: 1.8 }}
                 >
                   <span style={{ position: 'absolute', left: 0, color: '#60a5fa' }}>—</span>
@@ -73,10 +78,10 @@ export default function About() {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5, delay: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, margin: "-200px" }}
+            transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.6, ease: 'easeOut' }}
+            viewport={{ once: true, margin: '-200px' }}
             style={{ marginBottom: '80px', padding: '64px', border: '2px solid rgba(96, 165, 250, 0.3)', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(96, 165, 250, 0.02) 100%)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
           >
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, transparent, #60a5fa, transparent)' }} />

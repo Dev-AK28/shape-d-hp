@@ -1,18 +1,19 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 
 export default function WhoIAm() {
+  const reduceMotion = useReducedMotion();
   return (
     <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
       <StarBackground config={{ count: 100 }} />
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'left', marginBottom: '120px' }}
         >
@@ -24,9 +25,9 @@ export default function WhoIAm() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '80px', alignItems: 'center' }}>
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-100px" }}
           >
             <h3 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 300, color: '#93c5fd', marginBottom: '32px', fontFamily: 'serif' }}>
@@ -41,9 +42,9 @@ export default function WhoIAm() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-100px" }}
             style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
           >

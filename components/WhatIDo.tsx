@@ -1,9 +1,10 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 
 export default function WhatIDo() {
+  const reduceMotion = useReducedMotion();
   const services = [
     {
       title: "AIプロダクト開発・AI活用支援",
@@ -32,9 +33,9 @@ export default function WhatIDo() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'right', marginBottom: '120px' }}
         >
@@ -48,11 +49,11 @@ export default function WhatIDo() {
           {services.map((service, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 60 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: index * 0.15, ease: "easeOut" }}
+              transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : index * 0.15, ease: 'easeOut' }}
               viewport={{ once: true, margin: "-100px" }}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
+              whileHover={reduceMotion ? undefined : { y: -8, transition: { duration: 0.3 } }}
               style={{ padding: '40px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', cursor: 'pointer' }}
             >
               <h3 style={{ fontSize: '22px', fontWeight: 300, color: 'white', marginBottom: '20px', fontFamily: 'serif' }}>
@@ -66,9 +67,9 @@ export default function WhatIDo() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'left' }}
         >
@@ -79,11 +80,11 @@ export default function WhatIDo() {
             {goddAreas.map((area, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 40 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.4 + index * 0.05, ease: "easeOut" }}
+                transition={{ duration: reduceMotion ? 0 : 1, delay: reduceMotion ? 0 : 0.4 + index * 0.05, ease: 'easeOut' }}
                 viewport={{ once: true, margin: "-100px" }}
-                whileHover={{ scale: 1.05, borderColor: 'rgba(96, 165, 250, 0.8)', transition: { duration: 0.3 } }}
+                whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: 'rgba(96, 165, 250, 0.8)', transition: { duration: 0.3 } }}
                 style={{ padding: '24px 32px', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(10px)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
               >
                 <span style={{ color: '#93c5fd', fontSize: '16px', fontWeight: 300 }}>{area}</span>
@@ -91,9 +92,9 @@ export default function WhatIDo() {
             ))}
           </div>
           <motion.p
-            initial={{ opacity: 0, y: 40 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 1, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-100px" }}
             style={{ color: '#d1d5db', fontSize: '16px', maxWidth: '48rem', marginTop: '48px', lineHeight: 1.8, fontFamily: 'serif' }}
           >
