@@ -68,3 +68,11 @@ npm run generate:favicons
 ```
 
 生成後、`app/icon.png` と `app/apple-icon.png` をコミットする。
+
+### SHA-256 一致テストが失敗した場合
+
+`committed favicon assets` テストは、コミット済み PNG と生成ロジック出力のバイト列が完全一致することを検証する。libvips / OS 差により、macOS で再生成した PNG が Linux CI と一致しない場合がある。
+
+**Given** CI で SHA-256 一致テストが失敗している  
+**When** 原画像または生成ロジックを変更した直後である  
+**Then** CI と同じ Linux 環境（GitHub Actions または Linux マシン）で `npm run generate:favicons` を実行し、更新された PNG をコミットする

@@ -18,6 +18,8 @@ export const FAVICON_OUTPUTS = [
   { filename: 'apple-icon.png', size: 180, maxBytes: 60_000 },
 ] as const;
 
+export const LOGO_TRIM_THRESHOLD = 20;
+
 function luminance(r: number, g: number, b: number): number {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
@@ -28,7 +30,7 @@ export async function extractLogoMark(
   softness = 2.8,
 ): Promise<Buffer> {
   const source = await readFile(sourcePath);
-  const trimmed = await sharp(source).trim({ threshold: 20 }).png().toBuffer();
+  const trimmed = await sharp(source).trim({ threshold: LOGO_TRIM_THRESHOLD }).png().toBuffer();
   const { data, info } = await sharp(trimmed)
     .ensureAlpha()
     .raw()

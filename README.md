@@ -11,6 +11,8 @@ Shape-D の公式コーポレートサイト（Next.js App Router）。
 
 ## セットアップ
 
+Node.js 22 以上が必要です。
+
 ```bash
 npm install
 cp .env.example .env.local
