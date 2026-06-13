@@ -1,4 +1,4 @@
-import { CONTACT_EMAIL } from './constants';
+import { CONTACT_RECIPIENTS } from './constants';
 import type { ContactFormInput } from './schema';
 
 type SendResult = { ok: true } | { ok: false; error: string };
@@ -21,7 +21,7 @@ export async function sendContactEmail(data: ContactFormInput): Promise<SendResu
     },
     body: JSON.stringify({
       from: process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev',
-      to: [CONTACT_EMAIL],
+      to: [...CONTACT_RECIPIENTS],
       reply_to: data.email,
       subject: `[Shape-D] お問い合わせ: ${data.name}`,
       text: [
