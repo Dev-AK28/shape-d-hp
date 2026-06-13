@@ -6,12 +6,15 @@ type BrandLogoProps = {
   priority?: boolean;
 };
 
+const LOGO_WIDTH = 1380;
+const LOGO_HEIGHT = 752;
+
 export default function BrandLogo({
   height = 48,
   className = '',
   priority = false,
 }: BrandLogoProps) {
-  const width = Math.round(height * 4.2);
+  const width = Math.round(height * (LOGO_WIDTH / LOGO_HEIGHT));
 
   return (
     <Image

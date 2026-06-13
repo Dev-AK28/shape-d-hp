@@ -1,12 +1,28 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import ScrollReveal from '@/components/scroll/ScrollReveal';
+import TextReveal from '@/components/scroll/TextReveal';
+import SectionShell from '@/components/ui/SectionShell';
 import { PUBLIC_CONTACT_EMAIL } from '@/lib/contact/constants';
 
+type SubmitStatus = 'idle' | 'success' | 'error';
+
+const ERROR_MESSAGES: Record<number, string> = {
+  400: '入力内容に誤りがあります。必須項目を確認してください。',
+  413: '送信データが大きすぎます。メッセージを短くしてください。',
+  429: '送信回数の上限に達しました。しばらく待ってから再度お試しください。',
+  500: '送信に失敗しました。再度お試しください。',
+};
+
+function getErrorMessage(status: number): string {
+  return ERROR_MESSAGES[status] ?? ERROR_MESSAGES[500];
+}
+
 export default function ContactPage() {
+  const reduceMotion = useReducedMotion();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,12 +30,14 @@ export default function ContactPage() {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage('');
 
     try {
       const response = await fetch('/api/contact', {
@@ -35,9 +53,11 @@ export default function ContactPage() {
         setFormData({ name: '', email: '', company: '', message: '' });
       } else {
         setSubmitStatus('error');
+        setErrorMessage(getErrorMessage(response.status));
       }
     } catch {
       setSubmitStatus('error');
+      setErrorMessage(ERROR_MESSAGES[500]);
     } finally {
       setIsSubmitting(false);
     }
@@ -46,18 +66,21 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0A192F] to-black">
       <Navigation />
-      <div className="flex min-h-[60vh] items-center justify-center bg-[radial-gradient(ellipse_at_center,#0a0a1a_0%,#000000_100%)] px-6 pt-[120px]">
+      <SectionShell padding="sm" className="flex min-h-[60vh] items-center justify-center pt-[120px]">
         <ScrollReveal className="max-w-[800px] text-center">
           <h1 className="mb-6 font-serif text-[clamp(48px,6vw,64px)] font-light tracking-wider text-white">
             CONTACT
           </h1>
-          <p className="font-serif text-lg leading-relaxed text-gray-400">
-            お気軽にご相談ください（{PUBLIC_CONTACT_EMAIL}）
-          </p>
+          <TextReveal
+            as="p"
+            text="お気軽にご相談ください"
+            className="font-serif text-lg leading-relaxed text-gray-400"
+          />
+          <p className="mt-2 font-serif text-sm text-gray-500">{PUBLIC_CONTACT_EMAIL}</p>
         </ScrollReveal>
-      </div>
+      </SectionShell>
 
-      <section className="bg-[radial-gradient(ellipse_at_center,#0a0a1a_0%,#000000_100%)] px-6 py-32">
+      <SectionShell padding="md">
         <div className="mx-auto max-w-[600px]">
           <ScrollReveal delay={0.15}>
             <form onSubmit={handleSubmit} className="flex flex-col gap-8">
@@ -99,7 +122,7 @@ export default function ContactPage() {
 
               {submitStatus === 'success' && (
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-4 text-center text-green-400"
                 >
@@ -109,19 +132,19 @@ export default function ContactPage() {
 
               {submitStatus === 'error' && (
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-4 text-center text-red-400"
                 >
-                  送信に失敗しました。再度お試しください。
+                  {errorMessage}
                 </motion.div>
               )}
 
               <motion.button
                 type="submit"
                 disabled={isSubmitting}
-                whileHover={{ scale: 1.02, borderColor: '#93c5fa' }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={reduceMotion ? undefined : { scale: 1.02, borderColor: '#93c5fa' }}
+                whileTap={reduceMotion ? undefined : { scale: 0.98 }}
                 className="self-start rounded-full border border-blue-400 px-16 py-5 font-serif text-lg text-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? '送信中...' : '送信する'}
@@ -129,7 +152,7 @@ export default function ContactPage() {
             </form>
           </ScrollReveal>
         </div>
-      </section>
+      </SectionShell>
     </main>
   );
 }

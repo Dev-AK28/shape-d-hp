@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from 'react';
 import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;

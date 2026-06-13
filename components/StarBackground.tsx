@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
 
 export type StarConfig = {
   count?: number;
@@ -47,10 +48,15 @@ function createStars(config: Required<StarConfig>): Star[] {
 }
 
 export default function StarBackground({ config }: { config?: StarConfig }) {
+  const reduceMotion = useReducedMotion();
   const merged = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config]);
   const [stars, setStars] = useState(() => createStars(merged));
 
   useEffect(() => {
+    if (reduceMotion) {
+      return;
+    }
+
     const interval = setInterval(() => {
       setStars((prevStars) =>
         prevStars.map((star) => {
@@ -60,12 +66,12 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
             y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
             x: newX < 0 ? 100 : newX > 100 ? 0 : newX,
           };
-        })
+        }),
       );
     }, 50);
 
     return () => clearInterval(interval);
-  }, [merged.drift]);
+  }, [merged.drift, reduceMotion]);
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -79,7 +85,7 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
             width: `${star.size}px`,
             height: `${star.size}px`,
             opacity: star.opacity,
-            boxShadow: `0 0 ${star.size * merged.glowMultiplier}px rgba(255, 255, 255, 0.3)`,
+            boxShadow: `0 0 ${star.size * merged.glowMultiplier}px rgba(255, 255, 255, ${star.opacity * 0.5})`,
           }}
         />
       ))}

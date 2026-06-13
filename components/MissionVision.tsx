@@ -1,19 +1,21 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 
 export default function MissionVision() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section style={{ position: 'relative', padding: '200px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
       <StarBackground config={{ count: 100 }} />
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-200px" }}
+          transition={{ duration: reduceMotion ? 0 : 1.5, ease: 'easeOut' }}
+          viewport={{ once: true, margin: '-200px' }}
           style={{ marginBottom: '120px' }}
         >
           <h2 style={{ fontSize: 'clamp(48px, 6vw, 64px)', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -23,10 +25,10 @@ export default function MissionVision() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-200px" }}
+          transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
+          viewport={{ once: true, margin: '-200px' }}
           style={{ marginBottom: '80px' }}
         >
           <h3 style={{ fontSize: 'clamp(32px, 4vw, 42px)', fontWeight: 300, color: '#93c5fd', marginBottom: '48px', fontFamily: 'serif' }}>
@@ -38,10 +40,10 @@ export default function MissionVision() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.4, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-200px" }}
+          transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
+          viewport={{ once: true, margin: '-200px' }}
           style={{ padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
         >
           <p style={{ fontSize: '16px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}>

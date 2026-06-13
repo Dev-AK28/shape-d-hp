@@ -10,6 +10,15 @@ type TextRevealProps = {
   delay?: number;
 };
 
+function segmentText(text: string): string[] {
+  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+    const segmenter = new Intl.Segmenter('ja', { granularity: 'grapheme' });
+    return [...segmenter.segment(text)].map((part) => part.segment);
+  }
+
+  return text.includes(' ') ? text.split(' ') : [...text];
+}
+
 export default function TextReveal({
   text,
   as: Tag = 'p',
@@ -17,7 +26,7 @@ export default function TextReveal({
   delay = 0,
 }: TextRevealProps) {
   const reduceMotion = useReducedMotion();
-  const words = text.split(' ');
+  const segments = segmentText(text);
 
   if (reduceMotion) {
     return <Tag className={className}>{text}</Tag>;
@@ -25,9 +34,9 @@ export default function TextReveal({
 
   return (
     <Tag className={className}>
-      {words.map((word, index) => (
+      {segments.map((segment, index) => (
         <motion.span
-          key={`${word}-${index}`}
+          key={`${segment}-${index}`}
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{
@@ -36,9 +45,9 @@ export default function TextReveal({
             ease: scrollEase,
           }}
           viewport={scrollViewport}
-          className="mr-[0.25em] inline-block"
+          className="inline-block"
         >
-          {word}
+          {segment}
         </motion.span>
       ))}
     </Tag>

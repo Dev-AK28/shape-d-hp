@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function PageLoader() {
   const reduceMotion = useReducedMotion();
-  const [visible, setVisible] = useState(!reduceMotion);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     if (reduceMotion) {
@@ -16,7 +16,7 @@ export default function PageLoader() {
     return () => window.clearTimeout(timer);
   }, [reduceMotion]);
 
-  if (!visible) {
+  if (reduceMotion || !visible) {
     return null;
   }
 
@@ -34,7 +34,7 @@ export default function PageLoader() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        Loading experience
+        読み込み中
       </motion.p>
     </motion.div>
   );
