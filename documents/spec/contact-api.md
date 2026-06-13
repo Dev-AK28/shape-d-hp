@@ -70,7 +70,7 @@
 
 - Zod による入力検証
 - IP ベースレート制限（60秒あたり5回）
-  - 送信前に `tryAcquireRateLimitSlot` で枠を原子的に確保（並行リクエストの TOCTOU を防止）
+  - 送信前に `getRateLimitService().tryAcquire()` で枠を原子的に確保（並行リクエストの TOCTOU を防止）
   - メール送信失敗（500）時および未捕捉例外時は `await rateLimit.release()` で枠を返却（サーバーレス打ち切り防止）
   - 400 / 413 は枠を消費しない
   - 429 判定は送信前に実施

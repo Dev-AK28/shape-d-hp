@@ -60,4 +60,7 @@ Then アニメーションは無効化または最小限に抑えられる
 | 413 / 枠非消費 | `tests/contact/route.test.ts` |
 | メール形式 | `tests/contact/email-format.test.ts` |
 | Redis フォールバック | `tests/contact/rate-limit-service.test.ts` |
-| E2E（お問い合わせ・ナビ） | `e2e/contact.spec.ts`（Playwright） |
+| E2E（お問い合わせ） | `e2e/contact.spec.ts`（Playwright） |
+| E2E（トップ Hero） | `e2e/home.spec.ts` |
+| E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
+| Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
