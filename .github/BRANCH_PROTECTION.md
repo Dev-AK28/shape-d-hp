@@ -39,11 +39,23 @@ gh api repos/Dev-AK28/shape-d-hp/branches/main/protection \
 
 ## セルフレビュー時のマージ
 
-GitHub は自分の PR への `--approve` を拒否する。単独開発時は次のいずれかを使う:
+GitHub は自分の PR への `--approve` を拒否する。`enforce_admins: true` では `--admin` だけではマージできない（レビュー必須が管理者にも適用される）。
 
-| 方法 | コマンド / 操作 |
-|------|----------------|
-| 管理者バイパス | `gh pr merge <number> --squash --admin` |
-| 別アカウントレビュー | 2 つ目の GitHub アカウントで Approve |
+### 単独開発者向け手順（CI 通過後）
 
-`enforce_admins: true` のため、管理者も CI 未通過・レビュー未承認ではマージできない。`--admin` はレビュー必須のバイパスのみ行い、CI チェックは引き続き必須。
+```bash
+# 1. 一時的に管理者適用を解除
+gh api repos/Dev-AK28/shape-d-hp/branches/main/protection/enforce_admins -X DELETE
+
+# 2. マージ（CI quality は引き続き必須）
+gh pr merge <number> --squash --admin --delete-branch
+
+# 3. 管理者適用を再有効化
+gh api repos/Dev-AK28/shape-d-hp/branches/main/protection/enforce_admins -X POST
+```
+
+### その他
+
+| 方法 | 説明 |
+|------|------|
+| 別アカウントレビュー | 2 つ目の GitHub アカウントで Approve すれば `--admin` 不要 |
