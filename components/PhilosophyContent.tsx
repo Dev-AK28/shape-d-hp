@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import NebulaBackground from '@/components/background/NebulaBackground';
 import StarBackground from '@/components/StarBackground';
 
 export default function PhilosophyContent() {
@@ -59,27 +60,27 @@ export default function PhilosophyContent() {
     <section style={{ position: 'relative', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
       <StarBackground config={{ count: 150, maxSize: 3.5 }} />
 
-      {/* Nebula effects */}
-      <div style={{
-        position: 'fixed',
-        width: '800px',
-        height: '800px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 60%)',
-        filter: 'blur(200px)',
-        left: '10%',
-        top: '20%',
-        animation: 'nebula1 40s infinite ease-in-out'
-      }} />
-      <div style={{
-        position: 'fixed',
-        width: '600px',
-        height: '600px',
-        background: 'radial-gradient(circle, rgba(147, 51, 234, 0.08) 0%, transparent 60%)',
-        filter: 'blur(150px)',
-        right: '10%',
-        bottom: '20%',
-        animation: 'nebula2 35s infinite ease-in-out'
-      }} />
+      <NebulaBackground
+        position="fixed"
+        layers={[
+          {
+            width: 800,
+            height: 800,
+            color: 'rgba(99, 102, 241, 0.1)',
+            blur: 200,
+            position: { left: '10%', top: '20%' },
+            animation: 'nebula1 40s infinite ease-in-out',
+          },
+          {
+            width: 600,
+            height: 600,
+            color: 'rgba(147, 51, 234, 0.08)',
+            blur: 150,
+            position: { right: '10%', bottom: '20%' },
+            animation: 'nebula2 35s infinite ease-in-out',
+          },
+        ]}
+      />
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         {acronym.map((item) => (

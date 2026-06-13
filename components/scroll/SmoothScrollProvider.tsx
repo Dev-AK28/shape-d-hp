@@ -2,15 +2,23 @@
 
 import { useEffect, type ReactNode } from 'react';
 import Lenis from 'lenis';
+import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;
 };
 
+function readScrollProfile() {
+  return {
+    isMobile: window.innerWidth < 768,
+    prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    prefersCoarsePointer: window.matchMedia('(pointer: coarse)').matches,
+  };
+}
+
 export default function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
+    if (shouldDisableSmoothScroll(readScrollProfile())) {
       return;
     }
 
