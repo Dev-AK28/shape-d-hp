@@ -43,6 +43,8 @@ Vitest の `committed favicon assets` テストが、コミット済み `app/ico
 | ファイル | サイズ | 上限 |
 |----------|--------|------|
 | `app/icon.png` | 32×32 | 10 KB |
+
+32px はパレット量子化を使わず truecolor PNG とする。libvips の OS 差で SHA-256 一致テストがフレークしないようにする。
 | `app/apple-icon.png` | 180×180 | 60 KB |
 
 ## 受け入れ基準

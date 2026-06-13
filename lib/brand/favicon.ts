@@ -118,7 +118,6 @@ export async function renderFavicon(
     ])
     .png({
       compressionLevel: 9,
-      palette: size <= 32,
     })
     .toBuffer();
 }
