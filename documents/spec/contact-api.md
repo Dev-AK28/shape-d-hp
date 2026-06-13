@@ -17,7 +17,8 @@
 
 - リクエストボディ上限: **32KB**（超過時 413）
 - `Content-Length` ヘッダーが存在する場合はボディ読み込み前に拒否
-- クライアントからの `to` フィールドは**受け付けない**（サーバー側 `CONTACT_EMAIL` 固定）
+- `Content-Length` が無い、または実サイズが上限を超える場合はストリーム読込で 32KB 超過時点で 413 を返す（`lib/contact/read-body.ts`）
+- 定義外フィールド（例: `to`）は Zod により**無視**され、400 にはならない（宛先はサーバー側 `CONTACT_EMAIL` 固定）
 
 ## レスポンス
 
@@ -70,10 +71,11 @@
 - Zod による入力検証
 - IP ベースレート制限（60秒あたり5回）
   - 送信前に `tryAcquireRateLimitSlot` で枠を原子的に確保（並行リクエストの TOCTOU を防止）
-  - メール送信失敗（500）時は `releaseRateLimitSlot` で枠を返却
+  - メール送信失敗（500）時および未捕捉例外時は `releaseRateLimitSlot` で枠を返却
   - 400 / 413 は枠を消費しない
   - 429 判定は送信前に実施
   - IP は `cf-connecting-ip` → `x-forwarded-for`（先頭）→ `x-real-ip` の順で取得
   - IP 取得不可時はレート制限を**適用しない**（共有 `'unknown'` バケットによる誤 429 を防止）
   - **制限事項**: インメモリ実装のため Vercel サーバーレスではインスタンス間で共有されない。本番の厳密な制限には Upstash Redis / Vercel KV 等への移行を推奨
 - PII の console.log 出力なし
+- `reply_to` 等のメールヘッダー値は `sanitizeEmailHeaderValue` で改行除去

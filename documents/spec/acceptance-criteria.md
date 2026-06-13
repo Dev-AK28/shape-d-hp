@@ -55,5 +55,6 @@ Then アニメーションは無効化または最小限に抑えられる
 | フォームバリデーション | `tests/contact/schema.test.ts` |
 | レート制限（429） | `tests/contact/rate-limit.test.ts`, `tests/contact/route.test.ts` |
 | 不正 JSON → 400 | `tests/contact/route.test.ts` |
+| 413 / 枠非消費 | `tests/contact/route.test.ts`, `tests/contact/read-body.test.ts` |
 | メール形式 | `tests/contact/email-format.test.ts` |
 | E2E（将来） | Issue #10 で Playwright 追加予定 |
