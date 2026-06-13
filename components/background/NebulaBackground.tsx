@@ -3,6 +3,7 @@
 import { useRef, type CSSProperties } from 'react';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useIntersectionVisible } from '@/lib/hooks/useIntersectionVisible';
+import { NEBULA_INTERSECTION_OPTIONS } from '@/lib/performance/visibility-options';
 
 type NebulaLayer = {
   width: number;
@@ -21,12 +22,16 @@ type NebulaBackgroundProps = {
 const MOBILE_BLUR_RATIO = 0.45;
 
 export default function NebulaBackground({ layers, position = 'absolute' }: NebulaBackgroundProps) {
-  const { profile } = useDeviceProfile();
+  const { profile, isReady } = useDeviceProfile();
   const { isMobile, prefersReducedMotion } = profile;
   const containerRef = useRef<HTMLDivElement>(null);
-  const intersectionVisible = useIntersectionVisible(containerRef);
+  const intersectionVisible = useIntersectionVisible(containerRef, NEBULA_INTERSECTION_OPTIONS);
   const visible = position === 'fixed' || intersectionVisible;
   const animate = visible && !prefersReducedMotion;
+
+  if (!isReady) {
+    return <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" />;
+  }
 
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden">

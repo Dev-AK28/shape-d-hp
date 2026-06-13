@@ -10,14 +10,14 @@ Issue: #51
 
 | 領域 | 対策 |
 |------|------|
-| `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止、`prefers-reduced-motion` 時は静止 |
-| `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効 |
-| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時） |
+| `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止、`prefers-reduced-motion` 時は静止。IO は `threshold: 0.15` + `rootMargin` で複数インスタンスの同時稼働を抑制 |
+| `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効。プロファイル変更時に Lenis を create/destroy |
+| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時）。`isReady` 後に描画し hydration mismatch を回避 |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
 
 ## デバイスプロファイル
 
-`lib/performance/device-profile.ts` の `readDeviceProfile()` が判定の SSOT。`lib/hooks/useDeviceProfile.ts` が React 向けに `useLayoutEffect` で初回描画前に同期する。
+`lib/performance/device-profile.ts` の `readDeviceProfile()` が判定の SSOT。`lib/hooks/useDeviceProfile.ts` は `useSyncExternalStore` で client プロファイルを購読し、`isReady` で hydration 前の描画を遅延する。
 
 - `isMobile`: ビューポート幅 `< 768px`（`MOBILE_BREAKPOINT_PX`）
 - `prefersReducedMotion`: OS の reduced motion 設定

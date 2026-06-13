@@ -2,7 +2,10 @@
 
 import { useEffect, useState, type RefObject } from 'react';
 
-export function useIntersectionVisible(targetRef: RefObject<Element | null>): boolean {
+export function useIntersectionVisible(
+  targetRef: RefObject<Element | null>,
+  options?: IntersectionObserverInit,
+): boolean {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -15,7 +18,7 @@ export function useIntersectionVisible(targetRef: RefObject<Element | null>): bo
       ([entry]) => {
         setVisible(entry?.isIntersecting ?? false);
       },
-      { threshold: 0 },
+      options ?? { threshold: 0 },
     );
 
     observer.observe(target);
@@ -23,7 +26,7 @@ export function useIntersectionVisible(targetRef: RefObject<Element | null>): bo
     return () => {
       observer.disconnect();
     };
-  }, [targetRef]);
+  }, [targetRef, options]);
 
   return visible;
 }

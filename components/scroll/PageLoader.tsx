@@ -1,22 +1,27 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+
+function subscribeNoop() {
+  return () => {};
+}
 
 export default function PageLoader() {
   const reduceMotion = useReducedMotion();
-  const [visible, setVisible] = useState(!reduceMotion);
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (reduceMotion) {
+    if (!mounted || reduceMotion) {
       return;
     }
 
-    const timer = window.setTimeout(() => setVisible(false), 900);
+    const timer = window.setTimeout(() => setDismissed(true), 900);
     return () => window.clearTimeout(timer);
-  }, [reduceMotion]);
+  }, [mounted, reduceMotion]);
 
-  if (!visible) {
+  if (!mounted || reduceMotion || dismissed) {
     return null;
   }
 
@@ -26,7 +31,7 @@ export default function PageLoader() {
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       transition={{ duration: 0.5, delay: 0.45 }}
-      onAnimationComplete={() => setVisible(false)}
+      onAnimationComplete={() => setDismissed(true)}
     >
       <motion.p
         className="font-serif text-sm tracking-[0.35em] text-blue-300 uppercase"

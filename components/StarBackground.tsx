@@ -5,6 +5,7 @@ import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useIntersectionVisible } from '@/lib/hooks/useIntersectionVisible';
 import { shouldAnimateStars } from '@/lib/performance/device-profile';
 import { getStarUpdateIntervalMs, scaleStarConfig } from '@/lib/performance/star-config';
+import { STAR_INTERSECTION_OPTIONS } from '@/lib/performance/visibility-options';
 
 export type { StarConfig } from '@/lib/performance/star-config';
 import type { StarConfig } from '@/lib/performance/star-config';
@@ -111,7 +112,7 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const starsRef = useRef<Star[]>([]);
   const elementsRef = useRef<HTMLDivElement[]>([]);
-  const visible = useIntersectionVisible(containerRef);
+  const visible = useIntersectionVisible(containerRef, STAR_INTERSECTION_OPTIONS);
 
   useEffect(() => {
     if (!isReady) {
@@ -143,12 +144,6 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
       return;
     }
 
-    const stars = starsRef.current;
-    const elements = elementsRef.current;
-    if (stars.length === 0 || elements.length === 0) {
-      return;
-    }
-
     let frame = 0;
     let lastTick = 0;
     const intervalMs = getStarUpdateIntervalMs(profile);
@@ -157,6 +152,12 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
 
     const tick = (time: number) => {
       frame = requestAnimationFrame(tick);
+
+      const stars = starsRef.current;
+      const elements = elementsRef.current;
+      if (stars.length === 0 || elements.length === 0) {
+        return;
+      }
 
       if (time - lastTick < intervalMs) {
         return;
@@ -175,7 +176,14 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [isReady, visible, profile, merged.drift, merged.glowMultiplier, merged.count]);
+  }, [
+    isReady,
+    visible,
+    profile,
+    profile.isMobile,
+    profile.prefersReducedMotion,
+    merged,
+  ]);
 
   return <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" />;
 }

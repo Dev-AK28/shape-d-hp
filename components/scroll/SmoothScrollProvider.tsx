@@ -2,15 +2,18 @@
 
 import { useEffect, type ReactNode } from 'react';
 import Lenis from 'lenis';
-import { readDeviceProfile, shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;
 };
 
 export default function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
+  const { profile, isReady } = useDeviceProfile();
+
   useEffect(() => {
-    if (shouldDisableSmoothScroll(readDeviceProfile())) {
+    if (!isReady || shouldDisableSmoothScroll(profile)) {
       return;
     }
 
@@ -31,7 +34,13 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       cancelAnimationFrame(frame);
       lenis.destroy();
     };
-  }, []);
+  }, [
+    isReady,
+    profile,
+    profile.isMobile,
+    profile.prefersReducedMotion,
+    profile.prefersCoarsePointer,
+  ]);
 
   return <>{children}</>;
 }
