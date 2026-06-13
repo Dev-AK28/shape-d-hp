@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MAX_CONTACT_BODY_BYTES } from '@/lib/contact/constants';
+import { readRequestBodyWithLimit } from '@/lib/contact/read-body';
 import {
   extractClientIp,
   releaseRateLimitSlot,
@@ -20,7 +21,13 @@ function parseJsonBody(rawBody: string): unknown | null {
   }
 }
 
+function serverErrorResponse() {
+  return NextResponse.json({ success: false, error: SERVER_ERROR_MESSAGE }, { status: 500 });
+}
+
 export async function POST(request: NextRequest) {
+  let releaseSlot: (() => void) | null = null;
+
   try {
     const contentLength = request.headers.get('content-length');
     if (contentLength) {
@@ -33,24 +40,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const rawBody = await request.text();
-
-    if (rawBody.length > MAX_CONTACT_BODY_BYTES) {
+    const bodyResult = await readRequestBodyWithLimit(request, MAX_CONTACT_BODY_BYTES);
+    if (!bodyResult.ok) {
       return NextResponse.json(
         { success: false, error: 'Payload too large' },
         { status: 413 },
       );
     }
 
-    const body = parseJsonBody(rawBody);
-    if (body === null) {
+    const rawBody = bodyResult.body;
+    const parsedJson = parseJsonBody(rawBody);
+    if (parsedJson === null) {
       return NextResponse.json(
         { success: false, error: 'Invalid input' },
         { status: 400 },
       );
     }
 
-    const parsed = contactFormSchema.safeParse(body);
+    const parsed = contactFormSchema.safeParse(parsedJson);
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -60,7 +67,6 @@ export async function POST(request: NextRequest) {
     }
 
     const clientIp = extractClientIp(request.headers);
-    let slotAcquired = false;
 
     if (clientIp) {
       if (!tryAcquireRateLimitSlot(clientIp, rateLimitStore)) {
@@ -69,21 +75,22 @@ export async function POST(request: NextRequest) {
           { status: 429 },
         );
       }
-      slotAcquired = true;
+      releaseSlot = () => releaseRateLimitSlot(clientIp, rateLimitStore);
     }
 
     const result = await sendContactEmail(parsed.data);
 
     if (!result.ok) {
-      if (clientIp && slotAcquired) {
-        releaseRateLimitSlot(clientIp, rateLimitStore);
-      }
+      releaseSlot?.();
+      releaseSlot = null;
       console.error('Contact email failed', { error: result.error });
-      return NextResponse.json({ success: false, error: SERVER_ERROR_MESSAGE }, { status: 500 });
+      return serverErrorResponse();
     }
 
+    releaseSlot = null;
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ success: false, error: SERVER_ERROR_MESSAGE }, { status: 500 });
+    releaseSlot?.();
+    return serverErrorResponse();
   }
 }

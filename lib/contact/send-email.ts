@@ -3,6 +3,7 @@ import {
   buildContactEmailBody,
   buildContactEmailSubject,
   formatFromAddress,
+  sanitizeEmailHeaderValue,
 } from './email-format';
 import type { ContactFormInput } from './schema';
 
@@ -28,7 +29,7 @@ export async function sendContactEmail(data: ContactFormInput): Promise<SendResu
       body: JSON.stringify({
         from: formatFromAddress(),
         to: [CONTACT_EMAIL],
-        reply_to: data.email,
+        reply_to: sanitizeEmailHeaderValue(data.email),
         subject: buildContactEmailSubject(data.name),
         text: buildContactEmailBody(data),
       }),
