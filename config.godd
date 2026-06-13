@@ -1,0 +1,20 @@
+display_language: ja
+main_language: ja
+sub_languages: []
+programming_languages: [typescript]
+frontend: [nextjs, react]
+backend: []
+database: []
+orm: []
+infra: [vercel, github-actions]
+mobile: []
+game: []
+other: []
+design:
+  tool: pencil
+  auto_suggest: true
+  design_review: true
+godd_files:
+  docs_dir: documents
+  generate_gitattributes: true
+  generate_dependabot: true
