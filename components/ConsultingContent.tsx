@@ -1,8 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import BrandLogo from '@/components/BrandLogo';
+import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function ConsultingContent() {
   const reduceMotion = useReducedMotion();
