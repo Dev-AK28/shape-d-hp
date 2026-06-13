@@ -47,6 +47,10 @@
 
 - Resend API を使用（`RESEND_API_KEY` 環境変数）
 - 未設定時: 開発環境は成功レスポンス、本番は 500
+- 送信者表示名: デフォルト `shape-d-hp`（`RESEND_FROM_NAME` で上書き可）
+- `From` ヘッダー形式: `shape-d-hp <RESEND_FROM_EMAIL>`
+- 件名形式: `[shape-d-hp] お問い合わせ: {name}`
+- 本文先頭に `送信元: shape-d-hp (https://www.shape-d.com)` を記載
 
 ## セキュリティ
 
