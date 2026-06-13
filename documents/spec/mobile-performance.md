@@ -10,24 +10,25 @@ Issue: #51
 
 | 領域 | 対策 |
 |------|------|
-| `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF 停止、`prefers-reduced-motion` 時は静止 |
+| `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止、`prefers-reduced-motion` 時は静止 |
 | `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効 |
-| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止 |
-| 画像 | `public/*.png`（ファビコン原画像除く）を `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
+| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時） |
+| 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
 
 ## デバイスプロファイル
 
-`lib/performance/device-profile.ts` と `lib/hooks/useDeviceProfile.ts` が以下を提供する。
+`lib/performance/device-profile.ts` の `readDeviceProfile()` が判定の SSOT。`lib/hooks/useDeviceProfile.ts` が React 向けに `useLayoutEffect` で初回描画前に同期する。
 
-- `isMobile`: ビューポート幅 `< 768px`
+- `isMobile`: ビューポート幅 `< 768px`（`MOBILE_BREAKPOINT_PX`）
 - `prefersReducedMotion`: OS の reduced motion 設定
 - `prefersCoarsePointer`: タッチ主体デバイス
 
 ## 画像アセット
 
-- 最適化スクリプト: `npm run optimize:images`
+- 最適化スクリプト: `npm run optimize:images`（`image-assets.ts` で参照される PNG のみ対象）
 - 参照マップ: `lib/performance/image-assets.ts`
-- `image_13.png` はファビコン生成の原画像のためスクリプト対象外
+- PNG 原画像はビルド用ソースとして `public/` に残し、ランタイム参照は WebP のみ
+- `image_13.png` は未参照のためスクリプト対象外
 
 ## 受け入れ基準（Given-When-Then）
 

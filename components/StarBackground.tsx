@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useIntersectionVisible } from '@/lib/hooks/useIntersectionVisible';
 import { shouldAnimateStars } from '@/lib/performance/device-profile';
 import { getStarUpdateIntervalMs, scaleStarConfig } from '@/lib/performance/star-config';
 
@@ -62,17 +63,61 @@ function advanceStar(star: Star, drift: number): void {
   star.x = newX < 0 ? 100 : newX > 100 ? 0 : newX;
 }
 
+function mergeStarConfig(config?: StarConfig): Required<StarConfig> {
+  return { ...DEFAULT_CONFIG, ...config };
+}
+
 export default function StarBackground({ config }: { config?: StarConfig }) {
-  const profile = useDeviceProfile();
+  const { profile, isReady } = useDeviceProfile();
+  const count = config?.count;
+  const maxSize = config?.maxSize;
+  const minSize = config?.minSize;
+  const maxOpacity = config?.maxOpacity;
+  const minOpacity = config?.minOpacity;
+  const maxSpeed = config?.maxSpeed;
+  const minSpeed = config?.minSpeed;
+  const drift = config?.drift;
+  const glowMultiplier = config?.glowMultiplier;
+
+  const baseConfig = useMemo(
+    () =>
+      mergeStarConfig({
+        count,
+        maxSize,
+        minSize,
+        maxOpacity,
+        minOpacity,
+        maxSpeed,
+        minSpeed,
+        drift,
+        glowMultiplier,
+      }),
+    [count, maxSize, minSize, maxOpacity, minOpacity, maxSpeed, minSpeed, drift, glowMultiplier],
+  );
   const merged = useMemo(
-    () => scaleStarConfig({ ...DEFAULT_CONFIG, ...config }, profile),
-    [config, profile],
+    () =>
+      scaleStarConfig(baseConfig, {
+        isMobile: profile.isMobile,
+        prefersReducedMotion: profile.prefersReducedMotion,
+        prefersCoarsePointer: profile.prefersCoarsePointer,
+      }),
+    [
+      baseConfig,
+      profile.isMobile,
+      profile.prefersReducedMotion,
+      profile.prefersCoarsePointer,
+    ],
   );
   const containerRef = useRef<HTMLDivElement>(null);
   const starsRef = useRef<Star[]>([]);
   const elementsRef = useRef<HTMLDivElement[]>([]);
+  const visible = useIntersectionVisible(containerRef);
 
   useEffect(() => {
+    if (!isReady) {
+      return;
+    }
+
     const container = containerRef.current;
     if (!container) {
       return;
@@ -91,36 +136,37 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
       return element;
     });
     elementsRef.current = elements;
+  }, [isReady, merged]);
 
-    if (!shouldAnimateStars(profile)) {
+  useEffect(() => {
+    if (!isReady || !shouldAnimateStars(profile) || !visible) {
       return;
     }
 
-    let visible = true;
+    const stars = starsRef.current;
+    const elements = elementsRef.current;
+    if (stars.length === 0 || elements.length === 0) {
+      return;
+    }
+
     let frame = 0;
     let lastTick = 0;
     const intervalMs = getStarUpdateIntervalMs(profile);
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        visible = entry?.isIntersecting ?? true;
-      },
-      { threshold: 0 },
-    );
-    observer.observe(container);
+    const starDrift = merged.drift;
+    const starGlow = merged.glowMultiplier;
 
     const tick = (time: number) => {
       frame = requestAnimationFrame(tick);
 
-      if (!visible || time - lastTick < intervalMs) {
+      if (time - lastTick < intervalMs) {
         return;
       }
 
       lastTick = time;
 
       for (let index = 0; index < stars.length; index += 1) {
-        advanceStar(stars[index], merged.drift);
-        applyStarStyle(elements[index], stars[index], merged.glowMultiplier);
+        advanceStar(stars[index], starDrift);
+        applyStarStyle(elements[index], stars[index], starGlow);
       }
     };
 
@@ -128,9 +174,8 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
 
     return () => {
       cancelAnimationFrame(frame);
-      observer.disconnect();
     };
-  }, [merged, profile]);
+  }, [isReady, visible, profile, merged.drift, merged.glowMultiplier, merged.count]);
 
   return <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" />;
 }

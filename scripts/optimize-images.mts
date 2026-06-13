@@ -1,14 +1,20 @@
 import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
+import { OPTIMIZED_PUBLIC_IMAGES } from '../lib/performance/image-assets';
 
 const PUBLIC_DIR = join(process.cwd(), 'public');
 const MAX_WIDTH = 1200;
 const WEBP_QUALITY = 82;
-const SKIP_FILES = new Set(['image_13.png']);
+
+const USED_PNG_FILES = new Set(
+  [...Object.values(OPTIMIZED_PUBLIC_IMAGES.works), OPTIMIZED_PUBLIC_IMAGES.consultingBackground].map(
+    (webpPath) => webpPath.replace(/^\//, '').replace('.webp', '.png'),
+  ),
+);
 
 async function optimizePng(filename: string): Promise<void> {
-  if (!filename.endsWith('.png') || SKIP_FILES.has(filename)) {
+  if (!filename.endsWith('.png') || !USED_PNG_FILES.has(filename)) {
     return;
   }
 

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_DEVICE_PROFILE,
   isMobileViewport,
+  mobileMaxWidthMediaQuery,
+  readDeviceProfile,
   shouldAnimateStars,
   shouldDisableSmoothScroll,
 } from '@/lib/performance/device-profile';
@@ -42,5 +44,13 @@ describe('device-profile', () => {
         prefersReducedMotion: true,
       }),
     ).toBe(false);
+  });
+
+  it('exposes a shared mobile media query from the breakpoint constant', () => {
+    expect(mobileMaxWidthMediaQuery()).toBe('(max-width: 767px)');
+  });
+
+  it('returns the default profile when window is unavailable', () => {
+    expect(readDeviceProfile()).toEqual(DEFAULT_DEVICE_PROFILE);
   });
 });
