@@ -16,8 +16,8 @@ export const STAR_UPDATE_INTERVAL_MS = {
   mobile: 150,
 } as const;
 
-const MOBILE_COUNT_RATIO = 0.45;
-const MOBILE_GLOW_MULTIPLIER = 1;
+const MOBILE_COUNT_RATIO = 0.35;
+const MOBILE_GLOW_MULTIPLIER = 0;
 
 export function scaleStarConfig(
   config: Required<StarConfig>,

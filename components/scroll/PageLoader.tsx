@@ -3,8 +3,8 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-const LOADER_VISIBLE_MS = 650;
-const LOADER_FADE_MS = 400;
+const LOADER_VISIBLE_MS = 350;
+const LOADER_FADE_MS = 250;
 const LOADER_FALLBACK_MS = LOADER_VISIBLE_MS + LOADER_FADE_MS + 100;
 
 export default function PageLoader() {
@@ -27,7 +27,7 @@ export default function PageLoader() {
   return (
     <motion.div
       data-testid="page-loader"
-      className="pointer-events-none fixed inset-0 z-[2000] flex items-center justify-center bg-black"
+      className="pointer-events-none fixed inset-0 z-[2000] flex items-center justify-center bg-transparent"
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       transition={{ duration: LOADER_FADE_MS / 1000, delay: LOADER_VISIBLE_MS / 1000 }}

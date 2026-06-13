@@ -76,7 +76,7 @@ const args = [
   'lighthouse',
   targetUrl,
   '--quiet',
-  '--chrome-flags=--headless --no-sandbox --disable-gpu',
+  '--chrome-flags=--headless --no-sandbox --disable-gpu --disable-dev-shm-usage',
   '--only-categories=performance',
   '--form-factor=mobile',
   '--screenEmulation.mobile=true',

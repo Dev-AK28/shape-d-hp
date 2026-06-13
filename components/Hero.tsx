@@ -1,14 +1,23 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
+import type { ReactNode } from 'react';
 
-export default function Hero() {
+const StarBackground = dynamic(() => import('@/components/StarBackground'), {
+  ssr: false,
+});
+
+type HeroProps = {
+  children?: ReactNode;
+};
+
+export default function Hero({ children }: HeroProps) {
   const reduceMotion = useReducedMotion();
 
   return (
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 300, maxSize: 3.5, minOpacity: 0.2, maxOpacity: 1, maxSpeed: 0.6, minSpeed: 0.1, drift: 0.2, glowMultiplier: 2 }} />
+      <StarBackground config={{ count: 120, maxSize: 3, minOpacity: 0.2, maxOpacity: 0.9, maxSpeed: 0.5, minSpeed: 0.08, drift: 0.15, glowMultiplier: 1.5 }} />
 
       <div style={{
         position: 'absolute',
@@ -62,11 +71,7 @@ export default function Hero() {
           </p>
         </motion.div>
 
-        <h1
-          style={{ fontSize: 'clamp(36px, 6vw, 64px)', fontFamily: 'serif', color: 'white', marginBottom: '48px', lineHeight: 1.3, fontWeight: 300, letterSpacing: '0.05em', textAlign: 'center', maxWidth: '900px', marginInline: 'auto' }}
-        >
-          AIで効率化し、本来の創造に集中する環境を作る。
-        </h1>
+        {children}
 
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 40 }}
