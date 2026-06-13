@@ -1,8 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import BrandLogo from '@/components/BrandLogo';
+import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function ConsultingContent() {
   const steps = [
@@ -66,18 +68,14 @@ export default function ConsultingContent() {
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
         >
           {/* Background Image */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: 'url(/image_10.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: 0.1,
-            zIndex: 0
-          }} />
+          <Image
+            src={OPTIMIZED_PUBLIC_IMAGES.consultingBackground}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 1200px"
+            aria-hidden
+            style={{ objectFit: 'cover', opacity: 0.1, zIndex: 0 }}
+          />
           {/* Dark overlay for better text contrast */}
           <div style={{
             position: 'absolute',
