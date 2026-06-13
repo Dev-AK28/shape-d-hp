@@ -48,6 +48,17 @@ http://localhost:3000 で確認できます。
 
 Vercel へのデプロイを想定しています。環境変数を Vercel ダッシュボードで設定してください。
 
+### 本番チェックリスト（shape-d-hp）
+
+| 項目 | 状態 | 備考 |
+|------|------|------|
+| Upstash KV（レート制限共有） | 設定済み | リソース名 `shape-d-hp-rate-limit`（東京 `hnd1`）。`KV_REST_API_*` が Production / Preview / Development に注入 |
+| Resend API キー | 設定済み | Production |
+| 送信元メール | 設定済み | `RESEND_FROM_EMAIL=onboarding@resend.dev`（ドメイン検証前の暫定） |
+| Resend ドメイン検証 | **要対応** | [resend.com/domains](https://resend.com/domains) で `shape-d.com` を追加し DNS レコードを設定後、`RESEND_FROM_EMAIL` を `hello@shape-d.com` 等に変更 |
+
+> Resend の Send-only API キーではドメイン追加 API は利用不可。ダッシュボードからドメイン検証を行ってください。検証完了までは `hello@shape-d.com` 宛送信が 403 になります。
+
 ## ドキュメント
 
 - 仕様: `documents/spec/`
