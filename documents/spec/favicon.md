@@ -13,6 +13,10 @@
 | 出力先 | `app/icon.png`（32×32）、`app/apple-icon.png`（180×180） |
 | 参照 | Next.js App Router の file-based metadata（`app/icon.png` / `app/apple-icon.png`） |
 
+16×16 や `.ico` を個別に用意しない。Next.js App Router は `app/icon.png` から適切なサイズの favicon を配信し、ブラウザ側でスケールする。従来の `app/favicon.ico` は file-based metadata に統一するため削除する。
+
+`generate:favicons` は Node.js 22 以上（`--experimental-strip-types` 利用）が必要。
+
 `app/layout.tsx` の `metadata.icons` では `image_13.png` を参照しない。
 
 ## ビジュアル仕様

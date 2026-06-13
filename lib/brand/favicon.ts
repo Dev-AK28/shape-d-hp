@@ -84,15 +84,16 @@ function createGradientSvg(size: number): Buffer {
 export async function renderFavicon(
   size: number,
   sourcePath: string = FAVICON_SOURCE_PATH,
+  mark?: Buffer,
 ): Promise<Buffer> {
   const background = await sharp(createGradientSvg(size))
     .resize(size, size)
     .png()
     .toBuffer();
 
-  const mark = await extractLogoMark(sourcePath);
+  const logoMark = mark ?? (await extractLogoMark(sourcePath));
   const logoWidth = Math.round(size * 0.78);
-  const logo = await sharp(mark).resize(logoWidth, null, { fit: 'inside' }).png().toBuffer();
+  const logo = await sharp(logoMark).resize(logoWidth, null, { fit: 'inside' }).png().toBuffer();
   const { width: logoImageWidth, height: logoImageHeight } = await sharp(logo).metadata();
 
   if (!logoImageWidth || !logoImageHeight) {
@@ -123,11 +124,17 @@ export async function renderFavicon(
 export async function writeFaviconAssets(appDir = join(process.cwd(), 'app')): Promise<
   Array<{ filename: string; size: number; bytes: number }>
 > {
-  const results: Array<{ filename: string; size: number; bytes: number }> = [];
+  const mark = await extractLogoMark();
+  const pending: Array<{
+    filename: string;
+    size: number;
+    bytes: number;
+    buffer: Buffer;
+    destination: string;
+  }> = [];
 
   for (const output of FAVICON_OUTPUTS) {
-    const buffer = await renderFavicon(output.size);
-    const destination = join(appDir, output.filename);
+    const buffer = await renderFavicon(output.size, FAVICON_SOURCE_PATH, mark);
 
     if (buffer.length > output.maxBytes) {
       throw new Error(
@@ -135,9 +142,18 @@ export async function writeFaviconAssets(appDir = join(process.cwd(), 'app')): P
       );
     }
 
-    await writeFile(destination, buffer);
-    results.push({ filename: output.filename, size: output.size, bytes: buffer.length });
+    pending.push({
+      filename: output.filename,
+      size: output.size,
+      bytes: buffer.length,
+      buffer,
+      destination: join(appDir, output.filename),
+    });
   }
 
-  return results;
+  for (const item of pending) {
+    await writeFile(item.destination, item.buffer);
+  }
+
+  return pending.map(({ filename, size, bytes }) => ({ filename, size, bytes }));
 }
