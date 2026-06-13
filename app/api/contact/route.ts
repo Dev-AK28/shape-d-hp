@@ -30,7 +30,13 @@ export async function POST(request: NextRequest) {
       return;
     }
     slotAcquired = false;
-    await rateLimit.release(clientIp);
+    try {
+      await rateLimit.release(clientIp);
+    } catch (error) {
+      console.error('Rate limit release failed', {
+        name: error instanceof Error ? error.name : 'UnknownError',
+      });
+    }
   }
 
   try {
