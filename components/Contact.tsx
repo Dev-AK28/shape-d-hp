@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import { PUBLIC_CONTACT_EMAIL } from '@/lib/contact/constants';
 
 export default function Contact() {
+  const reduceMotion = useReducedMotion();
   const contactMethods = [
     {
       label: "Email",
@@ -34,9 +35,9 @@ export default function Contact() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'left', marginBottom: '120px' }}
         >
@@ -48,9 +49,9 @@ export default function Contact() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '80px', alignItems: 'center', marginBottom: '120px' }}>
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-100px" }}
           >
             <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: '#93c5fd', marginBottom: '32px', fontFamily: 'serif' }}>
@@ -65,9 +66,9 @@ export default function Contact() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.4, ease: 'easeOut' }}
             viewport={{ once: true, margin: "-100px" }}
             style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
           >
@@ -75,11 +76,15 @@ export default function Contact() {
               <motion.a
                 key={index}
                 href={method.href}
-                initial={{ opacity: 0, y: 40 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.5 + index * 0.1, ease: "easeOut" }}
-                viewport={{ once: true, margin: "-100px" }}
-                whileHover={{ y: -8, borderColor: 'rgba(96, 165, 250, 0.8)', transition: { duration: 0.3 } }}
+                transition={{
+                  duration: reduceMotion ? 0 : 1,
+                  delay: reduceMotion ? 0 : 0.5 + index * 0.1,
+                  ease: 'easeOut',
+                }}
+                viewport={{ once: true, margin: '-100px' }}
+                whileHover={reduceMotion ? undefined : { y: -8, borderColor: 'rgba(96, 165, 250, 0.8)', transition: { duration: 0.3 } }}
                 style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
               >
                 <div style={{ flex: 1 }}>
@@ -94,9 +99,9 @@ export default function Contact() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ textAlign: 'center' }}
         >
@@ -108,8 +113,8 @@ export default function Contact() {
               あなたのビジョンと私の技術が融合し、新しい価値を生み出す瞬間を待っています。
             </p>
             <motion.button
-              whileHover={{ scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
+              whileTap={reduceMotion ? undefined : { scale: 0.95 }}
               style={{ padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif' }}
             >
               対話を始める（無料）
