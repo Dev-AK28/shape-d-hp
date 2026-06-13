@@ -45,6 +45,13 @@ Issue: #2
 - `postcss` は `package.json` の `overrides` で `^8.5.10` 以上に固定
 - 更新後は `npm audit` が 0 vulnerabilities、`npm run build` が成功すること
 
+## お問い合わせ API
+
+Issues: #4, #5
+
+- 仕様: [`contact-api.md`](./contact-api.md)
+- Zod による入力検証、サーバー側固定の送信先、Resend 連携、IP ベースレート制限
+
 ## 完了条件
 
 - 全ページがビルド成功する
