@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   RATE_LIMIT_MAX,
   RATE_LIMIT_WINDOW_MS,
@@ -74,16 +74,20 @@ describe('tryAcquireRateLimitSlot', () => {
 });
 
 describe('extractClientIp', () => {
-  it('reads the first x-forwarded-for address', () => {
+  it('reads the first x-forwarded-for address when proxy headers are trusted', () => {
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'true');
     const headers = new Headers({ 'x-forwarded-for': ' 203.0.113.1, 10.0.0.1 ' });
 
     expect(extractClientIp(headers)).toBe('203.0.113.1');
+    vi.unstubAllEnvs();
   });
 
-  it('falls back to x-real-ip', () => {
+  it('falls back to x-real-ip when proxy headers are trusted', () => {
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'true');
     const headers = new Headers({ 'x-real-ip': '198.51.100.2' });
 
     expect(extractClientIp(headers)).toBe('198.51.100.2');
+    vi.unstubAllEnvs();
   });
 
   it('returns null when no IP headers exist', () => {
@@ -97,6 +101,15 @@ describe('extractClientIp', () => {
     });
 
     expect(extractClientIp(headers)).toBe('192.0.2.1');
+  });
+
+  it('ignores x-forwarded-for when proxy headers are not trusted', () => {
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'false');
+    vi.stubEnv('VERCEL', '');
+    const headers = new Headers({ 'x-forwarded-for': '203.0.113.1' });
+
+    expect(extractClientIp(headers)).toBeNull();
+    vi.unstubAllEnvs();
   });
 });
 

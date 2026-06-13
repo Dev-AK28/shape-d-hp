@@ -5,6 +5,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    env: {
+      CONTACT_TRUST_PROXY_IP_HEADERS: 'true',
+    },
   },
   resolve: {
     alias: {
