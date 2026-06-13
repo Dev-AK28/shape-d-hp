@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { waitForHomePageReady } from './helpers';
 
 const NAV_ITEMS = [
   { name: 'ホーム', href: '/', urlPattern: /\/$/ },
@@ -13,6 +14,7 @@ test.describe('Navigation', () => {
   for (const item of NAV_ITEMS) {
     test(`navigates to ${item.name} (${item.href})`, async ({ page }) => {
       await page.goto('/');
+      await waitForHomePageReady(page);
 
       await page.getByRole('navigation').getByRole('link', { name: item.name }).click();
 
