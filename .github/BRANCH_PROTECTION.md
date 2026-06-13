@@ -17,6 +17,7 @@ GitHub Settings → Branches → Add branch protection rule
 
 - Issue #14 の CI ワークフローがリモートに push 済みであること
 - 初回 CI 実行後に `quality` チェック名を確認すること
+- CI は `actions/checkout@v5` / `actions/setup-node@v5` を使用（GitHub-hosted `ubuntu-latest` 前提。self-hosted runner 利用時は v2.327.1 以上が必要）
 
 ## CLI（権限がある場合）
 
