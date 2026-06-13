@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Footer from "@/components/Footer";
+import DeferredPageLoader from "@/components/scroll/DeferredPageLoader";
 import SmoothScrollProvider from "@/components/scroll/SmoothScrollProvider";
-import PageLoader from "@/components/scroll/PageLoader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,7 +32,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SmoothScrollProvider>
-          <PageLoader />
+          <DeferredPageLoader />
           {children}
         </SmoothScrollProvider>
         <Footer />

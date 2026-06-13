@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const targetUrl = process.argv[2] ?? 'http://127.0.0.1:3000/';
 const minPerformance = Number(process.env.LIGHTHOUSE_MIN_PERFORMANCE ?? '0.7');
+const warmupPasses = Number(process.env.LIGHTHOUSE_WARMUP_PASSES ?? '2');
 const outputDir = path.join(__dirname, '../.lighthouse');
 const reportPath = path.join(outputDir, 'report.json');
 
@@ -70,6 +71,14 @@ function resolveChromePath() {
 }
 
 fs.mkdirSync(outputDir, { recursive: true });
+
+for (let pass = 0; pass < warmupPasses; pass += 1) {
+  try {
+    await fetch(targetUrl, { signal: AbortSignal.timeout(30_000) });
+  } catch {
+    console.warn(`Warmup pass ${pass + 1} failed for ${targetUrl}; continuing.`);
+  }
+}
 
 const chromePath = resolveChromePath();
 const args = [

@@ -75,7 +75,14 @@ jobs:
       - name: Wait for server
         run: npx wait-on http://127.0.0.1:3000 --timeout 120000
 
+      - name: Warm up server
+        run: |
+          curl -sf http://127.0.0.1:3000/ > /dev/null
+          sleep 5
+          curl -sf http://127.0.0.1:3000/ > /dev/null
+
       - name: Lighthouse mobile performance
         run: npm run lighthouse:check
         env:
           LIGHTHOUSE_MIN_PERFORMANCE: '0.7'
+          LIGHTHOUSE_WARMUP_PASSES: '3'
