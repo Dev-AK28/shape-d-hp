@@ -25,12 +25,12 @@ export default function NebulaBackground({ layers, position = 'absolute' }: Nebu
   const { profile, isReady } = useDeviceProfile();
   const { isMobile, prefersReducedMotion } = profile;
   const containerRef = useRef<HTMLDivElement>(null);
+  const isFixed = position === 'fixed';
   const { visible: intersectionVisible, observed } = useIntersectionVisible(
     containerRef,
     NEBULA_INTERSECTION_OPTIONS,
-    isReady,
+    isReady && !isFixed,
   );
-  const isFixed = position === 'fixed';
   const showEffects = isFixed || !observed || intersectionVisible;
   const animate = showEffects && !prefersReducedMotion;
 
