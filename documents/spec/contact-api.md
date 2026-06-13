@@ -34,7 +34,7 @@
 { "success": false, "error": "Invalid input", "details": {} }
 ```
 
-不正 JSON も 400（`Invalid input`、details なし）を返す。
+不正 JSON および空ボディも 400（`Invalid input`、details なし）を返す。
 
 ### ペイロード過大 (413)
 
