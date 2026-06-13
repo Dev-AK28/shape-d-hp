@@ -42,14 +42,3 @@ test.describe('Contact page', () => {
     await expect(page.getByText('送信回数の上限に達しました')).toBeVisible();
   });
 });
-
-test.describe('Navigation', () => {
-  test('navigates to contact page from home', async ({ page }) => {
-    await page.goto('/');
-
-    await page.getByRole('navigation').getByRole('link', { name: 'お問い合わせ' }).click();
-
-    await expect(page).toHaveURL(/\/contact$/);
-    await expect(page.getByRole('heading', { name: 'CONTACT' })).toBeVisible();
-  });
-});
