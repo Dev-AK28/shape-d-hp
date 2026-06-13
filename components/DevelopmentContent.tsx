@@ -1,36 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import StarBackground from '@/components/StarBackground';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function DevelopmentContent() {
-  const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
-
-  useEffect(() => {
-    const newStars = Array.from({ length: 100 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.5 + 0.1,
-      speed: Math.random() * 0.3 + 0.05
-    }));
-    setStars(newStars);
-
-    const interval = setInterval(() => {
-      setStars(prevStars => prevStars.map(star => {
-        const newX = star.x + (Math.random() - 0.5) * 0.1;
-        return {
-          ...star,
-          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
-          x: newX < 0 ? 100 : (newX > 100 ? 0 : newX)
-        };
-      }));
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const steps = [
     {
       id: 1,
@@ -72,25 +46,7 @@ export default function DevelopmentContent() {
 
   return (
     <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      {/* Stars */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            style={{
-              position: 'absolute',
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              background: 'white',
-              borderRadius: '50%',
-              opacity: star.opacity,
-              boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.3)`
-            }}
-          />
-        ))}
-      </div>
+      <StarBackground config={{ count: 100 }} />
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
@@ -220,11 +176,7 @@ export default function DevelopmentContent() {
             whileTap={{ scale: 0.95 }}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
-            <img
-              src="/image_13.png"
-              alt="Logo"
-              style={{ width: '16px', height: 'auto' }}
-            />
+            <BrandLogo height={16} className="max-w-4" />
             爆速でプロトタイプを試す（初回相談）
           </motion.a>
         </motion.div>

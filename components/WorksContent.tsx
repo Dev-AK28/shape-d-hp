@@ -1,36 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import StarBackground from '@/components/StarBackground';
+import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function WorksContent() {
-  const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
-
-  useEffect(() => {
-    const newStars = Array.from({ length: 100 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.5 + 0.1,
-      speed: Math.random() * 0.3 + 0.05
-    }));
-    setStars(newStars);
-
-    const interval = setInterval(() => {
-      setStars(prevStars => prevStars.map(star => {
-        const newX = star.x + (Math.random() - 0.5) * 0.1;
-        return {
-          ...star,
-          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
-          x: newX < 0 ? 100 : (newX > 100 ? 0 : newX)
-        };
-      }));
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const projects = [
     {
       id: 1,
@@ -66,7 +41,7 @@ export default function WorksContent() {
       challenge: "ブランドの本質的な価値を視覚的に表現する必要がある。従来のデザイン手法では、表面的なアイデンティティに留まりがち。",
       solution: "心理学の知見を活用し、ターゲットの無意識的な価値観と感情に響くロゴ・ブランディングを構築。科学的なアプローチでブランドの本質を抽出。",
       result: "ブランド認知度と感情的な愛着を同時に向上。ターゲットの深層心理に響く、記憶に残るアイデンティティを確立。",
-      image: "/image_4.png",
+      image: OPTIMIZED_PUBLIC_IMAGES.works.identityDesign,
       alt: "Identity Design - 心理学的知見を用いたロゴ・ブランディング"
     },
     {
@@ -78,7 +53,7 @@ export default function WorksContent() {
       challenge: "高機能なダッシュボードでありながら、情報過負荷を避け、直感的な操作性を維持する必要がある。",
       solution: "ミニマルなデザイン原則とユーザー行動分析を組み合わせ、情報の階層構造を最適化。必要な情報を適切なタイミングで提示するインタラクション設計。",
       result: "機能性と直感性を両立したダッシュボードを実現。ユーザーの学習コストを大幅に削減し、操作効率を向上。",
-      image: "/image_6.png",
+      image: OPTIMIZED_PUBLIC_IMAGES.works.platformUiUx,
       alt: "Platform UI/UX - 高機能かつミニマルなダッシュボード設計"
     },
     {
@@ -90,32 +65,14 @@ export default function WorksContent() {
       challenge: "単なる情報提供ではなく、訪問者の感情を動かし、行動へと導くLPの制作が必要。",
       solution: "心理学の感情導線理論を応用し、訪問者の認知プロセスに沿ったコンテンツ構造とタイポグラフィを設計。無意識のレベルで共感を生むストーリーテリング。",
       result: "コンバージョン率の大幅な向上。訪問者の感情に寄り添い、自然な流れで行動へと誘導する効果的なLPを構築。",
-      image: "/image_8.png",
+      image: OPTIMIZED_PUBLIC_IMAGES.works.marketingWeb,
       alt: "Marketing Web - 感情の導線を設計したLP制作"
     }
   ];
 
   return (
     <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      {/* Stars */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            style={{
-              position: 'absolute',
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              background: 'white',
-              borderRadius: '50%',
-              opacity: star.opacity,
-              boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.3)`
-            }}
-          />
-        ))}
-      </div>
+      <StarBackground config={{ count: 100 }} />
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         <motion.div
@@ -249,24 +206,18 @@ export default function WorksContent() {
               >
                 {/* Image */}
                 <motion.div
+                  className="relative mb-8 overflow-hidden rounded-lg border border-white/10"
                   style={{
                     aspectRatio: '16/10',
                     background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    marginBottom: '32px'
                   }}
                 >
-                  <img
+                  <Image
                     src={work.image}
                     alt={work.alt}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center'
-                    }}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover object-center"
                   />
                 </motion.div>
 

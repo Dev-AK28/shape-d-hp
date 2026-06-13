@@ -1,36 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import NebulaBackground from '@/components/background/NebulaBackground';
+import StarBackground from '@/components/StarBackground';
 
 export default function PhilosophyContent() {
-  const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
-
-  useEffect(() => {
-    const newStars = Array.from({ length: 150 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 0.5,
-      opacity: Math.random() * 0.6 + 0.2,
-      speed: Math.random() * 0.4 + 0.05
-    }));
-    setStars(newStars);
-
-    const interval = setInterval(() => {
-      setStars(prevStars => prevStars.map(star => {
-        const newX = star.x + (Math.random() - 0.5) * 0.1;
-        return {
-          ...star,
-          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
-          x: newX < 0 ? 100 : (newX > 100 ? 0 : newX)
-        };
-      }));
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const acronym = [
     {
       letter: "S",
@@ -84,50 +58,32 @@ export default function PhilosophyContent() {
 
   return (
     <section style={{ position: 'relative', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      {/* Stars */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            style={{
-              position: 'absolute',
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              background: 'white',
-              borderRadius: '50%',
-              opacity: star.opacity,
-              boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.3)`
-            }}
-          />
-        ))}
-      </div>
+      <StarBackground config={{ count: 150, maxSize: 3.5 }} />
 
-      {/* Nebula effects */}
-      <div style={{
-        position: 'fixed',
-        width: '800px',
-        height: '800px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 60%)',
-        filter: 'blur(200px)',
-        left: '10%',
-        top: '20%',
-        animation: 'nebula1 40s infinite ease-in-out'
-      }} />
-      <div style={{
-        position: 'fixed',
-        width: '600px',
-        height: '600px',
-        background: 'radial-gradient(circle, rgba(147, 51, 234, 0.08) 0%, transparent 60%)',
-        filter: 'blur(150px)',
-        right: '10%',
-        bottom: '20%',
-        animation: 'nebula2 35s infinite ease-in-out'
-      }} />
+      <NebulaBackground
+        position="fixed"
+        layers={[
+          {
+            width: 800,
+            height: 800,
+            color: 'rgba(99, 102, 241, 0.1)',
+            blur: 200,
+            position: { left: '10%', top: '20%' },
+            animation: 'nebula-philosophy-1 40s infinite ease-in-out',
+          },
+          {
+            width: 600,
+            height: 600,
+            color: 'rgba(147, 51, 234, 0.08)',
+            blur: 150,
+            position: { right: '10%', bottom: '20%' },
+            animation: 'nebula-philosophy-2 35s infinite ease-in-out',
+          },
+        ]}
+      />
 
       <div style={{ position: 'relative', zIndex: 10 }}>
-        {acronym.map((item, index) => (
+        {acronym.map((item) => (
           <div
             key={item.letter}
             style={{ minHeight: '100vh', padding: '120px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -262,16 +218,6 @@ export default function PhilosophyContent() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes nebula1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(150px, -100px) scale(1.2); }
-        }
-        @keyframes nebula2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-120px, 80px) scale(1.3); }
-        }
-      `}</style>
     </section>
   );
 }

@@ -1,78 +1,34 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import NebulaBackground from '@/components/background/NebulaBackground';
+import StarBackground from '@/components/StarBackground';
 
 export default function Hero() {
-  const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
-
-  useEffect(() => {
-    const newStars = Array.from({ length: 300 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 0.5,
-      opacity: Math.random() * 0.8 + 0.2,
-      speed: Math.random() * 0.5 + 0.1
-    }));
-    setStars(newStars);
-
-    // Animate stars
-    const interval = setInterval(() => {
-      setStars(prevStars => prevStars.map(star => {
-        const newX = star.x + (Math.random() - 0.5) * 0.2;
-        return {
-          ...star,
-          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
-          x: newX < 0 ? 100 : (newX > 100 ? 0 : newX)
-        };
-      }));
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      {/* Stars */}
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          style={{
-            position: 'absolute',
-            left: `${star.x}%`,
-            top: `${star.y}%`,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            background: 'white',
-            borderRadius: '50%',
-            opacity: star.opacity,
-            boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.5)`
-          }}
-        />
-      ))}
+      <StarBackground config={{ count: 300, maxSize: 3.5, minOpacity: 0.2, maxOpacity: 1, maxSpeed: 0.6, minSpeed: 0.1, drift: 0.2, glowMultiplier: 2 }} />
 
-      {/* Nebula effect */}
-      <div style={{
-        position: 'absolute',
-        width: '800px',
-        height: '800px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 60%)',
-        filter: 'blur(150px)',
-        left: '5%',
-        top: '10%',
-        animation: 'nebula1 30s infinite ease-in-out'
-      }} />
-      <div style={{
-        position: 'absolute',
-        width: '600px',
-        height: '600px',
-        background: 'radial-gradient(circle, rgba(147, 51, 234, 0.06) 0%, transparent 60%)',
-        filter: 'blur(120px)',
-        right: '10%',
-        bottom: '15%',
-        animation: 'nebula2 25s infinite ease-in-out'
-      }} />
+      <NebulaBackground
+        layers={[
+          {
+            width: 800,
+            height: 800,
+            color: 'rgba(99, 102, 241, 0.08)',
+            blur: 150,
+            position: { left: '5%', top: '10%' },
+            animation: 'nebula-hero-1 30s infinite ease-in-out',
+          },
+          {
+            width: 600,
+            height: 600,
+            color: 'rgba(147, 51, 234, 0.06)',
+            blur: 120,
+            position: { right: '10%', bottom: '15%' },
+            animation: 'nebula-hero-2 25s infinite ease-in-out',
+          },
+        ]}
+      />
 
       {/* Content */}
       <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '120px 24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -199,16 +155,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <style jsx>{`
-        @keyframes nebula1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(100px, -50px) scale(1.1); }
-        }
-        @keyframes nebula2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-80px, 60px) scale(1.15); }
-        }
-      `}</style>
     </section>
   );
 }
