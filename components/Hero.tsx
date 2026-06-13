@@ -38,7 +38,7 @@ export default function Hero() {
           transition={{ duration: reduceMotion ? 0 : 1.5, ease: 'easeOut' }}
           style={{ marginBottom: '80px' }}
         >
-          <h1 style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 300, letterSpacing: '0.1em', color: 'white' }}>
+          <p style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 300, letterSpacing: '0.1em', color: 'white', margin: 0 }}>
             SHAPE<span style={{ display: 'inline-block' }}>
               <motion.span
                 style={{ display: 'inline-block', color: '#60a5fa' }}
@@ -56,31 +56,28 @@ export default function Hero() {
                 &infin;
               </motion.span>
             </span>D
-          </h1>
+          </p>
           <p style={{ fontSize: 'clamp(14px, 1vw, 16px)', color: '#9ca3af', letterSpacing: '0.2em', marginTop: '16px', fontWeight: 300 }}>
             SHAPE-D
           </p>
         </motion.div>
 
+        <h1
+          style={{ fontSize: 'clamp(36px, 6vw, 64px)', fontFamily: 'serif', color: 'white', marginBottom: '48px', lineHeight: 1.3, fontWeight: 300, letterSpacing: '0.05em', textAlign: 'center', maxWidth: '900px', marginInline: 'auto' }}
+        >
+          AIで効率化し、本来の創造に集中する環境を作る。
+        </h1>
+
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.3, ease: 'easeOut' }}
+          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
           style={{ textAlign: 'center', zIndex: 20, position: 'relative', maxWidth: '900px', margin: '0 auto' }}
         >
-          <motion.h1
-            initial={reduceMotion ? false : { opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.5, ease: 'easeOut' }}
-            style={{ fontSize: 'clamp(36px, 6vw, 64px)', fontFamily: 'serif', color: 'white', marginBottom: '48px', lineHeight: 1.3, fontWeight: 300, letterSpacing: '0.05em' }}
-          >
-            AIで効率化し、本来の創造に集中する環境を作る。
-          </motion.h1>
-
           <motion.div
             initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.7, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
             style={{ display: 'flex', justifyContent: 'center', gap: '64px', marginBottom: '64px', flexWrap: 'wrap' }}
           >
             {[
@@ -102,7 +99,7 @@ export default function Hero() {
           <motion.p
             initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 0.9, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.5, ease: 'easeOut' }}
             style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#93c5fd', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.8, fontFamily: 'serif', fontWeight: 300, marginBottom: '48px', letterSpacing: '0.05em' }}
           >
             技術の余白に、創造性を。<br />
@@ -113,7 +110,7 @@ export default function Hero() {
             href="/contact"
             initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.5, delay: reduceMotion ? 0 : 1.0, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.65, ease: 'easeOut' }}
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-block', padding: '20px 64px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '18px', fontFamily: 'serif', textDecoration: 'none' }}

@@ -1,19 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useReducedMotion } from 'framer-motion';
-
-export type StarConfig = {
-  count?: number;
-  maxSize?: number;
-  minSize?: number;
-  maxOpacity?: number;
-  minOpacity?: number;
-  maxSpeed?: number;
-  minSpeed?: number;
-  drift?: number;
-  glowMultiplier?: number;
-};
+import { useEffect, useMemo, useRef } from 'react';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useIntersectionVisible } from '@/lib/hooks/useIntersectionVisible';
+import { shouldAnimateStars } from '@/lib/performance/device-profile';
+import {
+  getStarUpdateIntervalMs,
+  scaleStarConfig,
+  type StarConfig,
+} from '@/lib/performance/star-config';
+import { STAR_INTERSECTION_OPTIONS } from '@/lib/performance/visibility-options';
 
 type Star = {
   id: number;
@@ -47,37 +43,72 @@ function createStars(config: Required<StarConfig>): Star[] {
   }));
 }
 
+export type { StarConfig };
+
 export default function StarBackground({ config }: { config?: StarConfig }) {
-  const reduceMotion = useReducedMotion();
-  const merged = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config]);
-  const [stars, setStars] = useState(() => createStars(merged));
+  const { profile, isReady } = useDeviceProfile();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const starsRef = useRef<Star[]>([]);
+  const { visible: intersectionVisible, observed } = useIntersectionVisible(
+    containerRef,
+    STAR_INTERSECTION_OPTIONS,
+    isReady,
+  );
+  const showEffects = !observed || intersectionVisible;
+  const animateStars = isReady && shouldAnimateStars(profile) && showEffects;
+
+  const merged = useMemo(() => {
+    const base = { ...DEFAULT_CONFIG, ...config };
+    return isReady ? scaleStarConfig(base, profile) : base;
+  }, [config, isReady, profile]);
+
+  const stars = useMemo(() => createStars(merged), [merged]);
 
   useEffect(() => {
-    if (reduceMotion) {
+    if (!animateStars) {
       return;
     }
 
-    const interval = setInterval(() => {
-      setStars((prevStars) =>
-        prevStars.map((star) => {
-          const newX = star.x + (Math.random() - 0.5) * merged.drift;
-          return {
-            ...star,
-            y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
-            x: newX < 0 ? 100 : newX > 100 ? 0 : newX,
-          };
-        }),
-      );
-    }, 50);
+    starsRef.current = stars.map((star) => ({ ...star }));
 
-    return () => clearInterval(interval);
-  }, [merged.drift, reduceMotion]);
+    const intervalMs = getStarUpdateIntervalMs(profile);
+
+    const interval = window.setInterval(() => {
+      starsRef.current = starsRef.current.map((star) => {
+        const newX = star.x + (Math.random() - 0.5) * merged.drift;
+        return {
+          ...star,
+          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
+          x: newX < 0 ? 100 : newX > 100 ? 0 : newX,
+        };
+      });
+
+      const container = containerRef.current;
+      if (!container) {
+        return;
+      }
+
+      container.querySelectorAll<HTMLElement>('[data-star-id]').forEach((node, index) => {
+        const star = starsRef.current[index];
+        if (!star) {
+          return;
+        }
+        node.style.left = `${star.x}%`;
+        node.style.top = `${star.y}%`;
+      });
+    }, intervalMs);
+
+    return () => window.clearInterval(interval);
+  }, [animateStars, merged.drift, profile, stars]);
+
+  const applyGlow = showEffects && shouldAnimateStars(profile);
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
       {stars.map((star) => (
         <div
           key={star.id}
+          data-star-id={star.id}
           className="absolute rounded-full bg-white"
           style={{
             left: `${star.x}%`,
@@ -85,7 +116,9 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
             width: `${star.size}px`,
             height: `${star.size}px`,
             opacity: star.opacity,
-            boxShadow: `0 0 ${star.size * merged.glowMultiplier}px rgba(255, 255, 255, ${star.opacity * 0.5})`,
+            boxShadow: applyGlow
+              ? `0 0 ${star.size * merged.glowMultiplier}px rgba(255, 255, 255, ${star.opacity * 0.5})`
+              : 'none',
           }}
         />
       ))}
