@@ -5,37 +5,47 @@ import {
   extractClientIp,
   isRateLimited,
   pruneExpiredEntries,
-  recordRateLimitHit,
+  releaseRateLimitSlot,
+  tryAcquireRateLimitSlot,
   type RateLimitStore,
 } from '@/lib/contact/rate-limit';
 
-describe('isRateLimited', () => {
-  it('allows requests under the limit', () => {
+describe('tryAcquireRateLimitSlot', () => {
+  it('allows acquisitions under the limit', () => {
     const store: RateLimitStore = new Map();
     const now = 1_000_000;
 
     for (let i = 0; i < RATE_LIMIT_MAX; i += 1) {
-      recordRateLimitHit('1.2.3.4', store, now);
-      expect(isRateLimited('1.2.3.4', store, now)).toBe(i + 1 >= RATE_LIMIT_MAX);
-    }
-  });
-
-  it('blocks after max successful submissions', () => {
-    const store: RateLimitStore = new Map();
-    const now = 1_000_000;
-
-    for (let i = 0; i < RATE_LIMIT_MAX; i += 1) {
-      recordRateLimitHit('1.2.3.4', store, now);
+      expect(tryAcquireRateLimitSlot('1.2.3.4', store, now)).toBe(true);
     }
 
     expect(isRateLimited('1.2.3.4', store, now)).toBe(true);
   });
 
-  it('does not count failed attempts toward the limit', () => {
+  it('blocks the 6th acquisition within the window', () => {
     const store: RateLimitStore = new Map();
     const now = 1_000_000;
 
-    expect(isRateLimited('1.2.3.4', store, now)).toBe(false);
+    for (let i = 0; i < RATE_LIMIT_MAX; i += 1) {
+      tryAcquireRateLimitSlot('1.2.3.4', store, now);
+    }
+
+    expect(tryAcquireRateLimitSlot('1.2.3.4', store, now)).toBe(false);
+  });
+
+  it('releases a slot after failed send simulation', () => {
+    const store: RateLimitStore = new Map();
+    const now = 1_000_000;
+
+    for (let i = 0; i < RATE_LIMIT_MAX; i += 1) {
+      tryAcquireRateLimitSlot('1.2.3.4', store, now);
+    }
+
+    expect(tryAcquireRateLimitSlot('1.2.3.4', store, now)).toBe(false);
+
+    releaseRateLimitSlot('1.2.3.4', store, now);
+
+    expect(tryAcquireRateLimitSlot('1.2.3.4', store, now)).toBe(true);
   });
 
   it('resets after the window expires', () => {
@@ -43,11 +53,11 @@ describe('isRateLimited', () => {
     const start = 1_000_000;
 
     for (let i = 0; i < RATE_LIMIT_MAX; i += 1) {
-      recordRateLimitHit('1.2.3.4', store, start);
+      tryAcquireRateLimitSlot('1.2.3.4', store, start);
     }
 
-    expect(isRateLimited('1.2.3.4', store, start)).toBe(true);
-    expect(isRateLimited('1.2.3.4', store, start + RATE_LIMIT_WINDOW_MS + 1)).toBe(false);
+    expect(tryAcquireRateLimitSlot('1.2.3.4', store, start)).toBe(false);
+    expect(tryAcquireRateLimitSlot('1.2.3.4', store, start + RATE_LIMIT_WINDOW_MS + 1)).toBe(true);
   });
 
   it('tracks IPs independently', () => {
@@ -55,11 +65,11 @@ describe('isRateLimited', () => {
     const now = 1_000_000;
 
     for (let i = 0; i < RATE_LIMIT_MAX; i += 1) {
-      recordRateLimitHit('1.2.3.4', store, now);
+      tryAcquireRateLimitSlot('1.2.3.4', store, now);
     }
 
-    expect(isRateLimited('1.2.3.4', store, now)).toBe(true);
-    expect(isRateLimited('5.6.7.8', store, now)).toBe(false);
+    expect(tryAcquireRateLimitSlot('1.2.3.4', store, now)).toBe(false);
+    expect(tryAcquireRateLimitSlot('5.6.7.8', store, now)).toBe(true);
   });
 });
 

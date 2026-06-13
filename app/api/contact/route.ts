@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MAX_CONTACT_BODY_BYTES } from '@/lib/contact/constants';
 import {
   extractClientIp,
-  isRateLimited,
-  recordRateLimitHit,
+  releaseRateLimitSlot,
+  tryAcquireRateLimitSlot,
   type RateLimitStore,
 } from '@/lib/contact/rate-limit';
 import { contactFormSchema } from '@/lib/contact/schema';
@@ -60,23 +60,26 @@ export async function POST(request: NextRequest) {
     }
 
     const clientIp = extractClientIp(request.headers);
+    let slotAcquired = false;
 
-    if (clientIp && isRateLimited(clientIp, rateLimitStore)) {
-      return NextResponse.json(
-        { success: false, error: 'Too many requests. Please try again later.' },
-        { status: 429 },
-      );
+    if (clientIp) {
+      if (!tryAcquireRateLimitSlot(clientIp, rateLimitStore)) {
+        return NextResponse.json(
+          { success: false, error: 'Too many requests. Please try again later.' },
+          { status: 429 },
+        );
+      }
+      slotAcquired = true;
     }
 
     const result = await sendContactEmail(parsed.data);
 
     if (!result.ok) {
+      if (clientIp && slotAcquired) {
+        releaseRateLimitSlot(clientIp, rateLimitStore);
+      }
       console.error('Contact email failed', { error: result.error });
       return NextResponse.json({ success: false, error: SERVER_ERROR_MESSAGE }, { status: 500 });
-    }
-
-    if (clientIp) {
-      recordRateLimitHit(clientIp, rateLimitStore);
     }
 
     return NextResponse.json({ success: true });

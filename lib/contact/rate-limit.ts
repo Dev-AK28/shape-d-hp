@@ -15,7 +15,7 @@ export function pruneExpiredEntries(
   }
 }
 
-/** Returns true when the IP has reached the limit (does not increment). */
+/** Returns true when the IP has reached the limit (read-only). */
 export function isRateLimited(
   ip: string,
   store: RateLimitStore,
@@ -31,8 +31,34 @@ export function isRateLimited(
   return entry.count >= RATE_LIMIT_MAX;
 }
 
-/** Records a successful submission against the IP limit. */
-export function recordRateLimitHit(
+/**
+ * Atomically acquires a rate-limit slot before processing.
+ * Returns false when the IP is already at the limit.
+ */
+export function tryAcquireRateLimitSlot(
+  ip: string,
+  store: RateLimitStore,
+  now: number = Date.now(),
+): boolean {
+  pruneExpiredEntries(store, now);
+
+  const entry = store.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    store.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+
+  entry.count += 1;
+  return true;
+}
+
+/** Releases a slot when email sending fails after acquire. */
+export function releaseRateLimitSlot(
   ip: string,
   store: RateLimitStore,
   now: number = Date.now(),
@@ -40,13 +66,16 @@ export function recordRateLimitHit(
   pruneExpiredEntries(store, now);
 
   const entry = store.get(ip);
-
   if (!entry || now > entry.resetAt) {
-    store.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
     return;
   }
 
-  entry.count += 1;
+  if (entry.count <= 1) {
+    store.delete(ip);
+    return;
+  }
+
+  entry.count -= 1;
 }
 
 export function extractClientIp(headers: Headers): string | null {
