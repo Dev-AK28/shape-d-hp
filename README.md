@@ -28,6 +28,7 @@ http://localhost:3000 で確認できます。
 | `npm run start` | 本番サーバー起動 |
 | `npm run lint` | ESLint |
 | `npm run test` | Vitest 単体テスト |
+| `npm run test:e2e` | Playwright E2E テスト |
 | `npx tsc --noEmit` | 型チェック |
 
 ## 環境変数
@@ -39,6 +40,9 @@ http://localhost:3000 で確認できます。
 | `RESEND_API_KEY` | 本番必須 | Resend API キー |
 | `RESEND_FROM_EMAIL` | 推奨 | 送信元メールアドレス |
 | `RESEND_FROM_NAME` | 任意 | 送信者表示名（デフォルト: shape-d-hp） |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 任意 | レート制限の共有ストア（Upstash Redis） |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | 任意 | レート制限の共有ストア（Vercel KV） |
+| `CONTACT_TRUST_PROXY_IP_HEADERS` | 任意 | `true` で `x-forwarded-for` を信頼。Vercel では自動。非プロキシ環境では `false` 推奨 |
 
 ## デプロイ
 

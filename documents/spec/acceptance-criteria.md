@@ -59,4 +59,5 @@ Then アニメーションは無効化または最小限に抑えられる
 | 413 / Content-Length 過小申告 | `tests/contact/route.test.ts`, `tests/contact/read-body.test.ts` |
 | 413 / 枠非消費 | `tests/contact/route.test.ts` |
 | メール形式 | `tests/contact/email-format.test.ts` |
-| E2E（将来） | Issue #10 で Playwright 追加予定 |
+| Redis フォールバック | `tests/contact/rate-limit-service.test.ts` |
+| E2E（お問い合わせ・ナビ） | `e2e/contact.spec.ts`（Playwright） |

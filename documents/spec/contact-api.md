@@ -75,7 +75,10 @@
   - 400 / 413 は枠を消費しない
   - 429 判定は送信前に実施
   - IP は `cf-connecting-ip` → `x-forwarded-for`（先頭）→ `x-real-ip` の順で取得
+  - `cf-connecting-ip` は Cloudflare 経由時に常に信頼
+  - `x-forwarded-for` / `x-real-ip` は **信頼できるプロキシ背後でのみ** 使用（Vercel では `VERCEL=1` により自動信頼。それ以外は `CONTACT_TRUST_PROXY_IP_HEADERS=true` を明示設定）
+  - 信頼しない環境では forwarded ヘッダーを無視し、IP 取得不可時と同様にレート制限を適用しない（クライアントによるヘッダー偽装を防止）
   - IP 取得不可時はレート制限を**適用しない**（共有 `'unknown'` バケットによる誤 429 を防止）
-  - **制限事項**: インメモリ実装のため Vercel サーバーレスではインスタンス間で共有されない。本番の厳密な制限には Upstash Redis / Vercel KV 等への移行を推奨
+  - **共有ストア**: `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`、または Vercel KV の `KV_REST_API_URL` + `KV_REST_API_TOKEN` が設定されている場合、Upstash Redis でインスタンス間共有。未設定時はインメモリ Map にフォールバック
 - PII の console.log 出力なし
 - `reply_to` 等のメールヘッダー値は `sanitizeEmailHeaderValue` で改行除去
