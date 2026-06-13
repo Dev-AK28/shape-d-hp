@@ -144,16 +144,6 @@ export default function Hero() {
         )}
       </div>
 
-      <style jsx>{`
-        @keyframes nebula1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(100px, -50px) scale(1.1); }
-        }
-        @keyframes nebula2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-80px, 60px) scale(1.15); }
-        }
-      `}</style>
     </section>
   );
 }

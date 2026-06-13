@@ -210,16 +210,6 @@ export default function PhilosophyContent() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes nebula1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(150px, -100px) scale(1.2); }
-        }
-        @keyframes nebula2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-120px, 80px) scale(1.3); }
-        }
-      `}</style>
     </section>
   );
 }
