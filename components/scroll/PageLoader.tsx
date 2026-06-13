@@ -22,6 +22,7 @@ export default function PageLoader() {
 
   return (
     <motion.div
+      data-testid="page-loader"
       className="fixed inset-0 z-[2000] flex items-center justify-center bg-black"
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
