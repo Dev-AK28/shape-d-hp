@@ -40,6 +40,10 @@ yarn-error.log*
 # cursor (contains license keys)
 .cursor/mcp.json
 
+# local review artifacts / agent state
+tmp-review-*.md
+.godd/state/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

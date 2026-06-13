@@ -53,4 +53,6 @@ Then アニメーションは無効化または最小限に抑えられる
 | 基準 | テスト |
 |------|--------|
 | フォームバリデーション | `tests/contact/schema.test.ts` |
+| レート制限（429） | `tests/contact/rate-limit.test.ts` |
+| メール形式 | `tests/contact/email-format.test.ts` |
 | E2E（将来） | Issue #10 で Playwright 追加予定 |

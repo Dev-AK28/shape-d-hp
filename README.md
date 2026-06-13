@@ -38,6 +38,7 @@ http://localhost:3000 で確認できます。
 | `NEXT_PUBLIC_CONTACT_EMAIL` | 任意 | 画面表示用メールアドレス |
 | `RESEND_API_KEY` | 本番必須 | Resend API キー |
 | `RESEND_FROM_EMAIL` | 推奨 | 送信元メールアドレス |
+| `RESEND_FROM_NAME` | 任意 | 送信者表示名（デフォルト: shape-d-hp） |
 
 ## デプロイ
 
