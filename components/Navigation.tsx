@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,35 +39,18 @@ export default function Navigation() {
   ];
 
   return (
-    <nav style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      background: isScrolled ? 'rgba(0, 0, 0, 0.95)' : 'transparent',
-      backdropFilter: isScrolled ? 'blur(20px)' : 'none',
-      borderBottom: isScrolled ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
-      transition: 'all 0.3s ease'
-    }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {/* Logo */}
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              style={{ display: 'flex', alignItems: 'center' }}
-            >
-              <img
-                src="/image_13.png"
-                alt="SHAPE∞D Logo"
-                style={{
-                  height: '48px',
-                  width: 'auto',
-                  maxWidth: '200px',
-                  objectFit: 'contain'
-                }}
-              />
+    <nav
+      className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${
+        isScrolled
+          ? 'border-b border-white/10 bg-black/95 backdrop-blur-xl'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="mx-auto max-w-[1400px] px-6 py-5">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="no-underline">
+            <motion.div whileHover={{ scale: 1.05 }} className="flex items-center">
+              <BrandLogo height={48} priority />
             </motion.div>
           </Link>
 
