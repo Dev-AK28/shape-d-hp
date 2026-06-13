@@ -5,10 +5,15 @@ import { useEffect, useState, type RefObject } from 'react';
 export function useIntersectionVisible(
   targetRef: RefObject<Element | null>,
   options?: IntersectionObserverInit,
+  enabled = true,
 ): boolean {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     const target = targetRef.current;
     if (!target) {
       return;
@@ -26,7 +31,7 @@ export function useIntersectionVisible(
     return () => {
       observer.disconnect();
     };
-  }, [targetRef, options]);
+  }, [targetRef, options, enabled]);
 
-  return visible;
+  return enabled ? visible : false;
 }

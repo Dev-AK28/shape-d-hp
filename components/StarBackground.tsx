@@ -151,8 +151,6 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
     const starGlow = merged.glowMultiplier;
 
     const tick = (time: number) => {
-      frame = requestAnimationFrame(tick);
-
       const stars = starsRef.current;
       const elements = elementsRef.current;
       if (stars.length === 0 || elements.length === 0) {
@@ -160,6 +158,7 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
       }
 
       if (time - lastTick < intervalMs) {
+        frame = requestAnimationFrame(tick);
         return;
       }
 
@@ -169,6 +168,8 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
         advanceStar(stars[index], starDrift);
         applyStarStyle(elements[index], stars[index], starGlow);
       }
+
+      frame = requestAnimationFrame(tick);
     };
 
     frame = requestAnimationFrame(tick);
@@ -176,14 +177,7 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [
-    isReady,
-    visible,
-    profile,
-    profile.isMobile,
-    profile.prefersReducedMotion,
-    merged,
-  ]);
+  }, [isReady, visible, profile, merged]);
 
   return <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" />;
 }

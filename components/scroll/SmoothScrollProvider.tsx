@@ -34,13 +34,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       cancelAnimationFrame(frame);
       lenis.destroy();
     };
-  }, [
-    isReady,
-    profile,
-    profile.isMobile,
-    profile.prefersReducedMotion,
-    profile.prefersCoarsePointer,
-  ]);
+  }, [isReady, profile]);
 
   return <>{children}</>;
 }

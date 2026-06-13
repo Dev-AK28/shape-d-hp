@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 function subscribeNoop() {
   return () => {};
@@ -11,15 +11,6 @@ export default function PageLoader() {
   const reduceMotion = useReducedMotion();
   const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
   const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    if (!mounted || reduceMotion) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setDismissed(true), 900);
-    return () => window.clearTimeout(timer);
-  }, [mounted, reduceMotion]);
 
   if (!mounted || reduceMotion || dismissed) {
     return null;

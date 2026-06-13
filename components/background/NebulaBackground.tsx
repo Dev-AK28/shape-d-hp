@@ -25,34 +25,35 @@ export default function NebulaBackground({ layers, position = 'absolute' }: Nebu
   const { profile, isReady } = useDeviceProfile();
   const { isMobile, prefersReducedMotion } = profile;
   const containerRef = useRef<HTMLDivElement>(null);
-  const intersectionVisible = useIntersectionVisible(containerRef, NEBULA_INTERSECTION_OPTIONS);
+  const intersectionVisible = useIntersectionVisible(
+    containerRef,
+    NEBULA_INTERSECTION_OPTIONS,
+    isReady,
+  );
   const visible = position === 'fixed' || intersectionVisible;
   const animate = visible && !prefersReducedMotion;
 
-  if (!isReady) {
-    return <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" />;
-  }
-
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
-      {layers.map((layer, index) => {
-        const blur = isMobile ? Math.round(layer.blur * MOBILE_BLUR_RATIO) : layer.blur;
+      {isReady &&
+        layers.map((layer, index) => {
+          const blur = isMobile ? Math.round(layer.blur * MOBILE_BLUR_RATIO) : layer.blur;
 
-        return (
-          <div
-            key={index}
-            style={{
-              position,
-              width: `${layer.width}px`,
-              height: `${layer.height}px`,
-              background: `radial-gradient(circle, ${layer.color} 0%, transparent 60%)`,
-              filter: visible ? `blur(${blur}px)` : 'none',
-              animation: animate ? layer.animation : undefined,
-              ...layer.position,
-            }}
-          />
-        );
-      })}
+          return (
+            <div
+              key={index}
+              style={{
+                position,
+                width: `${layer.width}px`,
+                height: `${layer.height}px`,
+                background: `radial-gradient(circle, ${layer.color} 0%, transparent 60%)`,
+                filter: visible ? `blur(${blur}px)` : 'none',
+                animation: animate ? layer.animation : undefined,
+                ...layer.position,
+              }}
+            />
+          );
+        })}
     </div>
   );
 }

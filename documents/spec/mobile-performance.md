@@ -12,7 +12,8 @@ Issue: #51
 |------|------|
 | `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止、`prefers-reduced-motion` 時は静止。IO は `threshold: 0.15` + `rootMargin` で複数インスタンスの同時稼働を抑制 |
 | `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効。プロファイル変更時に Lenis を create/destroy |
-| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時）。`isReady` 後に描画し hydration mismatch を回避 |
+| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時）。単一 container + `{isReady && layers.map(...)}` で IO を安定化。`useIntersectionVisible` は `isReady` 後に有効化 |
+| `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` でのみ非表示。`prefers-reduced-motion` 時は表示しない |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
 
 ## デバイスプロファイル
