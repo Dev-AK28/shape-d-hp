@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
 
+const MOBILE_MENU_ID = 'mobile-nav-menu';
+
 export default function Navigation() {
   const reduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
@@ -66,7 +68,7 @@ export default function Navigation() {
                   style={{
                     fontSize: '14px',
                     color: pathname === item.href ? '#60a5fa' : '#9ca3af',
-                    transition: 'color 0.3s ease',
+                    transition: reduceMotion ? undefined : 'color 0.3s ease',
                     fontFamily: 'serif',
                     letterSpacing: '0.1em'
                   }}
@@ -79,8 +81,12 @@ export default function Navigation() {
 
           {/* Mobile Menu Button */}
           <motion.button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+            aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
+            aria-expanded={isOpen}
+            aria-controls={MOBILE_MENU_ID}
             style={{
               display: isMobile ? 'block' : 'none',
               background: 'none',
@@ -134,6 +140,7 @@ export default function Navigation() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id={MOBILE_MENU_ID}
             initial={reduceMotion ? false : { opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: -20 }}

@@ -90,10 +90,14 @@ export default function ContactPage() {
                 { id: 'company', label: '会社名', type: 'text', required: false, placeholder: '株式会社〇〇' },
               ].map((field) => (
                 <div key={field.id}>
-                  <label className="mb-2 block text-sm tracking-[0.1em] text-blue-300">
+                  <label
+                    htmlFor={field.id}
+                    className="mb-2 block text-sm tracking-[0.1em] text-blue-300"
+                  >
                     {field.label}
                   </label>
                   <input
+                    id={field.id}
                     type={field.type}
                     required={field.required}
                     value={formData[field.id as keyof typeof formData]}
@@ -107,10 +111,14 @@ export default function ContactPage() {
               ))}
 
               <div>
-                <label className="mb-2 block text-sm tracking-[0.1em] text-blue-300">
+                <label
+                  htmlFor="message"
+                  className="mb-2 block text-sm tracking-[0.1em] text-blue-300"
+                >
                   メッセージ
                 </label>
                 <textarea
+                  id="message"
                   required
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -122,6 +130,8 @@ export default function ContactPage() {
 
               {submitStatus === 'success' && (
                 <motion.div
+                  role="status"
+                  aria-live="polite"
                   initial={reduceMotion ? false : { opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: reduceMotion ? 0 : 0.3 }}
@@ -133,6 +143,8 @@ export default function ContactPage() {
 
               {submitStatus === 'error' && (
                 <motion.div
+                  role="alert"
+                  aria-live="assertive"
                   initial={reduceMotion ? false : { opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: reduceMotion ? 0 : 0.3 }}
