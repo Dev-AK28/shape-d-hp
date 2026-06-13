@@ -1,56 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import StarBackground from '@/components/StarBackground';
 
 export default function Hero() {
-  const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
-
-  useEffect(() => {
-    const newStars = Array.from({ length: 300 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 0.5,
-      opacity: Math.random() * 0.8 + 0.2,
-      speed: Math.random() * 0.5 + 0.1
-    }));
-    setStars(newStars);
-
-    // Animate stars
-    const interval = setInterval(() => {
-      setStars(prevStars => prevStars.map(star => {
-        const newX = star.x + (Math.random() - 0.5) * 0.2;
-        return {
-          ...star,
-          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
-          x: newX < 0 ? 100 : (newX > 100 ? 0 : newX)
-        };
-      }));
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      {/* Stars */}
-      {stars.map((star) => (
-        <div
-          key={star.id}
-          style={{
-            position: 'absolute',
-            left: `${star.x}%`,
-            top: `${star.y}%`,
-            width: `${star.size}px`,
-            height: `${star.size}px`,
-            background: 'white',
-            borderRadius: '50%',
-            opacity: star.opacity,
-            boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.5)`
-          }}
-        />
-      ))}
+      <StarBackground config={{ count: 300, maxSize: 3.5, minOpacity: 0.2, maxOpacity: 1, maxSpeed: 0.6, minSpeed: 0.1, drift: 0.2, glowMultiplier: 2 }} />
 
       {/* Nebula effect */}
       <div style={{
