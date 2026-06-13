@@ -1,0 +1,58 @@
+# モバイルパフォーマンス最適化
+
+Issue: #51
+
+## 目的
+
+スマートフォンでの読み込み・スクロール体感を改善しつつ、宇宙感・星・グラデーション・滑らかなアニメーションのビジュアルクオリティをデスクトップで維持する。
+
+## 対象
+
+| 領域 | 対策 |
+|------|------|
+| `StarBackground` | モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF 停止、`prefers-reduced-motion` 時は静止 |
+| `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効 |
+| `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止 |
+| 画像 | `public/*.png`（ファビコン原画像除く）を `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
+
+## デバイスプロファイル
+
+`lib/performance/device-profile.ts` と `lib/hooks/useDeviceProfile.ts` が以下を提供する。
+
+- `isMobile`: ビューポート幅 `< 768px`
+- `prefersReducedMotion`: OS の reduced motion 設定
+- `prefersCoarsePointer`: タッチ主体デバイス
+
+## 画像アセット
+
+- 最適化スクリプト: `npm run optimize:images`
+- 参照マップ: `lib/performance/image-assets.ts`
+- `image_13.png` はファビコン生成の原画像のためスクリプト対象外
+
+## 受け入れ基準（Given-When-Then）
+
+- **Given** スマートフォンでトップページを開く
+- **When** 初回表示が完了する
+- **Then** 改善前よりスクロール中のカクつきが軽減されている
+
+- **Given** Lighthouse モバイル計測を行う
+- **When** 改善前後を比較する
+- **Then** Performance スコアまたは LCP / TBT が改善している
+
+- **Given** デスクトップで Hero を確認する
+- **When** 星背景・ネビュラを目視する
+- **Then** 改善前と同等のビジュアルクオリティが維持されている
+
+- **Given** `prefers-reduced-motion: reduce` が有効
+- **When** ページを操作する
+- **Then** 星アニメーション・ネビュラ・Lenis が抑制される
+
+## 検証
+
+```bash
+npm run optimize:images
+npm test
+npm run build
+```
+
+Lighthouse（Mobile）で Performance / LCP / TBT を計測し、Issue コメントに改善前後を記録する。
