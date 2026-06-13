@@ -1,9 +1,36 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
+import { useEffect, useState } from 'react';
 
 export default function PhilosophyContent() {
+  const [stars, setStars] = useState<Array<{ id: number; x: number; y: number; size: number; opacity: number; speed: number }>>([]);
+
+  useEffect(() => {
+    const newStars = Array.from({ length: 150 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 0.5,
+      opacity: Math.random() * 0.6 + 0.2,
+      speed: Math.random() * 0.4 + 0.05
+    }));
+    setStars(newStars);
+
+    const interval = setInterval(() => {
+      setStars(prevStars => prevStars.map(star => {
+        const newX = star.x + (Math.random() - 0.5) * 0.1;
+        return {
+          ...star,
+          y: star.y - star.speed < 0 ? 100 : star.y - star.speed,
+          x: newX < 0 ? 100 : (newX > 100 ? 0 : newX)
+        };
+      }));
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const acronym = [
     {
       letter: "S",
@@ -57,7 +84,25 @@ export default function PhilosophyContent() {
 
   return (
     <section style={{ position: 'relative', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 150, maxSize: 3.5 }} />
+      {/* Stars */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+        {stars.map((star) => (
+          <div
+            key={star.id}
+            style={{
+              position: 'absolute',
+              left: `${star.x}%`,
+              top: `${star.y}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              background: 'white',
+              borderRadius: '50%',
+              opacity: star.opacity,
+              boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, 0.3)`
+            }}
+          />
+        ))}
+      </div>
 
       {/* Nebula effects */}
       <div style={{
@@ -82,7 +127,7 @@ export default function PhilosophyContent() {
       }} />
 
       <div style={{ position: 'relative', zIndex: 10 }}>
-        {acronym.map((item) => (
+        {acronym.map((item, index) => (
           <div
             key={item.letter}
             style={{ minHeight: '100vh', padding: '120px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
