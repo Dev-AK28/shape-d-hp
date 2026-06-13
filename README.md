@@ -41,7 +41,11 @@ http://localhost:3000 で確認できます。
 
 ## デプロイ
 
-Vercel へのデプロイを想定しています。環境変数を Vercel ダッシュボードで設定してください。
+Vercel プロジェクト `shape-d-hp` は GitHub リポジトリ `Dev-AK28/shape-d-hp` と連携済みです。
+
+- `main` への push で Production デプロイが自動実行されます
+- Pull Request 作成時に Preview デプロイが生成されます
+- 環境変数は Vercel ダッシュボード（Production / Preview / Development）で設定してください
 
 ## ドキュメント
 
