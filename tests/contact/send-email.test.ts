@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { CONTACT_RECIPIENTS } from '@/lib/contact/constants';
 import { sendContactEmail } from '@/lib/contact/send-email';
 
 describe('sendContactEmail', () => {
@@ -51,6 +52,9 @@ describe('sendContactEmail', () => {
     });
 
     expect(result).toEqual({ ok: true });
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(requestInit.body as string) as { to: string[] };
+    expect(body.to).toEqual([...CONTACT_RECIPIENTS]);
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.resend.com/emails',
       expect.objectContaining({
