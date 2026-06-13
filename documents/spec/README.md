@@ -36,6 +36,15 @@ Issue: #1
 - 仕様: [`star-background.md`](./star-background.md)
 - 共通コンポーネント `StarBackground` により ESLint `react-hooks/set-state-in-effect` を解消
 
+## 依存関係セキュリティ
+
+Issue: #2
+
+- 仕様: [`dependencies.md`](./dependencies.md)
+- `next` は `16.2.9` 以上を維持（CVE 対応）
+- `postcss` は `package.json` の `overrides` で `^8.5.10` 以上に固定
+- 更新後は `npm audit` が 0 vulnerabilities、`npm run build` が成功すること
+
 ## 完了条件
 
 - 全ページがビルド成功する
