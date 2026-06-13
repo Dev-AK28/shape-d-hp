@@ -78,10 +78,30 @@ export function releaseRateLimitSlot(
   entry.count -= 1;
 }
 
+/**
+ * Whether to trust `x-forwarded-for` / `x-real-ip`.
+ * On Vercel the edge overwrites these headers; clients cannot forge them.
+ * Set `CONTACT_TRUST_PROXY_IP_HEADERS=false` to disable when not behind a trusted proxy.
+ */
+export function shouldTrustProxyIpHeaders(): boolean {
+  const explicit = process.env.CONTACT_TRUST_PROXY_IP_HEADERS?.trim().toLowerCase();
+  if (explicit === 'false') {
+    return false;
+  }
+  if (explicit === 'true') {
+    return true;
+  }
+  return process.env.VERCEL === '1';
+}
+
 export function extractClientIp(headers: Headers): string | null {
   const cfConnectingIp = headers.get('cf-connecting-ip')?.trim();
   if (cfConnectingIp) {
     return cfConnectingIp;
+  }
+
+  if (!shouldTrustProxyIpHeaders()) {
+    return null;
   }
 
   const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();

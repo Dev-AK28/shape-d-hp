@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MAX_CONTACT_BODY_BYTES } from '@/lib/contact/constants';
 import { readRequestBodyWithLimit } from '@/lib/contact/read-body';
-import {
-  extractClientIp,
-  releaseRateLimitSlot,
-  tryAcquireRateLimitSlot,
-  type RateLimitStore,
-} from '@/lib/contact/rate-limit';
+import { extractClientIp } from '@/lib/contact/rate-limit';
+import { getRateLimitService } from '@/lib/contact/rate-limit-service';
 import { contactFormSchema } from '@/lib/contact/schema';
 import { sendContactEmail } from '@/lib/contact/send-email';
-
-const rateLimitStore: RateLimitStore = new Map();
 const SERVER_ERROR_MESSAGE = 'Failed to process form';
 
 function parseJsonBody(rawBody: string): unknown | null {
@@ -69,13 +63,16 @@ export async function POST(request: NextRequest) {
     const clientIp = extractClientIp(request.headers);
 
     if (clientIp) {
-      if (!tryAcquireRateLimitSlot(clientIp, rateLimitStore)) {
+      const rateLimit = getRateLimitService();
+      if (!(await rateLimit.tryAcquire(clientIp))) {
         return NextResponse.json(
           { success: false, error: 'Too many requests. Please try again later.' },
           { status: 429 },
         );
       }
-      releaseSlot = () => releaseRateLimitSlot(clientIp, rateLimitStore);
+      releaseSlot = () => {
+        void rateLimit.release(clientIp);
+      };
     }
 
     const result = await sendContactEmail(parsed.data);
