@@ -30,6 +30,7 @@ export function useIntersectionVisible(
 
     return () => {
       observer.disconnect();
+      setVisible(false);
     };
   }, [targetRef, options, enabled]);
 

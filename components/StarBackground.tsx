@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useIntersectionVisible } from '@/lib/hooks/useIntersectionVisible';
-import { shouldAnimateStars } from '@/lib/performance/device-profile';
+import { shouldAnimateStars, DEFAULT_DEVICE_PROFILE } from '@/lib/performance/device-profile';
 import { getStarUpdateIntervalMs, scaleStarConfig } from '@/lib/performance/star-config';
 import { STAR_INTERSECTION_OPTIONS } from '@/lib/performance/visibility-options';
 
@@ -98,21 +98,15 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
   const merged = useMemo(
     () =>
       scaleStarConfig(baseConfig, {
+        ...DEFAULT_DEVICE_PROFILE,
         isMobile: profile.isMobile,
-        prefersReducedMotion: profile.prefersReducedMotion,
-        prefersCoarsePointer: profile.prefersCoarsePointer,
       }),
-    [
-      baseConfig,
-      profile.isMobile,
-      profile.prefersReducedMotion,
-      profile.prefersCoarsePointer,
-    ],
+    [baseConfig, profile.isMobile],
   );
   const containerRef = useRef<HTMLDivElement>(null);
   const starsRef = useRef<Star[]>([]);
   const elementsRef = useRef<HTMLDivElement[]>([]);
-  const visible = useIntersectionVisible(containerRef, STAR_INTERSECTION_OPTIONS);
+  const visible = useIntersectionVisible(containerRef, STAR_INTERSECTION_OPTIONS, isReady);
 
   useEffect(() => {
     if (!isReady) {
@@ -140,7 +134,25 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
   }, [isReady, merged]);
 
   useEffect(() => {
-    if (!isReady || !shouldAnimateStars(profile) || !visible) {
+    if (!isReady) {
+      return;
+    }
+
+    if (!visible) {
+      const clearFrame = requestAnimationFrame(() => {
+        const stars = starsRef.current;
+        const starElements = elementsRef.current;
+        for (let index = 0; index < starElements.length; index += 1) {
+          applyStarStyle(starElements[index], stars[index], 0);
+        }
+      });
+
+      return () => {
+        cancelAnimationFrame(clearFrame);
+      };
+    }
+
+    if (!shouldAnimateStars(profile)) {
       return;
     }
 

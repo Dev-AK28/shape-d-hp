@@ -21,3 +21,43 @@ body {
   background: var(--background);
   font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif;
 }
+
+@keyframes nebula-hero-1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(100px, -50px) scale(1.1);
+  }
+}
+
+@keyframes nebula-hero-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-80px, 60px) scale(1.15);
+  }
+}
+
+@keyframes nebula-philosophy-1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(150px, -100px) scale(1.2);
+  }
+}
+
+@keyframes nebula-philosophy-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-120px, 80px) scale(1.3);
+  }
+}

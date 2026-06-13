@@ -17,7 +17,7 @@ export default function Hero() {
             color: 'rgba(99, 102, 241, 0.08)',
             blur: 150,
             position: { left: '5%', top: '10%' },
-            animation: 'nebula1 30s infinite ease-in-out',
+            animation: 'nebula-hero-1 30s infinite ease-in-out',
           },
           {
             width: 600,
@@ -25,7 +25,7 @@ export default function Hero() {
             color: 'rgba(147, 51, 234, 0.06)',
             blur: 120,
             position: { right: '10%', bottom: '15%' },
-            animation: 'nebula2 25s infinite ease-in-out',
+            animation: 'nebula-hero-2 25s infinite ease-in-out',
           },
         ]}
       />
@@ -155,16 +155,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <style jsx>{`
-        @keyframes nebula1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(100px, -50px) scale(1.1); }
-        }
-        @keyframes nebula2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-80px, 60px) scale(1.15); }
-        }
-      `}</style>
     </section>
   );
 }

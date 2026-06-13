@@ -46,6 +46,10 @@ export function readDeviceProfile(): DeviceProfile {
   return next;
 }
 
+export function resetDeviceProfileCache(): void {
+  cachedDeviceProfile = null;
+}
+
 export function shouldDisableSmoothScroll(profile: DeviceProfile): boolean {
   return profile.prefersReducedMotion || profile.isMobile || profile.prefersCoarsePointer;
 }

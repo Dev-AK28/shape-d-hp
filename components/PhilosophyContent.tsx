@@ -69,7 +69,7 @@ export default function PhilosophyContent() {
             color: 'rgba(99, 102, 241, 0.1)',
             blur: 200,
             position: { left: '10%', top: '20%' },
-            animation: 'nebula1 40s infinite ease-in-out',
+            animation: 'nebula-philosophy-1 40s infinite ease-in-out',
           },
           {
             width: 600,
@@ -77,7 +77,7 @@ export default function PhilosophyContent() {
             color: 'rgba(147, 51, 234, 0.08)',
             blur: 150,
             position: { right: '10%', bottom: '20%' },
-            animation: 'nebula2 35s infinite ease-in-out',
+            animation: 'nebula-philosophy-2 35s infinite ease-in-out',
           },
         ]}
       />
@@ -218,16 +218,6 @@ export default function PhilosophyContent() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes nebula1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(150px, -100px) scale(1.2); }
-        }
-        @keyframes nebula2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-120px, 80px) scale(1.3); }
-        }
-      `}</style>
     </section>
   );
 }

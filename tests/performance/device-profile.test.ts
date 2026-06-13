@@ -1,14 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   DEFAULT_DEVICE_PROFILE,
   isMobileViewport,
   mobileMaxWidthMediaQuery,
   readDeviceProfile,
+  resetDeviceProfileCache,
   shouldAnimateStars,
   shouldDisableSmoothScroll,
 } from '@/lib/performance/device-profile';
 
 describe('device-profile', () => {
+  afterEach(() => {
+    resetDeviceProfileCache();
+  });
   it('detects mobile viewport below 768px', () => {
     expect(isMobileViewport(767)).toBe(true);
     expect(isMobileViewport(768)).toBe(false);
