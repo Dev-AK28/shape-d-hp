@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "generate:favicons": "node --experimental-strip-types scripts/generate-favicons.mts"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "framer-motion": "^12.40.0",

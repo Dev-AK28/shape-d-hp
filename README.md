@@ -28,7 +28,6 @@ http://localhost:3000 で確認できます。
 | `npm run start` | 本番サーバー起動 |
 | `npm run lint` | ESLint |
 | `npm run test` | Vitest 単体テスト |
-| `npm run generate:favicons` | ファビコン（`app/icon.png` 等）を再生成 |
 | `npx tsc --noEmit` | 型チェック |
 
 ## 環境変数
