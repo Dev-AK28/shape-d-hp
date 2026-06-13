@@ -13,6 +13,8 @@
 
 共通ビジュアルは `lib/brand/favicon-image.tsx` で定義。
 
+`app/favicon.ico`（Create Next App 由来の静的アイコン）は使用しない。動的生成のみを正とする。
+
 ## デザイン
 
 - 背景: インディゴ系グラデーション（`#0A192F` → `#1e1b4b` → `#312e81`）
@@ -41,7 +43,7 @@ npm run build
 npm run test:e2e -- e2e/favicon.spec.ts
 ```
 
-- E2E: `e2e/favicon.spec.ts`（サイズ / content-type / metadata 非参照）
+- E2E: `e2e/favicon.spec.ts`（サイズ / content-type / PNG 寸法 / metadata 非参照 / 旧 favicon.ico 非配信）
 
 ## 関連 Issue
 
