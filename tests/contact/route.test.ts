@@ -58,6 +58,18 @@ describe('POST /api/contact', () => {
     expect(sendContactEmail).not.toHaveBeenCalled();
   });
 
+  it('returns 400 for an empty body', async () => {
+    const POST = await loadPostHandler();
+    const response = await POST(createRequest(''));
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: 'Invalid input',
+    });
+    expect(sendContactEmail).not.toHaveBeenCalled();
+  });
+
   it('returns 400 for schema validation errors', async () => {
     const POST = await loadPostHandler();
     const response = await POST(createRequest(JSON.stringify({ name: '', email: 'bad', message: '' })));
@@ -103,6 +115,27 @@ describe('POST /api/contact', () => {
     expect(sendContactEmail).not.toHaveBeenCalled();
   });
 
+  it('returns 413 when content-length underreports the body size', async () => {
+    const POST = await loadPostHandler();
+    const oversizedBody = JSON.stringify({
+      ...validPayload,
+      message: 'x'.repeat(MAX_CONTACT_BODY_BYTES),
+    });
+
+    const response = await POST(
+      createRequest(oversizedBody, {
+        contentLength: '1',
+      }),
+    );
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: 'Payload too large',
+    });
+    expect(sendContactEmail).not.toHaveBeenCalled();
+  });
+
   it('returns 200 when email send succeeds', async () => {
     vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
     const POST = await loadPostHandler();
@@ -130,6 +163,21 @@ describe('POST /api/contact', () => {
     vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
     const recoveryResponse = await POST(createRequest(JSON.stringify(validPayload), { ip }));
     expect(recoveryResponse.status).toBe(200);
+  });
+
+  it('releases the rate limit slot when sendContactEmail throws', async () => {
+    vi.mocked(sendContactEmail)
+      .mockRejectedValueOnce(new Error('Unexpected Resend failure'))
+      .mockResolvedValue({ ok: true });
+    const POST = await loadPostHandler();
+    const ip = '203.0.113.56';
+
+    const failedResponse = await POST(createRequest(JSON.stringify(validPayload), { ip }));
+    expect(failedResponse.status).toBe(500);
+
+    const recoveryResponse = await POST(createRequest(JSON.stringify(validPayload), { ip }));
+    expect(recoveryResponse.status).toBe(200);
+    expect(sendContactEmail).toHaveBeenCalledTimes(2);
   });
 
   it('returns 429 after five successful sends within the window', async () => {

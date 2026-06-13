@@ -42,4 +42,18 @@ describe('contactFormSchema', () => {
 
     expect(result.success).toBe(false);
   });
+
+  it('strips unknown fields such as client-provided to', () => {
+    const result = contactFormSchema.safeParse({
+      name: 'Test',
+      email: 'test@example.com',
+      message: 'Hello',
+      to: 'attacker@example.com',
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).not.toHaveProperty('to');
+    }
+  });
 });

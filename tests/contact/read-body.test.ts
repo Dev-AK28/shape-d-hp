@@ -3,6 +3,17 @@ import { NextRequest } from 'next/server';
 import { readRequestBodyWithLimit } from '@/lib/contact/read-body';
 
 describe('readRequestBodyWithLimit', () => {
+  it('returns an empty body when the request has no readable stream', async () => {
+    const request = new NextRequest('http://localhost/api/contact', {
+      method: 'POST',
+    });
+
+    await expect(readRequestBodyWithLimit(request, 32)).resolves.toEqual({
+      ok: true,
+      body: '',
+    });
+  });
+
   it('returns the full body when under the limit', async () => {
     const request = new NextRequest('http://localhost/api/contact', {
       method: 'POST',
@@ -12,6 +23,19 @@ describe('readRequestBodyWithLimit', () => {
     await expect(readRequestBodyWithLimit(request, 32)).resolves.toEqual({
       ok: true,
       body: '{"ok":true}',
+    });
+  });
+
+  it('allows a body exactly at the byte limit', async () => {
+    const body = 'a'.repeat(32);
+    const request = new NextRequest('http://localhost/api/contact', {
+      method: 'POST',
+      body,
+    });
+
+    await expect(readRequestBodyWithLimit(request, 32)).resolves.toEqual({
+      ok: true,
+      body,
     });
   });
 
