@@ -24,6 +24,8 @@ type HeroProps = {
   variant?: HeroVariant;
 };
 
+const REVEAL_TIMELINE_START = 0.35;
+
 export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const { profile, isReady } = useDeviceProfile();
   const reduceMotion = useReducedMotion();
@@ -40,6 +42,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const [scrollRevealed, setScrollRevealed] = useState(false);
   const setScrollRevealedRef = useRef(setScrollRevealed);
 
+  // Keep GSAP callbacks on the latest setState without re-running useGsapContext.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- ref mirror only; GSAP setup must not re-init on setState identity changes
   useEffect(() => {
     setScrollRevealedRef.current = setScrollRevealed;
   });
@@ -58,6 +62,16 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
 
     const revealTargets = [copyRef.current, ctaRef.current];
     gsap.set(revealTargets, { opacity: 0, y: 30, pointerEvents: 'none' });
+    gsap.set(logoRef.current, { opacity: 1, scale: 1, y: 0 });
+
+    if (particleBandRef.current) {
+      gsap.set(particleBandRef.current, { opacity: 0.65, scale: 1 });
+    }
+
+    const syncScrollRevealed = () => {
+      const opacity = Number(gsap.getProperty(copyRef.current, 'opacity') ?? 0);
+      setScrollRevealedRef.current(opacity > 0.5);
+    };
 
     const timeline = gsap.timeline({
       scrollTrigger: {
@@ -69,6 +83,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         anticipatePin: 1,
       },
     });
+
+    timeline.eventCallback('onUpdate', syncScrollRevealed);
 
     if (particleBandRef.current) {
       timeline.to(
@@ -97,16 +113,17 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         y: 0,
         ease: ANIMATION_EASE.base,
         pointerEvents: 'auto',
-        onStart: () => setScrollRevealedRef.current(true),
-        onReverseComplete: () => setScrollRevealedRef.current(false),
       },
-      0.35,
+      REVEAL_TIMELINE_START,
     );
+
+    syncScrollRevealed();
   }, [isImmersive, staticFallback]);
 
   const gsapControlled = isImmersive && !staticFallback;
   const showCopyImmediately = isImmersive && staticFallback;
   const copyVisible = !isImmersive || showCopyImmediately;
+  const logoVisible = isImmersive && !showCopyImmediately;
   const ctaFocusable = copyVisible || scrollRevealed;
   const reactRevealStyle = gsapControlled
     ? undefined
@@ -114,7 +131,12 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         opacity: copyVisible ? 1 : 0,
         pointerEvents: copyVisible ? ('auto' as const) : ('none' as const),
       };
-  const logoVisible = isImmersive && !showCopyImmediately;
+  const reactLogoOpacityStyle = gsapControlled
+    ? undefined
+    : { opacity: logoVisible ? 1 : 0 };
+  const reactParticleBandOpacityStyle = gsapControlled
+    ? undefined
+    : { opacity: logoVisible ? 0.65 : 0 };
   const mobileStaticHero = isImmersive && staticFallback && profile.isMobile;
   const showParticleFormation =
     logoVisible && !logoRevealed && !skipFormation;
@@ -154,7 +176,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           justifyContent: 'center',
           zIndex: 10,
           pointerEvents: 'none',
-          opacity: logoVisible ? 1 : 0,
+          ...reactLogoOpacityStyle,
           visibility: logoVisible ? 'visible' : 'hidden',
         }}
         aria-hidden={!logoVisible}
@@ -168,7 +190,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: logoVisible ? 0.65 : 0,
+              ...reactParticleBandOpacityStyle,
             }}
           >
             <div
