@@ -19,9 +19,9 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 `lib/scroll/animation-tokens.ts`（GSAP）:
 
-- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6`（Hero ロゴ入場・Philosophy リビールで使用中） / `heroChild`: `1.2`（Hero 子要素スタガー） / `section`: `1.8`（#79 以降） / `pageTransition`: `0.6`（#79 以降）
+- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6`（Hero ロゴ入場・Philosophy 本文リビール） / `heroChild`: `1.2`（Hero 子要素スタガー） / `display`: `2`（Philosophy 巨大文字ブロック） / `section`: `1.8`（#79 以降） / `pageTransition`: `0.6`（#79 以降）
 - `ANIMATION_EASE.base`: `expo.out` / `section`: `power3.inOut` / `reveal`: `power3.out`
-- `REVEAL_OFFSET.x`: `-20` / `y`: `20` / `stagger`: `0.15` / `textRevealStagger`: `0.06` / `textRevealDurationScale`: `0.65` / `maxStaggerItems`: `6`（#79 以降）
+- `REVEAL_OFFSET.x`: `-20` / `y`: `20` / `heroChildY`: `40`（Hero 子要素） / `stagger`: `0.15` / `textRevealStagger`: `0.06` / `textRevealDurationScale`: `0.65` / `maxStaggerItems`: `6`（#79 以降）
 
 `lib/scroll/gsap-config.ts`:
 
@@ -38,7 +38,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 `lib/scroll/easing.ts`（framer-motion、`animation-tokens.ts` を参照）:
 
-- `scrollEase`: `[0.22, 1, 0.36, 1]`
+- `scrollEase`: `[0.22, 1, 0.36, 1]`（Hero 入場・ScrollReveal 共通）
 - `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`
 - `scrollTransition.duration`: `1.4`（`ANIMATION_DURATION.base`）
 - `scrollVariants`: `fadeUp`, `fadeUpLarge`（デフォルト offset は同一、`ScrollReveal` の `y` prop で上書き可）, `fadeLeft`, `scale`（y offset: 20px）
