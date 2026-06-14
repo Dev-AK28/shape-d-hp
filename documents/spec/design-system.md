@@ -179,7 +179,7 @@ SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/s
 
 | コンポーネント | 状態 |
 |----------------|------|
-| `ProcessNavigation.tsx` | 移行済み（Tailwind + `blue-400` / `violet-400` パレット） |
+| `ProcessNavigation.tsx` | 移行済み（`--section-blue` / `--section-purple` CSS 変数 + `color-mix`） |
 | `PhilosophyProgressDots.tsx` | 移行済み（CSS 変数 `--accent` / `--muted`） |
 | `PageHeader.tsx` 区切り線 | 移行済み（`dividerVariant` + `page-header-divider-*` クラス） |
 | その他コンテンツコンポーネント | 未移行（順次対応） |
