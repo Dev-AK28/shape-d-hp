@@ -9,7 +9,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | コンポーネント | 用途 |
 |--------------|------|
 | `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`shouldDisableSmoothScroll`: reduced-motion / mobile / coarse pointer 時無効） |
-| `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（reduced-motion 時スキップ。setup/revert 後に `refreshScrollTrigger()`） |
+| `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（`shouldDisableGsapAnimation(profile)` — smooth scroll 無効条件と同じ。setup/revert 後に `refreshScrollTrigger()`） |
 | `PageLoader` | 初回訪問時の軽量ローディング体験（背景透明・LCP 非ブロック） |
 | `ScrollReveal` | セクション単位のフェードリビール |
 | `TextReveal` | 見出しのグラフェム/ワード単位リビール |
@@ -30,7 +30,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 `lib/scroll/gsap-config.ts`:
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
-- `shouldDisableGsapAnimation(prefersReducedMotion)` — reduced-motion 時 GSAP アニメーション無効
+- `shouldDisableGsapAnimation(profile)` — smooth scroll 無効条件と同じ（reduced-motion / mobile / coarse pointer）
 - `refreshScrollTrigger()` — ScrollTrigger 計測の再計算（内部で `registerGsapPlugins()` を呼び出し）
 
 `components/scroll/SmoothScrollProvider.tsx`（Lenis 統合）:
@@ -72,11 +72,11 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 - `shouldDisableSmoothScroll(profile)` が true のとき（`prefers-reduced-motion` / mobile / `pointer: coarse`）:
   - Lenis 無効（ネイティブスクロール）
+  - `useGsapContext` は GSAP アニメーションをスキップ
 - `useReducedMotion()` / `prefers-reduced-motion` 有効時:
   - PageLoader 非表示
   - リビールアニメーション duration 0 / initial false
   - ParallaxSection は通常 div にフォールバック
-  - `useGsapContext` は GSAP アニメーションをスキップ
 
 ## 受け入れ基準
 

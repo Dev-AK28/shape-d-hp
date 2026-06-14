@@ -57,4 +57,8 @@ describe('device-profile', () => {
   it('returns the default profile when window is unavailable', () => {
     expect(readDeviceProfile()).toEqual(DEFAULT_DEVICE_PROFILE);
   });
+
+  it('includes prefersHoverNone in the default profile', () => {
+    expect(DEFAULT_DEVICE_PROFILE.prefersHoverNone).toBe(false);
+  });
 });

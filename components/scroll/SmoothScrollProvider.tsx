@@ -19,6 +19,7 @@ type SmoothScrollProviderProps = {
 
 export default function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const { profile, isReady } = useDeviceProfile();
+  const disableSmoothScroll = shouldDisableSmoothScroll(profile);
 
   useEffect(() => {
     if (!isReady) {
@@ -28,7 +29,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     registerGsapPlugins();
     configureGsapDefaults();
 
-    if (shouldDisableSmoothScroll(profile)) {
+    if (disableSmoothScroll) {
       refreshScrollTrigger();
       return () => {
         refreshScrollTrigger();
@@ -53,8 +54,13 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
           duration: ANIMATION_DURATION.base,
           smoothWheel: true,
         });
-        lenis = instance;
 
+        if (cancelled) {
+          instance.destroy();
+          return;
+        }
+
+        lenis = instance;
         instance.on('scroll', ScrollTrigger.update);
 
         tickerCallback = (time: number) => {
@@ -85,7 +91,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       lenis?.destroy();
       refreshScrollTrigger();
     };
-  }, [isReady, profile]);
+  }, [isReady, disableSmoothScroll]);
 
   return <>{children}</>;
 }

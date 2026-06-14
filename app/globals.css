@@ -1,25 +1,80 @@
 @import "tailwindcss";
 
+html {
+  color-scheme: dark;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #f0f0f0;
+  --muted: #9ca3af;
+  --accent: #c4b5a0;
+  --accent-subtle: rgba(196, 181, 160, 0.6);
+  --border: rgba(240, 240, 240, 0.12);
+  --font-serif: var(--font-display);
+
+  /* Motion design tokens */
+  --duration-base: 1.4s;
+  --ease-base: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Spacing (8px grid) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-section: 120px;
 }
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a192f;
-    --foreground: #e2e8f0;
-  }
-}
-
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif;
+  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+}
+
+html[data-custom-cursor='active'],
+html[data-custom-cursor='active'] * {
+  cursor: none !important;
+}
+
+html[data-custom-cursor='active'] input,
+html[data-custom-cursor='active'] textarea,
+html[data-custom-cursor='active'] select {
+  cursor: text !important;
+}
+
+@media (pointer: coarse), (hover: none), (max-width: 767px), (prefers-reduced-motion: reduce) {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
+  }
+}
+
+@media print {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
+  }
+
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none !important;
+  }
+}
+
+/* Keyboard-only focus ring */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 @keyframes nebula-hero-1 {
@@ -60,4 +115,18 @@ body {
   50% {
     transform: translate(-120px, 80px) scale(1.3);
   }
+}
+
+/* CSS noise texture for minimal backgrounds */
+.noise-bg {
+  position: relative;
+}
+
+.noise-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
