@@ -37,7 +37,7 @@ async function assertDiscernibleSymbol(png: Buffer): Promise<void> {
 
 test.describe('Favicon assets', () => {
   test('serves a lightweight 32x32 PNG icon with a discernible symbol', async ({ request }) => {
-    const response = await request.get('/icon');
+    const response = await request.get('/icon.png');
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toContain('image/png');
 
@@ -52,7 +52,7 @@ test.describe('Favicon assets', () => {
   });
 
   test('serves a lightweight 180x180 apple-touch-icon', async ({ request }) => {
-    const response = await request.get('/apple-icon');
+    const response = await request.get('/apple-icon.png');
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toContain('image/png');
 
@@ -83,11 +83,11 @@ test.describe('Favicon assets', () => {
     const iconHref = await iconLink.getAttribute('href');
     const appleIconHref = await appleIconLink.getAttribute('href');
 
-    expect(iconHref ?? '').toMatch(/\/icon(?:\?|$)/);
+    expect(iconHref ?? '').toMatch(/\/icon(?:\.png)?(?:\?|$)/);
     expect(iconHref ?? '').not.toContain('image_13.png');
     expect(iconHref ?? '').not.toMatch(/favicon\.ico(?:\?|$)/);
 
-    expect(appleIconHref ?? '').toMatch(/\/apple-icon(?:\?|$)/);
+    expect(appleIconHref ?? '').toMatch(/\/apple-icon(?:\.png)?(?:\?|$)/);
     expect(appleIconHref ?? '').not.toContain('image_13.png');
 
     const iconResponse = await request.get(iconHref!);

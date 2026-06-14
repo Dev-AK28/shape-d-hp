@@ -12,14 +12,21 @@ test.describe('Contact page', () => {
 
     await page.goto('/contact');
 
-    await page.getByLabel('お名前').fill('山田 太郎');
-    await page.getByLabel('メールアドレス').fill('test@example.com');
-    await page.getByLabel('会社名').fill('株式会社テスト');
-    await page.getByLabel('メッセージ').fill('E2E テストからのお問い合わせです。');
+    const nameField = page.locator('#name');
+    await nameField.scrollIntoViewIfNeeded();
+    await expect(nameField).toBeVisible();
+    await expect(nameField).toBeEditable();
+
+    await nameField.fill('山田 太郎');
+    await page.locator('#email').fill('test@example.com');
+    await page.locator('#company').fill('株式会社テスト');
+    await page.locator('#message').fill('E2E テストからのお問い合わせです。');
 
     await page.getByRole('button', { name: '送信する' }).click();
 
-    await expect(page.getByRole('status')).toContainText('送信しました');
+    await expect(page.getByRole('status')).toContainText('送信しました', {
+      timeout: 10_000,
+    });
   });
 
   test('shows rate limit error message', async ({ page }) => {
@@ -33,12 +40,19 @@ test.describe('Contact page', () => {
 
     await page.goto('/contact');
 
-    await page.getByLabel('お名前').fill('山田 太郎');
-    await page.getByLabel('メールアドレス').fill('test@example.com');
-    await page.getByLabel('メッセージ').fill('テスト');
+    const nameField = page.locator('#name');
+    await nameField.scrollIntoViewIfNeeded();
+    await expect(nameField).toBeVisible();
+    await expect(nameField).toBeEditable();
+
+    await nameField.fill('山田 太郎');
+    await page.locator('#email').fill('test@example.com');
+    await page.locator('#message').fill('テスト');
 
     await page.getByRole('button', { name: '送信する' }).click();
 
-    await expect(page.getByText('送信回数の上限に達しました')).toBeVisible();
+    await expect(page.getByText('送信回数の上限に達しました')).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });

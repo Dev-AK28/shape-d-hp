@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
-import { colors, spacing, typography } from '@/lib/design/tokens';
+import { colors, layout, spacing, typography } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -55,7 +55,8 @@ export default function MissionVision() {
       style={{
         position: 'relative',
         padding: `${spacing.section}px var(--space-3)`,
-        background: colors.background,
+        background: 'rgba(10, 10, 10, 0.72)',
+        backdropFilter: 'blur(2px)',
         overflow: 'hidden',
       }}
     >
@@ -66,7 +67,7 @@ export default function MissionVision() {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          fontSize: 'clamp(48px, 12vw, 160px)',
+          fontSize: 'clamp(40px, 10vw, 140px)',
           fontWeight: 300,
           fontFamily: typography.fontDisplay,
           color: colors.foreground,
@@ -80,7 +81,14 @@ export default function MissionVision() {
         SELF-CONGRUENCE
       </p>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+      <div
+        style={{
+          maxWidth: layout.contentStandard,
+          margin: '0 auto',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         <motion.div
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
           style={{ marginBottom: spacing.xxl }}
@@ -120,15 +128,17 @@ export default function MissionVision() {
               key={quote}
               data-vision-quote
               style={{
-                fontSize: 'clamp(22px, 3.5vw, 36px)',
+                fontSize: typography.sizeQuote,
                 color: colors.foreground,
-                lineHeight: 1.7,
+                lineHeight: 1.85,
                 fontFamily: typography.fontSerifJp,
                 fontWeight: 300,
                 margin: `0 0 ${spacing.xl}px`,
                 padding: 0,
                 border: 'none',
                 opacity: staticReveal ? 1 : 0,
+                maxWidth: '36em',
+                textWrap: 'balance',
               }}
             >
               {quote}

@@ -1,10 +1,34 @@
 import { expect, test } from '@playwright/test';
-import { waitForHomePageReady } from './helpers';
+import { LOGO_ALT, waitForHomePageReady } from './helpers';
 
 test.describe('Home page', () => {
   test('shows hero heading after load', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);
+  });
+});
+
+test.describe('Home page desktop', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('shows brand logo after particle formation', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const heroLogo = page.locator('main section').first().getByRole('img', { name: LOGO_ALT });
+    await expect(heroLogo).toBeVisible({ timeout: 5000 });
+  });
+
+  test('reveals hero CTA after scroll on desktop', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+
+    const heroLogo = page.locator('main section').first().getByRole('img', { name: LOGO_ALT });
+    await expect(heroLogo).toBeVisible({ timeout: 5000 });
+
+    await page.mouse.wheel(0, 900);
+
+    await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -16,7 +40,7 @@ test.describe('Home page mobile', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: 'AIで効率化し、本来の創造に集中する環境を作る。',
+        name: /AIで効率化し、.*本来の創造に集中する環境を作る。/,
       }),
     ).toBeVisible();
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });

@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
-import { colors, spacing, typography } from '@/lib/design/tokens';
+import { colors, layout, spacing, typography } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -51,15 +51,16 @@ export default function About() {
     );
   }, []);
 
-  const sectionStyle = {
-    position: 'relative' as const,
-    padding: `${spacing.section}px var(--space-3)`,
-    background: colors.background,
-  };
-
   return (
-    <section style={sectionStyle}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+    <section
+      style={{
+        position: 'relative',
+        padding: `${spacing.section}px var(--space-3)`,
+        background: 'rgba(10, 10, 10, 0.62)',
+        backdropFilter: 'blur(2px)',
+      }}
+    >
+      <div style={{ maxWidth: layout.contentWide, margin: '0 auto' }}>
         <motion.div
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
           style={{ marginBottom: spacing.xxl }}
@@ -82,7 +83,7 @@ export default function About() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: spacing.xl,
             marginBottom: spacing.xxl,
           }}
@@ -103,12 +104,15 @@ export default function About() {
               style={{
                 fontSize: typography.sizeSubheading,
                 color: colors.foreground,
-                lineHeight: 1.8,
+                lineHeight: 1.85,
                 fontFamily: typography.fontSerifJp,
                 fontWeight: 300,
+                maxWidth: '36em',
               }}
             >
-              人間理解の深淵。内なる声を読み解き、自己一致への道を照らす。
+              人間理解の深淵。内なる声を読み解き、
+              <br className="hidden md:block" />
+              自己一致への道を照らす。
             </p>
           </motion.div>
 
@@ -128,12 +132,15 @@ export default function About() {
               style={{
                 fontSize: typography.sizeSubheading,
                 color: colors.foreground,
-                lineHeight: 1.8,
+                lineHeight: 1.85,
                 fontFamily: typography.fontSerifJp,
                 fontWeight: 300,
+                maxWidth: '36em',
               }}
             >
-              AIによる圧倒的な速度。技術でアイデアを具現化し、事業価値を形にする。
+              AIによる圧倒的な速度。技術でアイデアを具現化し、
+              <br className="hidden md:block" />
+              事業価値を形にする。
             </p>
           </motion.div>
         </div>

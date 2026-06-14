@@ -50,7 +50,7 @@ Issue: #51
 
 - **Given** デスクトップでトップ Hero を確認する
 - **When** スクロールで pin アニメーションを実行する
-- **Then** ロゴが縮小・消失しキャッチコピーが現れる（星・ネビュラなし）
+- **Then** ロゴが縮小・消失しキャッチコピーが現れる（`CosmicScene` 宇宙背景は `HomePageShell` によりフッター手前まで継続）
 
 - **Given** モバイルまたは `prefers-reduced-motion: reduce` が有効
 - **When** トップ Hero を操作する

@@ -1,8 +1,8 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
 import TextReveal from '@/components/scroll/TextReveal';
+import { colors, layout, spacing, typography } from '@/lib/design/tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function ServicesContent() {
@@ -92,18 +92,31 @@ export default function ServicesContent() {
   ];
 
   return (
-    <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 100 }} />
-
-      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+    <section
+      style={{
+        position: 'relative',
+        padding: `${spacing.section}px var(--space-3)`,
+        background: colors.background,
+      }}
+    >
+      <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <motion.div
           {...getScrollRevealProps(reduceMotion)}
-          style={{ textAlign: 'center', marginBottom: '120px' }}
+          style={{ marginBottom: spacing.xxl }}
         >
-          <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
+          <h1
+            style={{
+              fontSize: typography.sizeHeading,
+              fontWeight: 300,
+              color: colors.foreground,
+              marginBottom: spacing.sm,
+              fontFamily: typography.fontDisplay,
+              letterSpacing: '0.05em',
+            }}
+          >
             <TextReveal as="span" text="商品・サービス" />
-          </h2>
-          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
+          </h1>
+          <div style={{ width: '64px', height: '1px', background: colors.accent }} />
         </motion.div>
 
         {/* Digital Solution Section */}
