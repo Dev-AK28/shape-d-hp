@@ -130,6 +130,10 @@ export default function LogoParticleFormation({
       let canvasHeight = 0;
 
       const render = (timestamp: number) => {
+        if (cancelled) {
+          return;
+        }
+
         if (startRef.current === null) {
           startRef.current = timestamp;
         }
@@ -141,6 +145,10 @@ export default function LogoParticleFormation({
 
         if (!canvas || !ctx) {
           onCompleteRef.current?.();
+          return;
+        }
+
+        if (cancelled) {
           return;
         }
 
@@ -188,7 +196,9 @@ export default function LogoParticleFormation({
         }
 
         if (progress < 1) {
-          frameRef.current = window.requestAnimationFrame(render);
+          if (!cancelled) {
+            frameRef.current = window.requestAnimationFrame(render);
+          }
           return;
         }
 
