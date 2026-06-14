@@ -55,6 +55,7 @@ export default function PageHeader({
         {showDivider ? (
           <div
             aria-hidden="true"
+            data-testid="page-header-divider"
             className="mx-auto h-px w-24"
             style={{
               background: `linear-gradient(to right, transparent, ${dividerColor}, transparent)`,
@@ -71,7 +72,14 @@ export default function PageHeader({
           </p>
         ) : null}
 
-        {email ? <p className="mt-2 font-serif text-sm text-gray-500">{email}</p> : null}
+        {email ? (
+          <p
+            data-testid="page-header-email"
+            className="mt-2 font-serif text-sm text-gray-500"
+          >
+            {email}
+          </p>
+        ) : null}
       </ScrollReveal>
 
       {children ? <div className="relative z-10 w-full">{children}</div> : null}

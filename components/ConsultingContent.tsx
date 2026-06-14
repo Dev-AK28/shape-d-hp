@@ -2,8 +2,7 @@
 
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
-import TextReveal from '@/components/scroll/TextReveal';
+import PageHeader from '@/components/ui/PageHeader';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import BrandLogo from '@/components/BrandLogo';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
@@ -42,23 +41,23 @@ export default function ConsultingContent() {
 
 
   return (
-    <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 100 }} />
+    <>
+      <PageHeader
+        title="CONSULTING"
+        subtitle="自己表現力を習得し、自己一致した生き方を実現する"
+        starBackground
+        dividerColor="#a78bfa"
+        className="pb-16"
+      />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-        <motion.div
-          {...getScrollRevealProps(reduceMotion)}
-          style={{ textAlign: 'center', marginBottom: '120px' }}
-        >
-          <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            <TextReveal as="span" text="Consulting Process" />
-          </h2>
-          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #a78bfa, transparent)', margin: '0 auto' }}></div>
-          <p style={{ color: '#9ca3af', marginTop: '32px', maxWidth: '48rem', margin: '32px auto 0', lineHeight: 1.8, fontSize: '16px', fontFamily: 'serif' }}>
-            自己表現力を習得し、自己一致した生き方を実現する
-          </p>
-        </motion.div>
-
+      <section
+        style={{
+          position: 'relative',
+          padding: '0 24px 160px',
+          background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)',
+        }}
+      >
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         {/* Introduction */}
         <motion.div
           {...getScrollRevealProps(reduceMotion)}
@@ -220,7 +219,8 @@ export default function ConsultingContent() {
             『自分の言葉』を取り戻す対話を始める（初回無料）
           </motion.a>
         </motion.div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </>
   );
 }
