@@ -1,79 +1,141 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
-import TextReveal from '@/components/scroll/TextReveal';
+import PageHeader from '@/components/ui/PageHeader';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import Link from 'next/link';
 
 export default function ProcessNavigation() {
   const reduceMotion = useReducedMotion();
-  return (
-    <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 100 }} />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+  return (
+    <PageHeader
+      title="PROCESS"
+      subtitle="開発とコンサルティング、それぞれのプロフェッショナルなプロセス"
+      starBackground
+      className="pb-32"
+    >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+          gap: '64px',
+          maxWidth: '900px',
+          margin: '120px auto 0',
+        }}
+      >
         <motion.div
-          {...getScrollRevealProps(reduceMotion)}
-          style={{ textAlign: 'center', marginBottom: '120px' }}
+          {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
+          whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
+          style={{
+            padding: '64px',
+            border: '1px solid rgba(96, 165, 250, 0.3)',
+            borderRadius: '12px',
+            background: 'rgba(96, 165, 250, 0.05)',
+            backdropFilter: 'blur(10px)',
+          }}
         >
-          <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            <TextReveal as="span" text="PROCESS" />
+          <h2
+            style={{
+              fontSize: '32px',
+              fontWeight: 300,
+              color: '#60a5fa',
+              marginBottom: '24px',
+              fontFamily: 'serif',
+            }}
+          >
+            Development Process
           </h2>
-          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
-          <p style={{ color: '#9ca3af', marginTop: '32px', maxWidth: '48rem', margin: '32px auto 0', lineHeight: 1.8, fontSize: '16px', fontFamily: 'serif' }}>
-            開発とコンサルティング、それぞれのプロフェッショナルなプロセス
+          <p
+            style={{
+              color: '#d1d5db',
+              fontSize: '16px',
+              lineHeight: 2,
+              marginBottom: '32px',
+              fontFamily: 'serif',
+              letterSpacing: '0.02em',
+            }}
+          >
+            AIスタックを指揮した「要件定義→プロトタイプ→品質担保→実装」の4ステップ。技術者としての高い視座から、プロフェッショナルな開発プロセスを提供します。
           </p>
+          <Link href="/process/development">
+            <motion.div
+              whileHover={reduceMotion ? undefined : { scale: 1.05 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+              style={{
+                display: 'inline-block',
+                padding: '16px 48px',
+                border: '1px solid #60a5fa',
+                borderRadius: '9999px',
+                color: '#60a5fa',
+                background: 'transparent',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontFamily: 'serif',
+                textDecoration: 'none',
+              }}
+            >
+              詳細を見る
+            </motion.div>
+          </Link>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '64px', maxWidth: '900px', margin: '0 auto' }}>
-          {/* Development Process Card */}
-          <motion.div
-            {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
-            whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
-            style={{ padding: '64px', border: '1px solid rgba(96, 165, 250, 0.3)', borderRadius: '12px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
+        <motion.div
+          {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
+          whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
+          style={{
+            padding: '64px',
+            border: '1px solid rgba(167, 139, 250, 0.3)',
+            borderRadius: '12px',
+            background: 'rgba(167, 139, 250, 0.05)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <h2
+            style={{
+              fontSize: '32px',
+              fontWeight: 300,
+              color: '#a78bfa',
+              marginBottom: '24px',
+              fontFamily: 'serif',
+            }}
           >
-            <h3 style={{ fontSize: '32px', fontWeight: 300, color: '#60a5fa', marginBottom: '24px', fontFamily: 'serif' }}>
-              Development Process
-            </h3>
-            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              AIスタックを指揮した「要件定義→プロトタイプ→品質担保→実装」の4ステップ。技術者としての高い視座から、プロフェッショナルな開発プロセスを提供します。
-            </p>
-            <Link href="/process/development">
-              <motion.div
-                whileHover={reduceMotion ? undefined : { scale: 1.05 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-                style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
-              >
-                詳細を見る
-              </motion.div>
-            </Link>
-          </motion.div>
-
-          {/* Consulting Process Card */}
-          <motion.div
-            {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
-            whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
-            style={{ padding: '64px', border: '1px solid rgba(167, 139, 250, 0.3)', borderRadius: '12px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
+            Consulting Process
+          </h2>
+          <p
+            style={{
+              color: '#d1d5db',
+              fontSize: '16px',
+              lineHeight: 2,
+              marginBottom: '32px',
+              fontFamily: 'serif',
+              letterSpacing: '0.02em',
+            }}
           >
-            <h3 style={{ fontSize: '32px', fontWeight: 300, color: '#a78bfa', marginBottom: '24px', fontFamily: 'serif' }}>
-              Consulting Process
-            </h3>
-            <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              「自覚→言語化→表現」の3ステップによるスキル習得。AI時代に代替不可能な『個』の価値を最大化し、自己一致した生き方を支援します。
-            </p>
-            <Link href="/process/consulting">
-              <motion.div
-                whileHover={reduceMotion ? undefined : { scale: 1.05 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-                style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
-              >
-                詳細を見る
-              </motion.div>
-            </Link>
-          </motion.div>
-        </div>
+            「自覚→言語化→表現」の3ステップによるスキル習得。AI時代に代替不可能な『個』の価値を最大化し、自己一致した生き方を支援します。
+          </p>
+          <Link href="/process/consulting">
+            <motion.div
+              whileHover={reduceMotion ? undefined : { scale: 1.05 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+              style={{
+                display: 'inline-block',
+                padding: '16px 48px',
+                border: '1px solid #a78bfa',
+                borderRadius: '9999px',
+                color: '#a78bfa',
+                background: 'transparent',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontFamily: 'serif',
+                textDecoration: 'none',
+              }}
+            >
+              詳細を見る
+            </motion.div>
+          </Link>
+        </motion.div>
       </div>
-    </section>
+    </PageHeader>
   );
 }

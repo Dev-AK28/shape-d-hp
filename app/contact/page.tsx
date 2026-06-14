@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import PageHeader from '@/components/ui/PageHeader';
 import ScrollReveal from '@/components/scroll/ScrollReveal';
-import TextReveal from '@/components/scroll/TextReveal';
 import SectionShell from '@/components/ui/SectionShell';
 import { PUBLIC_CONTACT_EMAIL } from '@/lib/contact/constants';
 
@@ -64,19 +64,14 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[var(--background)] to-black">
-      <SectionShell padding="sm" className="flex min-h-[60vh] items-center justify-center pt-[120px]">
-        <ScrollReveal className="max-w-[800px] text-center">
-          <h1 className="mb-6 font-serif text-[clamp(48px,6vw,64px)] font-light tracking-wider text-white">
-            CONTACT
-          </h1>
-          <TextReveal
-            as="p"
-            text="お気軽にご相談ください"
-            className="font-serif text-lg leading-relaxed text-gray-400"
-          />
-          <p className="mt-2 font-serif text-sm text-gray-500">{PUBLIC_CONTACT_EMAIL}</p>
-        </ScrollReveal>
-      </SectionShell>
+      <PageHeader
+        title="CONTACT"
+        subtitle="お気軽にご相談ください"
+        email={PUBLIC_CONTACT_EMAIL}
+        animateTitle={false}
+        showDivider={false}
+        className="min-h-[60vh]"
+      />
 
       <SectionShell padding="md">
         <div className="mx-auto max-w-[600px]">

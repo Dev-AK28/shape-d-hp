@@ -1,8 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
-import TextReveal from '@/components/scroll/TextReveal';
+import PageHeader from '@/components/ui/PageHeader';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import BrandLogo from '@/components/BrandLogo';
 
@@ -48,24 +47,24 @@ export default function DevelopmentContent() {
   ];
 
   return (
-    <section style={{ position: 'relative', padding: '160px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 100 }} />
+    <>
+      <PageHeader
+        title="DEVELOPMENT"
+        subtitle="技術者としての高い視座から、AIスタックを指揮したプロフェッショナルな開発プロセス"
+        starBackground
+        dividerColor="#60a5fa"
+        className="pb-16"
+      />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-        <motion.div
-          {...getScrollRevealProps(reduceMotion)}
-          style={{ textAlign: 'center', marginBottom: '120px' }}
-        >
-          <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif' }}>
-            <TextReveal as="span" text="Development Process" />
-          </h2>
-          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)', margin: '0 auto' }}></div>
-          <p style={{ color: '#9ca3af', marginTop: '32px', maxWidth: '48rem', margin: '32px auto 0', lineHeight: 1.8, fontSize: '16px', fontFamily: 'serif' }}>
-            技術者としての高い視座から、AIスタックを指揮したプロフェッショナルな開発プロセス
-          </p>
-        </motion.div>
-
-        <div style={{ marginBottom: '120px' }}>
+      <section
+        style={{
+          position: 'relative',
+          padding: '0 24px 160px',
+          background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)',
+        }}
+      >
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+          <div style={{ marginBottom: '120px' }}>
           {steps.map((step, index) => (
             <motion.div
               key={step.id}
@@ -176,7 +175,8 @@ export default function DevelopmentContent() {
             爆速でプロトタイプを試す（初回相談）
           </motion.a>
         </motion.div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </>
   );
 }

@@ -21,12 +21,14 @@ test.describe('Navigation', () => {
       await expect(page).toHaveURL(item.urlPattern);
 
       if (item.href === '/services') {
-        await expect(page.locator('main h1').first()).toContainText('商品');
+        await expect(page.locator('main h1').first()).toContainText('SERVICES');
+        await expect(page.getByTestId('page-header-subtitle')).toContainText('商品・サービス');
         await expect(page.locator('main section').first().getByRole('img', { name: 'SHAPE∞D Logo' })).toHaveCount(0);
       }
 
       if (item.href === '/works') {
-        await expect(page.locator('main h1').first()).toContainText('実績');
+        await expect(page.locator('main h1').first()).toContainText('WORKS');
+        await expect(page.getByTestId('page-header-subtitle')).toContainText('実績');
         await expect(page.locator('main section').first().getByRole('img', { name: 'SHAPE∞D Logo' })).toHaveCount(0);
       }
     });

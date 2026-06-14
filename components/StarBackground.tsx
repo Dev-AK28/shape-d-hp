@@ -104,7 +104,11 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
   const applyGlow = showEffects && shouldAnimateStars(profile);
 
   return (
-    <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div
+      ref={containerRef}
+      data-testid="star-background"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
       {stars.map((star) => (
         <div
           key={star.id}
