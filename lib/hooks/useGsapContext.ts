@@ -1,5 +1,6 @@
 'use client';
 
+import { useReducedMotion } from 'framer-motion';
 import { useLayoutEffect, useRef } from 'react';
 import { gsap, registerGsapPlugins, shouldDisableGsapAnimation } from '@/lib/scroll/gsap-config';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
@@ -10,12 +11,16 @@ export function useGsapContext(
   setup: GsapSetupFn,
   deps: ReadonlyArray<unknown> = [],
 ): void {
+  const reduceMotion = useReducedMotion();
   const { profile, isReady } = useDeviceProfile();
   const setupRef = useRef(setup);
   setupRef.current = setup;
 
+  const disableAnimation =
+    shouldDisableGsapAnimation(profile.prefersReducedMotion) || reduceMotion === true;
+
   useLayoutEffect(() => {
-    if (!isReady || shouldDisableGsapAnimation(profile.prefersReducedMotion)) {
+    if (!isReady || disableAnimation) {
       return;
     }
 
@@ -29,5 +34,5 @@ export function useGsapContext(
       ctx.revert();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- caller controls deps
-  }, [isReady, profile.prefersReducedMotion, ...deps]);
+  }, [isReady, disableAnimation, ...deps]);
 }

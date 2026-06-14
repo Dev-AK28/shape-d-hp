@@ -1,14 +1,15 @@
 'use client';
 
 import { useRef } from 'react';
-import { useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
 import { colors, spacing, typography } from '@/lib/design/tokens';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
+import { shouldDisableGsapAnimation } from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { motion } from 'framer-motion';
 
 const career = [
   '心理学専攻で学士号を取得。学術的な人間理解の素地を築く。',
@@ -20,6 +21,9 @@ const career = [
 
 export default function About() {
   const reduceMotion = useReducedMotion();
+  const { profile } = useDeviceProfile();
+  const showTimelineImmediately =
+    shouldDisableGsapAnimation(profile.prefersReducedMotion) || reduceMotion === true;
   const timelineRef = useRef<HTMLUListElement>(null);
 
   useGsapContext(() => {
@@ -162,7 +166,7 @@ export default function About() {
                 style={{
                   marginBottom: spacing.lg,
                   position: 'relative',
-                  opacity: reduceMotion ? 1 : 0,
+                  opacity: showTimelineImmediately ? 1 : 0,
                 }}
               >
                 <span
