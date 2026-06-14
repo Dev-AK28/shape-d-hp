@@ -14,6 +14,13 @@ export const colors = {
   purple: '#a78bfa',
 } as const;
 
+/** PageHeader gradient divider accent per variant — Issue #15 */
+export const pageHeaderDividerColors = {
+  blue: colors.blue,
+  purple: colors.purple,
+  sky: colors.blueLight,
+} as const;
+
 /** PageHeader gradient divider variants — Issue #15 */
 export const pageHeaderDividers = {
   blue: 'page-header-divider-blue',

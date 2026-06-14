@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, layout, motion, spacing, typographyBlend, warmGrade } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, spacing, typographyBlend, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   desktopMinWidthMediaQuery,
@@ -18,6 +18,9 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--accent: ${colors.accent}`);
     expect(globalsCss).toContain(`--accent-subtle: ${colors.accentSubtle}`);
     expect(globalsCss).toContain(`--border: ${colors.border}`);
+    expect(globalsCss).toContain(`--section-blue: ${colors.blue}`);
+    expect(globalsCss).toContain(`--section-blue-light: ${colors.blueLight}`);
+    expect(globalsCss).toContain(`--section-purple: ${colors.purple}`);
   });
 
   it('mirrors spacing tokens in CSS variables', () => {
@@ -60,6 +63,20 @@ describe('design tokens ↔ globals.css sync', () => {
   it('mirrors typography blend tokens in CSS variables', () => {
     expect(globalsCss).toContain(`--type-blend-cosmic: ${typographyBlend.cosmic}`);
     expect(globalsCss).toContain(`--type-blend-solid: ${typographyBlend.solid}`);
+  });
+
+  it('mirrors page header divider classes and section accent CSS variables', () => {
+    for (const [variant, className] of Object.entries(pageHeaderDividers)) {
+      expect(globalsCss).toContain(`.${className}`);
+      const accentVar =
+        variant === 'blue'
+          ? '--section-blue'
+          : variant === 'purple'
+            ? '--section-purple'
+            : '--section-blue-light';
+      expect(globalsCss).toContain(`var(${accentVar})`);
+      expect(globalsCss).toContain(pageHeaderDividerColors[variant as keyof typeof pageHeaderDividerColors]);
+    }
   });
 
   it('mirrors desktop breakpoint in warm grade nebula filter media query', () => {
