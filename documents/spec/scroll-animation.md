@@ -9,7 +9,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | コンポーネント | 用途 |
 |--------------|------|
 | `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`shouldDisableSmoothScroll`: reduced-motion / mobile / coarse pointer 時無効） |
-| `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（reduced-motion 時スキップ） |
+| `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（reduced-motion 時スキップ。setup/revert 後に `refreshScrollTrigger()`） |
 | `PageLoader` | 初回訪問時の軽量ローディング体験（背景透明・LCP 非ブロック） |
 | `ScrollReveal` | セクション単位のフェードリビール |
 | `TextReveal` | 見出しのグラフェム/ワード単位リビール |
@@ -31,12 +31,13 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
 - `shouldDisableGsapAnimation(prefersReducedMotion)` — reduced-motion 時 GSAP アニメーション無効
-- `refreshScrollTrigger()` — ScrollTrigger 計測の再計算
+- `refreshScrollTrigger()` — ScrollTrigger 計測の再計算（内部で `registerGsapPlugins()` を呼び出し）
 
 `components/scroll/SmoothScrollProvider.tsx`（Lenis 統合）:
 
 - `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
 - Lenis 初期化後および destroy 後に `refreshScrollTrigger()`
+- destroy 前に `lenis.off('scroll', ScrollTrigger.update)` で scroll リスナーを明示解除
 - Lenis 初期化失敗時も `refreshScrollTrigger()` を呼び出し ScrollTrigger 計測を同期
 - `shouldDisableSmoothScroll` 時も mount/unmount で `refreshScrollTrigger()` を呼び出し ScrollTrigger 計測を同期
 - Lenis `duration` は `ANIMATION_DURATION.base` を参照
@@ -47,7 +48,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 - `loopEase`: `easeInOut`（Hero 装飾ループ — 入場 `scrollEase` とは別用途）
 - `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`
 - `scrollTransition.duration`: `1.4`（`ANIMATION_DURATION.base`）
-- `scrollVariants`: `fadeUp`, `fadeUpLarge`（デフォルト offset は同一、`ScrollReveal` の `y` prop で上書き可）, `fadeLeft`, `scale`（y offset: 20px）
+- `scrollVariants`: `fadeUp`, `fadeUpLarge`（デフォルト offset は同一、`ScrollReveal` の `y` prop で上書き可）, `fadeLeft`, `scale`（opacity + scale: 0.8 → 1）
 - `scrollStagger`: `item: 0.15`, `card: 0.15`
 - `textRevealStagger`: `0.06`（`TextReveal` グラフェム単位）
 - `textRevealDurationScale`: `0.65`（`TextReveal` duration = `scrollTransition.duration × 0.65`）
