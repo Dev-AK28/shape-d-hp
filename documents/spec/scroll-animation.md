@@ -60,6 +60,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 - ロゴ: `LogoParticleFormation`（Canvas 粒子 → `shape-d-logo-transparent.png` のアルファシルエット形成）→ 完了後 `BrandLogo`（同一 PNG・同一 hero ステージ寸法で crossfade）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
 - 粒子サンプリング: PNG を最長辺 `768px`（`LOGO_SAMPLE_MAX_DIMENSION`）にダウンサンプルして `getImageData` メモリを抑制。画像ロード失敗時は粒子をスキップし `BrandLogo` を表示（`onComplete` フォールバック）
 - 粒子描画 scale: `LOGO_PARTICLE_RENDER_SCALE`（`0.98`）— hero ステージ内 `object-contain` の余白に合わせた inset
+- 粒子形成時間: `LOGO_PARTICLE_FORMATION_MS`（`2400`）— `LogoParticleFormation` と E2E 待機の SSOT
 - StarBackground はトップでは使用しない
 
 ### トップ About / MissionVision（Issue #80）
