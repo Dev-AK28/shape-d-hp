@@ -43,7 +43,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 | パス | 適用内容 |
 |------|---------|
-| `/` | Hero 入場 + Server `h1`（LCP）+ About / MissionVision リビール + TextReveal 見出し |
+| `/` | Hero scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision リビール |
 | `/services` | ServicesContent セクション/カード スタガー + TextReveal |
 | `/works` | WorksContent 同上 |
 | `/process` | ProcessNavigation / ProcessContent |

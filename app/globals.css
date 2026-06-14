@@ -101,7 +101,9 @@ button {
   }
 }
 
-/* CSS noise texture for minimal backgrounds */
+.hero-cta:hover {
+  opacity: 0.75;
+}
 .noise-bg {
   position: relative;
 }

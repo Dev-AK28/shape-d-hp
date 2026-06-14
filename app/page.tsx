@@ -3,25 +3,23 @@ import About from '@/components/About';
 import MissionVision from '@/components/MissionVision';
 import Navigation from '@/components/Navigation';
 
-const heroTaglineStyle = {
-  fontSize: 'clamp(36px, 6vw, 64px)',
-  fontFamily: 'serif',
-  color: 'white',
-  marginBottom: '48px',
-  lineHeight: 1.3,
+const heroHeadingStyle = {
+  fontSize: 'clamp(28px, 5vw, 48px)',
+  fontFamily: 'var(--font-serif-jp)',
+  color: 'var(--foreground)',
+  marginBottom: 'var(--space-2)',
+  lineHeight: 1.4,
   fontWeight: 300,
-  letterSpacing: '0.05em',
+  letterSpacing: '0.04em',
   textAlign: 'center' as const,
-  maxWidth: '900px',
-  marginInline: 'auto',
 };
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#0A192F] to-black">
+    <main className="min-h-screen" style={{ background: 'var(--background)' }}>
       <Navigation />
       <Hero>
-        <h1 style={heroTaglineStyle}>
+        <h1 style={heroHeadingStyle}>
           AIで効率化し、本来の創造に集中する環境を作る。
         </h1>
       </Hero>
