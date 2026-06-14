@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { LOGO_ALT, waitForHomePageReady } from './helpers';
+import { expectFooterVisibleAboveCosmicBackground, LOGO_ALT, waitForHomePageReady } from './helpers';
 
 test.describe('Home page', () => {
   test('shows hero heading after load', async ({ page }) => {
@@ -22,19 +22,7 @@ test.describe('Home page desktop', () => {
   test('shows footer above fixed cosmic background when scrolled to bottom', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);
-
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await page.waitForTimeout(300);
-
-    const footerCopyright = page.getByText('© 2026 Kota Akashi. All rights reserved.');
-    await expect(footerCopyright).toBeVisible();
-
-    const footerBox = await footerCopyright.boundingBox();
-    expect(footerBox).not.toBeNull();
-    if (footerBox) {
-      expect(footerBox.y).toBeGreaterThan(0);
-      expect(footerBox.y + footerBox.height).toBeLessThanOrEqual(page.viewportSize()!.height + 1);
-    }
+    await expectFooterVisibleAboveCosmicBackground(page);
   });
 
   test('reveals hero CTA after scroll on desktop', async ({ page }) => {
@@ -69,6 +57,12 @@ test.describe('Home page mobile', () => {
     await expect(page.getByText('心理学', { exact: true })).toBeVisible();
     await expect(page.getByText('経歴', { exact: true })).toBeVisible();
     await expect(page.getByText('自己一致（SELF-CONGRUENCE）への道')).toBeVisible();
+  });
+
+  test('shows footer above fixed cosmic background when scrolled to bottom', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+    await expectFooterVisibleAboveCosmicBackground(page);
   });
 });
 
