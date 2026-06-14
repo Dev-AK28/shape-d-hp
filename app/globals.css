@@ -236,7 +236,11 @@ button:not(.nav-menu-button):hover {
   font-size: var(--type-size-visual-word);
 }
 
-/* Font family utilities — Issue #15 (font-serif = --font-display via :root --font-serif) */
+/* Font family utilities — Issue #15 */
+.type-font-serif {
+  font-family: var(--font-serif);
+}
+
 .type-font-serif-jp {
   font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }

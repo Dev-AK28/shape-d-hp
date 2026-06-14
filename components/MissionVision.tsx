@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
+import { sectionHeadingClass } from '@/lib/design/section-typography-classes';
 import { typographyFontClasses, typographySizeClasses } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
@@ -56,7 +57,7 @@ export default function MissionVision() {
     >
       <p
         aria-hidden="true"
-        className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-serif ${typographySizeClasses.visualWord} font-light tracking-[0.08em] text-[var(--foreground)] opacity-[0.04]`}
+        className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap ${typographyFontClasses.serif} ${typographySizeClasses.visualWord} font-light tracking-[0.08em] text-[color:var(--foreground)] opacity-[0.04]`}
       >
         SELF-CONGRUENCE
       </p>
@@ -66,9 +67,7 @@ export default function MissionVision() {
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
           className="mb-[var(--space-8)]"
         >
-          <h2
-            className={`mb-[var(--space-2)] font-serif ${typographySizeClasses.heading} font-light text-[var(--foreground)] tracking-[0.05em]`}
-          >
+          <h2 className={sectionHeadingClass}>
             <TextReveal as="span" text="VISION" />
           </h2>
           <div className="h-px w-16 bg-[var(--accent)]" />
@@ -76,7 +75,7 @@ export default function MissionVision() {
 
         <motion.p
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
-          className={`mb-[var(--space-8)] ${typographyFontClasses.serifJp} ${typographySizeClasses.subheading} font-light tracking-[0.06em] text-[var(--accent)]`}
+          className={`mb-[var(--space-8)] ${typographyFontClasses.serifJp} ${typographySizeClasses.subheading} font-light tracking-[0.06em] text-[color:var(--accent)]`}
         >
           自己一致（SELF-CONGRUENCE）への道
         </motion.p>
@@ -86,7 +85,7 @@ export default function MissionVision() {
             <blockquote
               key={quote}
               data-vision-quote
-              className={`mb-[var(--space-6)] max-w-[36em] border-none p-0 ${typographyFontClasses.serifJp} ${typographySizeClasses.quote} font-light leading-[1.85] text-balance text-[var(--foreground)]`}
+              className={`mb-[var(--space-6)] max-w-[36em] border-none p-0 ${typographyFontClasses.serifJp} ${typographySizeClasses.quote} font-light leading-[1.85] text-balance text-[color:var(--foreground)]`}
               style={{ opacity: staticReveal ? 1 : 0 }}
             >
               {quote}

@@ -74,9 +74,15 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--type-size-visual-word: ${typography.sizeVisualWord}`);
 
     for (const className of Object.values(typographySizeClasses)) {
+      const cssVar = `--${className}`;
       expect(globalsCss).toContain(`.${className}`);
+      expect(globalsCss).toContain(`font-size: var(${cssVar})`);
     }
+
+    expect(globalsCss).toContain(`.${typographyFontClasses.serif}`);
+    expect(globalsCss).toContain('font-family: var(--font-serif)');
     expect(globalsCss).toContain(`.${typographyFontClasses.serifJp}`);
+    expect(globalsCss).toContain('--font-serif: var(--font-display)');
   });
 
   it('mirrors page header divider classes and section accent CSS variables', () => {

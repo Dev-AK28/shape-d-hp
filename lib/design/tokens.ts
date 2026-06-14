@@ -78,8 +78,10 @@ export const typographySizeClasses = {
   visualWord: 'type-size-visual-word',
 } as const;
 
-/** CSS utility for Japanese serif stack — Issue #15 */
+/** CSS utility for font stacks — Issue #15 */
 export const typographyFontClasses = {
+  /** Cormorant via :root --font-serif = --font-display */
+  serif: 'type-font-serif',
   serifJp: 'type-font-serif-jp',
 } as const;
 
