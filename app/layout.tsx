@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Noto_Serif_JP } from 'next/font/google';
 import Footer from '@/components/Footer';
+import Navigation from '@/components/Navigation';
 import DeferredCustomCursor from '@/components/ui/DeferredCustomCursor';
 import DeferredPageLoader from '@/components/scroll/DeferredPageLoader';
 import SmoothScrollProvider from '@/components/scroll/SmoothScrollProvider';
@@ -42,6 +43,7 @@ export default function RootLayout({
         <SmoothScrollProvider>
           <DeferredCustomCursor />
           <DeferredPageLoader />
+          <Navigation />
           {children}
         </SmoothScrollProvider>
         <Footer />

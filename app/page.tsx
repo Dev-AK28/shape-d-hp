@@ -1,7 +1,6 @@
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import MissionVision from '@/components/MissionVision';
-import Navigation from '@/components/Navigation';
 
 const heroHeadingStyle = {
   fontSize: 'clamp(28px, 5vw, 48px)',
@@ -17,7 +16,6 @@ const heroHeadingStyle = {
 export default function Home() {
   return (
     <main className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <Navigation />
       <Hero>
         <h1 style={heroHeadingStyle}>
           AIで効率化し、本来の創造に集中する環境を作る。
