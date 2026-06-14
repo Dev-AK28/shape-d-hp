@@ -4,7 +4,6 @@ import Image from 'next/image';
 import type { RefObject } from 'react';
 import { backgroundAssets } from '@/lib/design/background-assets';
 import { colors } from '@/lib/design/tokens';
-import { HERO_DEPTH_PASSAGE } from '@/lib/scroll/animation-tokens';
 
 type CosmicSceneProps = {
   isMobile: boolean;
@@ -13,6 +12,8 @@ type CosmicSceneProps = {
   nebulaRef?: RefObject<HTMLDivElement | null>;
   /** Outer wrapper for hero pin depth scale (Issue #100). */
   perspectiveDepthRef?: RefObject<HTMLDivElement | null>;
+  /** Transform origin for hero pin perspective scale — supplied by HomePageShell SSOT. */
+  perspectiveTransformOrigin?: string;
   priority?: boolean;
   /** Fixed viewport backdrop for full-page home experience. */
   fixed?: boolean;
@@ -24,6 +25,7 @@ export default function CosmicScene({
   baseRef,
   nebulaRef,
   perspectiveDepthRef,
+  perspectiveTransformOrigin = '50% 45%',
   priority = false,
   fixed = false,
 }: CosmicSceneProps) {
@@ -38,7 +40,7 @@ export default function CosmicScene({
       <div
         ref={perspectiveDepthRef}
         className="absolute inset-0 will-change-transform"
-        style={{ transformOrigin: HERO_DEPTH_PASSAGE.cosmic.transformOrigin }}
+        style={{ transformOrigin: perspectiveTransformOrigin }}
       >
       <div ref={baseRef} className="absolute inset-0 will-change-transform">
         <Image

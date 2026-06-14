@@ -80,6 +80,7 @@ export default function HomePageShell({ children }: HomePageShellProps) {
           baseRef={baseRef}
           nebulaRef={nebulaRef}
           perspectiveDepthRef={perspectiveDepthRef}
+          perspectiveTransformOrigin={HERO_DEPTH_PASSAGE.cosmic.transformOrigin}
           priority
           fixed
         />

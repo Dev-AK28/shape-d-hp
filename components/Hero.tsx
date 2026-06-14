@@ -204,7 +204,6 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   return (
     <section
       ref={sectionRef}
-      data-hero-pin={isImmersive ? '' : undefined}
       data-testid={isImmersive ? HERO_PIN_TEST_ID : undefined}
       className="noise-bg"
       style={{
