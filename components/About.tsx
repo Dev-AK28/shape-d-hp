@@ -1,90 +1,207 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
+import { useRef } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
+import { colors, spacing, typography } from '@/lib/design/tokens';
+import { useGsapContext } from '@/lib/hooks/useGsapContext';
+import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { motion } from 'framer-motion';
+
+const career = [
+  '心理学専攻で学士号を取得。学術的な人間理解の素地を築く。',
+  'コカコーラボトラーズジャパンベンディングに入社。',
+  'SNS起業で独立し、売上数百万円を達成。',
+  '自己表現力向上事業の立ち上げを試み。',
+  '現在はAIエンジニアとしての活動に注力。',
+];
 
 export default function About() {
   const reduceMotion = useReducedMotion();
-  const career = [
-    '心理学専攻で学士号を取得。学術的な人間理解の素地を築く。',
-    'コカコーラボトラーズジャパンベンディングに入社。',
-    'SNS起業で独立し、売上数百万円を達成。',
-    '自己表現力向上事業の立ち上げを試み。',
-    '現在はAIエンジニアとしての活動に注力。',
-  ];
+  const timelineRef = useRef<HTMLUListElement>(null);
+
+  useGsapContext(() => {
+    if (!timelineRef.current) {
+      return;
+    }
+
+    const items = timelineRef.current.querySelectorAll('[data-timeline-item]');
+    const limited = Array.from(items).slice(0, REVEAL_OFFSET.maxStaggerItems);
+
+    gsap.fromTo(
+      limited,
+      { opacity: 0, y: REVEAL_OFFSET.y },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.4,
+        ease: ANIMATION_EASE.base,
+        stagger: REVEAL_OFFSET.stagger,
+        scrollTrigger: {
+          trigger: timelineRef.current,
+          start: 'top 75%',
+          toggleActions: 'play none none reverse',
+        },
+      },
+    );
+  }, []);
+
+  const sectionStyle = {
+    position: 'relative' as const,
+    padding: `${spacing.section}px var(--space-3)`,
+    background: colors.background,
+  };
 
   return (
-    <section style={{ position: 'relative', padding: '200px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 80 }} />
-
-      <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-        <motion.div
-          {...getScrollRevealProps(reduceMotion)}
-          style={{ marginBottom: '120px' }}
-        >
-          <h2 style={{ fontSize: 'clamp(48px, 6vw, 64px)', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+    <section style={sectionStyle}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <motion.div {...getScrollRevealProps(reduceMotion)} style={{ marginBottom: spacing.xxl }}>
+          <h2
+            style={{
+              fontSize: typography.sizeHeading,
+              fontWeight: 300,
+              color: colors.foreground,
+              marginBottom: spacing.sm,
+              fontFamily: typography.fontDisplay,
+              letterSpacing: '0.05em',
+            }}
+          >
             <TextReveal as="span" text="ABOUT" />
           </h2>
-          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)' }} />
+          <div style={{ width: '64px', height: '1px', background: colors.accent }} />
         </motion.div>
 
-        <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
-          style={{ marginBottom: '80px' }}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: spacing.xl,
+            marginBottom: spacing.xxl,
+          }}
         >
-          <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: '#93c5fd', marginBottom: '48px', fontFamily: 'serif' }}>
-            Kota Akashi
-          </h3>
-          <p style={{ fontSize: '18px', color: '#d1d5db', lineHeight: 1.8, marginBottom: '24px', fontFamily: 'serif' }}>
-            事業家 / 表現者 / 心理学士
-          </p>
-        </motion.div>
-
-        <motion.div {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}>
-          <div style={{ marginBottom: '48px' }}>
-            <p style={{ fontSize: '16px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}>
-              経歴
+          <motion.div {...getScrollRevealProps(reduceMotion, { delay: 0.1 })}>
+            <p
+              style={{
+                fontSize: typography.sizeCaption,
+                color: colors.muted,
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                marginBottom: spacing.sm,
+              }}
+            >
+              心理学
             </p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {career.map((item, index) => (
-                <motion.li
-                  key={item}
-                  {...getScrollRevealProps(reduceMotion, {
-                    variant: 'fadeLeft',
-                    delay: 0.5,
-                    staggerIndex: index,
-                  })}
-                  style={{ marginBottom: '24px', paddingLeft: '24px', position: 'relative', color: '#d1d5db', fontSize: '16px', lineHeight: 1.8 }}
-                >
-                  <span style={{ position: 'absolute', left: 0, color: '#60a5fa' }}>—</span>
-                  {item}
-                </motion.li>
-              ))}
-            </ul>
-          </div>
-
-          <motion.div
-            {...getScrollRevealProps(reduceMotion, { delay: 0.6 })}
-            style={{ marginBottom: '80px', padding: '64px', border: '2px solid rgba(96, 165, 250, 0.3)', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(96, 165, 250, 0.02) 100%)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
-          >
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, transparent, #60a5fa, transparent)' }} />
-            <p style={{ color: '#60a5fa', lineHeight: 2.4, fontSize: '18px', fontFamily: 'serif', letterSpacing: '0.05em', fontWeight: 400, textAlign: 'center', textShadow: '0 0 30px rgba(96, 165, 250, 0.2)' }}>
-              技術（AI）による圧倒的な<span style={{ fontWeight: 600, fontSize: '20px' }}>『速度』</span>と、心理学による深い<span style={{ fontWeight: 600, fontSize: '20px' }}>『人間理解』</span>。この両極端な手段を指揮し、事業の本質を形にする<span style={{ fontWeight: 600, fontSize: '20px' }}>『環境』</span>を創り出すことが、私の表現です。
+            <p
+              style={{
+                fontSize: typography.sizeSubheading,
+                color: colors.foreground,
+                lineHeight: 1.8,
+                fontFamily: typography.fontSerifJp,
+                fontWeight: 300,
+              }}
+            >
+              人間理解の深淵。内なる声を読み解き、自己一致への道を照らす。
             </p>
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, transparent, #60a5fa, transparent)' }} />
           </motion.div>
 
-          <div style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}>
-            <p style={{ fontSize: '16px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '24px' }}>
-              ストーリー
+          <motion.div {...getScrollRevealProps(reduceMotion, { delay: 0.25 })}>
+            <p
+              style={{
+                fontSize: typography.sizeCaption,
+                color: colors.muted,
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                marginBottom: spacing.sm,
+              }}
+            >
+              エンジニアリング
             </p>
-            <p style={{ color: '#d1d5db', lineHeight: 2, fontSize: '16px', fontFamily: 'serif' }}>
-              心理学で学んだ人間理解の深淵と、エンジニアリングで身につけた具現化の技術。この二つが融合し、自己表現を支援するという使命に至る。効率化が進む現代において、なお残る人間固有の価値を形にする。それが、私のビジョン。
+            <p
+              style={{
+                fontSize: typography.sizeSubheading,
+                color: colors.foreground,
+                lineHeight: 1.8,
+                fontFamily: typography.fontSerifJp,
+                fontWeight: 300,
+              }}
+            >
+              AIによる圧倒的な速度。技術でアイデアを具現化し、事業価値を形にする。
             </p>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
+
+        <div style={{ marginBottom: spacing.lg }}>
+          <p
+            style={{
+              fontSize: typography.sizeCaption,
+              color: colors.muted,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              marginBottom: spacing.lg,
+            }}
+          >
+            経歴
+          </p>
+
+          <ul
+            ref={timelineRef}
+            style={{
+              listStyle: 'none',
+              padding: 0,
+              margin: 0,
+              borderLeft: `1px solid ${colors.border}`,
+              paddingLeft: spacing.lg,
+            }}
+          >
+            {career.map((item, index) => (
+              <li
+                key={item}
+                data-timeline-item
+                style={{
+                  marginBottom: spacing.lg,
+                  position: 'relative',
+                  opacity: reduceMotion ? 1 : 0,
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    left: `-${spacing.lg + 4}px`,
+                    top: '6px',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: colors.accent,
+                  }}
+                />
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: typography.sizeCaption,
+                    color: colors.muted,
+                    marginBottom: spacing.xs,
+                    fontFamily: typography.fontDisplay,
+                  }}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <p
+                  style={{
+                    color: colors.foreground,
+                    fontSize: typography.sizeBody,
+                    lineHeight: 1.8,
+                    fontFamily: typography.fontSerifJp,
+                    margin: 0,
+                  }}
+                >
+                  {item}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );
