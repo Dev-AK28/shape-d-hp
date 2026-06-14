@@ -96,6 +96,7 @@ Then 進捗ドットが対応セクションに追従する
 | スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
 | Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
+| Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
