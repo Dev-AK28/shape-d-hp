@@ -55,7 +55,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 ### トップ Hero 背景・ロゴ（補足）
 
-- 背景: `HomePageShell` + `CosmicScene`（fixed、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub
+- 背景: `HomePageShell` + `CosmicScene`（fixed、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。`isReady` 後に `CosmicScene` をマウントしモバイル初回ハイドレーションの背景誤読込を防止。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub
 - ロゴ: `LogoParticleFormation`（Canvas 粒子 → SHAPE∞D 形成）→ 完了後 `BrandLogo`（`shape-d-logo-transparent.png`）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
 - StarBackground はトップでは使用しない
 
@@ -78,7 +78,11 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
   - PageTransition 即時表示（duration 0）
   - リビールアニメーション duration 0 / initial false
   - ParallaxSection は通常 div にフォールバック
-  - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events` / `aria-hidden` で非表示時の操作を防止）
+  - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events: auto`）
+- デスクトップ Hero `immersive`（GSAP pin 有効）:
+  - コピー/CTA の `opacity` / `pointer-events` は GSAP が制御（React インラインスタイルと競合しない）
+  - スクロールリビール前の CTA は `tabIndex={-1}` でキーボードフォーカスを防止。リビール後は `tabIndex={0}`
+  - 粒子形成中の `BrandLogo` は `aria-hidden` で a11y ツリーから除外
 - モバイル / coarse pointer 時:
   - Lenis 無効
   - Hero `immersive`: GSAP pin 無効（静的フォールバック）。`height: auto`・CTA をフロー内配置し About へスクロールしやすくする
