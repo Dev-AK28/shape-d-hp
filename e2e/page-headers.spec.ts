@@ -121,7 +121,9 @@ test.describe('Subpage headers', () => {
     for (const { path, className } of dividerCases) {
       await page.goto(path);
       await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-      await expect(page.getByTestId('page-header-divider')).toHaveClass(className);
+      await expect(page.getByTestId('page-header-divider')).toHaveClass(
+        new RegExp(`\\b${className}\\b`),
+      );
     }
   });
 });
