@@ -16,6 +16,7 @@ describe('design tokens', () => {
 
   it('defines motion tokens aligned with animation policy', () => {
     expect(motion.durationBase).toBe('1.4s');
+    expect(motion.durationInteraction).toBe('0.25s');
     expect(motion.easeBase).toContain('cubic-bezier');
   });
 

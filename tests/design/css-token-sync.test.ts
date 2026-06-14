@@ -31,6 +31,7 @@ describe('design tokens ↔ globals.css sync', () => {
 
   it('mirrors motion tokens in CSS variables', () => {
     expect(globalsCss).toContain(`--duration-base: ${motion.durationBase}`);
+    expect(globalsCss).toContain(`--duration-interaction: ${motion.durationInteraction}`);
     expect(globalsCss).toContain(`--ease-base: ${motion.easeBase}`);
   });
 
