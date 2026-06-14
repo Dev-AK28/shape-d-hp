@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Noto_Serif_JP } from 'next/font/google';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
 import DeferredCustomCursor from '@/components/ui/DeferredCustomCursor';
+import MicroInteractionBinder from '@/components/ui/MicroInteractionBinder';
 import DeferredPageLoader from '@/components/scroll/DeferredPageLoader';
 import SmoothScrollProvider from '@/components/scroll/SmoothScrollProvider';
 import './globals.css';
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <SmoothScrollProvider>
           <DeferredCustomCursor />
+          <MicroInteractionBinder />
           <DeferredPageLoader />
           <Navigation />
           {children}

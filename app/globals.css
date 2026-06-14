@@ -120,14 +120,8 @@ html[data-custom-cursor='active'] select {
   }
 }
 
-.hero-cta:hover {
-  opacity: 0.75;
-  transition: opacity var(--duration-interaction) var(--ease-base);
-}
-
-a.nav-link:hover {
-  opacity: 0.75;
-  transition: opacity var(--duration-interaction) var(--ease-base);
+.hero-cta {
+  display: inline-block;
 }
 
 button:not(.nav-menu-button):hover {
@@ -136,18 +130,14 @@ button:not(.nav-menu-button):hover {
 }
 
 @media (pointer: coarse), (hover: none) {
-  a.nav-link:hover,
-  button:not(.nav-menu-button):hover,
-  .hero-cta:hover {
+  button:not(.nav-menu-button):hover {
     opacity: 1;
     transition: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  a.nav-link:hover,
-  button:not(.nav-menu-button):hover,
-  .hero-cta:hover {
+  button:not(.nav-menu-button):hover {
     opacity: 1;
     transition: none;
   }

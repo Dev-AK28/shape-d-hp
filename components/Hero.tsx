@@ -375,7 +375,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         >
           <a
             href="/contact"
-            className="hero-cta"
+            className="hero-cta inline-block"
+            data-micro-interaction="cta"
             tabIndex={ctaFocusable ? 0 : -1}
             style={{
               display: 'inline-block',
@@ -389,7 +390,6 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
               fontFamily: typography.fontSerifJp,
               textDecoration: 'none',
               letterSpacing: '0.08em',
-              transition: 'opacity var(--duration-base) var(--ease-base)',
             }}
           >
             お問い合わせ

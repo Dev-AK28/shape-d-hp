@@ -39,5 +39,10 @@ describe('gsap-config', () => {
     expect(ANIMATION_EASE.base).toBe('expo.out');
     expect(ANIMATION_EASE.section).toBe('power3.inOut');
     expect(ANIMATION_EASE.reveal).toBe('power3.out');
+    expect(ANIMATION_EASE.interaction).toBe('power2.out');
+  });
+
+  it('exports interaction duration token', () => {
+    expect(ANIMATION_DURATION.interaction).toBe(0.25);
   });
 });

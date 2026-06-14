@@ -87,6 +87,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
   - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events: auto`）
 - デスクトップ Hero `immersive`（GSAP pin 有効）:
   - コピー/CTA・ロゴ層（`logoRef` / `particleBandRef`）の `opacity` / `pointer-events` は GSAP が制御（React インラインスタイルと競合しない）
+- ポインター hover マイクロインタ（#103）: ナビ / Hero CTA / Footer は `MicroInteractionBinder` + GSAP `quickTo`（`lib/scroll/micro-interaction.ts`）。reduced-motion / coarse pointer 時はバインドしない — 詳細は [`design-system.md`](./design-system.md) Micro-interactions 節
   - `scrollRevealed` / `logoScrollHidden` はタイムライン `onUpdate` で copy / logo の `opacity` から同期し、スクロール位置復元時も `tabIndex` / `aria-hidden` がずれない
   - スクロールリビール前の CTA は `tabIndex={-1}` でキーボードフォーカスを防止。リビール後は `tabIndex={0}`
   - 粒子形成中の `BrandLogo` は `aria-hidden` で a11y ツリーから除外

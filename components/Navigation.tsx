@@ -99,7 +99,8 @@ export default function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="nav-link"
+                className="nav-link inline-block no-underline"
+                data-micro-interaction="nav"
                 style={{ textDecoration: 'none' }}
               >
                 <div
@@ -202,7 +203,8 @@ export default function Navigation() {
                 <Link
                   href={item.href}
                   onClick={closeMenu}
-                  className="nav-link"
+                  className="nav-link inline-block no-underline"
+                  data-micro-interaction="nav"
                   style={{ textDecoration: 'none' }}
                 >
                   <div

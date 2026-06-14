@@ -9,12 +9,16 @@ export const ANIMATION_DURATION = {
   display: 2,
   section: 1.8,
   pageTransition: 0.6,
+  /** Pointer hover micro-interactions (nav / CTA / footer) — mirrors --duration-interaction. */
+  interaction: 0.25,
 } as const;
 
 export const ANIMATION_EASE = {
   base: 'expo.out',
   section: 'power3.inOut',
   reveal: 'power3.out',
+  /** Hover quickTo — subtle, no bounce. */
+  interaction: 'power2.out',
 } as const;
 
 export const REVEAL_OFFSET = {
