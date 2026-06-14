@@ -28,19 +28,27 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
   await footer.scrollIntoViewIfNeeded();
 
   const servicesLink = footer.getByRole('link', { name: /サービス/ });
+  const copyright = footer.getByText(/©\s*\d{4}/);
   await expect(servicesLink).toBeVisible();
-  await expect(footer.getByText(/©\s*\d{4}/)).toBeVisible();
+  await expect(copyright).toBeVisible();
 
-  const isFooterOnTop = await footer.evaluate((el) => {
-    const probe = el.querySelector('a[href="/services"]');
-    if (!probe) {
-      return false;
+  await expect(async () => {
+    const copyrightBox = await copyright.boundingBox();
+    expect(copyrightBox).not.toBeNull();
+    if (!copyrightBox) {
+      return;
     }
-    const rect = probe.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    const hit = document.elementFromPoint(x, y);
-    return hit?.closest('footer') != null;
-  });
-  expect(isFooterOnTop).toBe(true);
+
+    const isFooterOnTop = await page.evaluate(
+      ({ x, y }) => {
+        const hit = document.elementFromPoint(x, y);
+        return hit?.closest('footer') != null;
+      },
+      {
+        x: copyrightBox.x + copyrightBox.width / 2,
+        y: copyrightBox.y + copyrightBox.height / 2,
+      },
+    );
+    expect(isFooterOnTop).toBe(true);
+  }).toPass({ timeout: 5_000 });
 }

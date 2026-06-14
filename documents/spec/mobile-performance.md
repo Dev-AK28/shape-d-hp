@@ -101,6 +101,7 @@ Issue: #51
 npm run optimize:images
 npm test
 npm run build
+npm run test:e2e -- e2e/home.spec.ts  # フッター可視性（desktop + mobile）
 ```
 
 Lighthouse（Mobile）で Performance / LCP / TBT を計測し、Issue コメントに改善前後を記録する。

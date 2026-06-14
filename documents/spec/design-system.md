@@ -61,7 +61,7 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 |-------|---------|---------------|------|
 | CosmicScene（fixed） | `z-0` | `HomePageShell` | `pointer-events-none` |
 | main | `z-10` | `HomePageShell` | 本文 |
-| Footer | `z-20` | `app/layout.tsx` | 全ページ共通 |
+| Footer | `z-20` | `Footer.tsx`（`layout.tsx` 配置） | 全ページ共通 |
 | Navigation | `z-[1000]` | `Navigation.tsx` | fixed グローバルナビ |
 | PageLoader | `z-[2000]` | `PageLoader.tsx` | 初回ロードオーバーレイ |
 | CustomCursor | `9999` | `CustomCursor.tsx` | デスクトップのみ |
