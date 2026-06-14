@@ -19,6 +19,16 @@ test.describe('Navigation', () => {
       await page.getByRole('navigation').getByRole('link', { name: item.name }).click();
 
       await expect(page).toHaveURL(item.urlPattern);
+
+      if (item.href === '/services') {
+        await expect(page.locator('main h1').first()).toContainText('商品');
+        await expect(page.locator('main section').first().getByRole('img', { name: 'SHAPE∞D Logo' })).toHaveCount(0);
+      }
+
+      if (item.href === '/works') {
+        await expect(page.locator('main h1').first()).toContainText('実績');
+        await expect(page.locator('main section').first().getByRole('img', { name: 'SHAPE∞D Logo' })).toHaveCount(0);
+      }
     });
   }
 });
