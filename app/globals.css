@@ -40,7 +40,7 @@ html {
   --warm-grade-overlay: linear-gradient(
     180deg,
     var(--warm-grade-overlay-start) 0%,
-    var(--warm-grade-overlay-mid) 45%,
+    var(--warm-grade-overlay-mid) 45%, /* mirrors warmGrade.overlayMidStop */
     var(--warm-grade-overlay-end) 100%
   );
   --warm-grade-nebula-filter: sepia(0.08) saturate(1.05) hue-rotate(-5deg);

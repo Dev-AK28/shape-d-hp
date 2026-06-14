@@ -49,6 +49,14 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--warm-grade-nebula-filter: ${warmGrade.nebulaFilter}`);
   });
 
+  it('mirrors warm grade overlay gradient structure in CSS', () => {
+    expect(globalsCss).toContain('--warm-grade-overlay: linear-gradient');
+    expect(globalsCss).toContain(`var(--warm-grade-overlay-start) 0%`);
+    expect(globalsCss).toContain(`var(--warm-grade-overlay-mid) ${warmGrade.overlayMidStop}`);
+    expect(globalsCss).toContain('var(--warm-grade-overlay-end) 100%');
+    expect(warmGrade.overlayGradient).toContain(warmGrade.overlayMidStop);
+  });
+
   it('mirrors desktop breakpoint in warm grade nebula filter media query', () => {
     expect(desktopMinWidthMediaQuery()).toBe(`(min-width: ${MOBILE_BREAKPOINT_PX}px)`);
     expect(globalsCss).toContain(

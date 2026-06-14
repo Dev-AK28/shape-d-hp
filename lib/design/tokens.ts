@@ -57,12 +57,14 @@ export const cursor = {
 const warmGradeOverlayStart = 'rgba(196, 181, 160, 0.08)';
 const warmGradeOverlayMid = 'rgba(196, 181, 160, 0.12)';
 const warmGradeOverlayEnd = 'rgba(196, 181, 160, 0.15)';
+const warmGradeOverlayMidStop = '45%';
 
 export const warmGrade = {
   overlayStart: warmGradeOverlayStart,
   overlayMid: warmGradeOverlayMid,
   overlayEnd: warmGradeOverlayEnd,
-  overlayGradient: `linear-gradient(180deg, ${warmGradeOverlayStart} 0%, ${warmGradeOverlayMid} 45%, ${warmGradeOverlayEnd} 100%)`,
+  overlayMidStop: warmGradeOverlayMidStop,
+  overlayGradient: `linear-gradient(180deg, ${warmGradeOverlayStart} 0%, ${warmGradeOverlayMid} ${warmGradeOverlayMidStop}, ${warmGradeOverlayEnd} 100%)`,
   /** Desktop-only nebula filter — disabled on mobile / reduced-motion via CSS */
   nebulaFilter: 'sepia(0.08) saturate(1.05) hue-rotate(-5deg)',
   testId: 'cosmic-warm-grade-overlay',
