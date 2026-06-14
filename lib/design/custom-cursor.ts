@@ -2,6 +2,12 @@ import type { DeviceProfile } from '@/lib/performance/device-profile';
 
 export const CUSTOM_CURSOR_ATTR = 'data-custom-cursor';
 
+const TEXT_INPUT_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
+
+export function isTextInputElement(element: HTMLElement): boolean {
+  return TEXT_INPUT_TAGS.has(element.tagName);
+}
+
 export function shouldEnableCustomCursor(
   profile: DeviceProfile,
   isReady: boolean,

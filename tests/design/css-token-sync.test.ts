@@ -2,6 +2,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { colors, cursor, motion, spacing } from '@/lib/design/tokens';
+import {
+  MOBILE_BREAKPOINT_PX,
+  mobileMaxWidthMediaQuery,
+} from '@/lib/performance/device-profile';
 
 const globalsCss = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
 
@@ -33,6 +37,11 @@ describe('design tokens ↔ globals.css sync', () => {
   it('defines custom cursor CSS hooks', () => {
     expect(globalsCss).toContain("html[data-custom-cursor='active']");
     expect(globalsCss).toContain('cursor: text');
+  });
+
+  it('mirrors mobile breakpoint in cursor fallback media query', () => {
+    expect(mobileMaxWidthMediaQuery()).toBe(`(max-width: ${MOBILE_BREAKPOINT_PX - 1}px)`);
+    expect(globalsCss).toContain(`(max-width: ${MOBILE_BREAKPOINT_PX - 1}px)`);
   });
 });
 

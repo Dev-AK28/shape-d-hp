@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cursor as cursorTokens } from '@/lib/design/tokens';
 import {
+  isTextInputElement,
   setCustomCursorActive,
   shouldEnableCustomCursor,
 } from '@/lib/design/custom-cursor';
@@ -91,7 +92,8 @@ export default function CustomCursor() {
       stopAnimation();
     };
 
-    const onMove = (event: MouseEvent) => {
+    const onMove = (event: MouseEvent | PointerEvent) => {
+      inputModeRef.current = 'pointer';
       showCursor(event.clientX, event.clientY);
     };
 
@@ -124,12 +126,24 @@ export default function CustomCursor() {
         return;
       }
 
+      if (isTextInputElement(active)) {
+        hideCursor();
+        return;
+      }
+
       showCursorAtElement(active);
     };
 
     const onFocusIn = (event: FocusEvent) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      if (isTextInputElement(target)) {
+        if (visibleRef.current) {
+          hideCursor();
+        }
         return;
       }
 
@@ -150,10 +164,15 @@ export default function CustomCursor() {
     };
 
     window.addEventListener('mousemove', onMove);
+    window.addEventListener('pointermove', onMove);
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('blur', hideCursor);
     window.addEventListener('scroll', repositionToFocusedElement, {
+      capture: true,
+      passive: true,
+    });
+    document.addEventListener('scroll', repositionToFocusedElement, {
       capture: true,
       passive: true,
     });
@@ -164,10 +183,12 @@ export default function CustomCursor() {
 
     return () => {
       window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('pointermove', onMove);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('blur', hideCursor);
       window.removeEventListener('scroll', repositionToFocusedElement, true);
+      document.removeEventListener('scroll', repositionToFocusedElement, true);
       window.removeEventListener('resize', repositionToFocusedElement);
       document.removeEventListener('focusin', onFocusIn);
       document.removeEventListener('visibilitychange', onVisibilityChange);

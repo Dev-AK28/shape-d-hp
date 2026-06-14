@@ -71,12 +71,13 @@ font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Y
 
 - 小円（8px）+ 追従リング（32px）
 - magnetic effect は控えめ（リング追従係数 `cursor.followerLerp`: 0.12）
-- 初回 `mousemove` または **キーボード操作後の** `focusin` で `data-custom-cursor="active"` を付与し、システムカーソルを非表示
+- 初回 `mousemove` / `pointermove` または **キーボード操作後の** `focusin` で `data-custom-cursor="active"` を付与し、システムカーソルを非表示
+- `mousemove` / `pointermove` 時は `inputModeRef` を `pointer` に戻し、マウス位置追従を優先（Tab 後の scroll スナップを防止）
 - システムカーソル非表示は `html[data-custom-cursor='active'] * { cursor: none !important }` でインライン `cursor: pointer` より優先
-- `input` / `textarea` / `select` は `cursor: text !important` を維持
+- `input` / `textarea` / `select` は `cursor: text !important` を維持し、**キーボード focus 時はカスタム dot を非表示**（I-beam と二重表示を防止）
 - 非表示時は rAF ループを停止、`willChange: transform` も解除
 - タブ切替・ウィンドウ blur・`visibilitychange` で `data-custom-cursor` を解除
-- キーボード `focusin` 表示中は `scroll` / `resize` で `document.activeElement` に追従
+- キーボード `focusin` 表示中は `scroll`（`window` + `document` capture）/ `resize` で `document.activeElement` に追従（`overflow: auto` 子コンテナ内スクロールも capture 経由で再配置）
 - モバイル / coarse pointer / `(hover: none)` / reduced-motion 時は非表示、システムカーソルは常に `auto`
 - 印刷時（`@media print`）はカスタムカーソル DOM を非表示
 
@@ -98,7 +99,7 @@ font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Y
 - `:focus-visible` のみフォーカスリング表示
 - reduced-motion / mobile / coarse pointer / `(hover: none)` 時カーソル無効
 - キーボード操作時のみ `focusin` でカスタムカーソルを表示（Tab 操作でもカーソルが見える。マウスクリック由来の focus は無視）。`:focus-visible` 一致時は SR 等の非 keydown フォーカスも許可
-- キーボード表示中は `scroll` / `resize` で `document.activeElement` に追従
+- キーボード表示中は `scroll`（`window` + `document` capture）/ `resize` で `document.activeElement` に追従。`input` / `textarea` / `select` focus 時はカスタム dot 非表示
 
 ## 参照
 

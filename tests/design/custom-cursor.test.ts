@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_DEVICE_PROFILE } from '@/lib/performance/device-profile';
 import {
   CUSTOM_CURSOR_ATTR,
+  isTextInputElement,
   shouldEnableCustomCursor,
 } from '@/lib/design/custom-cursor';
 
@@ -34,5 +35,12 @@ describe('custom-cursor helpers', () => {
 
   it('exports the html data attribute name used by globals.css', () => {
     expect(CUSTOM_CURSOR_ATTR).toBe('data-custom-cursor');
+  });
+
+  it('detects text input elements for cursor suppression', () => {
+    expect(isTextInputElement({ tagName: 'INPUT' } as HTMLElement)).toBe(true);
+    expect(isTextInputElement({ tagName: 'TEXTAREA' } as HTMLElement)).toBe(true);
+    expect(isTextInputElement({ tagName: 'SELECT' } as HTMLElement)).toBe(true);
+    expect(isTextInputElement({ tagName: 'BUTTON' } as HTMLElement)).toBe(false);
   });
 });
