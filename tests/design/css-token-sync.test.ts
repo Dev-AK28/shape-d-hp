@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, layout, motion, spacing } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, spacing, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
+  desktopMinWidthMediaQuery,
   mobileMaxWidthMediaQuery,
 } from '@/lib/performance/device-profile';
 
@@ -39,6 +40,28 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--duration-base: ${motion.durationBase}`);
     expect(globalsCss).toContain(`--duration-interaction: ${motion.durationInteraction}`);
     expect(globalsCss).toContain(`--ease-base: ${motion.easeBase}`);
+  });
+
+  it('mirrors warm grade tokens in CSS variables', () => {
+    expect(globalsCss).toContain(`--warm-grade-overlay-start: ${warmGrade.overlayStart}`);
+    expect(globalsCss).toContain(`--warm-grade-overlay-mid: ${warmGrade.overlayMid}`);
+    expect(globalsCss).toContain(`--warm-grade-overlay-end: ${warmGrade.overlayEnd}`);
+    expect(globalsCss).toContain(`--warm-grade-nebula-filter: ${warmGrade.nebulaFilter}`);
+  });
+
+  it('mirrors warm grade overlay gradient structure in CSS', () => {
+    expect(globalsCss).toContain('--warm-grade-overlay: linear-gradient');
+    expect(globalsCss).toContain(`var(--warm-grade-overlay-start) 0%`);
+    expect(globalsCss).toContain(`var(--warm-grade-overlay-mid) ${warmGrade.overlayMidStop}`);
+    expect(globalsCss).toContain('var(--warm-grade-overlay-end) 100%');
+    expect(warmGrade.overlayGradient).toContain(warmGrade.overlayMidStop);
+  });
+
+  it('mirrors desktop breakpoint in warm grade nebula filter media query', () => {
+    expect(desktopMinWidthMediaQuery()).toBe(`(min-width: ${MOBILE_BREAKPOINT_PX}px)`);
+    expect(globalsCss).toContain(
+      `@media (min-width: ${MOBILE_BREAKPOINT_PX}px) and (prefers-reduced-motion: no-preference)`,
+    );
   });
 
   it('defines custom cursor CSS hooks', () => {

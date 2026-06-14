@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import type { RefObject } from 'react';
 import { backgroundAssets } from '@/lib/design/background-assets';
-import { colors } from '@/lib/design/tokens';
+import { colors, warmGrade } from '@/lib/design/tokens';
 
 type CosmicSceneProps = {
   isMobile: boolean;
@@ -63,7 +63,7 @@ export default function CosmicScene({
       {showNebula ? (
         <div
           ref={nebulaRef}
-          className="cosmic-nebula-layer absolute inset-0 will-change-transform"
+          className="cosmic-nebula-layer cosmic-nebula-layer--warm-grade absolute inset-0 will-change-transform"
         >
           <Image
             src={backgroundAssets.heroNebulaLayer}
@@ -74,6 +74,11 @@ export default function CosmicScene({
           />
         </div>
       ) : null}
+
+      <div
+        className="cosmic-warm-grade-overlay absolute inset-0"
+        data-testid={warmGrade.testId}
+      />
       </div>
     </div>
   );

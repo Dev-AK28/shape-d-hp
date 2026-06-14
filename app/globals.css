@@ -32,6 +32,18 @@ html {
   --content-prose: 680px;
   --content-standard: 880px;
   --content-wide: 1040px;
+
+  /* Warm gold grade — Issue #102 (mirrors lib/design/tokens.ts warmGrade; desktop MQ = MOBILE_BREAKPOINT_PX) */
+  --warm-grade-overlay-start: rgba(196, 181, 160, 0.08);
+  --warm-grade-overlay-mid: rgba(196, 181, 160, 0.12);
+  --warm-grade-overlay-end: rgba(196, 181, 160, 0.15);
+  --warm-grade-overlay: linear-gradient(
+    180deg,
+    var(--warm-grade-overlay-start) 0%,
+    var(--warm-grade-overlay-mid) 45%, /* mirrors warmGrade.overlayMidStop */
+    var(--warm-grade-overlay-end) 100%
+  );
+  --warm-grade-nebula-filter: sepia(0.08) saturate(1.05) hue-rotate(-5deg);
 }
 
 @tailwind base;
@@ -154,6 +166,19 @@ button:not(.nav-menu-button):hover {
 .cosmic-nebula-layer {
   mix-blend-mode: screen;
   opacity: 0.42;
+}
+
+/* Subtle premium warmth on Hero cosmic background — overlay always; filter desktop-only */
+.cosmic-warm-grade-overlay {
+  background: var(--warm-grade-overlay);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .cosmic-nebula-layer--warm-grade {
+    filter: var(--warm-grade-nebula-filter);
+  }
 }
 
 /* GSAP stagger targets: ensure content stays visible when motion is reduced or on mobile */

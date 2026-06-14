@@ -3,6 +3,7 @@ import {
   DEFAULT_DEVICE_PROFILE,
   isMobileViewport,
   mobileMaxWidthMediaQuery,
+  desktopMinWidthMediaQuery,
   readDeviceProfile,
   resetDeviceProfileCache,
   shouldAnimateStars,
@@ -52,6 +53,10 @@ describe('device-profile', () => {
 
   it('exposes a shared mobile media query from the breakpoint constant', () => {
     expect(mobileMaxWidthMediaQuery()).toBe('(max-width: 767px)');
+  });
+
+  it('exposes a shared desktop min-width media query from the breakpoint constant', () => {
+    expect(desktopMinWidthMediaQuery()).toBe('(min-width: 768px)');
   });
 
   it('returns the default profile when window is unavailable', () => {
