@@ -1,8 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import TextReveal from '@/components/scroll/TextReveal';
-import { colors, layout, spacing, typography } from '@/lib/design/tokens';
+import { colors, layout, spacing } from '@/lib/design/tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function ServicesContent() {
@@ -95,30 +94,11 @@ export default function ServicesContent() {
     <section
       style={{
         position: 'relative',
-        padding: `${spacing.section}px var(--space-3)`,
+        padding: `${spacing.xxl}px var(--space-3) ${spacing.section}px`,
         background: colors.background,
       }}
     >
       <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <motion.div
-          {...getScrollRevealProps(reduceMotion)}
-          style={{ marginBottom: spacing.xxl }}
-        >
-          <h1
-            style={{
-              fontSize: typography.sizeHeading,
-              fontWeight: 300,
-              color: colors.foreground,
-              marginBottom: spacing.sm,
-              fontFamily: typography.fontDisplay,
-              letterSpacing: '0.05em',
-            }}
-          >
-            <TextReveal as="span" text="商品・サービス" />
-          </h1>
-          <div style={{ width: '64px', height: '1px', background: colors.accent }} />
-        </motion.div>
-
         {/* Digital Solution Section */}
         <motion.div
           {...getScrollRevealProps(reduceMotion)}

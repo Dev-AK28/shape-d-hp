@@ -4,6 +4,7 @@ type SectionShellProps = {
   children: ReactNode;
   className?: string;
   padding?: 'sm' | 'md' | 'lg';
+  'data-testid'?: string;
 };
 
 const paddingMap = {
@@ -16,9 +17,11 @@ export default function SectionShell({
   children,
   className = '',
   padding = 'md',
+  'data-testid': dataTestId,
 }: SectionShellProps) {
   return (
     <section
+      data-testid={dataTestId}
       className={`relative bg-[radial-gradient(ellipse_at_center,#0a0a1a_0%,#000000_100%)] ${paddingMap[padding]} ${className}`}
     >
       {children}
