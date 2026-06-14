@@ -152,7 +152,7 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 
 SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/scroll/animation-tokens.ts`（`ANIMATION_DURATION.interaction` = 0.25s、`ANIMATION_EASE.interaction` = `power2.out`）。
 
-- バインダ: `components/ui/MicroInteractionBinder.tsx`（`app/layout.tsx` で 1 回マウント、`[data-micro-interaction]` を走査）
+- バインダ: `components/ui/MicroInteractionBinder.tsx`（`app/layout.tsx` で 1 回マウント。初回スキャン + `MutationObserver` で動的追加ノードもバインド。`data-micro-interaction-bound` で二重バインド防止）
 - 無効条件: `prefers-reduced-motion` / coarse pointer / `hover: none`（`shouldEnableMicroInteraction()`）
 - magnetic effect は採用しない
 - 一般ボタン（`.nav-menu-button` 除く）の CSS opacity hover は従来どおり `globals.css`

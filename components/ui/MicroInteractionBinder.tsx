@@ -1,15 +1,15 @@
 'use client';
 
 import { useLayoutEffect } from 'react';
-import { bindMicroInteractionScope } from '@/lib/scroll/micro-interaction';
+import { observeMicroInteractionScope } from '@/lib/scroll/micro-interaction';
 
 /**
  * Binds GSAP quickTo hover micro-interactions to `[data-micro-interaction]` nodes.
- * Placed once in root layout; works with server-rendered Footer links.
+ * Observes DOM mutations for late-mounted targets (e.g. mobile nav menu).
  */
 export default function MicroInteractionBinder() {
   useLayoutEffect(() => {
-    const cleanup = bindMicroInteractionScope(document);
+    const cleanup = observeMicroInteractionScope(document);
     return cleanup;
   }, []);
 

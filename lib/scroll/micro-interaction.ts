@@ -35,6 +35,9 @@ export const MICRO_INTERACTION: Record<MicroInteractionVariant, MicroInteraction
 
 export const MICRO_INTERACTION_SELECTOR = '[data-micro-interaction]';
 
+/** Set on elements after bindMicroInteraction attaches listeners. */
+export const MICRO_INTERACTION_BOUND_ATTR = 'data-micro-interaction-bound';
+
 export function isMicroInteractionVariant(
   value: string | undefined,
 ): value is MicroInteractionVariant {
@@ -120,6 +123,45 @@ export function bindMicroInteraction(
   };
 }
 
+/** Bind a single element if not already bound. Returns teardown or null when skipped. */
+function bindMicroInteractionElement(
+  element: HTMLElement,
+  cleanups: Array<() => void>,
+): void {
+  if (element.hasAttribute(MICRO_INTERACTION_BOUND_ATTR)) {
+    return;
+  }
+
+  const variant = element.dataset.microInteraction;
+  if (!isMicroInteractionVariant(variant)) {
+    return;
+  }
+
+  element.setAttribute(MICRO_INTERACTION_BOUND_ATTR, '');
+
+  const cleanup = bindMicroInteraction(element, variant);
+  cleanups.push(() => {
+    element.removeAttribute(MICRO_INTERACTION_BOUND_ATTR);
+    cleanup();
+  });
+}
+
+function scanMicroInteractionTargets(
+  root: ParentNode,
+  cleanups: Array<() => void>,
+): void {
+  if (root instanceof HTMLElement && root.matches(MICRO_INTERACTION_SELECTOR)) {
+    bindMicroInteractionElement(root, cleanups);
+  }
+
+  root.querySelectorAll(MICRO_INTERACTION_SELECTOR).forEach((node) => {
+    if (!(node instanceof HTMLElement)) {
+      return;
+    }
+    bindMicroInteractionElement(node, cleanups);
+  });
+}
+
 /** Bind all `[data-micro-interaction]` elements in a root. Returns teardown. */
 export function bindMicroInteractionScope(root: ParentNode = document): () => void {
   if (!shouldEnableMicroInteraction()) {
@@ -127,21 +169,98 @@ export function bindMicroInteractionScope(root: ParentNode = document): () => vo
   }
 
   const cleanups: Array<() => void> = [];
-
-  root.querySelectorAll(MICRO_INTERACTION_SELECTOR).forEach((node) => {
-    if (!(node instanceof HTMLElement)) {
-      return;
-    }
-
-    const variant = node.dataset.microInteraction;
-    if (!isMicroInteractionVariant(variant)) {
-      return;
-    }
-
-    cleanups.push(bindMicroInteraction(node, variant));
-  });
+  scanMicroInteractionTargets(root, cleanups);
 
   return () => {
     cleanups.forEach((cleanup) => cleanup());
+  };
+}
+
+/**
+ * Bind micro-interactions and watch for dynamically inserted nodes (e.g. mobile nav menu).
+ * Cleans up when nodes are removed from the DOM.
+ */
+export function observeMicroInteractionScope(root: ParentNode = document): () => void {
+  if (!shouldEnableMicroInteraction()) {
+    return () => {};
+  }
+
+  const cleanups: Array<() => void> = [];
+  const boundCleanups = new Map<HTMLElement, () => void>();
+
+  const bindElement = (element: HTMLElement) => {
+    if (boundCleanups.has(element)) {
+      return;
+    }
+
+    bindMicroInteractionElement(element, cleanups);
+    const lastCleanup = cleanups[cleanups.length - 1];
+    if (lastCleanup) {
+      boundCleanups.set(element, lastCleanup);
+    }
+  };
+
+  const scan = (container: ParentNode) => {
+    if (container instanceof HTMLElement && container.matches(MICRO_INTERACTION_SELECTOR)) {
+      bindElement(container);
+    }
+    container.querySelectorAll(MICRO_INTERACTION_SELECTOR).forEach((node) => {
+      if (node instanceof HTMLElement) {
+        bindElement(node);
+      }
+    });
+  };
+
+  const unbindElement = (element: HTMLElement) => {
+    const cleanup = boundCleanups.get(element);
+    if (!cleanup) {
+      return;
+    }
+    cleanup();
+    boundCleanups.delete(element);
+    const index = cleanups.indexOf(cleanup);
+    if (index >= 0) {
+      cleanups.splice(index, 1);
+    }
+  };
+
+  scan(root);
+
+  const observerRoot =
+    root instanceof Document ? root.body : root instanceof HTMLElement ? root : null;
+
+  if (!observerRoot) {
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
+  }
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (node instanceof HTMLElement) {
+          scan(node);
+        }
+      }
+
+      for (const node of mutation.removedNodes) {
+        if (node instanceof HTMLElement) {
+          unbindElement(node);
+          node.querySelectorAll(MICRO_INTERACTION_SELECTOR).forEach((child) => {
+            if (child instanceof HTMLElement) {
+              unbindElement(child);
+            }
+          });
+        }
+      }
+    }
+  });
+
+  observer.observe(observerRoot, { childList: true, subtree: true });
+
+  return () => {
+    observer.disconnect();
+    cleanups.forEach((cleanup) => cleanup());
+    boundCleanups.clear();
   };
 }
