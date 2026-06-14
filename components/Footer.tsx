@@ -27,7 +27,8 @@ export default function Footer() {
                 <li key={item.href} className="mb-3">
                   <Link
                     href={item.href}
-                    className="font-serif text-[15px] tracking-wide text-gray-300 no-underline"
+                    className="inline-block font-serif text-[15px] text-gray-300 no-underline"
+                    data-micro-interaction="footer"
                   >
                     {item.label}{' '}
                     <span className="ml-1 text-xs text-gray-500">| {item.sub}</span>
@@ -43,12 +44,12 @@ export default function Footer() {
             </h4>
             <ul className="m-0 list-none p-0">
               <li className="mb-3">
-                <Link href="/process/development" className="font-serif text-[15px] leading-relaxed tracking-wide text-gray-300 no-underline">
+                <Link href="/process/development" className="inline-block font-serif text-[15px] leading-relaxed text-gray-300 no-underline" data-micro-interaction="footer">
                   システム開発プロセス
                 </Link>
               </li>
               <li className="mb-3">
-                <Link href="/process/consulting" className="font-serif text-[15px] leading-relaxed tracking-wide text-gray-300 no-underline">
+                <Link href="/process/consulting" className="inline-block font-serif text-[15px] leading-relaxed text-gray-300 no-underline" data-micro-interaction="footer">
                   自己表現力向上プロセス
                 </Link>
               </li>
@@ -65,7 +66,8 @@ export default function Footer() {
                 href="https://www.getgodd.dev/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-b border-blue-400/30 text-blue-400 no-underline"
+                className="inline-block border-b border-blue-400/30 text-blue-400 no-underline"
+                data-micro-interaction="footer"
               >
                 GoDD
               </a>

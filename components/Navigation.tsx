@@ -99,7 +99,8 @@ export default function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="nav-link"
+                className="nav-link inline-block no-underline"
+                data-micro-interaction="nav"
                 style={{ textDecoration: 'none' }}
               >
                 <div
@@ -109,7 +110,6 @@ export default function Navigation() {
                       ? 'var(--accent)'
                       : 'var(--muted)',
                     fontFamily: 'var(--font-serif-jp)',
-                    letterSpacing: '0.1em',
                   }}
                 >
                   {item.name}
@@ -202,7 +202,8 @@ export default function Navigation() {
                 <Link
                   href={item.href}
                   onClick={closeMenu}
-                  className="nav-link"
+                  className="nav-link inline-block no-underline"
+                  data-micro-interaction="nav"
                   style={{ textDecoration: 'none' }}
                 >
                   <div
@@ -213,7 +214,6 @@ export default function Navigation() {
                         ? 'var(--accent)'
                         : 'var(--muted)',
                       fontFamily: 'var(--font-serif-jp)',
-                      letterSpacing: '0.1em',
                       borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                     }}
                   >

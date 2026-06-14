@@ -140,15 +140,22 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 | `--duration-interaction` | `0.25s`（リンク・ボタン hover） |
 | `--ease-base` | `cubic-bezier(0.16, 1, 0.3, 1)` |
 
-## Micro-interactions
+## Micro-interactions（Issue #103）
 
-グローバル CSS とナビゲーション向けの控えめな opacity 変化。スクロールリビール用 `whileHover`（`ServicesContent` 等）は別レイヤー。
+ナビ・Hero CTA・Footer リンク向けの GSAP `quickTo` hover。スクロールリビール用 `whileHover`（`ServicesContent` 等）は Framer Motion の別レイヤー。
 
-- リンク hover: `.nav-link` の opacity 変化のみ（`--duration-interaction` = 0.25s）。`ServicesContent` 等の `whileHover` カードは対象外
-- ボタン hover: `button:not(.nav-menu-button)` の opacity 変化のみ
-- ページ遷移: `app/template.tsx` → `PageTransition` で本文 fade-in（0.6s）。初回訪問は即時表示。`Footer` は `layout.tsx` 配置のためフェード対象外
-- グローバルナビ: `app/layout.tsx` に配置（遷移フェード対象外）。レスポンシブ切替は Tailwind `md:`（768px = `MOBILE_BREAKPOINT_PX`）
+| 要素 | `data-micro-interaction` | hover 変化 | 備考 |
+|------|--------------------------|-----------|------|
+| グローバルナビリンク | `nav` | opacity 0.75 + letter-spacing 0.1em→0.14em | `Navigation.tsx`（letter-spacing は Link の GSAP preset が制御。子要素に inline / Tailwind で上書きしない） |
+| Hero CTA | `cta` | scale 1.03 + opacity 0.88 | `Hero.tsx` |
+| Footer リンク | `footer` | opacity 0.75 + letter-spacing 微妙に拡大 | `Footer.tsx`（`tracking-*` は付与しない。preset SSOT） |
+
+SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/scroll/animation-tokens.ts`（`ANIMATION_DURATION.interaction` = 0.25s、`ANIMATION_EASE.interaction` = `power2.out`）。
+
+- バインダ: `components/ui/MicroInteractionBinder.tsx`（`app/layout.tsx` で 1 回マウント。初回スキャン + `MutationObserver` で動的追加ノードもバインド。`data-micro-interaction-bound` で二重バインド防止）
+- 無効条件: `prefers-reduced-motion` / coarse pointer / `hover: none`（`shouldEnableMicroInteraction()`）
 - magnetic effect は採用しない
+- 一般ボタン（`.nav-menu-button` 除く）の CSS opacity hover は従来どおり `globals.css`
 
 ## カスタムカーソル
 
