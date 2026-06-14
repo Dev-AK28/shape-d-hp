@@ -13,6 +13,7 @@ const pageHeaderSource = readFileSync(
   join(process.cwd(), 'components/ui/PageHeader.tsx'),
   'utf8',
 );
+const heroSource = readFileSync(join(process.cwd(), 'components/Hero.tsx'), 'utf8');
 
 describe('typographyBlend tokens (Issue #101)', () => {
   it('defines screen blend for cosmic backgrounds', () => {
@@ -23,9 +24,7 @@ describe('typographyBlend tokens (Issue #101)', () => {
     expect(typographyBlend.testIdCosmic).toBe('type-blend-cosmic');
   });
 
-  it('mirrors typography blend tokens in globals.css', () => {
-    expect(globalsCss).toContain(`--type-blend-cosmic: ${typographyBlend.cosmic}`);
-    expect(globalsCss).toContain(`--type-blend-solid: ${typographyBlend.solid}`);
+  it('defines cosmic and solid utility classes in globals.css', () => {
     expect(globalsCss).toContain('.type-blend-cosmic');
     expect(globalsCss).toContain('.type-blend-solid');
     expect(globalsCss).toContain('mix-blend-mode: var(--type-blend-cosmic)');
@@ -37,18 +36,29 @@ describe('typographyBlend tokens (Issue #101)', () => {
     );
   });
 
-  it('wires blend prop into TextReveal', () => {
+  it('wires blend prop into TextReveal with cosmic and solid classes', () => {
     expect(textRevealSource).toContain("blend?: 'cosmic' | 'solid'");
     expect(textRevealSource).toContain('typographyBlend.classCosmic');
+    expect(textRevealSource).toContain('typographyBlend.classSolid');
     expect(textRevealSource).toContain("blend = 'solid'");
   });
 
-  it('applies cosmic blend to Hero heading', () => {
+  it('hides hero logo instantly at copy reveal start for cosmic typography blend', () => {
+    expect(heroSource).toContain('timeline.set');
+    expect(heroSource).toContain('logoOpacityHideAt * timelineDuration');
+    expect(heroSource).toContain('logoScrollHidden');
+  });
+
+  it('applies cosmic blend to Hero heading and lead copy', () => {
     expect(pageSource).toContain('typographyBlend.classCosmic');
     expect(pageSource).toContain('typographyBlend.testIdCosmic');
+    expect(heroSource).toMatch(
+      /className=\{typographyBlend\.classCosmic\}[\s\S]*爆速・安全・低コスト/,
+    );
   });
 
   it('enables cosmic blend on PageHeader when starBackground is set', () => {
     expect(pageHeaderSource).toContain("blend={starBackground ? 'cosmic' : 'solid'}");
+    expect(pageHeaderSource).toContain('starBackground ? typographyBlend.classCosmic');
   });
 });

@@ -117,7 +117,7 @@ Then 進捗ドットが対応セクションに追従する
 | Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
 | Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |
 | Warm gold grade overlay | `tests/design/warm-grade.test.ts`, `e2e/home.spec.ts`（`cosmic-warm-grade-overlay`） |
-| Typography cosmic blend | `tests/design/typography-blend.test.ts`, `e2e/home.spec.ts`（`type-blend-cosmic`） |
+| Typography cosmic blend | `tests/design/typography-blend.test.ts`, `e2e/home.spec.ts`（load + scroll 後 `mix-blend-mode: screen`）, `e2e/page-headers.spec.ts`（starBackground + `/services` / `/works` solid） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |

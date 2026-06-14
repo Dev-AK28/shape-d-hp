@@ -25,11 +25,10 @@ type TextRevealProps = {
 };
 
 function mergeBlendClass(className: string, blend: 'cosmic' | 'solid'): string {
-  if (blend !== 'cosmic') {
-    return className;
-  }
+  const blendClass =
+    blend === 'cosmic' ? typographyBlend.classCosmic : typographyBlend.classSolid;
 
-  return [typographyBlend.classCosmic, className].filter(Boolean).join(' ');
+  return [blendClass, className].filter(Boolean).join(' ');
 }
 
 function segmentText(text: string): string[] {

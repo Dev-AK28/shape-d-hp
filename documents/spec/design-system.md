@@ -66,7 +66,9 @@ nebula / 宇宙背景の上では `mix-blend-mode: screen` でタイポグラフ
 | `.type-blend-solid` | `mix-blend-mode: normal` | 明示的 normal（必要時） |
 | `TextReveal` `blend` prop | `'cosmic' \| 'solid'`（default: `solid`） | About / MissionVision 等は default のまま |
 
-`data-testid="type-blend-cosmic"` — Hero h1 E2E 検証用。
+Hero デスクトップ GSAP では cosmic blend 適用前（`logoOpacityHideAt` = `revealTimelineStart`）に `timeline.set` でロゴ opacity を即時 0 にし、`mix-blend-mode` の backdrop が nebula のみになる。GSAP `onUpdate` で `logoScrollHidden` を同期し `aria-hidden` を更新。
+
+`data-testid="type-blend-cosmic"` — Hero h1 E2E 検証用。E2E では computed `mix-blend-mode: screen` も検証する。
 
 ## タイポグラフィ
 

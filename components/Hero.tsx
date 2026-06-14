@@ -46,12 +46,15 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const skipFormation = staticFallback || reduceMotion === true;
   const [formationComplete, setFormationComplete] = useState(false);
   const [scrollRevealed, setScrollRevealed] = useState(false);
+  const [logoScrollHidden, setLogoScrollHidden] = useState(false);
   const setScrollRevealedRef = useRef(setScrollRevealed);
+  const setLogoScrollHiddenRef = useRef(setLogoScrollHidden);
 
   // Keep GSAP callbacks on the latest setState without re-running useGsapContext.
   // eslint-disable-next-line react-hooks/exhaustive-deps -- ref mirror only; GSAP setup must not re-init on setState identity changes
   useEffect(() => {
     setScrollRevealedRef.current = setScrollRevealed;
+    setLogoScrollHiddenRef.current = setLogoScrollHidden;
   });
   const logoRevealed = skipFormation || formationComplete;
 
@@ -81,6 +84,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     const syncScrollRevealed = () => {
       const opacity = Number(gsap.getProperty(copyRef.current, 'opacity') ?? 0);
       setScrollRevealedRef.current(opacity > 0.5);
+      const logoOpacity = Number(gsap.getProperty(logoRef.current, 'opacity') ?? 1);
+      setLogoScrollHiddenRef.current(logoOpacity < 0.01);
     };
 
     const timeline = gsap.timeline({
@@ -100,6 +105,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       timelineDuration,
       approachPhaseEnd,
       revealTimelineStart,
+      logoOpacityHideAt,
       particleBand,
       logo,
     } = HERO_DEPTH_PASSAGE;
@@ -150,11 +156,16 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       0,
     );
 
+    timeline.set(
+      logoRef.current,
+      { opacity: 0 },
+      logoOpacityHideAt * timelineDuration,
+    );
+
     timeline.to(
       logoRef.current,
       {
         scale: logo.passScale,
-        opacity: 0,
         y: logo.passY,
         duration: passDuration,
         ease: ANIMATION_EASE.base,
@@ -240,7 +251,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           ...reactLogoOpacityStyle,
           visibility: logoVisible ? 'visible' : 'hidden',
         }}
-        aria-hidden={!logoVisible}
+        aria-hidden={!logoVisible || logoScrollHidden}
       >
         {isImmersive ? (
           <div

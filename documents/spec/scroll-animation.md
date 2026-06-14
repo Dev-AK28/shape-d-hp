@@ -56,7 +56,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 ### トップ Hero 背景・ロゴ（補足）
 
 - 背景: `HomePageShell` + `CosmicScene`（fixed `z-0`、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。`isReady` 後に `CosmicScene` をマウントしモバイル初回ハイドレーションの背景誤読込を防止。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub。**Warm gold grade（#102）**: nebula 上に `.cosmic-warm-grade-overlay`（常時）+ デスクトップのみ nebula filter — 詳細は [`design-system.md`](./design-system.md) の Warm Gold Grade 節
-- **Hero 深度通過（#100）**: Hero pin 中に `CosmicScene` の `perspectiveDepthRef` を `HERO_DEPTH_PASSAGE.cosmic.perspectiveScale` まで scale（`transformOrigin` は Shell から prop 注入、SSOT は tokens）。`Hero.tsx` では粒子バンド → ロゴの 2 フェーズ（approach / pass-through）で `scale` / `y` / `opacity` を scrub — 各 tween は `timelineDuration`（1s）の分数から明示 `duration` を算出しフェーズ重複を防止。Shell 連携: `data-testid="hero-pin-section"`（`HERO_PIN_SELECTOR`）
+- **Hero 深度通過（#100）**: Hero pin 中に `CosmicScene` の `perspectiveDepthRef` を `HERO_DEPTH_PASSAGE.cosmic.perspectiveScale` まで scale（`transformOrigin` は Shell から prop 注入、SSOT は tokens）。`Hero.tsx` では粒子バンド → ロゴの 2 フェーズ（approach / pass-through）で `scale` / `y` / `opacity` を scrub — 各 tween は `timelineDuration`（1s）の分数から明示 `duration` を算出しフェーズ重複を防止。**Typography blend（#101）**: copy reveal 開始（`revealTimelineStart` = `logoOpacityHideAt` = 0.35）で `timeline.set` によりロゴ opacity を即時 0 にし、`type-blend-cosmic` が nebula のみを backdrop に合成。Shell 連携: `data-testid="hero-pin-section"`（`HERO_PIN_SELECTOR`）
 - スタック順: `CosmicScene`（`z-0`）< `main`（`z-10`）< `Footer`（`relative z-20`、`app/layout.tsx`）。fixed 背景がフッター上に重ならない
 - ロゴ: `LogoParticleFormation`（Canvas 粒子 → `shape-d-logo-transparent.png` のアルファシルエット形成）→ 完了後 `BrandLogo`（同一 PNG・同一 hero ステージ寸法で crossfade）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
 - 粒子サンプリング: PNG を最長辺 `768px`（`LOGO_SAMPLE_MAX_DIMENSION`）にダウンサンプルして `getImageData` メモリを抑制。画像ロード失敗時は粒子をスキップし `BrandLogo` を表示（`onComplete` フォールバック）
@@ -87,7 +87,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
   - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events: auto`）
 - デスクトップ Hero `immersive`（GSAP pin 有効）:
   - コピー/CTA・ロゴ層（`logoRef` / `particleBandRef`）の `opacity` / `pointer-events` は GSAP が制御（React インラインスタイルと競合しない）
-  - `scrollRevealed` はタイムライン `onUpdate` でコピー `opacity` から同期し、スクロール位置復元時も `tabIndex` がずれない
+  - `scrollRevealed` / `logoScrollHidden` はタイムライン `onUpdate` で copy / logo の `opacity` から同期し、スクロール位置復元時も `tabIndex` / `aria-hidden` がずれない
   - スクロールリビール前の CTA は `tabIndex={-1}` でキーボードフォーカスを防止。リビール後は `tabIndex={0}`
   - 粒子形成中の `BrandLogo` は `aria-hidden` で a11y ツリーから除外
 - モバイル / coarse pointer 時:
