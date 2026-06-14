@@ -29,11 +29,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       return;
     }
 
-    let lenis: {
-      raf: (time: number) => void;
-      destroy: () => void;
-      on: (event: string, callback: () => void) => void;
-    } | undefined;
+    let lenis: InstanceType<Awaited<typeof import('lenis')>['default']> | undefined;
     let cancelled = false;
     let tickerCallback: ((time: number) => void) | undefined;
 
