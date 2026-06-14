@@ -18,6 +18,10 @@ export function mobileMaxWidthMediaQuery(): string {
   return `(max-width: ${MOBILE_BREAKPOINT_PX - 1}px)`;
 }
 
+export function desktopMinWidthMediaQuery(): string {
+  return `(min-width: ${MOBILE_BREAKPOINT_PX}px)`;
+}
+
 export function isMobileViewport(width: number): boolean {
   return width < MOBILE_BREAKPOINT_PX;
 }

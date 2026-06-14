@@ -33,7 +33,7 @@ html {
   --content-standard: 880px;
   --content-wide: 1040px;
 
-  /* Warm gold grade — Issue #102 (mirrors lib/design/tokens.ts warmGrade) */
+  /* Warm gold grade — Issue #102 (mirrors lib/design/tokens.ts warmGrade; desktop MQ = MOBILE_BREAKPOINT_PX) */
   --warm-grade-overlay-start: rgba(196, 181, 160, 0.08);
   --warm-grade-overlay-mid: rgba(196, 181, 160, 0.12);
   --warm-grade-overlay-end: rgba(196, 181, 160, 0.15);

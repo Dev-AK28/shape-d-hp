@@ -6,6 +6,12 @@ test.describe('Home page', () => {
     await page.goto('/');
     await waitForHomePageReady(page);
   });
+
+  test('applies warm gold grade overlay on cosmic background', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+    await expect(page.getByTestId('cosmic-warm-grade-overlay')).toBeAttached();
+  });
 });
 
 test.describe('Home page desktop', () => {
@@ -27,12 +33,6 @@ test.describe('Home page desktop', () => {
     await page.goto('/');
     await waitForHomePageReady(page);
     await expect(page.getByTestId('hero-pin-section')).toBeVisible();
-  });
-
-  test('applies warm gold grade overlay on cosmic background', async ({ page }) => {
-    await page.goto('/');
-    await waitForHomePageReady(page);
-    await expect(page.getByTestId('cosmic-warm-grade-overlay')).toBeAttached();
   });
 
   test('reveals hero CTA after scroll on desktop', async ({ page }) => {

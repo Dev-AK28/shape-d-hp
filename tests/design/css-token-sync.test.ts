@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { colors, cursor, layout, motion, spacing, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
+  desktopMinWidthMediaQuery,
   mobileMaxWidthMediaQuery,
 } from '@/lib/performance/device-profile';
 
@@ -46,6 +47,13 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--warm-grade-overlay-mid: ${warmGrade.overlayMid}`);
     expect(globalsCss).toContain(`--warm-grade-overlay-end: ${warmGrade.overlayEnd}`);
     expect(globalsCss).toContain(`--warm-grade-nebula-filter: ${warmGrade.nebulaFilter}`);
+  });
+
+  it('mirrors desktop breakpoint in warm grade nebula filter media query', () => {
+    expect(desktopMinWidthMediaQuery()).toBe(`(min-width: ${MOBILE_BREAKPOINT_PX}px)`);
+    expect(globalsCss).toContain(
+      `@media (min-width: ${MOBILE_BREAKPOINT_PX}px) and (prefers-reduced-motion: no-preference)`,
+    );
   });
 
   it('defines custom cursor CSS hooks', () => {
