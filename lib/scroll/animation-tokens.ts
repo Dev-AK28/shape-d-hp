@@ -53,3 +53,38 @@ export const GSAP_TICKER = {
   lagSmoothingRestoreMs: 500,
   lagSmoothingRestoreThreshold: 33,
 } as const;
+
+/** Hero immersive pin ScrollTrigger — shared by Hero.tsx and HomePageShell. */
+export const HERO_PIN_SCROLL = {
+  start: 'top top',
+  end: '+=120%',
+  scrub: ANIMATION_DURATION.hero,
+  anticipatePin: 1,
+} as const;
+
+/**
+ * Scroll-driven depth passage (Issue #100): layered scale / translate / opacity
+ * simulating camera movement through nebula, particle band, and logo.
+ */
+export const HERO_DEPTH_PASSAGE = {
+  /** Normalized timeline position where approach phase ends and pass-through begins. */
+  approachPhaseEnd: 0.55,
+  /** Copy/CTA reveal — after logo begins receding through depth. */
+  revealTimelineStart: 0.35,
+  particleBand: {
+    initialOpacity: 0.65,
+    approachScale: 1.28,
+    approachY: 32,
+    passScale: 2.05,
+    passY: 96,
+  },
+  logo: {
+    approachScale: 1.14,
+    approachY: 12,
+    passScale: 0.32,
+    passY: -72,
+  },
+  cosmic: {
+    perspectiveScale: 1.2,
+  },
+} as const;

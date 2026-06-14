@@ -10,6 +10,8 @@ type CosmicSceneProps = {
   showNebula?: boolean;
   baseRef?: RefObject<HTMLDivElement | null>;
   nebulaRef?: RefObject<HTMLDivElement | null>;
+  /** Outer wrapper for hero pin depth scale (Issue #100). */
+  perspectiveDepthRef?: RefObject<HTMLDivElement | null>;
   priority?: boolean;
   /** Fixed viewport backdrop for full-page home experience. */
   fixed?: boolean;
@@ -20,6 +22,7 @@ export default function CosmicScene({
   showNebula = true,
   baseRef,
   nebulaRef,
+  perspectiveDepthRef,
   priority = false,
   fixed = false,
 }: CosmicSceneProps) {
@@ -31,6 +34,11 @@ export default function CosmicScene({
       aria-hidden="true"
       style={{ background: colors.background }}
     >
+      <div
+        ref={perspectiveDepthRef}
+        className="absolute inset-0 will-change-transform"
+        style={{ transformOrigin: '50% 45%' }}
+      >
       <div ref={baseRef} className="absolute inset-0 will-change-transform">
         <Image
           src={src}
@@ -63,6 +71,7 @@ export default function CosmicScene({
           />
         </div>
       ) : null}
+      </div>
     </div>
   );
 }
