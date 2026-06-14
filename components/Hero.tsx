@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { ANIMATION_DURATION, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
+import { scrollEase } from '@/lib/scroll/easing';
 
 const StarBackground = dynamic(() => import('@/components/StarBackground'), {
   ssr: false,
@@ -45,7 +46,7 @@ export default function Hero({ children }: HeroProps) {
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: REVEAL_OFFSET.y }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.hero, ease: 'easeOut' }}
+          transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.hero, ease: scrollEase }}
           style={{ marginBottom: '80px' }}
         >
           <p style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 300, letterSpacing: '0.1em', color: 'white', margin: 0 }}>
@@ -75,15 +76,15 @@ export default function Hero({ children }: HeroProps) {
         {children}
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 40 }}
+          initial={reduceMotion ? false : { opacity: 0, y: REVEAL_OFFSET.heroChildY }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
+          transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.2, ease: scrollEase }}
           style={{ textAlign: 'center', zIndex: 20, position: 'relative', maxWidth: '900px', margin: '0 auto' }}
         >
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 40 }}
+            initial={reduceMotion ? false : { opacity: 0, y: REVEAL_OFFSET.heroChildY }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.35, ease: scrollEase }}
             style={{ display: 'flex', justifyContent: 'center', gap: '64px', marginBottom: '64px', flexWrap: 'wrap' }}
           >
             {[
@@ -103,9 +104,9 @@ export default function Hero({ children }: HeroProps) {
           </motion.div>
 
           <motion.p
-            initial={reduceMotion ? false : { opacity: 0, y: 40 }}
+            initial={reduceMotion ? false : { opacity: 0, y: REVEAL_OFFSET.heroChildY }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.5, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.5, ease: scrollEase }}
             style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#93c5fd', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.8, fontFamily: 'serif', fontWeight: 300, marginBottom: '48px', letterSpacing: '0.05em' }}
           >
             技術の余白に、創造性を。<br />
@@ -114,9 +115,9 @@ export default function Hero({ children }: HeroProps) {
 
           <motion.a
             href="/contact"
-            initial={reduceMotion ? false : { opacity: 0, y: 40 }}
+            initial={reduceMotion ? false : { opacity: 0, y: REVEAL_OFFSET.heroChildY }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.65, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.65, ease: scrollEase }}
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-block', padding: '20px 64px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '18px', fontFamily: 'serif', textDecoration: 'none' }}
@@ -129,7 +130,7 @@ export default function Hero({ children }: HeroProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: ANIMATION_DURATION.hero, delay: 1.2, ease: 'easeOut' }}
+            transition={{ duration: ANIMATION_DURATION.hero, delay: 1.2, ease: scrollEase }}
             style={{ position: 'absolute', bottom: '48px', left: '50%', transform: 'translateX(-50%)' }}
           >
             <motion.div

@@ -93,7 +93,7 @@ export default function PhilosophyContent() {
           >
             <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
               <motion.div
-                {...getScrollRevealProps(reduceMotion, { duration: 2 })}
+                {...getScrollRevealProps(reduceMotion, { duration: ANIMATION_DURATION.display })}
                 style={{ textAlign: 'center', marginBottom: '80px' }}
               >
                 <motion.div
@@ -152,7 +152,7 @@ export default function PhilosophyContent() {
         {/* Final Section */}
         <div style={{ minHeight: '100vh', padding: '120px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <motion.div
-            {...getScrollRevealProps(reduceMotion, { duration: 2 })}
+            {...getScrollRevealProps(reduceMotion, { duration: ANIMATION_DURATION.display })}
             style={{ textAlign: 'center', maxWidth: '1000px', margin: '0 auto' }}
           >
             <motion.h1

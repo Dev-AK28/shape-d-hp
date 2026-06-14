@@ -17,6 +17,7 @@ describe('gsap-config', () => {
     expect(ANIMATION_DURATION.base).toBeLessThanOrEqual(2.0);
     expect(ANIMATION_DURATION.hero).toBe(1.6);
     expect(ANIMATION_DURATION.heroChild).toBe(1.2);
+    expect(ANIMATION_DURATION.display).toBe(2);
   });
 
   it('exports expo.out and power3 easing tokens', () => {
@@ -27,6 +28,7 @@ describe('gsap-config', () => {
 
   it('exports reveal offset tokens aligned with easing SSOT', () => {
     expect(REVEAL_OFFSET.y).toBe(20);
+    expect(REVEAL_OFFSET.heroChildY).toBe(40);
     expect(REVEAL_OFFSET.x).toBe(-20);
     expect(REVEAL_OFFSET.textRevealStagger).toBe(0.06);
     expect(REVEAL_OFFSET.textRevealDurationScale).toBe(0.65);
