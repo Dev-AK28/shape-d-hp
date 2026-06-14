@@ -13,13 +13,14 @@ const PAGE_HEADERS: PageHeaderCase[] = [
   {
     path: '/services',
     title: 'SERVICES',
-    subtitle: '商品・サービス',
+    subtitle:
+      '商品・サービス — AIプロダクト開発から自己表現コーチングまで、デジタルとヒューマンの両軸で支援します',
     showDivider: true,
   },
   {
     path: '/works',
     title: 'WORKS',
-    subtitle: '実績',
+    subtitle: '実績 — プロダクト開発とコンセプトデザインのポートフォリオをご紹介します',
     showDivider: true,
   },
   {
