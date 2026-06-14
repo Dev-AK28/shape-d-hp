@@ -7,6 +7,7 @@ import {
   configureGsapDefaults,
   gsap,
   registerGsapPlugins,
+  refreshScrollTrigger,
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
 
@@ -54,6 +55,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
 
       gsap.ticker.add(tickerCallback);
       gsap.ticker.lagSmoothing(0);
+      refreshScrollTrigger();
     })();
 
     return () => {
