@@ -184,6 +184,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         />
 
         <div
+          aria-hidden={logoVisible && !logoRevealed}
           style={{
             opacity: logoRevealed || !logoVisible ? 1 : 0,
             transition: 'opacity 700ms ease',
@@ -258,10 +259,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
                 }),
             zIndex: 30,
             pointerEvents: copyVisible ? 'auto' : 'none',
-            visibility: copyVisible ? 'visible' : 'hidden',
             opacity: copyVisible ? 1 : 0,
           }}
-          aria-hidden={!copyVisible}
         >
           <a
             href="/contact"
