@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { ReactNode } from 'react';
+import { ANIMATION_DURATION, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 
 const StarBackground = dynamic(() => import('@/components/StarBackground'), {
   ssr: false,
@@ -42,9 +43,9 @@ export default function Hero({ children }: HeroProps) {
 
       <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '120px 24px', maxWidth: '1200px', margin: '0 auto' }}>
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 60 }}
+          initial={reduceMotion ? false : { opacity: 0, y: REVEAL_OFFSET.y }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.5, ease: 'easeOut' }}
+          transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.hero, ease: 'easeOut' }}
           style={{ marginBottom: '80px' }}
         >
           <p style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 300, letterSpacing: '0.1em', color: 'white', margin: 0 }}>
@@ -128,7 +129,7 @@ export default function Hero({ children }: HeroProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, delay: 1.2, ease: 'easeOut' }}
+            transition={{ duration: ANIMATION_DURATION.hero, delay: 1.2, ease: 'easeOut' }}
             style={{ position: 'absolute', bottom: '48px', left: '50%', transform: 'translateX(-50%)' }}
           >
             <motion.div

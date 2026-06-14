@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
 import {
+  ANIMATION_DURATION,
   configureGsapDefaults,
   gsap,
   refreshScrollTrigger,
@@ -45,7 +46,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         }
 
         const instance = new Lenis({
-          duration: 1.4,
+          duration: ANIMATION_DURATION.base,
           smoothWheel: true,
         });
         lenis = instance;
@@ -59,8 +60,10 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         gsap.ticker.add(tickerCallback);
         gsap.ticker.lagSmoothing(0);
         refreshScrollTrigger();
-      } catch {
-        // Lenis unavailable — fall back to native scroll without breaking the page.
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[SmoothScrollProvider] Lenis failed to load; using native scroll.', error);
+        }
       }
     })();
 
@@ -71,6 +74,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         gsap.ticker.lagSmoothing(500, 33);
       }
       lenis?.destroy();
+      refreshScrollTrigger();
     };
   }, [isReady, profile]);
 

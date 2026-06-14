@@ -14,7 +14,9 @@ export const ANIMATION_EASE = {
 } as const;
 
 export const REVEAL_OFFSET = {
+  x: -20,
   y: 20,
   stagger: 0.15,
+  textRevealStagger: 0.06,
   maxStaggerItems: 6,
 } as const;

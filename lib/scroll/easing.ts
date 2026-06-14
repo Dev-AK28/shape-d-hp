@@ -13,19 +13,20 @@ export const scrollTransition = {
   ease: scrollEase,
 };
 
-export const textRevealStagger = 0.06;
+export const textRevealStagger = REVEAL_OFFSET.textRevealStagger;
 
 export const scrollVariants = {
   fadeUp: {
     hidden: { opacity: 0, y: REVEAL_OFFSET.y },
     visible: { opacity: 1, y: 0 },
   },
+  /** Same offset as fadeUp; ScrollReveal may override `y` via prop for larger sections. */
   fadeUpLarge: {
     hidden: { opacity: 0, y: REVEAL_OFFSET.y },
     visible: { opacity: 1, y: 0 },
   },
   fadeLeft: {
-    hidden: { opacity: 0, x: -20 },
+    hidden: { opacity: 0, x: REVEAL_OFFSET.x },
     visible: { opacity: 1, x: 0 },
   },
   scale: {

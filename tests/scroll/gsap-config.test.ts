@@ -4,6 +4,7 @@ import {
   ANIMATION_EASE,
   shouldDisableGsapAnimation,
 } from '@/lib/scroll/gsap-config';
+import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 
 describe('gsap-config', () => {
   it('disables GSAP animations when prefers-reduced-motion is active', () => {
@@ -21,5 +22,12 @@ describe('gsap-config', () => {
     expect(ANIMATION_EASE.base).toBe('expo.out');
     expect(ANIMATION_EASE.section).toBe('power3.inOut');
     expect(ANIMATION_EASE.reveal).toBe('power3.out');
+  });
+
+  it('exports reveal offset tokens aligned with easing SSOT', () => {
+    expect(REVEAL_OFFSET.y).toBe(20);
+    expect(REVEAL_OFFSET.x).toBe(-20);
+    expect(REVEAL_OFFSET.textRevealStagger).toBe(0.06);
+    expect(REVEAL_OFFSET.stagger).toBe(0.15);
   });
 });
