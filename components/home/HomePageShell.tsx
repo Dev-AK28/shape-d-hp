@@ -1,8 +1,7 @@
 'use client';
 
-import { useMemo, useRef, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import CosmicScene from '@/components/background/CosmicScene';
-import { HomeScrollContext } from '@/components/home/HomeScrollContext';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { gsap } from '@/lib/scroll/gsap-config';
@@ -15,8 +14,7 @@ export default function HomePageShell({ children }: HomePageShellProps) {
   const mainRef = useRef<HTMLElement>(null);
   const baseRef = useRef<HTMLDivElement>(null);
   const nebulaRef = useRef<HTMLDivElement>(null);
-  const { profile } = useDeviceProfile();
-  const scrollRefs = useMemo(() => ({ baseRef, nebulaRef }), []);
+  const { profile, isReady } = useDeviceProfile();
 
   useGsapContext(() => {
     if (!mainRef.current || !baseRef.current) {
@@ -50,8 +48,8 @@ export default function HomePageShell({ children }: HomePageShellProps) {
   }, []);
 
   return (
-    <HomeScrollContext.Provider value={scrollRefs}>
-      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+    <>
+      {isReady ? (
         <CosmicScene
           isMobile={profile.isMobile}
           baseRef={baseRef}
@@ -59,10 +57,10 @@ export default function HomePageShell({ children }: HomePageShellProps) {
           priority
           fixed
         />
-      </div>
+      ) : null}
       <main ref={mainRef} className="relative z-10 min-h-screen">
         {children}
       </main>
-    </HomeScrollContext.Provider>
+    </>
   );
 }
