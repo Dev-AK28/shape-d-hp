@@ -69,3 +69,12 @@ export const warmGrade = {
   nebulaFilter: 'sepia(0.08) saturate(1.05) hue-rotate(-5deg)',
   testId: 'cosmic-warm-grade-overlay',
 } as const;
+
+/** Typography mix-blend-mode for cosmic vs solid section backgrounds — Issue #101 */
+export const typographyBlend = {
+  cosmic: 'screen',
+  solid: 'normal',
+  classCosmic: 'type-blend-cosmic',
+  classSolid: 'type-blend-solid',
+  testIdCosmic: 'type-blend-cosmic',
+} as const;

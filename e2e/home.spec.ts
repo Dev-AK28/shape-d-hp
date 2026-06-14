@@ -12,6 +12,12 @@ test.describe('Home page', () => {
     await waitForHomePageReady(page);
     await expect(page.getByTestId('cosmic-warm-grade-overlay')).toBeAttached();
   });
+
+  test('applies cosmic typography blend to hero heading', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+    await expect(page.getByTestId('type-blend-cosmic')).toHaveClass(/type-blend-cosmic/);
+  });
 });
 
 test.describe('Home page desktop', () => {

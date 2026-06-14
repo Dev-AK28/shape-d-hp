@@ -2,7 +2,7 @@ import Hero from '@/components/Hero';
 import About from '@/components/About';
 import MissionVision from '@/components/MissionVision';
 import HomePageShell from '@/components/home/HomePageShell';
-import { layout, typography } from '@/lib/design/tokens';
+import { layout, typography, typographyBlend } from '@/lib/design/tokens';
 
 const heroHeadingStyle = {
   fontSize: typography.sizePageHeading,
@@ -22,7 +22,11 @@ export default function Home() {
   return (
     <HomePageShell>
       <Hero>
-        <h1 style={heroHeadingStyle}>
+        <h1
+          className={typographyBlend.classCosmic}
+          data-testid={typographyBlend.testIdCosmic}
+          style={heroHeadingStyle}
+        >
           AIで効率化し、
           <br />
           本来の創造に集中する環境を作る。

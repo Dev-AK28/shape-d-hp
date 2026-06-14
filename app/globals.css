@@ -44,6 +44,10 @@ html {
     var(--warm-grade-overlay-end) 100%
   );
   --warm-grade-nebula-filter: sepia(0.08) saturate(1.05) hue-rotate(-5deg);
+
+  /* Typography blend — Issue #101 (mirrors lib/design/tokens.ts typographyBlend) */
+  --type-blend-cosmic: screen;
+  --type-blend-solid: normal;
 }
 
 @tailwind base;
@@ -179,6 +183,16 @@ button:not(.nav-menu-button):hover {
   .cosmic-nebula-layer--warm-grade {
     filter: var(--warm-grade-nebula-filter);
   }
+}
+
+/* Typography blend — cosmic nebula backgrounds vs solid sections (Issue #101) */
+.type-blend-cosmic {
+  mix-blend-mode: var(--type-blend-cosmic);
+  text-shadow: 0 0 20px rgba(10, 10, 10, 0.45);
+}
+
+.type-blend-solid {
+  mix-blend-mode: var(--type-blend-solid);
 }
 
 /* GSAP stagger targets: ensure content stays visible when motion is reduced or on mobile */

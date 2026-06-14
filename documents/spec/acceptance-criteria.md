@@ -68,6 +68,15 @@ And 背景の暗さ・ミニマルさは維持される
 And モバイル・reduced-motion では overlay のみ（nebula filter 省略）
 ```
 
+## Typography Blend（#101）
+
+```gherkin
+Given nebula / 宇宙背景の上にテキストが表示される
+When mix-blend-mode が適用された見出しを表示する
+Then 文字が背景に自然に溶け込みつつ WCAG 相当の可読性を維持する
+And 単色背景セクションでは blend が無効化され可読性が保たれる
+```
+
 ## Philosophy ページ（#81）
 
 ```gherkin
@@ -108,6 +117,7 @@ Then 進捗ドットが対応セクションに追従する
 | Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
 | Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |
 | Warm gold grade overlay | `tests/design/warm-grade.test.ts`, `e2e/home.spec.ts`（`cosmic-warm-grade-overlay`） |
+| Typography cosmic blend | `tests/design/typography-blend.test.ts`, `e2e/home.spec.ts`（`type-blend-cosmic`） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |

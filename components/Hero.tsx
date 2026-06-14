@@ -11,7 +11,7 @@ import {
   BRAND_LOGO_HERO_CLASS,
   brandLogoHeroAspectRatio,
 } from '@/lib/design/brand-logo-constants';
-import { colors, layout, typography } from '@/lib/design/tokens';
+import { colors, layout, typography, typographyBlend } from '@/lib/design/tokens';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import {
   ANIMATION_EASE,
@@ -310,6 +310,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           {children}
 
           <p
+            className={typographyBlend.classCosmic}
             style={{
               fontSize: typography.sizeBody,
               color: colors.muted,

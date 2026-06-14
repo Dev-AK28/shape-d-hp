@@ -49,7 +49,11 @@ export default function PageHeader({
           aria-label={title}
           className="mb-4 font-serif text-[clamp(36px,5vw,48px)] font-light tracking-wider text-white"
         >
-          {animateTitle ? <TextReveal as="span" text={title} /> : title}
+          {animateTitle ? (
+            <TextReveal as="span" text={title} blend={starBackground ? 'cosmic' : 'solid'} />
+          ) : (
+            title
+          )}
         </h1>
 
         {showDivider ? (
