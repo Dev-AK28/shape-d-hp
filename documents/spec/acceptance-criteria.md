@@ -76,7 +76,7 @@ Then 進捗ドットが対応セクションに追従する
 | Redis フォールバック | `tests/contact/rate-limit-service.test.ts` |
 | E2E（お問い合わせ） | `e2e/contact.spec.ts`（Playwright） |
 | E2E（ファビコン） | `e2e/favicon.spec.ts` |
-| E2E（トップ Hero） | `e2e/home.spec.ts` |
+| E2E（トップ Hero） | `e2e/home.spec.ts`（粒子形成後の hero ロゴ表示: `expectHeroBrandLogoAfterFormation`） |
 | 粒子ロゴ PNG サンプリング | `tests/hero/sample-logo-target-points.test.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
 | E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
