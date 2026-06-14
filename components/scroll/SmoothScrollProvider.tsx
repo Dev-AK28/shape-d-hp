@@ -64,6 +64,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         if (process.env.NODE_ENV === 'development') {
           console.warn('[SmoothScrollProvider] Lenis failed to load; using native scroll.', error);
         }
+        refreshScrollTrigger();
       }
     })();
 

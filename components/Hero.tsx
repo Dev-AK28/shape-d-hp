@@ -77,13 +77,13 @@ export default function Hero({ children }: HeroProps) {
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
+          transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
           style={{ textAlign: 'center', zIndex: 20, position: 'relative', maxWidth: '900px', margin: '0 auto' }}
         >
           <motion.div
             initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
             style={{ display: 'flex', justifyContent: 'center', gap: '64px', marginBottom: '64px', flexWrap: 'wrap' }}
           >
             {[
@@ -105,7 +105,7 @@ export default function Hero({ children }: HeroProps) {
           <motion.p
             initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.5, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.5, ease: 'easeOut' }}
             style={{ fontSize: 'clamp(16px, 2vw, 20px)', color: '#93c5fd', maxWidth: '48rem', margin: '0 auto', lineHeight: 1.8, fontFamily: 'serif', fontWeight: 300, marginBottom: '48px', letterSpacing: '0.05em' }}
           >
             技術の余白に、創造性を。<br />
@@ -116,7 +116,7 @@ export default function Hero({ children }: HeroProps) {
             href="/contact"
             initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 1.2, delay: reduceMotion ? 0 : 0.65, ease: 'easeOut' }}
+            transition={{ duration: reduceMotion ? 0 : ANIMATION_DURATION.heroChild, delay: reduceMotion ? 0 : 0.65, ease: 'easeOut' }}
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-block', padding: '20px 64px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '18px', fontFamily: 'serif', textDecoration: 'none' }}

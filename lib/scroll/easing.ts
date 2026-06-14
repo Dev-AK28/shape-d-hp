@@ -14,6 +14,7 @@ export const scrollTransition = {
 };
 
 export const textRevealStagger = REVEAL_OFFSET.textRevealStagger;
+export const textRevealDurationScale = REVEAL_OFFSET.textRevealDurationScale;
 
 export const scrollVariants = {
   fadeUp: {

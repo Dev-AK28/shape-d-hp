@@ -16,6 +16,7 @@ describe('gsap-config', () => {
     expect(ANIMATION_DURATION.base).toBeGreaterThanOrEqual(1.2);
     expect(ANIMATION_DURATION.base).toBeLessThanOrEqual(2.0);
     expect(ANIMATION_DURATION.hero).toBe(1.6);
+    expect(ANIMATION_DURATION.heroChild).toBe(1.2);
   });
 
   it('exports expo.out and power3 easing tokens', () => {
@@ -28,6 +29,7 @@ describe('gsap-config', () => {
     expect(REVEAL_OFFSET.y).toBe(20);
     expect(REVEAL_OFFSET.x).toBe(-20);
     expect(REVEAL_OFFSET.textRevealStagger).toBe(0.06);
+    expect(REVEAL_OFFSET.textRevealDurationScale).toBe(0.65);
     expect(REVEAL_OFFSET.stagger).toBe(0.15);
   });
 });

@@ -5,6 +5,7 @@ import {
   scrollEase,
   scrollTransition,
   scrollViewport,
+  textRevealDurationScale,
   textRevealStagger,
 } from '@/lib/scroll/easing';
 import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -46,7 +47,7 @@ export default function TextReveal({
           initial={{ opacity: 0, y: REVEAL_OFFSET.y }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{
-            duration: scrollTransition.duration * 0.65,
+            duration: scrollTransition.duration * textRevealDurationScale,
             delay: delay + index * textRevealStagger,
             ease: scrollEase,
           }}
