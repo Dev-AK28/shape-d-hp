@@ -7,6 +7,10 @@ import BrandLogo from '@/components/BrandLogo';
 import LogoParticleFormation from '@/components/hero/LogoParticleFormation';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { backgroundAssets } from '@/lib/design/background-assets';
+import {
+  BRAND_LOGO_HERO_CLASS,
+  brandLogoHeroAspectRatio,
+} from '@/lib/design/brand-logo-constants';
 import { colors, layout, typography } from '@/lib/design/tokens';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import {
@@ -211,19 +215,25 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           </div>
         ) : null}
 
-        <LogoParticleFormation
-          active={showParticleFormation}
-          onComplete={() => setFormationComplete(true)}
-        />
-
         <div
-          aria-hidden={logoVisible && !logoRevealed}
-          style={{
-            opacity: logoRevealed || !logoVisible ? 1 : 0,
-            transition: 'opacity 700ms ease',
-          }}
+          className={`relative ${BRAND_LOGO_HERO_CLASS}`}
+          style={{ aspectRatio: brandLogoHeroAspectRatio }}
         >
-          <BrandLogo variant="hero" priority={isImmersive} />
+          <LogoParticleFormation
+            active={showParticleFormation}
+            onComplete={() => setFormationComplete(true)}
+          />
+
+          <div
+            aria-hidden={logoVisible && !logoRevealed}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{
+              opacity: logoRevealed || !logoVisible ? 1 : 0,
+              transition: 'opacity 700ms ease',
+            }}
+          >
+            <BrandLogo variant="hero" priority={isImmersive} className="w-full" />
+          </div>
         </div>
       </div>
 

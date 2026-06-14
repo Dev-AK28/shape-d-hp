@@ -1,6 +1,11 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { backgroundAssets } from '@/lib/design/background-assets';
+import {
+  sampleLogoTargetPointsFromImageData,
+  type LogoSamplePoint,
+} from '@/lib/hero/sample-logo-target-points';
 
 type LogoParticleFormationProps = {
   active: boolean;
@@ -18,57 +23,7 @@ type Particle = {
   opacity: number;
 };
 
-const SAMPLE_WIDTH = 720;
-const SAMPLE_HEIGHT = 160;
-const SAMPLE_STEP = 5;
-const MAX_PARTICLES = 900;
-const LOGO_TEXT = 'SHAPE∞D';
-const FONT = '300 96px "Cormorant Garamond", Georgia, serif';
-
-function sampleTargetPoints(): Array<{ x: number; y: number }> {
-  if (typeof document === 'undefined') {
-    return [];
-  }
-
-  const canvas = document.createElement('canvas');
-  canvas.width = SAMPLE_WIDTH;
-  canvas.height = SAMPLE_HEIGHT;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    return [];
-  }
-
-  ctx.clearRect(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
-  ctx.fillStyle = '#ffffff';
-  ctx.font = FONT;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(LOGO_TEXT, SAMPLE_WIDTH / 2, SAMPLE_HEIGHT / 2);
-
-  const { data } = ctx.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
-  const points: Array<{ x: number; y: number }> = [];
-
-  for (let y = 0; y < SAMPLE_HEIGHT; y += SAMPLE_STEP) {
-    for (let x = 0; x < SAMPLE_WIDTH; x += SAMPLE_STEP) {
-      const alpha = data[(y * SAMPLE_WIDTH + x) * 4 + 3];
-      if (alpha > 140) {
-        points.push({
-          x: x - SAMPLE_WIDTH / 2,
-          y: y - SAMPLE_HEIGHT / 2,
-        });
-      }
-    }
-  }
-
-  if (points.length <= MAX_PARTICLES) {
-    return points;
-  }
-
-  const stride = Math.ceil(points.length / MAX_PARTICLES);
-  return points.filter((_, index) => index % stride === 0);
-}
-
-function createParticles(targets: Array<{ x: number; y: number }>): Particle[] {
+function createParticles(targets: LogoSamplePoint[]): Particle[] {
   return targets.map((target) => {
     const angle = Math.random() * Math.PI * 2;
     const radius = 220 + Math.random() * 280;
@@ -87,12 +42,51 @@ function createParticles(targets: Array<{ x: number; y: number }>): Particle[] {
   });
 }
 
+function loadLogoImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Failed to load logo image: ${src}`));
+    image.src = src;
+  });
+}
+
+async function sampleTargetPointsFromLogo(
+  src: string,
+): Promise<{ points: LogoSamplePoint[]; width: number; height: number }> {
+  if (typeof document === 'undefined') {
+    return { points: [], width: 0, height: 0 };
+  }
+
+  const image = await loadLogoImage(src);
+  const width = image.naturalWidth;
+  const height = image.naturalHeight;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return { points: [], width, height };
+  }
+
+  ctx.drawImage(image, 0, 0, width, height);
+  const { data } = ctx.getImageData(0, 0, width, height);
+
+  return {
+    points: sampleLogoTargetPointsFromImageData(width, height, data),
+    width,
+    height,
+  };
+}
+
 export default function LogoParticleFormation({
   active,
   onComplete,
 }: LogoParticleFormationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
+  const sampleSizeRef = useRef({ width: 0, height: 0 });
   const frameRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const onCompleteRef = useRef(onComplete);
@@ -109,20 +103,20 @@ export default function LogoParticleFormation({
     let cancelled = false;
 
     const run = async () => {
-      if (typeof document !== 'undefined' && document.fonts?.ready) {
-        await document.fonts.ready;
-      }
+      const { points, width, height } = await sampleTargetPointsFromLogo(
+        backgroundAssets.brandLogoTransparent,
+      );
       if (cancelled) {
         return;
       }
 
-      const targets = sampleTargetPoints();
-      if (targets.length === 0) {
+      if (points.length === 0 || width === 0 || height === 0) {
         onCompleteRef.current?.();
         return;
       }
 
-      particlesRef.current = createParticles(targets);
+      sampleSizeRef.current = { width, height };
+      particlesRef.current = createParticles(points);
       startRef.current = null;
 
       const durationMs = 2400;
@@ -153,23 +147,25 @@ export default function LogoParticleFormation({
         }
 
         const dpr = window.devicePixelRatio || 1;
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight;
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
 
-        if (width !== canvasWidth || height !== canvasHeight) {
-          canvasWidth = width;
-          canvasHeight = height;
-          canvas.width = Math.floor(width * dpr);
-          canvas.height = Math.floor(height * dpr);
+        if (displayWidth !== canvasWidth || displayHeight !== canvasHeight) {
+          canvasWidth = displayWidth;
+          canvasHeight = displayHeight;
+          canvas.width = Math.floor(displayWidth * dpr);
+          canvas.height = Math.floor(displayHeight * dpr);
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
 
-        ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0, 0, displayWidth, displayHeight);
 
         const focalLength = 520;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const scale = Math.min(width / SAMPLE_WIDTH, height / SAMPLE_HEIGHT) * 0.92;
+        const centerX = displayWidth / 2;
+        const centerY = displayHeight / 2;
+        const { width: sampleWidth, height: sampleHeight } = sampleSizeRef.current;
+        const scale =
+          Math.min(displayWidth / sampleWidth, displayHeight / sampleHeight) * 0.98;
 
         for (const particle of particlesRef.current) {
           particle.x += (particle.tx - particle.x) * (0.04 + eased * 0.08);
