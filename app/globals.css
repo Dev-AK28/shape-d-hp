@@ -185,6 +185,19 @@ button:not(.nav-menu-button):hover {
   mix-blend-mode: var(--type-blend-solid);
 }
 
+/* PageHeader gradient dividers — Issue #15 (mirrors lib/design/tokens.ts pageHeaderDividers) */
+.page-header-divider-blue {
+  background: linear-gradient(to right, transparent, #60a5fa, transparent);
+}
+
+.page-header-divider-purple {
+  background: linear-gradient(to right, transparent, #a78bfa, transparent);
+}
+
+.page-header-divider-sky {
+  background: linear-gradient(to right, transparent, #93c5fd, transparent);
+}
+
 /* GSAP stagger targets: ensure content stays visible when motion is reduced or on mobile */
 @media (prefers-reduced-motion: reduce), (max-width: 767px) {
   [data-timeline-item],

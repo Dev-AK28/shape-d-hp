@@ -5,6 +5,9 @@ import PageHeader from '@/components/ui/PageHeader';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import Link from 'next/link';
 
+const processCardLinkClass =
+  'inline-block px-12 py-4 rounded-full bg-transparent cursor-pointer text-base font-serif no-underline';
+
 export default function ProcessNavigation() {
   const reduceMotion = useReducedMotion();
 
@@ -16,64 +19,24 @@ export default function ProcessNavigation() {
       className="pb-32"
     >
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: '64px',
-          maxWidth: '900px',
-          margin: '120px auto 0',
-        }}
+        className="mx-auto mt-[120px] grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-16"
       >
         <motion.div
           {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
-          style={{
-            padding: '64px',
-            border: '1px solid rgba(96, 165, 250, 0.3)',
-            borderRadius: '12px',
-            background: 'rgba(96, 165, 250, 0.05)',
-            backdropFilter: 'blur(10px)',
-          }}
+          className="rounded-xl border border-blue-400/30 bg-blue-400/5 p-16 backdrop-blur-[10px]"
         >
-          <h2
-            style={{
-              fontSize: '32px',
-              fontWeight: 300,
-              color: '#60a5fa',
-              marginBottom: '24px',
-              fontFamily: 'serif',
-            }}
-          >
+          <h2 className="mb-6 font-serif text-[32px] font-light text-blue-400">
             Development Process
           </h2>
-          <p
-            style={{
-              color: '#d1d5db',
-              fontSize: '16px',
-              lineHeight: 2,
-              marginBottom: '32px',
-              fontFamily: 'serif',
-              letterSpacing: '0.02em',
-            }}
-          >
+          <p className="mb-8 font-serif text-base leading-8 tracking-[0.02em] text-gray-300">
             AIスタックを指揮した「要件定義→プロトタイプ→品質担保→実装」の4ステップ。技術者としての高い視座から、プロフェッショナルな開発プロセスを提供します。
           </p>
           <Link href="/process/development">
             <motion.div
               whileHover={reduceMotion ? undefined : { scale: 1.05 }}
               whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-              style={{
-                display: 'inline-block',
-                padding: '16px 48px',
-                border: '1px solid #60a5fa',
-                borderRadius: '9999px',
-                color: '#60a5fa',
-                background: 'transparent',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontFamily: 'serif',
-                textDecoration: 'none',
-              }}
+              className={`${processCardLinkClass} border border-blue-400 text-blue-400`}
             >
               詳細を見る
             </motion.div>
@@ -83,53 +46,19 @@ export default function ProcessNavigation() {
         <motion.div
           {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
-          style={{
-            padding: '64px',
-            border: '1px solid rgba(167, 139, 250, 0.3)',
-            borderRadius: '12px',
-            background: 'rgba(167, 139, 250, 0.05)',
-            backdropFilter: 'blur(10px)',
-          }}
+          className="rounded-xl border border-violet-400/30 bg-violet-400/5 p-16 backdrop-blur-[10px]"
         >
-          <h2
-            style={{
-              fontSize: '32px',
-              fontWeight: 300,
-              color: '#a78bfa',
-              marginBottom: '24px',
-              fontFamily: 'serif',
-            }}
-          >
+          <h2 className="mb-6 font-serif text-[32px] font-light text-violet-400">
             Consulting Process
           </h2>
-          <p
-            style={{
-              color: '#d1d5db',
-              fontSize: '16px',
-              lineHeight: 2,
-              marginBottom: '32px',
-              fontFamily: 'serif',
-              letterSpacing: '0.02em',
-            }}
-          >
+          <p className="mb-8 font-serif text-base leading-8 tracking-[0.02em] text-gray-300">
             「自覚→言語化→表現」の3ステップによるスキル習得。AI時代に代替不可能な『個』の価値を最大化し、自己一致した生き方を支援します。
           </p>
           <Link href="/process/consulting">
             <motion.div
               whileHover={reduceMotion ? undefined : { scale: 1.05 }}
               whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-              style={{
-                display: 'inline-block',
-                padding: '16px 48px',
-                border: '1px solid #a78bfa',
-                borderRadius: '9999px',
-                color: '#a78bfa',
-                background: 'transparent',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontFamily: 'serif',
-                textDecoration: 'none',
-              }}
+              className={`${processCardLinkClass} border border-violet-400 text-violet-400`}
             >
               詳細を見る
             </motion.div>
