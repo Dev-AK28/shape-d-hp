@@ -216,6 +216,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         ) : null}
 
         <div
+          data-testid="hero-logo-stage"
           className={`relative ${BRAND_LOGO_HERO_CLASS}`}
           style={{ aspectRatio: brandLogoHeroAspectRatio }}
         >
