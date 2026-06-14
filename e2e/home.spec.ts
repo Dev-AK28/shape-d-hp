@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { waitForHomePageReady } from './helpers';
 
 test.describe('Home page', () => {

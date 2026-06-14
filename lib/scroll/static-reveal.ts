@@ -5,6 +5,11 @@ import { shouldDisableGsapAnimation } from '@/lib/scroll/gsap-config';
 export function shouldUseStaticReveal(
   profile: DeviceProfile,
   reduceMotion: boolean | null,
+  isReady = true,
 ): boolean {
-  return shouldDisableGsapAnimation(profile) || reduceMotion === true;
+  return (
+    !isReady ||
+    shouldDisableGsapAnimation(profile) ||
+    reduceMotion === true
+  );
 }

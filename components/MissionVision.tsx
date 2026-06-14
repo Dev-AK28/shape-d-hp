@@ -20,9 +20,8 @@ const visionQuotes = [
 
 export default function MissionVision() {
   const reduceMotion = useReducedMotion();
-  const { profile } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion);
-  const showQuotesImmediately = staticReveal;
+  const { profile, isReady } = useDeviceProfile();
+  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
   const quotesRef = useRef<HTMLDivElement>(null);
 
   useGsapContext(() => {
@@ -129,7 +128,7 @@ export default function MissionVision() {
                 margin: `0 0 ${spacing.xl}px`,
                 padding: 0,
                 border: 'none',
-                opacity: showQuotesImmediately ? 1 : 0,
+                opacity: staticReveal ? 1 : 0,
               }}
             >
               {quote}

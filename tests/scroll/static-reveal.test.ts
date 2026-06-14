@@ -17,6 +17,12 @@ describe('shouldUseStaticReveal', () => {
     expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, true)).toBe(true);
   });
 
+  it('returns true before device profile is ready', () => {
+    expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, false, false)).toBe(
+      true,
+    );
+  });
+
   it('returns false for desktop without reduced motion', () => {
     expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, false)).toBe(false);
   });

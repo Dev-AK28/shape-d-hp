@@ -38,10 +38,10 @@ export default function TextReveal({
   immediate = false,
 }: TextRevealProps) {
   const reduceMotion = useReducedMotion();
-  const { profile } = useDeviceProfile();
+  const { profile, isReady } = useDeviceProfile();
   const segments = segmentText(text);
   const showImmediately =
-    immediate || shouldUseStaticReveal(profile, reduceMotion);
+    immediate || shouldUseStaticReveal(profile, reduceMotion, isReady);
 
   if (showImmediately) {
     return <Tag className={className}>{text}</Tag>;

@@ -21,9 +21,8 @@ const career = [
 
 export default function About() {
   const reduceMotion = useReducedMotion();
-  const { profile } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion);
-  const showTimelineImmediately = staticReveal;
+  const { profile, isReady } = useDeviceProfile();
+  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
   const timelineRef = useRef<HTMLUListElement>(null);
 
   useGsapContext(() => {
@@ -169,7 +168,7 @@ export default function About() {
                 style={{
                   marginBottom: spacing.lg,
                   position: 'relative',
-                  opacity: showTimelineImmediately ? 1 : 0,
+                  opacity: staticReveal ? 1 : 0,
                 }}
               >
                 <span
