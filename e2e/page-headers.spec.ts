@@ -25,14 +25,14 @@ const PAGE_HEADERS: PageHeaderCase[] = [
   {
     path: '/process',
     title: 'PROCESS',
-    subtitle: '開発とコンサルティング',
+    subtitle: '開発とコンサルティング、それぞれのプロフェッショナルなプロセス',
     showDivider: true,
     hasStarBackground: true,
   },
   {
     path: '/process/development',
     title: 'DEVELOPMENT',
-    subtitle: 'AIスタックを指揮したプロフェッショナルな開発プロセス',
+    subtitle: '技術者としての高い視座から、AIスタックを指揮したプロフェッショナルな開発プロセス',
     showDivider: true,
     hasStarBackground: true,
   },
