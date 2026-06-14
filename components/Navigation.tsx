@@ -53,28 +53,26 @@ export default function Navigation() {
     >
       <div className="mx-auto max-w-[1400px] px-6 py-5">
         <div className="flex items-center justify-between">
-          <Link href="/" className="no-underline">
-            <motion.div whileHover={reduceMotion ? undefined : { scale: 1.05 }} className="flex items-center">
+          <Link href="/" className="no-underline nav-link">
+            <div className="flex items-center">
               <BrandLogo height={48} priority />
-            </motion.div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div style={{ display: isMobile ? 'none' : 'flex', gap: '32px', alignItems: 'center' }}>
             {navItems.map((item) => (
-              <Link key={item.name} href={item.href} style={{ textDecoration: 'none' }}>
-                <motion.div
-                  whileHover={reduceMotion ? undefined : { y: -2 }}
+              <Link key={item.name} href={item.href} className="nav-link" style={{ textDecoration: 'none' }}>
+                <div
                   style={{
                     fontSize: '14px',
-                    color: pathname === item.href ? '#60a5fa' : '#9ca3af',
-                    transition: reduceMotion ? undefined : 'color 0.3s ease',
-                    fontFamily: 'serif',
-                    letterSpacing: '0.1em'
+                    color: pathname === item.href ? 'var(--accent)' : 'var(--muted)',
+                    fontFamily: 'var(--font-serif-jp)',
+                    letterSpacing: '0.1em',
                   }}
                 >
                   {item.name}
-                </motion.div>
+                </div>
               </Link>
             ))}
           </div>

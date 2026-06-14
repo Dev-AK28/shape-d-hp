@@ -14,6 +14,10 @@ Issue: #51
 | `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効。プロファイル変更時に Lenis を create/destroy |
 | `NebulaBackground` | モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時・IO 無効）。`absolute` は IO 初回判定前 blur 維持。単一 container + `{isReady && layers.map(...)}`。`@keyframes` は `app/globals.css` に集約（`nebula-hero-*` / `nebula-philosophy-*`） |
 | `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
+| `PageTransition` | `app/template.tsx` 経由で全ページ fade-in（0.6s）。reduced-motion 時は即時表示 |
+| Micro-interactions | リンク・ボタン hover は opacity 変化のみ（magnetic effect なし）。`:focus-visible` でキーボードフォーカスリング |
+| フォント | `next/font` で Cormorant Garamond + Noto Serif JP を preload（`app/layout.tsx`） |
+| GSAP | tree-shaking: `gsap` + `gsap/ScrollTrigger` のみ import。bundle 目安 ~38KB（Lenis ~8KB + GSAP ~30KB） |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
 
 ## デバイスプロファイル

@@ -101,9 +101,27 @@ button {
   }
 }
 
+.nav-link:hover {
+  opacity: 0.75;
+}
+
 .hero-cta:hover {
   opacity: 0.75;
 }
+
+a:not(.hero-cta):hover,
+button:hover {
+  opacity: 0.8;
+  transition: opacity var(--duration-base) var(--ease-base);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a:not(.hero-cta):hover,
+  button:hover {
+    transition: none;
+  }
+}
+
 .noise-bg {
   position: relative;
 }
