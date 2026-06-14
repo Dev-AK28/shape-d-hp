@@ -188,5 +188,5 @@ SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/s
 
 ## 参照
 
-- `lib/design/tokens.ts` — TypeScript SSOT
+- `lib/design/tokens.ts` — TypeScript SSOT（`colors` / `pageHeaderDividers` / `pageHeaderDividerColors` / `sectionAccentCssVars`）
 - `app/globals.css` — CSS 変数定義
