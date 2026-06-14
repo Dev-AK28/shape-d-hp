@@ -188,7 +188,19 @@ SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/s
 
 セクションアクセント色（`blue` / `purple` / `sky`）は `lib/design/tokens.ts` の `colors.blue` 等と `:root` の `--section-*` CSS 変数、Tailwind の `blue-400` / `violet-400` / `blue-300` を対応付ける。`css-token-sync.test.ts` で TS ↔ CSS の同期を検証する。
 
+### 移行時のフォント・タイポグラフィ（Issue #15）
+
+Tailwind に未生成の `font-display` / `font-serif-jp` は使わない。次のパターンを使用する。
+
+| 用途 | Tailwind / CSS クラス | 備考 |
+|------|----------------------|------|
+| 欧文見出し（Cormorant） | `font-serif` | `:root` で `--font-serif = --font-display` |
+| 日本語本文 | `type-font-serif-jp`（`typographyFontClasses.serifJp`） | `globals.css` で font stack 定義 |
+| fluid サイズ | `type-size-*`（`typographySizeClasses`） | `--type-size-*` CSS 変数と同期 |
+
+`text-[clamp(...)]` の直書きは `type-size-heading` / `type-size-caption` 等へ寄せる。新規サイズは `tokens.ts` → `:root` → `globals.css` utility の順で追加し、`css-token-sync.test.ts` でロックする。
+
 ## 参照
 
-- `lib/design/tokens.ts` — TypeScript SSOT（`colors` / `pageHeaderDividers` / `pageHeaderDividerColors` / `sectionAccentCssVars`）
+- `lib/design/tokens.ts` — TypeScript SSOT（`colors` / `pageHeaderDividers` / `pageHeaderDividerColors` / `sectionAccentCssVars` / `typographySizeClasses` / `typographyFontClasses`）
 - `app/globals.css` — CSS 変数定義
