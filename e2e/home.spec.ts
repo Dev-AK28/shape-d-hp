@@ -19,6 +19,24 @@ test.describe('Home page desktop', () => {
     await expect(heroLogo).toBeVisible({ timeout: 5000 });
   });
 
+  test('shows footer above fixed cosmic background when scrolled to bottom', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(300);
+
+    const footerCopyright = page.getByText('© 2026 Kota Akashi. All rights reserved.');
+    await expect(footerCopyright).toBeVisible();
+
+    const footerBox = await footerCopyright.boundingBox();
+    expect(footerBox).not.toBeNull();
+    if (footerBox) {
+      expect(footerBox.y).toBeGreaterThan(0);
+      expect(footerBox.y + footerBox.height).toBeLessThanOrEqual(page.viewportSize()!.height + 1);
+    }
+  });
+
   test('reveals hero CTA after scroll on desktop', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);

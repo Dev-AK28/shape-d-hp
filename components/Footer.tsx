@@ -3,7 +3,7 @@ import BrandLogo from '@/components/BrandLogo';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-[radial-gradient(ellipse_at_center,#0a0a1a_0%,#000000_100%)] px-6 py-16">
+    <footer className="relative z-20 border-t border-white/10 bg-[radial-gradient(ellipse_at_center,#0a0a1a_0%,#000000_100%)] px-6 py-16">
       <div className="mx-auto max-w-[1200px]">
         <div className="mb-12 text-center">
           <Link href="/">

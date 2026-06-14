@@ -27,7 +27,7 @@ export default function CosmicScene({
 
   return (
     <div
-      className={`pointer-events-none overflow-hidden ${fixed ? 'fixed inset-0' : 'absolute inset-0'}`}
+      className={`pointer-events-none overflow-hidden ${fixed ? 'fixed inset-0 z-0' : 'absolute inset-0'}`}
       aria-hidden="true"
       style={{ background: colors.background }}
     >
