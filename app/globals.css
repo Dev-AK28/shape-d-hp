@@ -30,7 +30,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', serif;
+  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }
 
 html[data-custom-cursor='active'],
@@ -39,10 +39,19 @@ html[data-custom-cursor='active'] button {
   cursor: none;
 }
 
+html[data-custom-cursor='active'] input,
+html[data-custom-cursor='active'] textarea,
+html[data-custom-cursor='active'] select {
+  cursor: text;
+}
+
 @media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
   html[data-custom-cursor='active'],
   html[data-custom-cursor='active'] a,
-  html[data-custom-cursor='active'] button {
+  html[data-custom-cursor='active'] button,
+  html[data-custom-cursor='active'] input,
+  html[data-custom-cursor='active'] textarea,
+  html[data-custom-cursor='active'] select {
     cursor: auto;
   }
 }

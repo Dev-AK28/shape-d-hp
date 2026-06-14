@@ -27,6 +27,13 @@ describe('gsap-config', () => {
       shouldDisableGsapAnimation({
         isMobile: false,
         prefersReducedMotion: false,
+        prefersCoarsePointer: true,
+      }),
+    ).toBe(true);
+    expect(
+      shouldDisableGsapAnimation({
+        isMobile: false,
+        prefersReducedMotion: false,
         prefersCoarsePointer: false,
       }),
     ).toBe(false);

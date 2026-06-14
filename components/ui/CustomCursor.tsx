@@ -1,18 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { cursor as cursorTokens } from '@/lib/design/tokens';
-
-const CUSTOM_CURSOR_ATTR = 'data-custom-cursor';
-
-function setCustomCursorActive(active: boolean): void {
-  if (active) {
-    document.documentElement.setAttribute(CUSTOM_CURSOR_ATTR, 'active');
-    return;
-  }
-  document.documentElement.removeAttribute(CUSTOM_CURSOR_ATTR);
-}
+import {
+  setCustomCursorActive,
+  shouldEnableCustomCursor,
+} from '@/lib/design/custom-cursor';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 
 export default function CustomCursor() {
   const { profile, isReady } = useDeviceProfile();
@@ -24,17 +18,45 @@ export default function CustomCursor() {
   const ring = useRef({ x: 0, y: 0 });
   const frame = useRef(0);
 
-  const isActive =
-    isReady &&
-    !profile.prefersReducedMotion &&
-    !profile.isMobile &&
-    !profile.prefersCoarsePointer;
+  const isActive = shouldEnableCustomCursor(profile, isReady);
 
   useEffect(() => {
     if (!isActive) {
       setCustomCursorActive(false);
       return;
     }
+
+    const stopAnimation = () => {
+      if (frame.current) {
+        cancelAnimationFrame(frame.current);
+        frame.current = 0;
+      }
+    };
+
+    const animate = () => {
+      if (!visibleRef.current) {
+        stopAnimation();
+        return;
+      }
+
+      ring.current.x += (pos.current.x - ring.current.x) * cursorTokens.followerLerp;
+      ring.current.y += (pos.current.y - ring.current.y) * cursorTokens.followerLerp;
+
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${pos.current.x}px, ${pos.current.y}px, 0)`;
+      }
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate3d(${ring.current.x}px, ${ring.current.y}px, 0)`;
+      }
+
+      frame.current = requestAnimationFrame(animate);
+    };
+
+    const startAnimation = () => {
+      if (!frame.current) {
+        frame.current = requestAnimationFrame(animate);
+      }
+    };
 
     const showCursor = (x: number, y: number) => {
       pos.current = { x, y };
@@ -44,6 +66,7 @@ export default function CustomCursor() {
         setVisible(true);
         setCustomCursorActive(true);
       }
+      startAnimation();
     };
 
     const onMove = (event: MouseEvent) => {
@@ -63,36 +86,20 @@ export default function CustomCursor() {
       visibleRef.current = false;
       setVisible(false);
       setCustomCursorActive(false);
-    };
-
-    const animate = () => {
-      if (visibleRef.current) {
-        ring.current.x += (pos.current.x - ring.current.x) * cursorTokens.followerLerp;
-        ring.current.y += (pos.current.y - ring.current.y) * cursorTokens.followerLerp;
-
-        if (dotRef.current) {
-          dotRef.current.style.transform = `translate3d(${pos.current.x}px, ${pos.current.y}px, 0)`;
-        }
-        if (ringRef.current) {
-          ringRef.current.style.transform = `translate3d(${ring.current.x}px, ${ring.current.y}px, 0)`;
-        }
-      }
-
-      frame.current = requestAnimationFrame(animate);
+      stopAnimation();
     };
 
     window.addEventListener('mousemove', onMove);
     document.addEventListener('focusin', onFocusIn);
     document.documentElement.addEventListener('mouseleave', onLeave);
-    frame.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('mousemove', onMove);
       document.removeEventListener('focusin', onFocusIn);
       document.documentElement.removeEventListener('mouseleave', onLeave);
-      cancelAnimationFrame(frame.current);
       visibleRef.current = false;
       setCustomCursorActive(false);
+      stopAnimation();
     };
   }, [isActive]);
 
