@@ -8,6 +8,8 @@
   --accent-subtle: rgba(196, 181, 160, 0.6);
   --border: rgba(240, 240, 240, 0.12);
 
+  --font-serif: var(--font-display);
+
   /* Motion design tokens */
   --duration-base: 1.4s;
   --ease-base: cubic-bezier(0.16, 1, 0.3, 1);
@@ -59,26 +61,6 @@ button {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-}
-
-@keyframes nebula-hero-1 {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(100px, -50px) scale(1.1);
-  }
-}
-
-@keyframes nebula-hero-2 {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-80px, 60px) scale(1.15);
-  }
 }
 
 @keyframes nebula-philosophy-1 {

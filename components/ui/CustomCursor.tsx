@@ -9,6 +9,7 @@ export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
   const pos = useRef({ x: 0, y: 0 });
   const ring = useRef({ x: 0, y: 0 });
   const frame = useRef(0);
@@ -25,22 +26,28 @@ export default function CustomCursor() {
 
     const onMove = (event: MouseEvent) => {
       pos.current = { x: event.clientX, y: event.clientY };
-      if (!visible) {
+      if (!visibleRef.current) {
+        visibleRef.current = true;
         setVisible(true);
       }
     };
 
-    const onLeave = () => setVisible(false);
+    const onLeave = () => {
+      visibleRef.current = false;
+      setVisible(false);
+    };
 
     const animate = () => {
-      ring.current.x += (pos.current.x - ring.current.x) * 0.12;
-      ring.current.y += (pos.current.y - ring.current.y) * 0.12;
+      if (visibleRef.current) {
+        ring.current.x += (pos.current.x - ring.current.x) * 0.12;
+        ring.current.y += (pos.current.y - ring.current.y) * 0.12;
 
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px)`;
-      }
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${ring.current.x}px, ${ring.current.y}px)`;
+        if (dotRef.current) {
+          dotRef.current.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px)`;
+        }
+        if (ringRef.current) {
+          ringRef.current.style.transform = `translate(${ring.current.x}px, ${ring.current.y}px)`;
+        }
       }
 
       frame.current = requestAnimationFrame(animate);
@@ -55,7 +62,7 @@ export default function CustomCursor() {
       document.documentElement.removeEventListener('mouseleave', onLeave);
       cancelAnimationFrame(frame.current);
     };
-  }, [isReady, profile, visible]);
+  }, [isReady, profile.isMobile, profile.prefersCoarsePointer, profile.prefersReducedMotion]);
 
   if (
     !isReady ||

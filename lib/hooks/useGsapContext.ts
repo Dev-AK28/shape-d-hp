@@ -15,7 +15,7 @@ export function useGsapContext(
   setupRef.current = setup;
 
   useLayoutEffect(() => {
-    if (!isReady || shouldDisableGsapAnimation(profile.prefersReducedMotion)) {
+    if (!isReady || shouldDisableGsapAnimation(profile)) {
       return;
     }
 
@@ -29,5 +29,5 @@ export function useGsapContext(
       ctx.revert();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- caller controls deps
-  }, [isReady, profile.prefersReducedMotion, ...deps]);
+  }, [isReady, profile.isMobile, profile.prefersCoarsePointer, profile.prefersReducedMotion, ...deps]);
 }
