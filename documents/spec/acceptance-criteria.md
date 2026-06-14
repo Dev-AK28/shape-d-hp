@@ -77,6 +77,7 @@ Then 進捗ドットが対応セクションに追従する
 | E2E（お問い合わせ） | `e2e/contact.spec.ts`（Playwright） |
 | E2E（ファビコン） | `e2e/favicon.spec.ts` |
 | E2E（トップ Hero） | `e2e/home.spec.ts` |
+| 粒子ロゴ PNG サンプリング | `tests/hero/sample-logo-target-points.test.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
 | E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
 | E2E（Philosophy） | `e2e/philosophy.spec.ts` |
