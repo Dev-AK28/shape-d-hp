@@ -22,7 +22,7 @@ const sectionCaptionClass =
   'mb-[var(--space-2)] text-[clamp(12px,1vw,14px)] text-[var(--muted)] tracking-[0.15em] uppercase';
 
 const pillarTextClass =
-  'max-w-[36em] font-serif-jp text-[clamp(20px,2.5vw,28px)] font-light leading-[1.85] text-[var(--foreground)]';
+  'max-w-[36em] font-[family-name:var(--font-serif-jp)] text-[clamp(20px,2.5vw,28px)] font-light leading-[1.85] text-[var(--foreground)]';
 
 export default function About() {
   const reduceMotion = useReducedMotion();
@@ -66,7 +66,7 @@ export default function About() {
           className="mb-[var(--space-8)]"
         >
           <h2
-            className="mb-[var(--space-2)] font-display text-[clamp(32px,5vw,64px)] font-light text-[var(--foreground)] tracking-[0.05em]"
+            className="mb-[var(--space-2)] font-serif text-[clamp(32px,5vw,64px)] font-light text-[var(--foreground)] tracking-[0.05em]"
           >
             <TextReveal as="span" text="ABOUT" />
           </h2>
@@ -117,12 +117,12 @@ export default function About() {
                   className="absolute -left-[36px] top-1.5 size-2 rounded-full bg-[var(--accent)]"
                 />
                 <span
-                  className="mb-[var(--space-1)] block font-display text-[clamp(12px,1vw,14px)] text-[var(--muted)]"
+                  className="mb-[var(--space-1)] block font-serif text-[clamp(12px,1vw,14px)] text-[var(--muted)]"
                 >
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <p
-                  className="m-0 font-serif-jp text-[clamp(16px,1.5vw,18px)] leading-[1.8] text-[var(--foreground)]"
+                  className="m-0 font-[family-name:var(--font-serif-jp)] text-[clamp(16px,1.5vw,18px)] leading-[1.8] text-[var(--foreground)]"
                 >
                   {item}
                 </p>

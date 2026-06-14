@@ -55,7 +55,7 @@ export default function MissionVision() {
     >
       <p
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-display text-[clamp(40px,10vw,140px)] font-light tracking-[0.08em] text-[var(--foreground)] opacity-[0.04]"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-serif text-[clamp(40px,10vw,140px)] font-light tracking-[0.08em] text-[var(--foreground)] opacity-[0.04]"
       >
         SELF-CONGRUENCE
       </p>
@@ -66,7 +66,7 @@ export default function MissionVision() {
           className="mb-[var(--space-8)]"
         >
           <h2
-            className="mb-[var(--space-2)] font-display text-[clamp(32px,5vw,64px)] font-light text-[var(--foreground)] tracking-[0.05em]"
+            className="mb-[var(--space-2)] font-serif text-[clamp(32px,5vw,64px)] font-light text-[var(--foreground)] tracking-[0.05em]"
           >
             <TextReveal as="span" text="VISION" />
           </h2>
@@ -75,7 +75,7 @@ export default function MissionVision() {
 
         <motion.p
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
-          className="mb-[var(--space-8)] font-serif-jp text-[clamp(20px,2.5vw,28px)] font-light tracking-[0.06em] text-[var(--accent)]"
+          className="mb-[var(--space-8)] font-[family-name:var(--font-serif-jp)] text-[clamp(20px,2.5vw,28px)] font-light tracking-[0.06em] text-[var(--accent)]"
         >
           自己一致（SELF-CONGRUENCE）への道
         </motion.p>
@@ -85,7 +85,7 @@ export default function MissionVision() {
             <blockquote
               key={quote}
               data-vision-quote
-              className="mb-[var(--space-6)] max-w-[36em] border-none p-0 font-serif-jp text-[clamp(18px,2.5vw,28px)] font-light leading-[1.85] text-balance text-[var(--foreground)]"
+              className="mb-[var(--space-6)] max-w-[36em] border-none p-0 font-[family-name:var(--font-serif-jp)] text-[clamp(18px,2.5vw,28px)] font-light leading-[1.85] text-balance text-[var(--foreground)]"
               style={{ opacity: staticReveal ? 1 : 0 }}
             >
               {quote}
