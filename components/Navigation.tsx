@@ -88,7 +88,7 @@ export default function Navigation() {
                 <BrandLogo height={36} priority />
               </span>
               <span className="hidden md:block">
-                <BrandLogo height={48} priority />
+                <BrandLogo height={48} />
               </span>
             </div>
           </Link>
@@ -121,7 +121,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <motion.button
             type="button"
-            className="nav-menu-button flex h-11 w-11 items-center justify-center md:hidden"
+            className="nav-menu-button flex h-11 w-11 items-center justify-center p-0 md:hidden"
             onClick={toggleMenu}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
@@ -131,9 +131,6 @@ export default function Navigation() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: 0,
-              minWidth: '44px',
-              minHeight: '44px',
             }}
           >
             <div style={{ width: '24px', height: '20px', position: 'relative' }}>

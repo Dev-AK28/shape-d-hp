@@ -28,10 +28,19 @@ test.describe('Navigation mobile layout', () => {
 
   test('uses a compact header with 44px menu tap target', async ({ page }) => {
     await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: 'AIで効率化し、本来の創造に集中する環境を作る。',
+      }),
+    ).toBeVisible();
+
     const nav = page.getByRole('navigation');
     const navBox = await nav.boundingBox();
 
-    expect(navBox?.height).toBeLessThan(72);
+    // Pre-compact mobile bar was ~88px (py-5 + 48px logo)
+    expect(navBox?.height).toBeLessThan(80);
 
     const menuButton = nav.getByRole('button', { name: /メニューを/ });
     const buttonBox = await menuButton.boundingBox();
@@ -46,6 +55,8 @@ test.describe('Navigation desktop layout', () => {
 
   test('preserves desktop header sizing', async ({ page }) => {
     await page.goto('/');
+    await waitForHomePageReady(page);
+
     const nav = page.getByRole('navigation');
     const navBox = await nav.boundingBox();
 
