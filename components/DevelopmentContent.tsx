@@ -52,7 +52,7 @@ export default function DevelopmentContent() {
         title="DEVELOPMENT"
         subtitle="技術者としての高い視座から、AIスタックを指揮したプロフェッショナルな開発プロセス"
         starBackground
-        dividerColor="#60a5fa"
+        dividerVariant="blue"
         className="pb-16"
       />
 

@@ -8,7 +8,34 @@ export const colors = {
   accent: '#c4b5a0',
   accentSubtle: 'rgba(196, 181, 160, 0.6)',
   border: 'rgba(240, 240, 240, 0.12)',
+  /** Section accent palette — mirrors Tailwind blue-400 / violet-400 / blue-300 */
+  blue: '#60a5fa',
+  blueLight: '#93c5fd',
+  purple: '#a78bfa',
 } as const;
+
+/** PageHeader gradient divider accent per variant — Issue #15 */
+export const pageHeaderDividerColors = {
+  blue: colors.blue,
+  purple: colors.purple,
+  sky: colors.blueLight,
+} as const;
+
+/** PageHeader gradient divider variants — Issue #15 */
+export const pageHeaderDividers = {
+  blue: 'page-header-divider-blue',
+  purple: 'page-header-divider-purple',
+  sky: 'page-header-divider-sky',
+} as const;
+
+export type PageHeaderDividerVariant = keyof typeof pageHeaderDividers;
+
+/** CSS custom property names for section accents — mirrors :root in globals.css */
+export const sectionAccentCssVars: Record<PageHeaderDividerVariant, string> = {
+  blue: '--section-blue',
+  purple: '--section-purple',
+  sky: '--section-blue-light',
+};
 
 export const spacing = {
   unit: 8,

@@ -108,4 +108,22 @@ test.describe('Subpage headers', () => {
       ).toHaveCSS('mix-blend-mode', 'normal');
     }
   });
+
+  test('page headers apply dividerVariant gradient classes', async ({ page }) => {
+    const dividerCases = [
+      { path: '/services', className: 'page-header-divider-blue' },
+      { path: '/works', className: 'page-header-divider-sky' },
+      { path: '/process', className: 'page-header-divider-blue' },
+      { path: '/process/development', className: 'page-header-divider-blue' },
+      { path: '/process/consulting', className: 'page-header-divider-purple' },
+    ] as const;
+
+    for (const { path, className } of dividerCases) {
+      await page.goto(path);
+      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+      await expect(page.getByTestId('page-header-divider')).toHaveClass(
+        new RegExp(`\\b${className}\\b`),
+      );
+    }
+  });
 });

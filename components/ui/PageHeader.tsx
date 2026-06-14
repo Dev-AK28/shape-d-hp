@@ -5,7 +5,11 @@ import StarBackground from '@/components/StarBackground';
 import ScrollReveal from '@/components/scroll/ScrollReveal';
 import TextReveal from '@/components/scroll/TextReveal';
 import SectionShell from '@/components/ui/SectionShell';
-import { typographyBlend } from '@/lib/design/tokens';
+import {
+  pageHeaderDividers,
+  type PageHeaderDividerVariant,
+  typographyBlend,
+} from '@/lib/design/tokens';
 
 export type PageHeaderProps = {
   /** English page title (h1). */
@@ -14,8 +18,8 @@ export type PageHeaderProps = {
   subtitle?: string;
   /** Optional contact email line (contact page). */
   email?: string;
-  /** Gradient divider accent color. */
-  dividerColor?: string;
+  /** Gradient divider accent — SSOT: lib/design/tokens pageHeaderDividers */
+  dividerVariant?: PageHeaderDividerVariant;
   /** Show the centered gradient divider under the title. Default: true. */
   showDivider?: boolean;
   /** Animate the title with TextReveal. Default: true. */
@@ -30,7 +34,7 @@ export default function PageHeader({
   title,
   subtitle,
   email,
-  dividerColor = '#60a5fa',
+  dividerVariant = 'blue',
   showDivider = true,
   animateTitle = true,
   starBackground = false,
@@ -63,10 +67,7 @@ export default function PageHeader({
           <div
             aria-hidden="true"
             data-testid="page-header-divider"
-            className="mx-auto h-px w-24"
-            style={{
-              background: `linear-gradient(to right, transparent, ${dividerColor}, transparent)`,
-            }}
+            className={`mx-auto h-px w-24 ${pageHeaderDividers[dividerVariant]}`}
           />
         ) : null}
 

@@ -12,6 +12,11 @@ html {
   --accent-subtle: rgba(196, 181, 160, 0.6);
   --border: rgba(240, 240, 240, 0.12);
 
+  /* Section accent palette — Issue #15 (mirrors lib/design/tokens.ts colors.blue etc.) */
+  --section-blue: #60a5fa;
+  --section-blue-light: #93c5fd;
+  --section-purple: #a78bfa;
+
   --font-serif: var(--font-display);
 
   /* Motion design tokens */
@@ -183,6 +188,19 @@ button:not(.nav-menu-button):hover {
 
 .type-blend-solid {
   mix-blend-mode: var(--type-blend-solid);
+}
+
+/* PageHeader gradient dividers — Issue #15 (mirrors lib/design/tokens.ts pageHeaderDividers) */
+.page-header-divider-blue {
+  background: linear-gradient(to right, transparent, var(--section-blue), transparent);
+}
+
+.page-header-divider-purple {
+  background: linear-gradient(to right, transparent, var(--section-purple), transparent);
+}
+
+.page-header-divider-sky {
+  background: linear-gradient(to right, transparent, var(--section-blue-light), transparent);
 }
 
 /* GSAP stagger targets: ensure content stays visible when motion is reduced or on mobile */

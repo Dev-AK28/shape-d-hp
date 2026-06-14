@@ -46,7 +46,7 @@ export default function ConsultingContent() {
         title="CONSULTING"
         subtitle="自己表現力を習得し、自己一致した生き方を実現する"
         starBackground
-        dividerColor="#a78bfa"
+        dividerVariant="purple"
         className="pb-16"
       />
 

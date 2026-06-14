@@ -7,7 +7,7 @@ export default function WorksPage() {
       <PageHeader
         title="WORKS"
         subtitle="実績 — プロダクト開発とコンセプトデザインのポートフォリオをご紹介します"
-        dividerColor="#93c5fd"
+        dividerVariant="sky"
       />
       <WorksContent />
     </main>

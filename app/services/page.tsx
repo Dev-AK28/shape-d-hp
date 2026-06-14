@@ -7,7 +7,7 @@ export default function ServicesPage() {
       <PageHeader
         title="SERVICES"
         subtitle="商品・サービス — AIプロダクト開発から自己表現コーチングまで、デジタルとヒューマンの両軸で支援します"
-        dividerColor="#60a5fa"
+        dividerVariant="blue"
       />
       <ServicesContent />
     </main>
