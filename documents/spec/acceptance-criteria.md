@@ -66,5 +66,7 @@ Then アニメーションは無効化または最小限に抑えられる
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
 | E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts` |
 | スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
+| GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
+| easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |

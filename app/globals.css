@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  color-scheme: dark;
+}
+
 :root {
   --background: #0a0a0a;
   --foreground: #f0f0f0;
@@ -31,25 +35,36 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', serif;
-  cursor: none;
+  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }
 
-@media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
-  body {
-    cursor: auto;
+html[data-custom-cursor='active'],
+html[data-custom-cursor='active'] * {
+  cursor: none !important;
+}
+
+html[data-custom-cursor='active'] input,
+html[data-custom-cursor='active'] textarea,
+html[data-custom-cursor='active'] select {
+  cursor: text !important;
+}
+
+@media (pointer: coarse), (hover: none), (max-width: 767px), (prefers-reduced-motion: reduce) {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
   }
 }
 
-a,
-button {
-  cursor: none;
-}
+@media print {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
+  }
 
-@media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
-  a,
-  button {
-    cursor: pointer;
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none !important;
   }
 }
 

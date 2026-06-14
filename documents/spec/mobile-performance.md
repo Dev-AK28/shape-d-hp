@@ -23,7 +23,8 @@ Issue: #51
 
 - `isMobile`: ビューポート幅 `< 768px`（`MOBILE_BREAKPOINT_PX`）
 - `prefersReducedMotion`: OS の reduced motion 設定
-- `prefersCoarsePointer`: タッチ主体デバイス
+- `prefersCoarsePointer`: タッチ主体デバイス（`(pointer: coarse)`）
+- `prefersHoverNone`: ホバー非対応デバイス（`(hover: none)`）。カスタムカーソル無効化に使用
 
 ## 画像アセット
 
