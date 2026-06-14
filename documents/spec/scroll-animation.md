@@ -57,7 +57,11 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 - 背景: `HomePageShell` + `CosmicScene`（fixed `z-0`、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。`isReady` 後に `CosmicScene` をマウントしモバイル初回ハイドレーションの背景誤読込を防止。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub
 - スタック順: `CosmicScene`（`z-0`）< `main`（`z-10`）< `Footer`（`relative z-20`、`app/layout.tsx`）。fixed 背景がフッター上に重ならない
-- ロゴ: `LogoParticleFormation`（Canvas 粒子 → SHAPE∞D 形成）→ 完了後 `BrandLogo`（`shape-d-logo-transparent.png`）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
+- ロゴ: `LogoParticleFormation`（Canvas 粒子 → `shape-d-logo-transparent.png` のアルファシルエット形成）→ 完了後 `BrandLogo`（同一 PNG・同一 hero ステージ寸法で crossfade）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
+- 粒子サンプリング: PNG を最長辺 `768px`（`LOGO_SAMPLE_MAX_DIMENSION`）にダウンサンプルして `getImageData` メモリを抑制。画像ロード失敗時は粒子をスキップし `BrandLogo` を表示（`onComplete` フォールバック）
+- 粒子描画 scale: `LOGO_PARTICLE_RENDER_SCALE`（`0.98`）— hero ステージ内 `object-contain` の余白に合わせた inset
+- 粒子形成時間: `LOGO_PARTICLE_FORMATION_MS`（`2400`）— `LogoParticleFormation` と E2E 待機の SSOT
+- E2E 連続性: 形成中 Canvas に非透明ピクセルが描画され、完了後 `BrandLogo` が同一 `hero-logo-stage` 内でセンター整合することを `expectHeroBrandLogoAfterFormation` で検証
 - StarBackground はトップでは使用しない
 
 ### トップ About / MissionVision（Issue #80）

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectFooterVisibleAboveCosmicBackground, LOGO_ALT, waitForHomePageReady } from './helpers';
+import { expectFooterVisibleAboveCosmicBackground, expectHeroBrandLogoAfterFormation, LOGO_ALT, waitForHomePageReady } from './helpers';
 
 test.describe('Home page', () => {
   test('shows hero heading after load', async ({ page }) => {
@@ -14,9 +14,7 @@ test.describe('Home page desktop', () => {
   test('shows brand logo after particle formation', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-
-    const heroLogo = page.locator('main section').first().getByRole('img', { name: LOGO_ALT });
-    await expect(heroLogo).toBeVisible({ timeout: 5000 });
+    await expectHeroBrandLogoAfterFormation(page);
   });
 
   test('shows footer above fixed cosmic background when scrolled to bottom', async ({ page }) => {

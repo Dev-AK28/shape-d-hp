@@ -76,7 +76,9 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 | `hero-cosmic-bg-mobile.webp` | モバイル宇宙背景 |
 | `hero-nebula-layer.png` | パララックス前景（`mix-blend-mode: screen`） |
 | `hero-particle-band.webp` | ロゴ背後の粒子帯（immersive のみ） |
-| `shape-d-logo-transparent.png` | 正規タイトルロゴ（透過 PNG、Nav / Hero / Footer 共通） |
+| `shape-d-logo-transparent.png` | 正規タイトルロゴ（透過 PNG、Nav / Hero / Footer 共通）。Hero 粒子形成（`LogoParticleFormation`）も同一 PNG のアルファからターゲット点をサンプリング |
+
+寸法 SSOT: `lib/design/brand-logo-constants.ts`（1536×1024、hero 最大幅 `min(88vw, 560px)`）
 
 レンダリング: `components/background/CosmicScene.tsx` + `components/BrandLogo.tsx`。
 

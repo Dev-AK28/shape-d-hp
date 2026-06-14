@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import { backgroundAssets } from '@/lib/design/background-assets';
-
-const LOGO_WIDTH = 1536;
-const LOGO_HEIGHT = 1024;
+import {
+  BRAND_LOGO_HEIGHT,
+  BRAND_LOGO_WIDTH,
+} from '@/lib/design/brand-logo-constants';
 
 type BrandLogoProps = {
   height?: number;
@@ -23,15 +24,15 @@ export default function BrandLogo({
       <Image
         src={backgroundAssets.brandLogoTransparent}
         alt="SHAPE∞D Logo"
-        width={LOGO_WIDTH}
-        height={LOGO_HEIGHT}
+        width={BRAND_LOGO_WIDTH}
+        height={BRAND_LOGO_HEIGHT}
         priority={priority}
-        className={`relative z-[1] h-auto w-[min(88vw,560px)] object-contain ${className}`}
+        className={`relative z-[1] h-auto w-full object-contain ${className}`}
       />
     );
   }
 
-  const width = Math.round(height * (LOGO_WIDTH / LOGO_HEIGHT));
+  const width = Math.round(height * (BRAND_LOGO_WIDTH / BRAND_LOGO_HEIGHT));
 
   return (
     <Image

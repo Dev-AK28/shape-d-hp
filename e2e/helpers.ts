@@ -1,8 +1,68 @@
 import { expect, type Page } from '@playwright/test';
+import { LOGO_PARTICLE_FORMATION_MS } from '../lib/hero/sample-logo-target-points';
 
 export const LOGO_ALT = 'SHAPE∞D Logo';
 
+/** Re-export SSOT from `lib/hero/sample-logo-target-points`. */
+export const HERO_PARTICLE_FORMATION_MS = LOGO_PARTICLE_FORMATION_MS;
+
 const HERO_HEADING = /AIで効率化し、.*本来の創造に集中する環境を作る。/;
+
+export async function expectHeroBrandLogoAfterFormation(page: Page): Promise<void> {
+  const heroSection = page.locator('main section').first();
+  const logoStage = heroSection.getByTestId('hero-logo-stage');
+  const canvas = logoStage.locator('canvas');
+  const heroBrandLogo = heroSection.getByRole('img', { name: LOGO_ALT });
+
+  await expect(logoStage).toBeVisible({ timeout: 15_000 });
+  await expect(canvas).toBeVisible({ timeout: 5000 });
+
+  await expect(async () => {
+    const hasParticlePixels = await page.evaluate(() => {
+      const target = document.querySelector('[data-testid="hero-logo-stage"] canvas');
+      if (!(target instanceof HTMLCanvasElement)) {
+        return false;
+      }
+      const ctx = target.getContext('2d');
+      if (!ctx || target.width === 0 || target.height === 0) {
+        return false;
+      }
+      const { data } = ctx.getImageData(0, 0, target.width, target.height);
+      const stride = 4 * 47;
+      for (let i = 3; i < data.length; i += stride) {
+        if (data[i] > 0) {
+          return true;
+        }
+      }
+      return false;
+    });
+    expect(hasParticlePixels).toBe(true);
+  }).toPass({ timeout: HERO_PARTICLE_FORMATION_MS });
+
+  await expect(heroBrandLogo).toBeVisible({
+    timeout: HERO_PARTICLE_FORMATION_MS + 4000,
+  });
+
+  await expect(async () => {
+    const stageBox = await logoStage.boundingBox();
+    const logoBox = await heroBrandLogo.boundingBox();
+    expect(stageBox).not.toBeNull();
+    expect(logoBox).not.toBeNull();
+    if (!stageBox || !logoBox) {
+      return;
+    }
+
+    const stageCenterX = stageBox.x + stageBox.width / 2;
+    const stageCenterY = stageBox.y + stageBox.height / 2;
+    const logoCenterX = logoBox.x + logoBox.width / 2;
+    const logoCenterY = logoBox.y + logoBox.height / 2;
+
+    expect(Math.abs(logoCenterX - stageCenterX)).toBeLessThan(stageBox.width * 0.05);
+    expect(Math.abs(logoCenterY - stageCenterY)).toBeLessThan(stageBox.height * 0.05);
+    expect(logoBox.width).toBeGreaterThan(100);
+    expect(logoBox.width).toBeGreaterThan(stageBox.width * 0.5);
+  }).toPass({ timeout: 5000 });
+}
 
 export async function waitForHomePageReady(page: Page): Promise<void> {
   await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
