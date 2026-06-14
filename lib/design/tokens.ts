@@ -34,6 +34,7 @@ export const typography = {
 
 export const motion = {
   durationBase: '1.4s',
+  durationInteraction: '0.25s',
   easeBase: 'cubic-bezier(0.16, 1, 0.3, 1)',
 } as const;
 

@@ -3,9 +3,7 @@
 import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
-
-/** Matches `motion.easeBase` in lib/design/tokens.ts */
-const PAGE_TRANSITION_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+import { pageTransitionEase } from '@/lib/scroll/easing';
 
 type PageTransitionProps = {
   children: React.ReactNode;
@@ -13,6 +11,11 @@ type PageTransitionProps = {
 
 /** Tracks first site visit so initial LCP is not obscured by fade-in. */
 let hasVisitedOnce = false;
+
+/** @internal Test-only reset for visit tracking. */
+export function resetPageTransitionVisitForTests(): void {
+  hasVisitedOnce = false;
+}
 
 export default function PageTransition({ children }: PageTransitionProps) {
   const reduceMotion = useReducedMotion();
@@ -28,7 +31,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       animate={{ opacity: 1 }}
       transition={{
         duration: shouldFade ? ANIMATION_DURATION.pageTransition : 0,
-        ease: PAGE_TRANSITION_EASE,
+        ease: [...pageTransitionEase],
       }}
     >
       {children}

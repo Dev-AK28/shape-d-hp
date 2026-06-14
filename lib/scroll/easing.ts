@@ -2,6 +2,9 @@ import { ANIMATION_DURATION, REVEAL_OFFSET } from './animation-tokens';
 
 export const scrollEase = [0.22, 1, 0.36, 1] as const;
 
+/** Page route fade — matches `motion.easeBase` / `--ease-base`. */
+export const pageTransitionEase = [0.16, 1, 0.3, 1] as const;
+
 /** Decorative loop animations (pulse, chevron bounce) — not scroll-reveal easing. */
 export const loopEase = 'easeInOut' as const;
 
