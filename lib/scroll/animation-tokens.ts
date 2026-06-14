@@ -53,3 +53,50 @@ export const GSAP_TICKER = {
   lagSmoothingRestoreMs: 500,
   lagSmoothingRestoreThreshold: 33,
 } as const;
+
+/** Hero immersive pin ScrollTrigger — shared by Hero.tsx and HomePageShell. */
+export const HERO_PIN_SCROLL = {
+  start: 'top top',
+  end: '+=120%',
+  scrub: ANIMATION_DURATION.hero,
+  anticipatePin: 1,
+} as const;
+
+/** HomePageShell ↔ Hero coupling for hero pin ScrollTrigger (Issue #100). */
+export const HERO_PIN_TEST_ID = 'hero-pin-section' as const;
+
+export const HERO_PIN_SELECTOR = `[data-testid="${HERO_PIN_TEST_ID}"]` as const;
+
+/**
+ * Scroll-driven depth passage (Issue #100): layered scale / translate / opacity
+ * simulating camera movement through nebula, particle band, and logo.
+ *
+ * Timeline positions (`approachPhaseEnd`, `revealTimelineStart`) are fractions of
+ * `timelineDuration` (seconds). GSAP tweens must set explicit `duration` from these
+ * fractions so approach / pass phases do not overlap.
+ */
+export const HERO_DEPTH_PASSAGE = {
+  /** Total scrub timeline length in seconds (scroll maps 0→1 across this span). */
+  timelineDuration: 1,
+  /** Fraction of timelineDuration where approach ends and pass-through begins. */
+  approachPhaseEnd: 0.55,
+  /** Fraction of timelineDuration where copy/CTA reveal begins. */
+  revealTimelineStart: 0.35,
+  particleBand: {
+    initialOpacity: 0.65,
+    approachScale: 1.28,
+    approachY: 32,
+    passScale: 2.05,
+    passY: 96,
+  },
+  logo: {
+    approachScale: 1.14,
+    approachY: 12,
+    passScale: 0.32,
+    passY: -72,
+  },
+  cosmic: {
+    perspectiveScale: 1.2,
+    transformOrigin: '50% 45%',
+  },
+} as const;

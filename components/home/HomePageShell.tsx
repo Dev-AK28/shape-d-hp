@@ -4,6 +4,11 @@ import { useRef, type ReactNode } from 'react';
 import CosmicScene from '@/components/background/CosmicScene';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
+import {
+  HERO_DEPTH_PASSAGE,
+  HERO_PIN_SCROLL,
+  HERO_PIN_SELECTOR,
+} from '@/lib/scroll/animation-tokens';
 import { gsap } from '@/lib/scroll/gsap-config';
 
 type HomePageShellProps = {
@@ -14,6 +19,7 @@ export default function HomePageShell({ children }: HomePageShellProps) {
   const mainRef = useRef<HTMLElement>(null);
   const baseRef = useRef<HTMLDivElement>(null);
   const nebulaRef = useRef<HTMLDivElement>(null);
+  const perspectiveDepthRef = useRef<HTMLDivElement>(null);
   const { profile, isReady } = useDeviceProfile();
 
   useGsapContext(() => {
@@ -45,6 +51,25 @@ export default function HomePageShell({ children }: HomePageShellProps) {
         },
       });
     }
+
+    const heroSection = mainRef.current.querySelector(HERO_PIN_SELECTOR);
+    if (heroSection && perspectiveDepthRef.current) {
+      gsap.fromTo(
+        perspectiveDepthRef.current,
+        { scale: 1 },
+        {
+          scale: HERO_DEPTH_PASSAGE.cosmic.perspectiveScale,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroSection,
+            start: HERO_PIN_SCROLL.start,
+            end: HERO_PIN_SCROLL.end,
+            scrub: HERO_PIN_SCROLL.scrub,
+            anticipatePin: HERO_PIN_SCROLL.anticipatePin,
+          },
+        },
+      );
+    }
   }, [isReady]);
 
   return (
@@ -54,6 +79,8 @@ export default function HomePageShell({ children }: HomePageShellProps) {
           isMobile={profile.isMobile}
           baseRef={baseRef}
           nebulaRef={nebulaRef}
+          perspectiveDepthRef={perspectiveDepthRef}
+          perspectiveTransformOrigin={HERO_DEPTH_PASSAGE.cosmic.transformOrigin}
           priority
           fixed
         />

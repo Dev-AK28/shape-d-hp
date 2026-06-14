@@ -23,6 +23,12 @@ test.describe('Home page desktop', () => {
     await expectFooterVisibleAboveCosmicBackground(page);
   });
 
+  test('exposes hero pin section for cosmic depth ScrollTrigger coupling', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+    await expect(page.getByTestId('hero-pin-section')).toBeVisible();
+  });
+
   test('reveals hero CTA after scroll on desktop', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);

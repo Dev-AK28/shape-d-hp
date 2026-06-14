@@ -48,6 +48,16 @@ When ページを閲覧する
 Then アニメーションは無効化または最小限に抑えられる
 ```
 
+## Hero 深度通過（#100）
+
+```gherkin
+Given デスクトップでトップページ Hero を表示
+When ユーザーが Hero セクションをスクロールする
+Then nebula / 粒子 / ロゴが深度方向に移動し「通過」感が生まれる
+And ブランドのダーク・ミニマルなトーンを維持している
+And reduced-motion / 低性能デバイスでは静的または簡略化フォールバックになる
+```
+
 ## Philosophy ページ（#81）
 
 ```gherkin
@@ -85,6 +95,8 @@ Then 進捗ドットが対応セクションに追従する
 | Philosophy 構造 / パネル追従 | `tests/philosophy/content.test.ts` |
 | スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
+| Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
+| Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
