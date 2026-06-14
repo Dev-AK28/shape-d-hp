@@ -48,6 +48,20 @@ When ページを閲覧する
 Then アニメーションは無効化または最小限に抑えられる
 ```
 
+## Philosophy ページ（#81）
+
+```gherkin
+Given ユーザーが /philosophy を開く
+When ページが読み込まれる
+Then 6 つの full-screen SHAPE-D パネルとオーバーレイ文字が表示される
+```
+
+```gherkin
+Given ユーザーが Philosophy ページをスクロールする
+When 各パネルがビューポートに入る
+Then 進捗ドットが対応セクションに追従する
+```
+
 ## テスト対応
 
 | 基準 | テスト |
@@ -64,7 +78,11 @@ Then アニメーションは無効化または最小限に抑えられる
 | E2E（ファビコン） | `e2e/favicon.spec.ts` |
 | E2E（トップ Hero） | `e2e/home.spec.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
-| E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts` |
+| E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
+| E2E（Philosophy） | `e2e/philosophy.spec.ts` |
+| Philosophy 構造 / パネル追従 | `tests/philosophy/content.test.ts` |
 | スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
+| GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
+| easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |

@@ -4,9 +4,9 @@ import Navigation from '@/components/Navigation';
 
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#0A192F] to-black">
+    <main className="min-h-screen" style={{ background: 'var(--background)' }}>
       <Navigation />
-      <Hero />
+      <Hero variant="brand" />
       <ServicesContent />
     </main>
   );

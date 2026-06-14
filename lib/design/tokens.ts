@@ -2,6 +2,7 @@
 
 export const colors = {
   background: '#0a0a0a',
+  backgroundElevated: '#111111',
   foreground: '#f0f0f0',
   muted: '#9ca3af',
   accent: '#c4b5a0',
@@ -40,4 +41,5 @@ export const cursor = {
   size: 8,
   followerSize: 32,
   followerOpacity: 0.4,
+  followerLerp: 0.12,
 } as const;

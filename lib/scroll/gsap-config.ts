@@ -1,5 +1,7 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import type { DeviceProfile } from '@/lib/performance/device-profile';
+import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
 import { ANIMATION_DURATION, ANIMATION_EASE } from './animation-tokens';
 
 let registered = false;
@@ -22,8 +24,9 @@ export function configureGsapDefaults(): void {
   });
 }
 
-export function shouldDisableGsapAnimation(prefersReducedMotion: boolean): boolean {
-  return prefersReducedMotion;
+/** Align GSAP scroll-driven effects with Lenis disable policy (mobile / coarse / reduced motion). */
+export function shouldDisableGsapAnimation(profile: DeviceProfile): boolean {
+  return shouldDisableSmoothScroll(profile);
 }
 
 export function refreshScrollTrigger(): void {

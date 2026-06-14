@@ -4,11 +4,19 @@
 
 dark/minimal なビジュアル言語を Design Token として SSOT 化する。
 
+## Hero バリアント
+
+| Variant | 用途 | 挙動 |
+|---------|------|------|
+| `immersive` | トップ `/` | 100svh、GSAP pin、ロゴ縮小→コピー出現、CTA 1 ボタン |
+| `brand` | サブページ | 100svh、ブランドロゴのみ（pin・CTA・固定コピーなし） |
+
 ## カラーパレット
 
 | Token | 値 | 用途 |
 |-------|-----|------|
 | `--background` | `#0a0a0a` | ページ背景 |
+| `backgroundElevated` | `#111111` | Hero グラデーション終端 |
 | `--foreground` | `#f0f0f0` | 本文テキスト |
 | `--muted` | `#9ca3af` | 補助テキスト |
 | `--accent` | `#c4b5a0` | アクセント（リンク・CTA・カーソル） |

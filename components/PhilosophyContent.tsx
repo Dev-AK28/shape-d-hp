@@ -1,15 +1,21 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { useReducedMotion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import PhilosophyProgressDots from '@/components/PhilosophyProgressDots';
 import TextReveal from '@/components/scroll/TextReveal';
 import { colors, spacing, typography } from '@/lib/design/tokens';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
-import { ANIMATION_DURATION, ANIMATION_EASE } from '@/lib/scroll/animation-tokens';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { usePanelActiveIndex } from '@/lib/hooks/usePanelActiveIndex';
+import {
+  ANIMATION_DURATION,
+  ANIMATION_EASE,
+  gsap,
+  refreshScrollTrigger,
+  ScrollTrigger,
+} from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { motion } from 'framer-motion';
 
 const sections = [
   {
@@ -64,28 +70,24 @@ const sections = [
   },
 ] as const;
 
+const sectionLetters = sections.map((section) => section.letter);
+
 export default function PhilosophyContent() {
   const reduceMotion = useReducedMotion();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { profile } = useDeviceProfile();
+  const panelsRef = useRef<HTMLDivElement>(null);
+  const activeIndex = usePanelActiveIndex(panelsRef);
+  const enableSnap = !profile.isMobile && !profile.prefersCoarsePointer;
 
   useGsapContext(() => {
-    if (!containerRef.current) {
+    if (!panelsRef.current) {
       return;
     }
 
-    const panels = containerRef.current.querySelectorAll('[data-philosophy-panel]');
+    const panels = panelsRef.current.querySelectorAll('[data-philosophy-panel]');
 
-    panels.forEach((panel, index) => {
+    panels.forEach((panel) => {
       const letter = panel.querySelector('[data-overlay-letter]');
-
-      ScrollTrigger.create({
-        trigger: panel,
-        start: 'top center',
-        end: 'bottom center',
-        onEnter: () => setActiveIndex(index),
-        onEnterBack: () => setActiveIndex(index),
-      });
 
       if (letter) {
         gsap.fromTo(
@@ -106,49 +108,27 @@ export default function PhilosophyContent() {
       }
     });
 
-    ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: 'top top',
-      end: 'bottom bottom',
-      snap: {
-        snapTo: 1 / (sections.length - 1),
-        duration: ANIMATION_DURATION.section,
-        ease: ANIMATION_EASE.section,
-      },
-    });
-  }, []);
+    if (enableSnap) {
+      ScrollTrigger.create({
+        trigger: panelsRef.current,
+        start: 'top top',
+        end: 'bottom bottom',
+        snap: {
+          snapTo: 1 / (sections.length - 1),
+          duration: ANIMATION_DURATION.section,
+          ease: ANIMATION_EASE.section,
+        },
+      });
+    }
+
+    refreshScrollTrigger();
+  }, [enableSnap]);
 
   return (
     <section style={{ position: 'relative', background: colors.background }}>
-      <nav
-        aria-label="Philosophy section progress"
-        style={{
-          position: 'fixed',
-          right: 'var(--space-3)',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--space-2)',
-        }}
-      >
-        {sections.map((item, index) => (
-          <span
-            key={item.letter}
-            aria-current={activeIndex === index ? 'step' : undefined}
-            style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: activeIndex === index ? colors.accent : colors.border,
-              transition: 'background var(--duration-base) var(--ease-base)',
-            }}
-          />
-        ))}
-      </nav>
+      <PhilosophyProgressDots letters={sectionLetters} activeIndex={activeIndex} />
 
-      <div ref={containerRef}>
+      <div ref={panelsRef}>
         {sections.map((item) => (
           <div
             key={item.letter}
@@ -176,7 +156,7 @@ export default function PhilosophyContent() {
                 fontWeight: 200,
                 fontFamily: typography.fontDisplay,
                 color: colors.foreground,
-                opacity: 0.06,
+                opacity: 0.04,
                 lineHeight: 1,
                 pointerEvents: 'none',
                 userSelect: 'none',
@@ -239,50 +219,50 @@ export default function PhilosophyContent() {
             </div>
           </div>
         ))}
+      </div>
 
-        <div
-          style={{
-            minHeight: '60svh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: `${spacing.section}px var(--space-3)`,
-            textAlign: 'center',
-          }}
-        >
-          <div style={{ maxWidth: '800px' }}>
-            <motion.h2
-              {...getScrollRevealProps(reduceMotion)}
-              style={{
-                fontSize: typography.sizeHeading,
-                fontWeight: 300,
-                color: colors.foreground,
-                fontFamily: typography.fontSerifJp,
-                lineHeight: 1.5,
-                marginBottom: spacing.xl,
-              }}
-            >
-              心理学とエンジニアリングの融合が
-              <br />
-              自己一致への道を照らす
-            </motion.h2>
-            <motion.a
-              href="/contact"
-              {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
-              style={{
-                display: 'inline-block',
-                padding: 'var(--space-2) var(--space-4)',
-                border: `1px solid ${colors.accent}`,
-                borderRadius: '9999px',
-                color: colors.accent,
-                textDecoration: 'none',
-                fontFamily: typography.fontSerifJp,
-                transition: 'opacity var(--duration-base) var(--ease-base)',
-              }}
-            >
-              お問い合わせ
-            </motion.a>
-          </div>
+      <div
+        style={{
+          minHeight: '60svh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: `${spacing.section}px var(--space-3)`,
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ maxWidth: '800px' }}>
+          <motion.h2
+            {...getScrollRevealProps(reduceMotion)}
+            style={{
+              fontSize: typography.sizeHeading,
+              fontWeight: 300,
+              color: colors.foreground,
+              fontFamily: typography.fontSerifJp,
+              lineHeight: 1.5,
+              marginBottom: spacing.xl,
+            }}
+          >
+            心理学とエンジニアリングの融合が
+            <br />
+            自己一致への道を照らす
+          </motion.h2>
+          <motion.a
+            href="/contact"
+            {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
+            style={{
+              display: 'inline-block',
+              padding: 'var(--space-2) var(--space-4)',
+              border: `1px solid ${colors.accent}`,
+              borderRadius: '9999px',
+              color: colors.accent,
+              textDecoration: 'none',
+              fontFamily: typography.fontSerifJp,
+              transition: 'opacity var(--duration-base) var(--ease-base)',
+            }}
+          >
+            お問い合わせ
+          </motion.a>
         </div>
       </div>
     </section>

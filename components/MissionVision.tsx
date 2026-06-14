@@ -5,8 +5,10 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
 import { colors, spacing, typography } from '@/lib/design/tokens';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
+import { shouldDisableGsapAnimation } from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 const visionQuotes = [
@@ -18,6 +20,9 @@ const visionQuotes = [
 
 export default function MissionVision() {
   const reduceMotion = useReducedMotion();
+  const { profile } = useDeviceProfile();
+  const showQuotesImmediately =
+    shouldDisableGsapAnimation(profile) || reduceMotion === true;
   const quotesRef = useRef<HTMLDivElement>(null);
 
   useGsapContext(() => {
@@ -121,7 +126,7 @@ export default function MissionVision() {
                 margin: `0 0 ${spacing.xl}px`,
                 padding: 0,
                 border: 'none',
-                opacity: reduceMotion ? 1 : 0,
+                opacity: showQuotesImmediately ? 1 : 0,
               }}
             >
               {quote}

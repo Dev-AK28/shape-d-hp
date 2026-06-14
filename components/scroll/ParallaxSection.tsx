@@ -8,6 +8,7 @@ import {
   type HTMLMotionProps,
 } from 'framer-motion';
 import { useRef, type HTMLAttributes, type ReactNode } from 'react';
+import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 type ParallaxSectionProps = HTMLAttributes<HTMLDivElement> & {
@@ -54,7 +55,7 @@ export function StaggerItem({
   children,
   index,
   baseDelay = 0,
-  staggerStep = 0.1,
+  staggerStep = REVEAL_OFFSET.stagger,
   ...props
 }: StaggerItemProps) {
   const reduceMotion = useReducedMotion();

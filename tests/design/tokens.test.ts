@@ -4,6 +4,7 @@ import { colors, motion, spacing, typography } from '@/lib/design/tokens';
 describe('design tokens', () => {
   it('defines dark minimal color palette', () => {
     expect(colors.background).toBe('#0a0a0a');
+    expect(colors.backgroundElevated).toBe('#111111');
     expect(colors.foreground).toBe('#f0f0f0');
     expect(colors.accent).toBeTruthy();
   });

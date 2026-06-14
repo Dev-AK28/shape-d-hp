@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  color-scheme: dark;
+}
+
 :root {
   --background: #0a0a0a;
   --foreground: #f0f0f0;
@@ -7,6 +11,8 @@
   --accent: #c4b5a0;
   --accent-subtle: rgba(196, 181, 160, 0.6);
   --border: rgba(240, 240, 240, 0.12);
+
+  --font-serif: var(--font-display);
 
   /* Motion design tokens */
   --duration-base: 1.4s;
@@ -29,25 +35,36 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', serif;
-  cursor: none;
+  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }
 
-@media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
-  body {
-    cursor: auto;
+html[data-custom-cursor='active'],
+html[data-custom-cursor='active'] * {
+  cursor: none !important;
+}
+
+html[data-custom-cursor='active'] input,
+html[data-custom-cursor='active'] textarea,
+html[data-custom-cursor='active'] select {
+  cursor: text !important;
+}
+
+@media (pointer: coarse), (hover: none), (max-width: 767px), (prefers-reduced-motion: reduce) {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
   }
 }
 
-a,
-button {
-  cursor: none;
-}
+@media print {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
+  }
 
-@media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
-  a,
-  button {
-    cursor: pointer;
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none !important;
   }
 }
 
@@ -59,26 +76,6 @@ button {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-}
-
-@keyframes nebula-hero-1 {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(100px, -50px) scale(1.1);
-  }
-}
-
-@keyframes nebula-hero-2 {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-80px, 60px) scale(1.15);
-  }
 }
 
 @keyframes nebula-philosophy-1 {
@@ -133,4 +130,13 @@ a.nav-link:hover {
   opacity: 0.03;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* GSAP stagger targets: ensure content stays visible when motion is reduced */
+@media (prefers-reduced-motion: reduce) {
+  [data-timeline-item],
+  [data-vision-quote] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

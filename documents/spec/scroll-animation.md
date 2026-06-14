@@ -28,7 +28,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
 - Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
-- `shouldDisableGsapAnimation(prefersReducedMotion)` — reduced-motion 時 GSAP アニメーション無効
+- `shouldDisableGsapAnimation(profile)` — Lenis と同条件（reduced-motion / mobile / coarse pointer）で GSAP pin 無効
 
 `lib/scroll/easing.ts`（framer-motion）:
 
@@ -44,13 +44,26 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 | パス | 適用内容 |
 |------|---------|
-| `/` | Hero scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision リビール |
+| `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記） |
+| `/services`, `/works`, `/philosophy` | Hero `brand` variant: ブランドロゴのみ（pin なし） |
+
+### トップ About / MissionVision（Issue #80）
+
+| セクション | コンポーネント | アニメーション | 備考 |
+|-----------|--------------|--------------|------|
+| ABOUT | `About.tsx` | 経歴 `[data-timeline-item]` を GSAP stagger（最大 `REVEAL_OFFSET.maxStaggerItems`） | 心理学 / エンジニアリングは左右分割グリッド + framer-motion リビール |
+| VISION | `MissionVision.tsx` | `[data-vision-quote]` を GSAP stagger | 背景に `SELF-CONGRUENCE` visual word（`aria-hidden`） |
+
+共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `stagger: 0.15` / `ease: ANIMATION_EASE.base`
+
+- `prefers-reduced-motion` / モバイル / coarse pointer 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリで reduced-motion 時 `opacity: 1` を保証
+- StarBackground は使用しない（`colors.background` 単色背景）
 | `/services` | ServicesContent セクション/カード スタガー + TextReveal |
 | `/works` | WorksContent 同上 |
 | `/process` | ProcessNavigation / ProcessContent |
 | `/process/development` | DevelopmentContent |
 | `/process/consulting` | ConsultingContent |
-| `/philosophy` | PhilosophyContent |
+| `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（詳細: [`philosophy-page.md`](./philosophy-page.md)） |
 | `/contact` | ScrollReveal + TextReveal（既存） |
 
 ## アクセシビリティ
@@ -61,6 +74,10 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
   - PageTransition 即時表示（duration 0）
   - リビールアニメーション duration 0 / initial false
   - ParallaxSection は通常 div にフォールバック
+  - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events` / `aria-hidden` で非表示時の操作を防止）
+- モバイル / coarse pointer 時:
+  - Lenis 無効
+  - Hero `immersive`: GSAP pin 無効（静的フォールバック）
 
 ## 受け入れ基準
 
