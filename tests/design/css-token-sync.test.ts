@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, typographyBlend, warmGrade } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, typography, typographyBlend, typographyFontClasses, typographySizeClasses, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   desktopMinWidthMediaQuery,
@@ -63,6 +63,20 @@ describe('design tokens ↔ globals.css sync', () => {
   it('mirrors typography blend tokens in CSS variables', () => {
     expect(globalsCss).toContain(`--type-blend-cosmic: ${typographyBlend.cosmic}`);
     expect(globalsCss).toContain(`--type-blend-solid: ${typographyBlend.solid}`);
+  });
+
+  it('mirrors typography size tokens and utility classes', () => {
+    expect(globalsCss).toContain(`--type-size-heading: ${typography.sizeHeading}`);
+    expect(globalsCss).toContain(`--type-size-subheading: ${typography.sizeSubheading}`);
+    expect(globalsCss).toContain(`--type-size-quote: ${typography.sizeQuote}`);
+    expect(globalsCss).toContain(`--type-size-body: ${typography.sizeBody}`);
+    expect(globalsCss).toContain(`--type-size-caption: ${typography.sizeCaption}`);
+    expect(globalsCss).toContain(`--type-size-visual-word: ${typography.sizeVisualWord}`);
+
+    for (const className of Object.values(typographySizeClasses)) {
+      expect(globalsCss).toContain(`.${className}`);
+    }
+    expect(globalsCss).toContain(`.${typographyFontClasses.serifJp}`);
   });
 
   it('mirrors page header divider classes and section accent CSS variables', () => {

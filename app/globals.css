@@ -53,6 +53,14 @@ html {
   /* Typography blend — Issue #101 (mirrors lib/design/tokens.ts typographyBlend) */
   --type-blend-cosmic: screen;
   --type-blend-solid: normal;
+
+  /* Typography sizes — Issue #15 (mirrors lib/design/tokens.ts typography.size*) */
+  --type-size-heading: clamp(32px, 5vw, 64px);
+  --type-size-subheading: clamp(20px, 2.5vw, 28px);
+  --type-size-quote: clamp(18px, 2.5vw, 28px);
+  --type-size-body: clamp(16px, 1.5vw, 18px);
+  --type-size-caption: clamp(12px, 1vw, 14px);
+  --type-size-visual-word: clamp(40px, 10vw, 140px);
 }
 
 @tailwind base;
@@ -201,6 +209,36 @@ button:not(.nav-menu-button):hover {
 
 .page-header-divider-sky {
   background: linear-gradient(to right, transparent, var(--section-blue-light), transparent);
+}
+
+/* Typography size utilities — Issue #15 (mirrors lib/design/tokens.ts typographySizeClasses) */
+.type-size-heading {
+  font-size: var(--type-size-heading);
+}
+
+.type-size-subheading {
+  font-size: var(--type-size-subheading);
+}
+
+.type-size-quote {
+  font-size: var(--type-size-quote);
+}
+
+.type-size-body {
+  font-size: var(--type-size-body);
+}
+
+.type-size-caption {
+  font-size: var(--type-size-caption);
+}
+
+.type-size-visual-word {
+  font-size: var(--type-size-visual-word);
+}
+
+/* Font family utilities — Issue #15 (font-serif = --font-display via :root --font-serif) */
+.type-font-serif-jp {
+  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }
 
 /* GSAP stagger targets: ensure content stays visible when motion is reduced or on mobile */

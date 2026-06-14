@@ -65,6 +65,22 @@ export const typography = {
   sizeQuote: 'clamp(18px, 2.5vw, 28px)',
   sizeBody: 'clamp(16px, 1.5vw, 18px)',
   sizeCaption: 'clamp(12px, 1vw, 14px)',
+  sizeVisualWord: 'clamp(40px, 10vw, 140px)',
+} as const;
+
+/** CSS utility class names for typography sizes — Issue #15 */
+export const typographySizeClasses = {
+  heading: 'type-size-heading',
+  subheading: 'type-size-subheading',
+  quote: 'type-size-quote',
+  body: 'type-size-body',
+  caption: 'type-size-caption',
+  visualWord: 'type-size-visual-word',
+} as const;
+
+/** CSS utility for Japanese serif stack — Issue #15 */
+export const typographyFontClasses = {
+  serifJp: 'type-font-serif-jp',
 } as const;
 
 export const motion = {

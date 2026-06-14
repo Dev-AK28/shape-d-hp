@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
+import { typographyFontClasses, typographySizeClasses } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -18,11 +19,11 @@ const career = [
   '現在はAIエンジニアとしての活動に注力。',
 ];
 
-const sectionCaptionClass =
-  'mb-[var(--space-2)] text-[clamp(12px,1vw,14px)] text-[var(--muted)] tracking-[0.15em] uppercase';
+const sectionCaptionClass = `mb-[var(--space-2)] ${typographySizeClasses.caption} text-[var(--muted)] tracking-[0.15em] uppercase`;
 
-const pillarTextClass =
-  'max-w-[36em] font-[family-name:var(--font-serif-jp)] text-[clamp(20px,2.5vw,28px)] font-light leading-[1.85] text-[var(--foreground)]';
+const sectionHistoryCaptionClass = `mb-[var(--space-4)] ${typographySizeClasses.caption} text-[var(--muted)] tracking-[0.12em] uppercase`;
+
+const pillarTextClass = `max-w-[36em] ${typographyFontClasses.serifJp} ${typographySizeClasses.subheading} font-light leading-[1.85] text-[var(--foreground)]`;
 
 export default function About() {
   const reduceMotion = useReducedMotion();
@@ -66,7 +67,7 @@ export default function About() {
           className="mb-[var(--space-8)]"
         >
           <h2
-            className="mb-[var(--space-2)] font-serif text-[clamp(32px,5vw,64px)] font-light text-[var(--foreground)] tracking-[0.05em]"
+            className={`mb-[var(--space-2)] font-serif ${typographySizeClasses.heading} font-light text-[var(--foreground)] tracking-[0.05em]`}
           >
             <TextReveal as="span" text="ABOUT" />
           </h2>
@@ -96,11 +97,7 @@ export default function About() {
         </div>
 
         <div className="mb-[var(--space-4)]">
-          <p
-            className="mb-[var(--space-4)] text-[clamp(12px,1vw,14px)] text-[var(--muted)] tracking-[0.12em] uppercase"
-          >
-            経歴
-          </p>
+          <p className={sectionHistoryCaptionClass}>経歴</p>
 
           <ul
             ref={timelineRef}
@@ -114,15 +111,15 @@ export default function About() {
                 style={{ opacity: staticReveal ? 1 : 0 }}
               >
                 <span
-                  className="absolute -left-[36px] top-1.5 size-2 rounded-full bg-[var(--accent)]"
+                  className="absolute -left-[calc(var(--space-4)+4px)] top-1.5 size-2 rounded-full bg-[var(--accent)]"
                 />
                 <span
-                  className="mb-[var(--space-1)] block font-serif text-[clamp(12px,1vw,14px)] text-[var(--muted)]"
+                  className={`mb-[var(--space-1)] block font-serif ${typographySizeClasses.caption} text-[var(--muted)]`}
                 >
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <p
-                  className="m-0 font-[family-name:var(--font-serif-jp)] text-[clamp(16px,1.5vw,18px)] leading-[1.8] text-[var(--foreground)]"
+                  className={`m-0 ${typographyFontClasses.serifJp} ${typographySizeClasses.body} leading-[1.8] text-[var(--foreground)]`}
                 >
                   {item}
                 </p>
