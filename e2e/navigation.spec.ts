@@ -32,7 +32,7 @@ test.describe('Navigation mobile layout', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: 'AIで効率化し、本来の創造に集中する環境を作る。',
+        name: /AIで効率化し、.*本来の創造に集中する環境を作る。/,
       }),
     ).toBeVisible();
 

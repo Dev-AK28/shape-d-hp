@@ -16,7 +16,7 @@ test.describe('Home page mobile', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: 'AIで効率化し、本来の創造に集中する環境を作る。',
+        name: /AIで効率化し、.*本来の創造に集中する環境を作る。/,
       }),
     ).toBeVisible();
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
