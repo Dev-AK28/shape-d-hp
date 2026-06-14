@@ -49,7 +49,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | `/process` | ProcessNavigation / ProcessContent |
 | `/process/development` | DevelopmentContent |
 | `/process/consulting` | ConsultingContent |
-| `/philosophy` | PhilosophyContent |
+| `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（詳細: [`philosophy-page.md`](./philosophy-page.md)） |
 | `/contact` | ScrollReveal + TextReveal（既存） |
 
 ## アクセシビリティ
