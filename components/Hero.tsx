@@ -86,6 +86,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const showCopyImmediately = isImmersive && staticFallback;
   const copyVisible = !isImmersive || showCopyImmediately;
   const logoVisible = isImmersive && !showCopyImmediately;
+  const mobileStaticHero = isImmersive && staticFallback && profile.isMobile;
 
   return (
     <section
@@ -93,12 +94,22 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       className="noise-bg"
       style={{
         position: 'relative',
-        height: '100svh',
-        minHeight: '100svh',
+        ...(mobileStaticHero
+          ? {
+              height: 'auto',
+              minHeight: 'auto',
+              paddingTop: 'calc(var(--space-8) + env(safe-area-inset-top, 0px))',
+              paddingBottom: 'var(--space-8)',
+            }
+          : {
+              height: '100svh',
+              minHeight: '100svh',
+            }),
         display: 'flex',
+        flexDirection: mobileStaticHero ? 'column' : 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        overflow: 'hidden',
+        overflow: mobileStaticHero ? 'visible' : 'hidden',
         background: `linear-gradient(180deg, ${colors.background} 0%, ${colors.backgroundElevated} 100%)`,
       }}
     >
@@ -186,10 +197,18 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         <div
           ref={ctaRef}
           style={{
-            position: 'absolute',
-            bottom: 'var(--space-6)',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            ...(mobileStaticHero
+              ? {
+                  position: 'relative',
+                  marginTop: 'var(--space-6)',
+                  textAlign: 'center',
+                }
+              : {
+                  position: 'absolute',
+                  bottom: 'var(--space-6)',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                }),
             zIndex: 30,
             pointerEvents: copyVisible ? 'auto' : 'none',
             visibility: copyVisible ? 'visible' : 'hidden',

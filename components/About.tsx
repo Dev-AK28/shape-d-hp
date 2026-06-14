@@ -8,8 +8,8 @@ import { colors, spacing, typography } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
-import { shouldDisableGsapAnimation } from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 const career = [
   '心理学専攻で学士号を取得。学術的な人間理解の素地を築く。',
@@ -21,9 +21,8 @@ const career = [
 
 export default function About() {
   const reduceMotion = useReducedMotion();
-  const { profile } = useDeviceProfile();
-  const showTimelineImmediately =
-    shouldDisableGsapAnimation(profile) || reduceMotion === true;
+  const { profile, isReady } = useDeviceProfile();
+  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
   const timelineRef = useRef<HTMLUListElement>(null);
 
   useGsapContext(() => {
@@ -61,7 +60,10 @@ export default function About() {
   return (
     <section style={sectionStyle}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <motion.div {...getScrollRevealProps(reduceMotion)} style={{ marginBottom: spacing.xxl }}>
+        <motion.div
+          {...getScrollRevealProps(reduceMotion, { staticReveal })}
+          style={{ marginBottom: spacing.xxl }}
+        >
           <h2
             style={{
               fontSize: typography.sizeHeading,
@@ -85,7 +87,7 @@ export default function About() {
             marginBottom: spacing.xxl,
           }}
         >
-          <motion.div {...getScrollRevealProps(reduceMotion, { delay: 0.1 })}>
+          <motion.div {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.1 })}>
             <p
               style={{
                 fontSize: typography.sizeCaption,
@@ -110,7 +112,7 @@ export default function About() {
             </p>
           </motion.div>
 
-          <motion.div {...getScrollRevealProps(reduceMotion, { delay: 0.25 })}>
+          <motion.div {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.25 })}>
             <p
               style={{
                 fontSize: typography.sizeCaption,
@@ -166,7 +168,7 @@ export default function About() {
                 style={{
                   marginBottom: spacing.lg,
                   position: 'relative',
-                  opacity: showTimelineImmediately ? 1 : 0,
+                  opacity: staticReveal ? 1 : 0,
                 }}
               >
                 <span
