@@ -21,13 +21,21 @@ export const spacing = {
   section: 120,
 } as const;
 
+export const layout = {
+  contentProse: '680px',
+  contentStandard: '880px',
+  contentWide: '1040px',
+} as const;
+
 export const typography = {
   fontSerif: 'var(--font-serif)',
   fontSerifJp: 'var(--font-serif-jp)',
   fontDisplay: 'var(--font-display)',
   sizeHero: 'clamp(48px, 10vw, 120px)',
+  sizePageHeading: 'clamp(24px, 4vw, 40px)',
   sizeHeading: 'clamp(32px, 5vw, 64px)',
   sizeSubheading: 'clamp(20px, 2.5vw, 28px)',
+  sizeQuote: 'clamp(18px, 2.5vw, 28px)',
   sizeBody: 'clamp(16px, 1.5vw, 18px)',
   sizeCaption: 'clamp(12px, 1vw, 14px)',
 } as const;

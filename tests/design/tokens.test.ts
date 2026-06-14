@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { colors, motion, spacing, typography } from '@/lib/design/tokens';
+import { colors, layout, motion, spacing, typography } from '@/lib/design/tokens';
 
 describe('design tokens', () => {
   it('defines dark minimal color palette', () => {
@@ -23,5 +23,11 @@ describe('design tokens', () => {
   it('uses CSS variable references for fonts', () => {
     expect(typography.fontSerifJp).toBe('var(--font-serif-jp)');
     expect(typography.fontDisplay).toBe('var(--font-display)');
+  });
+
+  it('defines layout width tokens for content columns', () => {
+    expect(layout.contentProse).toBe('680px');
+    expect(layout.contentStandard).toBe('880px');
+    expect(layout.contentWide).toBe('1040px');
   });
 });

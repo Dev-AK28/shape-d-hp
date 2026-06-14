@@ -1,8 +1,14 @@
 'use client';
 
-import { useRef } from 'react';
+import Image from 'next/image';
+import { useRef, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import BrandLogo from '@/components/BrandLogo';
+import { useHomeScrollRefs } from '@/components/home/HomeScrollContext';
+import LogoParticleFormation from '@/components/hero/LogoParticleFormation';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
-import { colors, typography } from '@/lib/design/tokens';
+import { backgroundAssets } from '@/lib/design/background-assets';
+import { colors, layout, typography } from '@/lib/design/tokens';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import {
   ANIMATION_DURATION,
@@ -21,13 +27,19 @@ type HeroProps = {
 
 export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const { profile, isReady } = useDeviceProfile();
+  const reduceMotion = useReducedMotion();
+  const homeScroll = useHomeScrollRefs();
   const sectionRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
+  const particleBandRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
 
   const isImmersive = variant === 'immersive';
   const staticFallback = !isReady || shouldDisableGsapAnimation(profile);
+  const skipFormation = staticFallback || reduceMotion === true;
+  const [formationComplete, setFormationComplete] = useState(false);
+  const logoRevealed = skipFormation || formationComplete;
 
   useGsapContext(() => {
     if (
@@ -52,6 +64,30 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         anticipatePin: 1,
       },
     });
+
+    if (homeScroll?.baseRef.current) {
+      timeline.to(
+        homeScroll.baseRef.current,
+        { scale: 1.18, ease: ANIMATION_EASE.base },
+        0,
+      );
+    }
+
+    if (homeScroll?.nebulaRef.current) {
+      timeline.to(
+        homeScroll.nebulaRef.current,
+        { y: -64, opacity: 0.62, ease: ANIMATION_EASE.base },
+        0,
+      );
+    }
+
+    if (particleBandRef.current) {
+      timeline.to(
+        particleBandRef.current,
+        { opacity: 0, scale: 1.08, ease: ANIMATION_EASE.base },
+        0,
+      );
+    }
 
     timeline.to(
       logoRef.current,
@@ -81,12 +117,14 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       },
       0.35,
     );
-  }, [isImmersive]);
+  }, [homeScroll, isImmersive]);
 
   const showCopyImmediately = isImmersive && staticFallback;
   const copyVisible = !isImmersive || showCopyImmediately;
   const logoVisible = isImmersive && !showCopyImmediately;
   const mobileStaticHero = isImmersive && staticFallback && profile.isMobile;
+  const showParticleFormation =
+    logoVisible && !logoRevealed && !skipFormation;
 
   return (
     <section
@@ -110,7 +148,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: mobileStaticHero ? 'visible' : 'hidden',
-        background: `linear-gradient(180deg, ${colors.background} 0%, ${colors.backgroundElevated} 100%)`,
+        background: 'transparent',
       }}
     >
       <div
@@ -128,22 +166,50 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         }}
         aria-hidden={!logoVisible}
       >
-        <p
+        {isImmersive ? (
+          <div
+            ref={particleBandRef}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: logoVisible ? 0.65 : 0,
+            }}
+          >
+            <div
+              style={{
+                position: 'relative',
+                width: 'min(92vw, 960px)',
+                aspectRatio: '16 / 9',
+              }}
+            >
+              <Image
+                src={backgroundAssets.heroParticleBand}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 92vw, 960px"
+                className="object-contain object-center"
+                priority={isImmersive}
+              />
+            </div>
+          </div>
+        ) : null}
+
+        <LogoParticleFormation
+          active={showParticleFormation}
+          onComplete={() => setFormationComplete(true)}
+        />
+
+        <div
           style={{
-            fontSize: typography.sizeHero,
-            fontWeight: 300,
-            letterSpacing: '0.08em',
-            color: colors.foreground,
-            margin: 0,
-            fontFamily: typography.fontDisplay,
-            textAlign: 'center',
-            lineHeight: 1,
+            opacity: logoRevealed || !logoVisible ? 1 : 0,
+            transition: 'opacity 700ms ease',
           }}
         >
-          SHAPE
-          <span style={{ color: colors.accent, display: 'inline-block' }}>&infin;</span>
-          D
-        </p>
+          <BrandLogo variant="hero" priority={isImmersive} />
+        </div>
       </div>
 
       {isImmersive ? (
@@ -154,7 +220,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
             zIndex: 20,
             textAlign: 'center',
             padding: '0 var(--space-3)',
-            maxWidth: '900px',
+            maxWidth: layout.contentStandard,
             opacity: copyVisible ? 1 : 0,
             pointerEvents: copyVisible ? 'auto' : 'none',
             visibility: copyVisible ? 'visible' : 'hidden',
@@ -167,11 +233,13 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
             style={{
               fontSize: typography.sizeBody,
               color: colors.muted,
-              lineHeight: 1.9,
+              lineHeight: 1.85,
               fontFamily: typography.fontSerifJp,
               fontWeight: 300,
               marginTop: 'var(--space-4)',
               letterSpacing: '0.04em',
+              maxWidth: layout.contentProse,
+              marginInline: 'auto',
             }}
           >
             爆速・安全・低コスト——技術の余白に、創造性を。
@@ -186,10 +254,10 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
             zIndex: 20,
             textAlign: 'center',
             padding: '0 var(--space-3)',
-            maxWidth: '900px',
+            maxWidth: layout.contentStandard,
           }}
         >
-          {children}
+          {children ?? <BrandLogo variant="hero" className="w-[min(80vw,420px)]" priority />}
         </div>
       )}
 
@@ -225,7 +293,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
               border: `1px solid ${colors.accent}`,
               borderRadius: '9999px',
               color: colors.accent,
-              background: 'transparent',
+              background: 'rgba(10, 10, 10, 0.35)',
+              backdropFilter: 'blur(6px)',
               fontSize: typography.sizeBody,
               fontFamily: typography.fontSerifJp,
               textDecoration: 'none',

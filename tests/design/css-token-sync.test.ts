@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, motion, spacing } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, spacing } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   mobileMaxWidthMediaQuery,
@@ -27,6 +27,12 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--space-6: ${spacing.xl}px`);
     expect(globalsCss).toContain(`--space-8: ${spacing.xxl}px`);
     expect(globalsCss).toContain(`--space-section: ${spacing.section}px`);
+  });
+
+  it('mirrors layout width tokens in CSS variables', () => {
+    expect(globalsCss).toContain(`--content-prose: ${layout.contentProse}`);
+    expect(globalsCss).toContain(`--content-standard: ${layout.contentStandard}`);
+    expect(globalsCss).toContain(`--content-wide: ${layout.contentWide}`);
   });
 
   it('mirrors motion tokens in CSS variables', () => {
