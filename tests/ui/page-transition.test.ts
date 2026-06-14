@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import { pageTransitionEase } from '@/lib/scroll/easing';
+import { shouldPageTransitionFade } from '@/lib/navigation/page-transition-policy';
 import { resetPageTransitionVisitForTests } from '@/components/ui/PageTransition';
 
 describe('page transition tokens', () => {
@@ -22,8 +23,8 @@ describe('PageTransition visit tracking', () => {
     resetPageTransitionVisitForTests();
   });
 
-  it('exposes test reset for first-visit LCP policy', () => {
+  it('reset clears module visit flag for isolated tests', () => {
     resetPageTransitionVisitForTests();
-    expect(typeof resetPageTransitionVisitForTests).toBe('function');
+    expect(shouldPageTransitionFade(false, false)).toBe(false);
   });
 });

@@ -104,20 +104,30 @@ html[data-custom-cursor='active'] select {
   transition: opacity var(--duration-interaction) var(--ease-base);
 }
 
-a:not(.hero-cta):hover,
-button:not(.nav-menu-button):hover {
-  opacity: 0.8;
-  transition: opacity var(--duration-interaction) var(--ease-base);
-}
-
 a.nav-link:hover {
   opacity: 0.75;
   transition: opacity var(--duration-interaction) var(--ease-base);
 }
 
+button:not(.nav-menu-button):hover {
+  opacity: 0.8;
+  transition: opacity var(--duration-interaction) var(--ease-base);
+}
+
+@media (pointer: coarse), (hover: none) {
+  a.nav-link:hover,
+  button:not(.nav-menu-button):hover,
+  .hero-cta:hover {
+    opacity: 1;
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  a:not(.hero-cta):hover,
-  button:not(.nav-menu-button):hover {
+  a.nav-link:hover,
+  button:not(.nav-menu-button):hover,
+  .hero-cta:hover {
+    opacity: 1;
     transition: none;
   }
 }

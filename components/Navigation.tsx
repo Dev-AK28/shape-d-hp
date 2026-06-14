@@ -11,11 +11,16 @@ const MOBILE_MENU_ID = 'mobile-nav-menu';
 
 export default function Navigation() {
   const reduceMotion = useReducedMotion();
-  const [isOpen, setIsOpen] = useState(false);
+  /** Pathname when menu was opened; auto-closes on route change without effect. */
+  const [menuOpenAtPath, setMenuOpenAtPath] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const isOpen = menuOpenAtPath === pathname;
 
-  const closeMenu = useCallback(() => setIsOpen(false), []);
+  const closeMenu = useCallback(() => setMenuOpenAtPath(null), []);
+  const toggleMenu = useCallback(() => {
+    setMenuOpenAtPath((current) => (current === pathname ? null : pathname));
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,10 +45,19 @@ export default function Navigation() {
       }
     };
 
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    const handleDesktopResize = () => {
+      if (desktopQuery.matches) {
+        closeMenu();
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
+    desktopQuery.addEventListener('change', handleDesktopResize);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
+      desktopQuery.removeEventListener('change', handleDesktopResize);
     };
   }, [isOpen, closeMenu]);
 
@@ -103,7 +117,7 @@ export default function Navigation() {
           <motion.button
             type="button"
             className="nav-menu-button block md:hidden"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={toggleMenu}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
             aria-expanded={isOpen}
@@ -158,6 +172,7 @@ export default function Navigation() {
         {isOpen && (
           <motion.div
             id={MOBILE_MENU_ID}
+            className="md:hidden"
             initial={reduceMotion ? false : { opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: -20 }}

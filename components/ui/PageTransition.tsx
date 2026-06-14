@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
+import { shouldPageTransitionFade } from '@/lib/navigation/page-transition-policy';
 import { pageTransitionEase } from '@/lib/scroll/easing';
 
 type PageTransitionProps = {
@@ -19,7 +20,7 @@ export function resetPageTransitionVisitForTests(): void {
 
 export default function PageTransition({ children }: PageTransitionProps) {
   const reduceMotion = useReducedMotion();
-  const shouldFade = hasVisitedOnce && !reduceMotion;
+  const shouldFade = shouldPageTransitionFade(hasVisitedOnce, reduceMotion);
 
   useEffect(() => {
     hasVisitedOnce = true;
