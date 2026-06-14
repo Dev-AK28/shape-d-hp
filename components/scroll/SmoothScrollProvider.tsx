@@ -3,6 +3,12 @@
 import { useEffect, type ReactNode } from 'react';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
+import {
+  configureGsapDefaults,
+  gsap,
+  registerGsapPlugins,
+  ScrollTrigger,
+} from '@/lib/scroll/gsap-config';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;
@@ -12,13 +18,24 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
   const { profile, isReady } = useDeviceProfile();
 
   useEffect(() => {
-    if (!isReady || shouldDisableSmoothScroll(profile)) {
+    if (!isReady) {
       return;
     }
 
-    let frame = 0;
-    let lenis: { raf: (time: number) => void; destroy: () => void } | undefined;
+    registerGsapPlugins();
+    configureGsapDefaults();
+
+    if (shouldDisableSmoothScroll(profile)) {
+      return;
+    }
+
+    let lenis: {
+      raf: (time: number) => void;
+      destroy: () => void;
+      on: (event: string, callback: () => void) => void;
+    } | undefined;
     let cancelled = false;
+    let tickerCallback: ((time: number) => void) | undefined;
 
     void (async () => {
       const { default: Lenis } = await import('lenis');
@@ -29,21 +46,25 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       }
 
       lenis = new Lenis({
-        duration: 1.1,
+        duration: 1.4,
         smoothWheel: true,
       });
 
-      const raf = (time: number) => {
-        lenis?.raf(time);
-        frame = requestAnimationFrame(raf);
+      lenis.on('scroll', ScrollTrigger.update);
+
+      tickerCallback = (time: number) => {
+        lenis?.raf(time * 1000);
       };
 
-      frame = requestAnimationFrame(raf);
+      gsap.ticker.add(tickerCallback);
+      gsap.ticker.lagSmoothing(0);
     })();
 
     return () => {
       cancelled = true;
-      cancelAnimationFrame(frame);
+      if (tickerCallback) {
+        gsap.ticker.remove(tickerCallback);
+      }
       lenis?.destroy();
     };
   }, [isReady, profile]);

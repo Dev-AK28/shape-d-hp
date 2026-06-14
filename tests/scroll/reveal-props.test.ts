@@ -13,7 +13,7 @@ describe('getScrollRevealProps', () => {
   it('applies fadeUpLarge by default', () => {
     const props = getScrollRevealProps(false);
 
-    expect(props.initial).toEqual({ opacity: 0, y: 60 });
+    expect(props.initial).toEqual({ opacity: 0, y: 20 });
     expect(props.whileInView).toEqual({ opacity: 1, y: 0 });
   });
 

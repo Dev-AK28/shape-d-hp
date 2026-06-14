@@ -2,13 +2,14 @@
 
 ## 概要
 
-Octaboot 風のスクロール連動体験を、既存の framer-motion + Lenis 基盤の上で全主要ページに統一適用する。
+Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + framer-motion の3層基盤の上で全主要ページに統一適用する。
 
 ## 基盤コンポーネント
 
 | コンポーネント | 用途 |
 |--------------|------|
-| `SmoothScrollProvider` | Lenis スムーズスクロール（`prefers-reduced-motion` 時無効） |
+| `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`prefers-reduced-motion` 時無効） |
+| `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（reduced-motion 時スキップ） |
 | `PageLoader` | 初回訪問時の軽量ローディング体験（背景透明・LCP 非ブロック） |
 | `ScrollReveal` | セクション単位のフェードリビール |
 | `TextReveal` | 見出しのグラフェム/ワード単位リビール |
@@ -16,13 +17,25 @@ Octaboot 風のスクロール連動体験を、既存の framer-motion + Lenis 
 
 ## 共通設定（SSOT）
 
-`lib/scroll/easing.ts`:
+`lib/scroll/animation-tokens.ts`（GSAP）:
+
+- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6` / `section`: `1.8`
+- `ANIMATION_EASE.base`: `expo.out` / `section`: `power3.inOut` / `reveal`: `power3.out`
+- `REVEAL_OFFSET.y`: `20` / `stagger`: `0.15` / `maxStaggerItems`: `6`
+
+`lib/scroll/gsap-config.ts`:
+
+- `gsap.registerPlugin(ScrollTrigger)` — client のみ
+- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
+- `shouldDisableGsapAnimation(prefersReducedMotion)` — reduced-motion 時 GSAP アニメーション無効
+
+`lib/scroll/easing.ts`（framer-motion）:
 
 - `scrollEase`: `[0.22, 1, 0.36, 1]`
 - `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`
-- `scrollTransition.duration`: `0.9`
-- `scrollVariants`: `fadeUp`, `fadeUpLarge`, `fadeLeft`, `scale`
-- `scrollStagger`: `item: 0.1`, `card: 0.15`
+- `scrollTransition.duration`: `1.4`
+- `scrollVariants`: `fadeUp`, `fadeUpLarge`, `fadeLeft`, `scale`（y offset: 20px）
+- `scrollStagger`: `item: 0.15`, `card: 0.15`
 
 `lib/scroll/reveal-props.ts` の `getScrollRevealProps()` が各コンテンツコンポーネントから参照される。
 

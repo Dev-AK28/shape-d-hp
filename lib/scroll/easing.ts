@@ -7,7 +7,7 @@ export const scrollViewport = {
 };
 
 export const scrollTransition = {
-  duration: 0.9,
+  duration: 1.4,
   ease: scrollEase,
 };
 
@@ -15,11 +15,11 @@ export const textRevealStagger = 0.06;
 
 export const scrollVariants = {
   fadeUp: {
-    hidden: { opacity: 0, y: 48 },
+    hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   },
   fadeUpLarge: {
-    hidden: { opacity: 0, y: 60 },
+    hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   },
   fadeLeft: {
@@ -35,6 +35,6 @@ export const scrollVariants = {
 export type ScrollVariant = keyof typeof scrollVariants;
 
 export const scrollStagger = {
-  item: 0.1,
+  item: 0.15,
   card: 0.15,
 } as const;
