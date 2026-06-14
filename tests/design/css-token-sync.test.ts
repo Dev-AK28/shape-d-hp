@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, layout, motion, spacing, warmGrade } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, spacing, typographyBlend, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   desktopMinWidthMediaQuery,
@@ -55,6 +55,11 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`var(--warm-grade-overlay-mid) ${warmGrade.overlayMidStop}`);
     expect(globalsCss).toContain('var(--warm-grade-overlay-end) 100%');
     expect(warmGrade.overlayGradient).toContain(warmGrade.overlayMidStop);
+  });
+
+  it('mirrors typography blend tokens in CSS variables', () => {
+    expect(globalsCss).toContain(`--type-blend-cosmic: ${typographyBlend.cosmic}`);
+    expect(globalsCss).toContain(`--type-blend-solid: ${typographyBlend.solid}`);
   });
 
   it('mirrors desktop breakpoint in warm grade nebula filter media query', () => {

@@ -5,6 +5,7 @@ import StarBackground from '@/components/StarBackground';
 import ScrollReveal from '@/components/scroll/ScrollReveal';
 import TextReveal from '@/components/scroll/TextReveal';
 import SectionShell from '@/components/ui/SectionShell';
+import { typographyBlend } from '@/lib/design/tokens';
 
 export type PageHeaderProps = {
   /** English page title (h1). */
@@ -49,7 +50,13 @@ export default function PageHeader({
           aria-label={title}
           className="mb-4 font-serif text-[clamp(36px,5vw,48px)] font-light tracking-wider text-white"
         >
-          {animateTitle ? <TextReveal as="span" text={title} /> : title}
+          {animateTitle ? (
+            <TextReveal as="span" text={title} blend={starBackground ? 'cosmic' : 'solid'} />
+          ) : (
+            <span className={starBackground ? typographyBlend.classCosmic : undefined}>
+              {title}
+            </span>
+          )}
         </h1>
 
         {showDivider ? (

@@ -12,6 +12,14 @@ test.describe('Home page', () => {
     await waitForHomePageReady(page);
     await expect(page.getByTestId('cosmic-warm-grade-overlay')).toBeAttached();
   });
+
+  test('applies cosmic typography blend to hero heading', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+    const heading = page.getByTestId('type-blend-cosmic');
+    await expect(heading).toHaveClass(/type-blend-cosmic/);
+    await expect(heading).toHaveCSS('mix-blend-mode', 'screen');
+  });
 });
 
 test.describe('Home page desktop', () => {
@@ -45,6 +53,30 @@ test.describe('Home page desktop', () => {
     await page.mouse.wheel(0, 900);
 
     await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+    await expectHeroBrandLogoAfterFormation(page);
+
+    await page.mouse.wheel(0, 900);
+    await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
+
+    const heading = page.getByTestId('type-blend-cosmic');
+    await expect(heading).toBeVisible();
+    await expect(heading).toHaveCSS('mix-blend-mode', 'screen');
+
+    await expect(async () => {
+      const logoLayerOpacity = await page.getByTestId('hero-logo-stage').evaluate((stage) => {
+        const layer = stage.parentElement;
+        if (!layer) {
+          return 1;
+        }
+        return Number.parseFloat(getComputedStyle(layer).opacity);
+      });
+      expect(logoLayerOpacity).toBeLessThan(0.05);
+    }).toPass({ timeout: 10_000 });
   });
 });
 

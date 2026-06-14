@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   HERO_DEPTH_PASSAGE,
@@ -36,6 +38,21 @@ describe('hero depth passage tokens', () => {
     expect(HERO_DEPTH_PASSAGE.revealTimelineStart).toBeLessThan(
       HERO_DEPTH_PASSAGE.approachPhaseEnd,
     );
+  });
+
+  it('hides hero logo at copy reveal start for cosmic typography blend (#101)', () => {
+    expect(HERO_DEPTH_PASSAGE.logoOpacityHideAt).toBe(
+      HERO_DEPTH_PASSAGE.revealTimelineStart,
+    );
+  });
+
+  it('documents instant logo opacity hide via timeline.set in Hero.tsx', () => {
+    const heroSource = readFileSync(
+      join(process.cwd(), 'components/Hero.tsx'),
+      'utf8',
+    );
+    expect(heroSource).toContain('timeline.set');
+    expect(heroSource).toContain('logoOpacityHideAt * timelineDuration');
   });
 
   it('exposes hero pin selector for HomePageShell coupling', () => {

@@ -10,6 +10,7 @@ import {
   textRevealStagger,
 } from '@/lib/scroll/easing';
 import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
+import { typographyBlend } from '@/lib/design/tokens';
 import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 type TextRevealProps = {
@@ -19,7 +20,16 @@ type TextRevealProps = {
   delay?: number;
   /** Force immediate render without scroll-driven segments. */
   immediate?: boolean;
+  /** Cosmic = screen blend over nebula; solid = normal (default). */
+  blend?: 'cosmic' | 'solid';
 };
+
+function mergeBlendClass(className: string, blend: 'cosmic' | 'solid'): string {
+  const blendClass =
+    blend === 'cosmic' ? typographyBlend.classCosmic : typographyBlend.classSolid;
+
+  return [blendClass, className].filter(Boolean).join(' ');
+}
 
 function segmentText(text: string): string[] {
   if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
@@ -36,19 +46,21 @@ export default function TextReveal({
   className = '',
   delay = 0,
   immediate = false,
+  blend = 'solid',
 }: TextRevealProps) {
   const reduceMotion = useReducedMotion();
   const { profile, isReady } = useDeviceProfile();
   const segments = segmentText(text);
   const showImmediately =
     immediate || shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const mergedClassName = mergeBlendClass(className, blend);
 
   if (showImmediately) {
-    return <Tag className={className}>{text}</Tag>;
+    return <Tag className={mergedClassName}>{text}</Tag>;
   }
 
   return (
-    <Tag className={className}>
+    <Tag className={mergedClassName}>
       {segments.map((segment, index) => (
         <motion.span
           key={`${segment}-${index}`}

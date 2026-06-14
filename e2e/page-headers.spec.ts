@@ -79,6 +79,7 @@ test.describe('Subpage headers', () => {
 
       if (pageHeader.hasStarBackground) {
         await expect(header.getByTestId('star-background')).toBeVisible();
+        await expect(header.locator('h1 span').first()).toHaveCSS('mix-blend-mode', 'screen');
       }
 
       await expect(async () => {
@@ -95,6 +96,16 @@ test.describe('Subpage headers', () => {
       await page.goto(path);
       await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
       await expect(page.getByTestId('page-header').getByTestId('star-background')).toHaveCount(0);
+    }
+  });
+
+  test('/services and /works use solid typography blend on page headers', async ({ page }) => {
+    for (const path of ['/services', '/works'] as const) {
+      await page.goto(path);
+      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+      await expect(
+        page.getByTestId('page-header').locator('h1 span').first(),
+      ).toHaveCSS('mix-blend-mode', 'normal');
     }
   });
 });

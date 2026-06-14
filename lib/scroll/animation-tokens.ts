@@ -82,6 +82,8 @@ export const HERO_DEPTH_PASSAGE = {
   approachPhaseEnd: 0.55,
   /** Fraction of timelineDuration where copy/CTA reveal begins. */
   revealTimelineStart: 0.35,
+  /** Logo opacity hides at copy reveal so cosmic mix-blend-mode composites against nebula only (#101). */
+  logoOpacityHideAt: 0.35,
   particleBand: {
     initialOpacity: 0.65,
     approachScale: 1.28,
