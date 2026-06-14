@@ -45,7 +45,19 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | パス | 適用内容 |
 |------|---------|
 | `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**宇宙背景は `HomePageShell` の fixed `CosmicScene` がフッター上まで全幅に適用** |
-| `/services`, `/works`, `/philosophy` | Hero なし。`PhilosophyContent` 等と同系の単色背景 + セクション見出し |
+| `/services` | ServicesContent セクション/カード スタガー + TextReveal（Hero なし・単色背景） |
+| `/works` | WorksContent 同上 |
+| `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
+| `/process` | ProcessNavigation / ProcessContent |
+| `/process/development` | DevelopmentContent |
+| `/process/consulting` | ConsultingContent |
+| `/contact` | ScrollReveal + TextReveal（既存） |
+
+### トップ Hero 背景・ロゴ（補足）
+
+- 背景: `HomePageShell` + `CosmicScene`（fixed、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub
+- ロゴ: `LogoParticleFormation`（Canvas 粒子 → SHAPE∞D 形成）→ 完了後 `BrandLogo`（`shape-d-logo-transparent.png`）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
+- StarBackground はトップでは使用しない
 
 ### トップ About / MissionVision（Issue #80）
 
@@ -57,16 +69,6 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `stagger: 0.15` / `ease: ANIMATION_EASE.base`
 
 - `prefers-reduced-motion` / モバイル / coarse pointer 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`shouldUseStaticReveal(profile, reduceMotion, isReady)` により `!isReady` 時も含め `getScrollRevealProps({ staticReveal: true })` と `TextReveal` の即時表示を適用。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリ（`prefers-reduced-motion: reduce` および `max-width: 767px`）で `opacity: 1` を保証
-- トップ Hero 背景: `HomePageShell` + `CosmicScene`（fixed、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub。Hero pin 中は追加で背景を深める
-- トップ Hero ロゴ: `LogoParticleFormation`（Canvas 粒子 → SHAPE∞D 形成、3D 奥行き）→ 完了後 `BrandLogo`（`shape-d-logo-transparent.png`）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
-- StarBackground はトップでは使用しない
-| `/services` | ServicesContent セクション/カード スタガー + TextReveal |
-| `/works` | WorksContent 同上 |
-| `/process` | ProcessNavigation / ProcessContent |
-| `/process/development` | DevelopmentContent |
-| `/process/consulting` | ConsultingContent |
-| `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（詳細: [`philosophy-page.md`](./philosophy-page.md)） |
-| `/contact` | ScrollReveal + TextReveal（既存） |
 
 ## アクセシビリティ
 

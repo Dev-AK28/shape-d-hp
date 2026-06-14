@@ -15,9 +15,10 @@ Issue: #1
 - **スケーリング / 更新間隔**: `lib/performance/star-config.ts`（`scaleStarConfig`, `getStarUpdateIntervalMs`）
 - **描画方式**: `useRef` + 間引き `setInterval` + imperative DOM 位置更新（effect 内の同期的 `setState` を回避）
 - **パフォーマンス層**: `useDeviceProfile` + `useIntersectionVisible` + `scaleStarConfig` / `getStarUpdateIntervalMs` を配線済み（[`mobile-performance.md`](./mobile-performance.md)）
-- **ページ別上書き**: 各利用コンポーネントは `config={{ count: ... }}` 等で上書き可能（例: Hero は `count: 300`）
-- **利用コンポーネント**: Contact, ProcessContent, ProcessNavigation, ServicesContent, Vision, WhatIDo, WhoIAm, ConsultingContent, DevelopmentContent, WorksContent
+- **ページ別上書き**: 各利用コンポーネントは `config={{ count: ... }}` 等で上書き可能
+- **利用コンポーネント**: Contact, ProcessContent, ProcessNavigation, Vision, WhatIDo, WhoIAm, ConsultingContent, DevelopmentContent
 - **非利用（トップ Hero）**: `CosmicScene` 画像背景を使用（`design-system.md` 参照）
+- **非利用（Issue #93）**: ServicesContent / WorksContent — StarBackground Hero を廃止し単色背景 + ページ見出しに統一
 - **非利用（Issue #80）**: About / MissionVision — scroll storytelling 化に伴い StarBackground を外し、デザイントークン背景に統一
 - **非利用（Issue #81）**: `/philosophy` — CSS/GSAP のみの alphabet-driven ビジュアル（詳細は [`philosophy-page.md`](./philosophy-page.md)）
 
