@@ -17,6 +17,7 @@ Issue: #51
 | `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
 | `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示、2回目以降のルート遷移のみ fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
 | Micro-interactions | ナビ `.nav-link` とボタン hover は opacity 変化のみ（magnetic effect なし）。タッチ端末・`prefers-reduced-motion` では hover opacity 無効。`:focus-visible` でキーボードフォーカスリング |
+| `Navigation`（モバイル） | `px-4 py-3`、ロゴ `height=36`、ハンバーガー `44×44px` タップ領域。デスクトップは `px-6 py-5`・ロゴ `height=48` を維持（Issue #74） |
 | フォント | `next/font` で Cormorant Garamond + Noto Serif JP を preload（`app/layout.tsx`） |
 | GSAP | tree-shaking: `gsap` + `gsap/ScrollTrigger` のみ import。bundle 目安 ~38KB（Lenis ~8KB + GSAP ~30KB） |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
@@ -83,6 +84,11 @@ Issue: #51
 - **Given** モバイルメニューが開いている
 - **When** 別ルートへ遷移する、またはビューポートが 768px 以上になる
 - **Then** メニューが自動的に閉じ、スクロールロックが解除される
+
+- **Given** モバイル幅（390px）でトップページを表示する
+- **When** 固定ヘッダーの高さを確認する
+- **Then** ヘッダーがコンパクト（ロゴ 36px・`py-3`）であり、本文の初期表示領域が確保されている
+- **And** ハンバーガーボタンのタップ領域は 44px 以上である
 
 ## 検証
 

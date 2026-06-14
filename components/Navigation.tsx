@@ -80,11 +80,16 @@ export default function Navigation() {
           : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto max-w-[1400px] px-6 py-5">
+      <div className="mx-auto max-w-[1400px] px-4 py-3 md:px-6 md:py-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="no-underline nav-link">
             <div className="flex items-center">
-              <BrandLogo height={48} priority />
+              <span className="md:hidden">
+                <BrandLogo height={36} priority />
+              </span>
+              <span className="hidden md:block">
+                <BrandLogo height={48} priority />
+              </span>
             </div>
           </Link>
 
@@ -116,7 +121,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <motion.button
             type="button"
-            className="nav-menu-button block md:hidden"
+            className="nav-menu-button flex h-11 w-11 items-center justify-center md:hidden"
             onClick={toggleMenu}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
@@ -126,7 +131,9 @@ export default function Navigation() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: '8px',
+              padding: 0,
+              minWidth: '44px',
+              minHeight: '44px',
             }}
           >
             <div style={{ width: '24px', height: '20px', position: 'relative' }}>
@@ -185,7 +192,7 @@ export default function Navigation() {
               background: 'rgba(0, 0, 0, 0.98)',
               backdropFilter: 'blur(20px)',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '24px',
+              padding: '16px 20px',
             }}
           >
             {navItems.map((item, index) => (

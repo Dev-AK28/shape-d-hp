@@ -22,3 +22,33 @@ test.describe('Navigation', () => {
     });
   }
 });
+
+test.describe('Navigation mobile layout', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('uses a compact header with 44px menu tap target', async ({ page }) => {
+    await page.goto('/');
+    const nav = page.getByRole('navigation');
+    const navBox = await nav.boundingBox();
+
+    expect(navBox?.height).toBeLessThan(72);
+
+    const menuButton = nav.getByRole('button', { name: /メニューを/ });
+    const buttonBox = await menuButton.boundingBox();
+
+    expect(buttonBox?.width).toBeGreaterThanOrEqual(44);
+    expect(buttonBox?.height).toBeGreaterThanOrEqual(44);
+  });
+});
+
+test.describe('Navigation desktop layout', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('preserves desktop header sizing', async ({ page }) => {
+    await page.goto('/');
+    const nav = page.getByRole('navigation');
+    const navBox = await nav.boundingBox();
+
+    expect(navBox?.height).toBeGreaterThanOrEqual(80);
+  });
+});
