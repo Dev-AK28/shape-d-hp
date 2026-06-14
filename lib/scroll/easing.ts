@@ -1,6 +1,9 @@
-import { REVEAL_OFFSET } from './animation-tokens';
+import { ANIMATION_DURATION, REVEAL_OFFSET } from './animation-tokens';
 
 export const scrollEase = [0.22, 1, 0.36, 1] as const;
+
+/** Decorative loop animations (pulse, chevron bounce) — not scroll-reveal easing. */
+export const loopEase = 'easeInOut' as const;
 
 export const scrollViewport = {
   once: true,
@@ -9,23 +12,25 @@ export const scrollViewport = {
 };
 
 export const scrollTransition = {
-  duration: 1.4,
+  duration: ANIMATION_DURATION.base,
   ease: scrollEase,
 };
 
-export const textRevealStagger = 0.06;
+export const textRevealStagger = REVEAL_OFFSET.textRevealStagger;
+export const textRevealDurationScale = REVEAL_OFFSET.textRevealDurationScale;
 
 export const scrollVariants = {
   fadeUp: {
     hidden: { opacity: 0, y: REVEAL_OFFSET.y },
     visible: { opacity: 1, y: 0 },
   },
+  /** Same offset as fadeUp; ScrollReveal may override `y` via prop for larger sections. */
   fadeUpLarge: {
     hidden: { opacity: 0, y: REVEAL_OFFSET.y },
     visible: { opacity: 1, y: 0 },
   },
   fadeLeft: {
-    hidden: { opacity: 0, x: -REVEAL_OFFSET.y },
+    hidden: { opacity: 0, x: REVEAL_OFFSET.x },
     visible: { opacity: 1, x: 0 },
   },
   scale: {

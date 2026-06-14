@@ -3,6 +3,10 @@
 export const ANIMATION_DURATION = {
   base: 1.4,
   hero: 1.6,
+  /** Staggered Hero child blocks (values / CTA) — faster than main hero title. */
+  heroChild: 1.2,
+  /** Large display typography (Philosophy acronym letters) — slower reveal. */
+  display: 2,
   section: 1.8,
   pageTransition: 0.6,
 } as const;
@@ -14,11 +18,36 @@ export const ANIMATION_EASE = {
 } as const;
 
 export const REVEAL_OFFSET = {
+  x: -20,
   y: 20,
+  /** Hero child blocks use a larger vertical offset than standard reveals. */
+  heroChildY: 40,
   stagger: 0.15,
+  textRevealStagger: 0.06,
+  /** TextReveal duration = scrollTransition.duration × this scale. */
+  textRevealDurationScale: 0.65,
   maxStaggerItems: 6,
 } as const;
 
+/** Stagger delays for scroll-reveal sequences (seconds). */
+export const REVEAL_DELAY = {
+  heroChild: {
+    wrapper: 0.2,
+    values: 0.35,
+    copy: 0.5,
+    cta: 0.65,
+  },
+  heroScrollIndicator: 1.2,
+  philosophy: {
+    title: 0.3,
+    body: 0.6,
+    closing: 0.9,
+    mission: 0.5,
+    cta: 1.0,
+  },
+} as const;
+
+/** GSAP ticker lagSmoothing restore values after Lenis teardown. */
 export const GSAP_TICKER = {
   lagSmoothingActive: 0,
   lagSmoothingRestoreMs: 500,

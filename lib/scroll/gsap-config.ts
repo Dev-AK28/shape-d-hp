@@ -1,10 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import {
-  ANIMATION_DURATION,
-  ANIMATION_EASE,
-  GSAP_TICKER,
-} from './animation-tokens';
+import { ANIMATION_DURATION, ANIMATION_EASE, GSAP_TICKER } from './animation-tokens';
 import {
   shouldDisableSmoothScroll,
   type DeviceProfile,
