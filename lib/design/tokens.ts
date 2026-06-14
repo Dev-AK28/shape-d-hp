@@ -65,6 +65,47 @@ export const typography = {
   sizeQuote: 'clamp(18px, 2.5vw, 28px)',
   sizeBody: 'clamp(16px, 1.5vw, 18px)',
   sizeCaption: 'clamp(12px, 1vw, 14px)',
+  sizeVisualWord: 'clamp(40px, 10vw, 140px)',
+} as const;
+
+/** CSS utility class names for typography sizes — Issue #15 */
+export const typographySizeClasses = {
+  heading: 'type-size-heading',
+  subheading: 'type-size-subheading',
+  quote: 'type-size-quote',
+  body: 'type-size-body',
+  caption: 'type-size-caption',
+  visualWord: 'type-size-visual-word',
+} as const;
+
+/** CSS custom property names for typography sizes — mirrors :root in globals.css */
+export const typographySizeCssVars: Record<keyof typeof typographySizeClasses, string> = {
+  heading: '--type-size-heading',
+  subheading: '--type-size-subheading',
+  quote: '--type-size-quote',
+  body: '--type-size-body',
+  caption: '--type-size-caption',
+  visualWord: '--type-size-visual-word',
+};
+
+/** Maps typographySizeClasses keys to typography.size* keys — used by css-token-sync tests */
+export const typographySizeTokenKeys: Record<
+  keyof typeof typographySizeClasses,
+  'sizeHeading' | 'sizeSubheading' | 'sizeQuote' | 'sizeBody' | 'sizeCaption' | 'sizeVisualWord'
+> = {
+  heading: 'sizeHeading',
+  subheading: 'sizeSubheading',
+  quote: 'sizeQuote',
+  body: 'sizeBody',
+  caption: 'sizeCaption',
+  visualWord: 'sizeVisualWord',
+};
+
+/** CSS utility for font stacks — Issue #15 */
+export const typographyFontClasses = {
+  /** Cormorant via :root --font-serif = --font-display */
+  serif: 'type-font-serif',
+  serifJp: 'type-font-serif-jp',
 } as const;
 
 export const motion = {

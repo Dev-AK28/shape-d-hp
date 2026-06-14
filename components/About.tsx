@@ -4,7 +4,15 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
-import { colors, layout, spacing, typography } from '@/lib/design/tokens';
+import {
+  pillarTextClass,
+  sectionAccentDividerClass,
+  sectionCaptionClass,
+  sectionHeadingClass,
+  sectionHistoryCaptionClass,
+  timelineBodyClass,
+  timelineIndexClass,
+} from '@/lib/design/section-typography-classes';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -53,63 +61,25 @@ export default function About() {
 
   return (
     <section
-      style={{
-        position: 'relative',
-        padding: `${spacing.section}px var(--space-3)`,
-        background: 'rgba(10, 10, 10, 0.62)',
-        backdropFilter: 'blur(2px)',
-      }}
+      className="relative py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.62)] backdrop-blur-[2px]"
     >
-      <div style={{ maxWidth: layout.contentWide, margin: '0 auto' }}>
+      <div className="mx-auto max-w-[var(--content-wide)]">
         <motion.div
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
-          style={{ marginBottom: spacing.xxl }}
+          className="mb-[var(--space-8)]"
         >
-          <h2
-            style={{
-              fontSize: typography.sizeHeading,
-              fontWeight: 300,
-              color: colors.foreground,
-              marginBottom: spacing.sm,
-              fontFamily: typography.fontDisplay,
-              letterSpacing: '0.05em',
-            }}
-          >
+          <h2 className={sectionHeadingClass}>
             <TextReveal as="span" text="ABOUT" />
           </h2>
-          <div style={{ width: '64px', height: '1px', background: colors.accent }} />
+          <div className={sectionAccentDividerClass} />
         </motion.div>
 
         <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: spacing.xl,
-            marginBottom: spacing.xxl,
-          }}
+          className="mb-[var(--space-8)] grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-[var(--space-6)]"
         >
           <motion.div {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.1 })}>
-            <p
-              style={{
-                fontSize: typography.sizeCaption,
-                color: colors.muted,
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                marginBottom: spacing.sm,
-              }}
-            >
-              心理学
-            </p>
-            <p
-              style={{
-                fontSize: typography.sizeSubheading,
-                color: colors.foreground,
-                lineHeight: 1.85,
-                fontFamily: typography.fontSerifJp,
-                fontWeight: 300,
-                maxWidth: '36em',
-              }}
-            >
+            <p className={sectionCaptionClass}>心理学</p>
+            <p className={pillarTextClass}>
               人間理解の深淵。内なる声を読み解き、
               <br className="hidden md:block" />
               自己一致への道を照らす。
@@ -117,27 +87,8 @@ export default function About() {
           </motion.div>
 
           <motion.div {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.25 })}>
-            <p
-              style={{
-                fontSize: typography.sizeCaption,
-                color: colors.muted,
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                marginBottom: spacing.sm,
-              }}
-            >
-              エンジニアリング
-            </p>
-            <p
-              style={{
-                fontSize: typography.sizeSubheading,
-                color: colors.foreground,
-                lineHeight: 1.85,
-                fontFamily: typography.fontSerifJp,
-                fontWeight: 300,
-                maxWidth: '36em',
-              }}
-            >
+            <p className={sectionCaptionClass}>エンジニアリング</p>
+            <p className={pillarTextClass}>
               AIによる圧倒的な速度。技術でアイデアを具現化し、
               <br className="hidden md:block" />
               事業価値を形にする。
@@ -145,72 +96,27 @@ export default function About() {
           </motion.div>
         </div>
 
-        <div style={{ marginBottom: spacing.lg }}>
-          <p
-            style={{
-              fontSize: typography.sizeCaption,
-              color: colors.muted,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              marginBottom: spacing.lg,
-            }}
-          >
-            経歴
-          </p>
+        <div className="mb-[var(--space-4)]">
+          <p className={sectionHistoryCaptionClass}>経歴</p>
 
           <ul
             ref={timelineRef}
-            style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              borderLeft: `1px solid ${colors.border}`,
-              paddingLeft: spacing.lg,
-            }}
+            className="m-0 list-none border-l border-[var(--border)] py-0 pl-[var(--space-4)]"
           >
             {career.map((item, index) => (
               <li
                 key={item}
                 data-timeline-item
-                style={{
-                  marginBottom: spacing.lg,
-                  position: 'relative',
-                  opacity: staticReveal ? 1 : 0,
-                }}
+                className="relative mb-[var(--space-4)]"
+                style={{ opacity: staticReveal ? 1 : 0 }}
               >
                 <span
-                  style={{
-                    position: 'absolute',
-                    left: `-${spacing.lg + 4}px`,
-                    top: '6px',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: colors.accent,
-                  }}
+                  className="absolute -left-[calc(var(--space-4)+4px)] top-1.5 size-2 rounded-full bg-[var(--accent)]"
                 />
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: typography.sizeCaption,
-                    color: colors.muted,
-                    marginBottom: spacing.xs,
-                    fontFamily: typography.fontDisplay,
-                  }}
-                >
+                <span className={timelineIndexClass}>
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <p
-                  style={{
-                    color: colors.foreground,
-                    fontSize: typography.sizeBody,
-                    lineHeight: 1.8,
-                    fontFamily: typography.fontSerifJp,
-                    margin: 0,
-                  }}
-                >
-                  {item}
-                </p>
+                <p className={timelineBodyClass}>{item}</p>
               </li>
             ))}
           </ul>

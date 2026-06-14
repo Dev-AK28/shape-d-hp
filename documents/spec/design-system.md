@@ -91,6 +91,9 @@ Hero デスクトップ GSAP では cosmic blend 適用前（`logoOpacityHideAt`
 | `sizeSubheading` | リード文 |
 | `sizeQuote` | VISION 引用 |
 | `sizeBody` / `sizeCaption` | 本文 / ラベル |
+| `sizeVisualWord` | MissionVision 背景ワード（`SELF-CONGRUENCE`） |
+
+CSS utility: `type-size-*`（`typographySizeClasses`）— `globals.css` の `--type-size-*` と同期。
 
 ## Layout
 
@@ -182,11 +185,27 @@ SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/s
 | `ProcessNavigation.tsx` | 移行済み（`--section-blue` / `--section-purple` CSS 変数 + `color-mix`） |
 | `PhilosophyProgressDots.tsx` | 移行済み（CSS 変数 `--accent` / `--muted`） |
 | `PageHeader.tsx` 区切り線 | 移行済み（`dividerVariant` + `page-header-divider-*` クラス） |
+| `About.tsx` | 移行済み（Tailwind + `var(--space-*)` / `var(--content-wide)` 等） |
+| `MissionVision.tsx` | 移行済み（同上 + `var(--content-standard)`） |
 | その他コンテンツコンポーネント | 未移行（順次対応） |
 
 セクションアクセント色（`blue` / `purple` / `sky`）は `lib/design/tokens.ts` の `colors.blue` 等と `:root` の `--section-*` CSS 変数、Tailwind の `blue-400` / `violet-400` / `blue-300` を対応付ける。`css-token-sync.test.ts` で TS ↔ CSS の同期を検証する。
 
+### 移行時のフォント・タイポグラフィ（Issue #15）
+
+Tailwind に未生成の `font-display` / `font-serif-jp` は使わない。次のパターンを使用する。
+
+| 用途 | Tailwind / CSS クラス | 備考 |
+|------|----------------------|------|
+| 欧文見出し（Cormorant） | `type-font-serif`（`typographyFontClasses.serif`） | `var(--font-serif)` = `var(--font-display)` |
+| 日本語本文 | `type-font-serif-jp`（`typographyFontClasses.serifJp`） | `globals.css` で font stack 定義 |
+| fluid サイズ | `type-size-*`（`typographySizeClasses`） | `--type-size-*` CSS 変数と同期（`typographySizeCssVars`） |
+| ホームセクション共有 | `lib/design/section-typography-classes.ts` | About / MissionVision の見出し・caption 等 |
+
+色は `text-[color:var(--foreground)]` 形式を推奨（`ProcessNavigation` と統一）。`text-[clamp(...)]` の直書きは `type-size-*` へ寄せる。
+
 ## 参照
 
-- `lib/design/tokens.ts` — TypeScript SSOT（`colors` / `pageHeaderDividers` / `pageHeaderDividerColors` / `sectionAccentCssVars`）
+- `lib/design/tokens.ts` — TypeScript SSOT（`colors` / `pageHeaderDividers` / `pageHeaderDividerColors` / `sectionAccentCssVars` / `typographySizeClasses` / `typographySizeCssVars` / `typographySizeTokenKeys` / `typographyFontClasses`）
+- `lib/design/section-typography-classes.ts` — ホーム About / MissionVision 共有 class 文字列
 - `app/globals.css` — CSS 変数定義
