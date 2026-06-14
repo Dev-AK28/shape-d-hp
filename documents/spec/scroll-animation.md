@@ -22,6 +22,10 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 - `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6`（Hero ロゴ入場・Philosophy 本文リビール） / `heroChild`: `1.2`（Hero 子要素スタガー） / `display`: `2`（Philosophy 巨大文字ブロック） / `section`: `1.8`（#79 以降） / `pageTransition`: `0.6`（#79 以降）
 - `ANIMATION_EASE.base`: `expo.out` / `section`: `power3.inOut` / `reveal`: `power3.out`
 - `REVEAL_OFFSET.x`: `-20` / `y`: `20` / `heroChildY`: `40`（Hero 子要素） / `stagger`: `0.15` / `textRevealStagger`: `0.06` / `textRevealDurationScale`: `0.65` / `maxStaggerItems`: `6`（#79 以降）
+- `REVEAL_DELAY.heroChild`: `wrapper: 0.2` / `values: 0.35` / `copy: 0.5` / `cta: 0.65`（Hero 子要素スタガー）
+- `REVEAL_DELAY.heroScrollIndicator`: `1.2`（Hero スクロールインジケータ）
+- `REVEAL_DELAY.philosophy`: `title: 0.3` / `body: 0.6` / `closing: 0.9` / `mission: 0.5` / `cta: 1.0`
+- `GSAP_TICKER.lagSmoothingActive`: `0` / `lagSmoothingRestoreMs`: `500` / `lagSmoothingRestoreThreshold`: `33`（Lenis teardown 時の ticker 復元）
 
 `lib/scroll/gsap-config.ts`:
 
@@ -34,11 +38,13 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 - `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
 - Lenis 初期化後および destroy 後に `refreshScrollTrigger()`
 - Lenis 初期化失敗時も `refreshScrollTrigger()` を呼び出し ScrollTrigger 計測を同期
+- `shouldDisableSmoothScroll` 時も mount/unmount で `refreshScrollTrigger()` を呼び出し ScrollTrigger 計測を同期
 - Lenis `duration` は `ANIMATION_DURATION.base` を参照
 
 `lib/scroll/easing.ts`（framer-motion、`animation-tokens.ts` を参照）:
 
 - `scrollEase`: `[0.22, 1, 0.36, 1]`（Hero 入場・ScrollReveal 共通）
+- `loopEase`: `easeInOut`（Hero 装飾ループ — 入場 `scrollEase` とは別用途）
 - `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`
 - `scrollTransition.duration`: `1.4`（`ANIMATION_DURATION.base`）
 - `scrollVariants`: `fadeUp`, `fadeUpLarge`（デフォルト offset は同一、`ScrollReveal` の `y` prop で上書き可）, `fadeLeft`, `scale`（y offset: 20px）
