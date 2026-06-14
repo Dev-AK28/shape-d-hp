@@ -8,12 +8,27 @@ import {
 } from '@/lib/design/custom-cursor';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 
+const KEYBOARD_FOCUS_KEYS = new Set([
+  'Tab',
+  'Enter',
+  ' ',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown',
+]);
+
 export default function CustomCursor() {
   const { profile, isReady } = useDeviceProfile();
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const visibleRef = useRef(false);
+  const inputModeRef = useRef<'pointer' | 'keyboard'>('pointer');
   const pos = useRef({ x: 0, y: 0 });
   const ring = useRef({ x: 0, y: 0 });
   const frame = useRef(0);
@@ -69,8 +84,47 @@ export default function CustomCursor() {
       startAnimation();
     };
 
+    const hideCursor = () => {
+      visibleRef.current = false;
+      setVisible(false);
+      setCustomCursorActive(false);
+      stopAnimation();
+    };
+
     const onMove = (event: MouseEvent) => {
       showCursor(event.clientX, event.clientY);
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (KEYBOARD_FOCUS_KEYS.has(event.key)) {
+        inputModeRef.current = 'keyboard';
+      }
+    };
+
+    const onPointerDown = () => {
+      inputModeRef.current = 'pointer';
+    };
+
+    const showCursorAtElement = (element: HTMLElement) => {
+      const rect = element.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        return;
+      }
+
+      showCursor(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    };
+
+    const repositionToFocusedElement = () => {
+      if (inputModeRef.current !== 'keyboard' || !visibleRef.current) {
+        return;
+      }
+
+      const active = document.activeElement;
+      if (!(active instanceof HTMLElement)) {
+        return;
+      }
+
+      showCursorAtElement(active);
     };
 
     const onFocusIn = (event: FocusEvent) => {
@@ -78,25 +132,46 @@ export default function CustomCursor() {
       if (!(target instanceof HTMLElement)) {
         return;
       }
-      const rect = target.getBoundingClientRect();
-      showCursor(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+      if (inputModeRef.current !== 'keyboard') {
+        if (!target.matches(':focus-visible')) {
+          return;
+        }
+        inputModeRef.current = 'keyboard';
+      }
+
+      showCursorAtElement(target);
     };
 
-    const onLeave = () => {
-      visibleRef.current = false;
-      setVisible(false);
-      setCustomCursorActive(false);
-      stopAnimation();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        hideCursor();
+      }
     };
 
     window.addEventListener('mousemove', onMove);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('blur', hideCursor);
+    window.addEventListener('scroll', repositionToFocusedElement, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener('resize', repositionToFocusedElement);
     document.addEventListener('focusin', onFocusIn);
-    document.documentElement.addEventListener('mouseleave', onLeave);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    document.documentElement.addEventListener('mouseleave', hideCursor);
 
     return () => {
       window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('blur', hideCursor);
+      window.removeEventListener('scroll', repositionToFocusedElement, true);
+      window.removeEventListener('resize', repositionToFocusedElement);
       document.removeEventListener('focusin', onFocusIn);
-      document.documentElement.removeEventListener('mouseleave', onLeave);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      document.documentElement.removeEventListener('mouseleave', hideCursor);
       visibleRef.current = false;
       setCustomCursorActive(false);
       stopAnimation();
@@ -121,7 +196,7 @@ export default function CustomCursor() {
     zIndex: 9999,
     opacity: visible ? 1 : 0,
     transition: 'opacity 0.3s',
-    willChange: 'transform' as const,
+    ...(visible ? { willChange: 'transform' as const } : {}),
   };
 
   const ringStyle = {
@@ -137,8 +212,8 @@ export default function CustomCursor() {
 
   return (
     <>
-      <div ref={dotRef} style={dotStyle} aria-hidden="true" />
-      <div ref={ringRef} style={ringStyle} aria-hidden="true" />
+      <div ref={dotRef} className="custom-cursor-dot" style={dotStyle} aria-hidden="true" />
+      <div ref={ringRef} className="custom-cursor-ring" style={ringStyle} aria-hidden="true" />
     </>
   );
 }

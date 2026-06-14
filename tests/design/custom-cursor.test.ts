@@ -6,7 +6,7 @@ import {
 } from '@/lib/design/custom-cursor';
 
 describe('custom-cursor helpers', () => {
-  it('requires ready profile without reduced motion, mobile, or coarse pointer', () => {
+  it('requires ready profile without reduced motion, mobile, coarse pointer, or hover none', () => {
     expect(shouldEnableCustomCursor(DEFAULT_DEVICE_PROFILE, false)).toBe(false);
     expect(shouldEnableCustomCursor(DEFAULT_DEVICE_PROFILE, true)).toBe(true);
     expect(
@@ -21,6 +21,12 @@ describe('custom-cursor helpers', () => {
     expect(
       shouldEnableCustomCursor(
         { ...DEFAULT_DEVICE_PROFILE, prefersCoarsePointer: true },
+        true,
+      ),
+    ).toBe(false);
+    expect(
+      shouldEnableCustomCursor(
+        { ...DEFAULT_DEVICE_PROFILE, prefersHoverNone: true },
         true,
       ),
     ).toBe(false);

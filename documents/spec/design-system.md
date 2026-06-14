@@ -71,12 +71,20 @@ font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Y
 
 - 小円（8px）+ 追従リング（32px）
 - magnetic effect は控えめ（リング追従係数 `cursor.followerLerp`: 0.12）
-- 初回 `mousemove` または `focusin` 後に `data-custom-cursor="active"` を付与し、システムカーソルを非表示
-- `input` / `textarea` / `select` は `cursor: text` を維持
-- 非表示時は rAF ループを停止
-- モバイル / coarse pointer / reduced-motion 時は非表示、システムカーソルは常に `auto`
+- 初回 `mousemove` または **キーボード操作後の** `focusin` で `data-custom-cursor="active"` を付与し、システムカーソルを非表示
+- システムカーソル非表示は `html[data-custom-cursor='active'] * { cursor: none !important }` でインライン `cursor: pointer` より優先
+- `input` / `textarea` / `select` は `cursor: text !important` を維持
+- 非表示時は rAF ループを停止、`willChange: transform` も解除
+- タブ切替・ウィンドウ blur・`visibilitychange` で `data-custom-cursor` を解除
+- キーボード `focusin` 表示中は `scroll` / `resize` で `document.activeElement` に追従
+- モバイル / coarse pointer / `(hover: none)` / reduced-motion 時は非表示、システムカーソルは常に `auto`
+- 印刷時（`@media print`）はカスタムカーソル DOM を非表示
 
 `lib/design/custom-cursor.ts` に有効条件と DOM 属性操作を集約。
+
+## ページ背景
+
+各 `page.tsx` の `<main>` グラデーションは `from-[var(--background)] to-black` を使用し、カラーパレット SSOT と整合させる。
 
 ## ユーティリティ
 
@@ -86,9 +94,11 @@ font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Y
 
 ## アクセシビリティ
 
+- `html { color-scheme: dark; }` でネイティブ form コントロールをダーク UI に整合
 - `:focus-visible` のみフォーカスリング表示
-- reduced-motion / mobile / coarse pointer 時カーソル無効
-- キーボード操作時は `focusin` でカスタムカーソルを表示（Tab 操作でもカーソルが見える）
+- reduced-motion / mobile / coarse pointer / `(hover: none)` 時カーソル無効
+- キーボード操作時のみ `focusin` でカスタムカーソルを表示（Tab 操作でもカーソルが見える。マウスクリック由来の focus は無視）。`:focus-visible` 一致時は SR 等の非 keydown フォーカスも許可
+- キーボード表示中は `scroll` / `resize` で `document.activeElement` に追従
 
 ## 参照
 

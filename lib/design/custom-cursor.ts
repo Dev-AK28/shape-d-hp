@@ -10,7 +10,8 @@ export function shouldEnableCustomCursor(
     isReady &&
     !profile.prefersReducedMotion &&
     !profile.isMobile &&
-    !profile.prefersCoarsePointer
+    !profile.prefersCoarsePointer &&
+    !profile.prefersHoverNone
   );
 }
 

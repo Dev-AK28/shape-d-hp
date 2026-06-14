@@ -14,6 +14,7 @@ describe('gsap-config', () => {
         isMobile: false,
         prefersReducedMotion: true,
         prefersCoarsePointer: false,
+        prefersHoverNone: false,
       }),
     ).toBe(true);
     expect(
@@ -21,6 +22,7 @@ describe('gsap-config', () => {
         isMobile: true,
         prefersReducedMotion: false,
         prefersCoarsePointer: false,
+        prefersHoverNone: false,
       }),
     ).toBe(true);
     expect(
@@ -28,6 +30,7 @@ describe('gsap-config', () => {
         isMobile: false,
         prefersReducedMotion: false,
         prefersCoarsePointer: true,
+        prefersHoverNone: false,
       }),
     ).toBe(true);
     expect(
@@ -35,6 +38,7 @@ describe('gsap-config', () => {
         isMobile: false,
         prefersReducedMotion: false,
         prefersCoarsePointer: false,
+        prefersHoverNone: false,
       }),
     ).toBe(false);
   });

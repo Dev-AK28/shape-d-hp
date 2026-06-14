@@ -4,7 +4,7 @@ import Navigation from '@/components/Navigation';
 
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#0A192F] to-black">
+    <main className="min-h-screen bg-gradient-to-b from-[var(--background)] to-black">
       <Navigation />
       <Hero />
       <ServicesContent />

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  color-scheme: dark;
+}
+
 :root {
   --background: #0a0a0a;
   --foreground: #f0f0f0;
@@ -34,25 +38,32 @@ body {
 }
 
 html[data-custom-cursor='active'],
-html[data-custom-cursor='active'] a,
-html[data-custom-cursor='active'] button {
-  cursor: none;
+html[data-custom-cursor='active'] * {
+  cursor: none !important;
 }
 
 html[data-custom-cursor='active'] input,
 html[data-custom-cursor='active'] textarea,
 html[data-custom-cursor='active'] select {
-  cursor: text;
+  cursor: text !important;
 }
 
-@media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
+@media (pointer: coarse), (hover: none), (max-width: 767px), (prefers-reduced-motion: reduce) {
   html[data-custom-cursor='active'],
-  html[data-custom-cursor='active'] a,
-  html[data-custom-cursor='active'] button,
-  html[data-custom-cursor='active'] input,
-  html[data-custom-cursor='active'] textarea,
-  html[data-custom-cursor='active'] select {
-    cursor: auto;
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
+  }
+}
+
+@media print {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] * {
+    cursor: auto !important;
+  }
+
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none !important;
   }
 }
 
