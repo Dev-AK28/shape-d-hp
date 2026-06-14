@@ -27,7 +27,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
 - Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
-- `shouldDisableGsapAnimation(prefersReducedMotion)` — reduced-motion 時 GSAP アニメーション無効
+- `shouldDisableGsapAnimation(profile)` — Lenis と同条件（reduced-motion / mobile / coarse pointer）で GSAP pin 無効
 
 `lib/scroll/easing.ts`（framer-motion）:
 
@@ -43,7 +43,8 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 | パス | 適用内容 |
 |------|---------|
-| `/` | Hero scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision リビール |
+| `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1` + About / MissionVision リビール |
+| `/services`, `/works`, `/philosophy` | Hero `brand` variant: ブランドロゴのみ（pin なし） |
 | `/services` | ServicesContent セクション/カード スタガー + TextReveal |
 | `/works` | WorksContent 同上 |
 | `/process` | ProcessNavigation / ProcessContent |
@@ -59,6 +60,10 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
   - PageLoader 非表示
   - リビールアニメーション duration 0 / initial false
   - ParallaxSection は通常 div にフォールバック
+  - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events` / `aria-hidden` で非表示時の操作を防止）
+- モバイル / coarse pointer 時:
+  - Lenis 無効
+  - Hero `immersive`: GSAP pin 無効（静的フォールバック）
 
 ## 受け入れ基準
 
