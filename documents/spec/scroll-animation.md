@@ -19,9 +19,9 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 `lib/scroll/animation-tokens.ts`（GSAP）:
 
-- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6`（#79 以降） / `section`: `1.8`（#79 以降） / `pageTransition`: `0.6`（#79 以降）
+- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6`（Hero ロゴ入場・Philosophy リビールで使用中） / `heroChild`: `1.2`（Hero 子要素スタガー） / `section`: `1.8`（#79 以降） / `pageTransition`: `0.6`（#79 以降）
 - `ANIMATION_EASE.base`: `expo.out` / `section`: `power3.inOut` / `reveal`: `power3.out`
-- `REVEAL_OFFSET.x`: `-20` / `y`: `20` / `stagger`: `0.15` / `textRevealStagger`: `0.06` / `maxStaggerItems`: `6`（#79 以降）
+- `REVEAL_OFFSET.x`: `-20` / `y`: `20` / `stagger`: `0.15` / `textRevealStagger`: `0.06` / `textRevealDurationScale`: `0.65` / `maxStaggerItems`: `6`（#79 以降）
 
 `lib/scroll/gsap-config.ts`:
 
@@ -33,16 +33,18 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 - `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
 - Lenis 初期化後および destroy 後に `refreshScrollTrigger()`
+- Lenis 初期化失敗時も `refreshScrollTrigger()` を呼び出し ScrollTrigger 計測を同期
 - Lenis `duration` は `ANIMATION_DURATION.base` を参照
 
 `lib/scroll/easing.ts`（framer-motion、`animation-tokens.ts` を参照）:
 
 - `scrollEase`: `[0.22, 1, 0.36, 1]`
 - `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`
-- `scrollTransition.duration`: `1.4`
+- `scrollTransition.duration`: `1.4`（`ANIMATION_DURATION.base`）
 - `scrollVariants`: `fadeUp`, `fadeUpLarge`（デフォルト offset は同一、`ScrollReveal` の `y` prop で上書き可）, `fadeLeft`, `scale`（y offset: 20px）
 - `scrollStagger`: `item: 0.15`, `card: 0.15`
 - `textRevealStagger`: `0.06`（`TextReveal` グラフェム単位）
+- `textRevealDurationScale`: `0.65`（`TextReveal` duration = `scrollTransition.duration × 0.65`）
 
 `lib/scroll/reveal-props.ts` の `getScrollRevealProps()` が各コンテンツコンポーネントから参照される。
 
