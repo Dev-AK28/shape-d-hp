@@ -16,7 +16,8 @@ Issue: #1
 - **描画方式**: `useRef` + 間引き `setInterval` + imperative DOM 位置更新（effect 内の同期的 `setState` を回避）
 - **パフォーマンス層**: `useDeviceProfile` + `useIntersectionVisible` + `scaleStarConfig` / `getStarUpdateIntervalMs` を配線済み（[`mobile-performance.md`](./mobile-performance.md)）
 - **ページ別上書き**: 各利用コンポーネントは `config={{ count: ... }}` 等で上書き可能（例: Hero は `count: 300`、PhilosophyContent は `count: 150, maxSize: 3.5`）
-- **利用コンポーネント**: Hero, About, Contact, MissionVision, PhilosophyContent, ProcessContent, ProcessNavigation, ServicesContent, Vision, WhatIDo, WhoIAm, ConsultingContent, DevelopmentContent, WorksContent
+- **利用コンポーネント**: Hero, Contact, PhilosophyContent, ProcessContent, ProcessNavigation, ServicesContent, Vision, WhatIDo, WhoIAm, ConsultingContent, DevelopmentContent, WorksContent
+- **非利用（Issue #80）**: About / MissionVision — scroll storytelling 化に伴い StarBackground を外し、デザイントークン背景に統一
 
 ## 受け入れ基準（Given-When-Then）
 

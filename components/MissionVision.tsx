@@ -1,54 +1,138 @@
 'use client';
 
+import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import StarBackground from '@/components/StarBackground';
+import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
+import { colors, spacing, typography } from '@/lib/design/tokens';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useGsapContext } from '@/lib/hooks/useGsapContext';
+import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
+import { shouldDisableGsapAnimation } from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+
+const visionQuotes = [
+  '内なる価値観と外なる行動が一致する状態こそが、真の自己実現である。',
+  '心理学で学んだこの概念が、エンジニアリングという具現化の技術と融合し、新たな価値を生み出す。',
+  'AIによる効率化は、人間本来の創造性を解放するための手段に過ぎない。',
+  '技術が代替不可能な、あなただけの「輪郭」を形にする。それが、SHAPE∞Dの存在意義。',
+];
 
 export default function MissionVision() {
   const reduceMotion = useReducedMotion();
+  const { profile } = useDeviceProfile();
+  const showQuotesImmediately =
+    shouldDisableGsapAnimation(profile) || reduceMotion === true;
+  const quotesRef = useRef<HTMLDivElement>(null);
+
+  useGsapContext(() => {
+    if (!quotesRef.current) {
+      return;
+    }
+
+    const items = quotesRef.current.querySelectorAll('[data-vision-quote]');
+    const limited = Array.from(items).slice(0, REVEAL_OFFSET.maxStaggerItems);
+
+    gsap.fromTo(
+      limited,
+      { opacity: 0, y: REVEAL_OFFSET.y },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.4,
+        ease: ANIMATION_EASE.base,
+        stagger: REVEAL_OFFSET.stagger,
+        scrollTrigger: {
+          trigger: quotesRef.current,
+          start: 'top 70%',
+          toggleActions: 'play none none reverse',
+        },
+      },
+    );
+  }, []);
 
   return (
-    <section style={{ position: 'relative', padding: '200px 24px', background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)' }}>
-      <StarBackground config={{ count: 100 }} />
+    <section
+      style={{
+        position: 'relative',
+        padding: `${spacing.section}px var(--space-3)`,
+        background: colors.background,
+        overflow: 'hidden',
+      }}
+    >
+      <p
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          fontSize: 'clamp(48px, 12vw, 160px)',
+          fontWeight: 300,
+          fontFamily: typography.fontDisplay,
+          color: colors.foreground,
+          opacity: 0.04,
+          letterSpacing: '0.08em',
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      >
+        SELF-CONGRUENCE
+      </p>
 
-      <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-        <motion.div
-          {...getScrollRevealProps(reduceMotion)}
-          style={{ marginBottom: '120px' }}
-        >
-          <h2 style={{ fontSize: 'clamp(48px, 6vw, 64px)', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <motion.div {...getScrollRevealProps(reduceMotion)} style={{ marginBottom: spacing.xxl }}>
+          <h2
+            style={{
+              fontSize: typography.sizeHeading,
+              fontWeight: 300,
+              color: colors.foreground,
+              marginBottom: spacing.sm,
+              fontFamily: typography.fontDisplay,
+              letterSpacing: '0.05em',
+            }}
+          >
             <TextReveal as="span" text="VISION" />
           </h2>
-          <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)' }} />
+          <div style={{ width: '64px', height: '1px', background: colors.accent }} />
         </motion.div>
 
-        <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
-          style={{ marginBottom: '80px' }}
+        <motion.p
+          {...getScrollRevealProps(reduceMotion, { delay: 0.15 })}
+          style={{
+            fontSize: typography.sizeSubheading,
+            color: colors.accent,
+            marginBottom: spacing.xxl,
+            fontFamily: typography.fontSerifJp,
+            fontWeight: 300,
+            letterSpacing: '0.06em',
+          }}
         >
-          <h3 style={{ fontSize: 'clamp(32px, 4vw, 42px)', fontWeight: 300, color: '#93c5fd', marginBottom: '48px', fontFamily: 'serif' }}>
-            <TextReveal as="span" text="自己一致（SELF-CONGRUENCE）への道" delay={0.1} />
-          </h3>
-          <p style={{ fontSize: '18px', color: '#d1d5db', lineHeight: 2, marginBottom: '48px', fontFamily: 'serif' }}>
-            カール・ロジャースが提唱した「自己一致」理論。内なる価値観と外なる行動が一致する状態こそが、真の自己実現である。心理学で学んだこの概念が、エンジニアリングという具現化の技術と融合し、新たな価値を生み出す。
-          </p>
-        </motion.div>
+          自己一致（SELF-CONGRUENCE）への道
+        </motion.p>
 
-        <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
-          style={{ padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
-        >
-          <p style={{ fontSize: '16px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}>
-            事業家としての信念
-          </p>
-          <p style={{ color: '#d1d5db', lineHeight: 2, fontSize: '18px', fontFamily: 'serif', marginBottom: '32px' }}>
-            AIによる効率化は、人間本来の創造性を解放するための手段に過ぎない。技術が代替不可能な、あなただけの「輪郭」を形にする。それが、SHAPE∞Dの存在意義。
-          </p>
-          <p style={{ color: '#9ca3af', lineHeight: 2, fontSize: '16px', fontFamily: 'serif' }}>
-            心理学の人間理解とエンジニアリングの具現化技術。この二つが融合し、自己表現を支援する。効率化の果てに、なお残る人間社会の価値と豊かさを再定義する。それが、私のビジョンであり、使命。
-          </p>
-        </motion.div>
+        <div ref={quotesRef}>
+          {visionQuotes.map((quote) => (
+            <blockquote
+              key={quote}
+              data-vision-quote
+              style={{
+                fontSize: 'clamp(22px, 3.5vw, 36px)',
+                color: colors.foreground,
+                lineHeight: 1.7,
+                fontFamily: typography.fontSerifJp,
+                fontWeight: 300,
+                margin: `0 0 ${spacing.xl}px`,
+                padding: 0,
+                border: 'none',
+                opacity: showQuotesImmediately ? 1 : 0,
+              }}
+            >
+              {quote}
+            </blockquote>
+          ))}
+        </div>
       </div>
     </section>
   );

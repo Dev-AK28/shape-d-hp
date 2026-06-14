@@ -64,7 +64,7 @@ Then アニメーションは無効化または最小限に抑えられる
 | E2E（ファビコン） | `e2e/favicon.spec.ts` |
 | E2E（トップ Hero） | `e2e/home.spec.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
-| E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts` |
+| E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
 | スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
