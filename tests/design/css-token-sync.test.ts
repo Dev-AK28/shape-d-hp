@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, typography, typographyBlend, typographyFontClasses, typographySizeClasses, typographySizeCssVars, warmGrade } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, typography, typographyBlend, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   desktopMinWidthMediaQuery,
@@ -79,11 +79,12 @@ describe('design tokens ↔ globals.css sync', () => {
       const cssVar = typographySizeCssVars[key];
       expect(globalsCss).toContain(`.${className}`);
       expect(globalsCss).toContain(`font-size: var(${cssVar})`);
-      expect(globalsCss).toContain(`${cssVar}: ${typography[`size${key.charAt(0).toUpperCase() + key.slice(1)}` as keyof typeof typography]}`);
+      expect(globalsCss).toContain(`${cssVar}: ${typography[typographySizeTokenKeys[key]]}`);
     }
 
-    expect(globalsCss).toContain(`.${typographyFontClasses.serif}`);
-    expect(globalsCss).toContain('font-family: var(--font-serif)');
+    expect(globalsCss).toMatch(
+      /\.type-font-serif\s*\{[^}]*font-family:\s*var\(--font-serif\)/,
+    );
     expect(globalsCss).toMatch(
       /\.type-font-serif-jp\s*\{[^}]*font-family:\s*var\(--font-serif-jp\)/,
     );

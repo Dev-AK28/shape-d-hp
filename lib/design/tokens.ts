@@ -88,6 +88,19 @@ export const typographySizeCssVars: Record<keyof typeof typographySizeClasses, s
   visualWord: '--type-size-visual-word',
 };
 
+/** Maps typographySizeClasses keys to typography.size* keys — used by css-token-sync tests */
+export const typographySizeTokenKeys: Record<
+  keyof typeof typographySizeClasses,
+  'sizeHeading' | 'sizeSubheading' | 'sizeQuote' | 'sizeBody' | 'sizeCaption' | 'sizeVisualWord'
+> = {
+  heading: 'sizeHeading',
+  subheading: 'sizeSubheading',
+  quote: 'sizeQuote',
+  body: 'sizeBody',
+  caption: 'sizeCaption',
+  visualWord: 'sizeVisualWord',
+};
+
 /** CSS utility for font stacks — Issue #15 */
 export const typographyFontClasses = {
   /** Cormorant via :root --font-serif = --font-display */

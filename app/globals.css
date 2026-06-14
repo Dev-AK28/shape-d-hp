@@ -238,7 +238,7 @@ button:not(.nav-menu-button):hover {
 
 /* Font family utilities — Issue #15 */
 .type-font-serif {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif), serif;
 }
 
 .type-font-serif-jp {
