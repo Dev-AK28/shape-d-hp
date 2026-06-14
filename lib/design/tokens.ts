@@ -52,3 +52,15 @@ export const cursor = {
   followerOpacity: 0.4,
   followerLerp: 0.12,
 } as const;
+
+/** Warm gold grade overlay for Hero cosmic background — Issue #102 */
+export const warmGrade = {
+  overlayStart: 'rgba(196, 181, 160, 0.08)',
+  overlayMid: 'rgba(196, 181, 160, 0.12)',
+  overlayEnd: 'rgba(196, 181, 160, 0.15)',
+  overlayGradient:
+    'linear-gradient(180deg, rgba(196, 181, 160, 0.08) 0%, rgba(196, 181, 160, 0.12) 45%, rgba(196, 181, 160, 0.15) 100%)',
+  /** Desktop-only nebula filter — disabled on mobile / reduced-motion via CSS */
+  nebulaFilter: 'sepia(0.08) saturate(1.05) hue-rotate(-5deg)',
+  testId: 'cosmic-warm-grade-overlay',
+} as const;

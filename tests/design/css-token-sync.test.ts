@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, layout, motion, spacing } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, spacing, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   mobileMaxWidthMediaQuery,
@@ -39,6 +39,13 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--duration-base: ${motion.durationBase}`);
     expect(globalsCss).toContain(`--duration-interaction: ${motion.durationInteraction}`);
     expect(globalsCss).toContain(`--ease-base: ${motion.easeBase}`);
+  });
+
+  it('mirrors warm grade tokens in CSS variables', () => {
+    expect(globalsCss).toContain(`--warm-grade-overlay-start: ${warmGrade.overlayStart}`);
+    expect(globalsCss).toContain(`--warm-grade-overlay-mid: ${warmGrade.overlayMid}`);
+    expect(globalsCss).toContain(`--warm-grade-overlay-end: ${warmGrade.overlayEnd}`);
+    expect(globalsCss).toContain(`--warm-grade-nebula-filter: ${warmGrade.nebulaFilter}`);
   });
 
   it('defines custom cursor CSS hooks', () => {
