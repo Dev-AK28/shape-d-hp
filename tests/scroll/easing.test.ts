@@ -25,6 +25,7 @@ describe('easing ↔ animation-tokens chain', () => {
 
   it('scrollVariants fade offsets mirror REVEAL_OFFSET', () => {
     expect(scrollVariants.fadeUp.hidden.y).toBe(REVEAL_OFFSET.y);
+    expect(scrollVariants.fadeUpLarge.hidden.y).toBe(REVEAL_OFFSET.y);
     expect(scrollVariants.fadeLeft.hidden.x).toBe(REVEAL_OFFSET.x);
   });
 

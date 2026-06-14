@@ -7,6 +7,7 @@ import {
   ANIMATION_DURATION,
   configureGsapDefaults,
   gsap,
+  GSAP_TICKER,
   refreshScrollTrigger,
   registerGsapPlugins,
   ScrollTrigger,
@@ -28,7 +29,10 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     configureGsapDefaults();
 
     if (shouldDisableSmoothScroll(profile)) {
-      return;
+      refreshScrollTrigger();
+      return () => {
+        refreshScrollTrigger();
+      };
     }
 
     type LenisInstance = InstanceType<Awaited<typeof import('lenis')>['default']>;
@@ -58,7 +62,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         };
 
         gsap.ticker.add(tickerCallback);
-        gsap.ticker.lagSmoothing(0);
+        gsap.ticker.lagSmoothing(GSAP_TICKER.lagSmoothingActive);
         refreshScrollTrigger();
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
@@ -72,7 +76,10 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       cancelled = true;
       if (tickerCallback) {
         gsap.ticker.remove(tickerCallback);
-        gsap.ticker.lagSmoothing(500, 33);
+        gsap.ticker.lagSmoothing(
+          GSAP_TICKER.lagSmoothingRestoreMs,
+          GSAP_TICKER.lagSmoothingRestoreThreshold,
+        );
       }
       lenis?.destroy();
       refreshScrollTrigger();

@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import TextReveal from '@/components/scroll/TextReveal';
-import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
+import { ANIMATION_DURATION, REVEAL_DELAY } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function PhilosophyContent() {
@@ -117,7 +117,7 @@ export default function PhilosophyContent() {
               </motion.div>
 
               <motion.div
-                {...getScrollRevealProps(reduceMotion, { delay: 0.3, duration: ANIMATION_DURATION.hero })}
+                {...getScrollRevealProps(reduceMotion, { delay: REVEAL_DELAY.philosophy.title, duration: ANIMATION_DURATION.hero })}
                 style={{ textAlign: 'center', marginBottom: '64px' }}
               >
                 <h2 style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
@@ -129,7 +129,7 @@ export default function PhilosophyContent() {
               </motion.div>
 
               <motion.div
-                {...getScrollRevealProps(reduceMotion, { delay: 0.6, duration: ANIMATION_DURATION.hero })}
+                {...getScrollRevealProps(reduceMotion, { delay: REVEAL_DELAY.philosophy.body, duration: ANIMATION_DURATION.hero })}
                 style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto', marginBottom: '64px' }}
               >
                 <p style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#d1d5db', lineHeight: 2, fontFamily: 'serif', fontWeight: 300 }}>
@@ -138,7 +138,7 @@ export default function PhilosophyContent() {
               </motion.div>
 
               <motion.div
-                {...getScrollRevealProps(reduceMotion, { delay: 0.9, duration: ANIMATION_DURATION.hero })}
+                {...getScrollRevealProps(reduceMotion, { delay: REVEAL_DELAY.philosophy.closing, duration: ANIMATION_DURATION.hero })}
                 style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}
               >
                 <p style={{ fontSize: 'clamp(16px, 1.5vw, 20px)', color: '#9ca3af', lineHeight: 2.5, fontFamily: 'serif' }}>
@@ -173,7 +173,7 @@ export default function PhilosophyContent() {
               自己一致への道を照らす
             </motion.h1>
             <motion.p
-              {...getScrollRevealProps(reduceMotion, { variant: 'fadeUp', delay: 0.5, duration: ANIMATION_DURATION.hero })}
+              {...getScrollRevealProps(reduceMotion, { variant: 'fadeUp', delay: REVEAL_DELAY.philosophy.mission, duration: ANIMATION_DURATION.hero })}
               style={{ fontSize: 'clamp(18px, 2vw, 24px)', color: '#9ca3af', lineHeight: 2, fontFamily: 'serif', marginBottom: '64px' }}
             >
               人間を深く理解し、技術で具現化する。<br />
@@ -181,7 +181,7 @@ export default function PhilosophyContent() {
             </motion.p>
             <motion.a
               href="/contact"
-              {...getScrollRevealProps(reduceMotion, { variant: 'fadeUp', delay: 1, duration: ANIMATION_DURATION.hero })}
+              {...getScrollRevealProps(reduceMotion, { variant: 'fadeUp', delay: REVEAL_DELAY.philosophy.cta, duration: ANIMATION_DURATION.hero })}
               whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
               whileTap={reduceMotion ? undefined : { scale: 0.95 }}
               style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}

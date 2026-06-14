@@ -28,3 +28,28 @@ export const REVEAL_OFFSET = {
   textRevealDurationScale: 0.65,
   maxStaggerItems: 6,
 } as const;
+
+/** Stagger delays for scroll-reveal sequences (seconds). */
+export const REVEAL_DELAY = {
+  heroChild: {
+    wrapper: 0.2,
+    values: 0.35,
+    copy: 0.5,
+    cta: 0.65,
+  },
+  heroScrollIndicator: 1.2,
+  philosophy: {
+    title: 0.3,
+    body: 0.6,
+    closing: 0.9,
+    mission: 0.5,
+    cta: 1.0,
+  },
+} as const;
+
+/** GSAP ticker lagSmoothing restore values after Lenis teardown. */
+export const GSAP_TICKER = {
+  lagSmoothingActive: 0,
+  lagSmoothingRestoreMs: 500,
+  lagSmoothingRestoreThreshold: 33,
+} as const;

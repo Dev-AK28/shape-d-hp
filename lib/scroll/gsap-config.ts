@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ANIMATION_DURATION, ANIMATION_EASE } from './animation-tokens';
+import { ANIMATION_DURATION, ANIMATION_EASE, GSAP_TICKER } from './animation-tokens';
 
 let registered = false;
 
@@ -33,4 +33,4 @@ export function refreshScrollTrigger(): void {
   ScrollTrigger.refresh();
 }
 
-export { gsap, ScrollTrigger, ANIMATION_DURATION, ANIMATION_EASE };
+export { gsap, ScrollTrigger, ANIMATION_DURATION, ANIMATION_EASE, GSAP_TICKER };
