@@ -13,6 +13,9 @@ export const LOGO_SAMPLE_MAX_DIMENSION = 768;
  */
 export const LOGO_PARTICLE_RENDER_SCALE = 0.98;
 
+/** Hero particle formation animation duration (ms). SSOT for component + E2E waits. */
+export const LOGO_PARTICLE_FORMATION_MS = 2400;
+
 export function fitSampleDimensions(
   width: number,
   height: number,

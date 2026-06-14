@@ -1,9 +1,10 @@
 import { expect, type Page } from '@playwright/test';
+import { LOGO_PARTICLE_FORMATION_MS } from '../lib/hero/sample-logo-target-points';
 
 export const LOGO_ALT = 'SHAPE∞D Logo';
 
-/** Particle formation duration in Hero immersive mode (ms). */
-export const HERO_PARTICLE_FORMATION_MS = 2400;
+/** Re-export SSOT from `lib/hero/sample-logo-target-points`. */
+export const HERO_PARTICLE_FORMATION_MS = LOGO_PARTICLE_FORMATION_MS;
 
 const HERO_HEADING = /AIで効率化し、.*本来の創造に集中する環境を作る。/;
 
