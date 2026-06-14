@@ -1,27 +1,46 @@
 'use client';
 
 import { useRef } from 'react';
-import { useReducedMotion } from 'framer-motion';
-import { gsap } from 'gsap';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { colors, typography } from '@/lib/design/tokens';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
-import { ANIMATION_EASE } from '@/lib/scroll/gsap-config';
+import {
+  ANIMATION_DURATION,
+  ANIMATION_EASE,
+  gsap,
+  shouldDisableGsapAnimation,
+} from '@/lib/scroll/gsap-config';
 import type { ReactNode } from 'react';
+
+export type HeroVariant = 'immersive' | 'brand';
 
 type HeroProps = {
   children?: ReactNode;
+  variant?: HeroVariant;
 };
 
-export default function Hero({ children }: HeroProps) {
-  const reduceMotion = useReducedMotion();
+export default function Hero({ children, variant = 'immersive' }: HeroProps) {
+  const { profile, isReady } = useDeviceProfile();
   const sectionRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  const isImmersive = variant === 'immersive';
+  const staticFallback = !isReady || shouldDisableGsapAnimation(profile);
 
   useGsapContext(() => {
-    if (!sectionRef.current || !logoRef.current || !copyRef.current) {
+    if (
+      !isImmersive ||
+      !sectionRef.current ||
+      !logoRef.current ||
+      !copyRef.current ||
+      !ctaRef.current
+    ) {
       return;
     }
+
+    const revealTargets = [copyRef.current, ctaRef.current];
 
     const timeline = gsap.timeline({
       scrollTrigger: {
@@ -29,7 +48,7 @@ export default function Hero({ children }: HeroProps) {
         start: 'top top',
         end: '+=120%',
         pin: true,
-        scrub: 1.6,
+        scrub: ANIMATION_DURATION.hero,
         anticipatePin: 1,
       },
     });
@@ -46,14 +65,27 @@ export default function Hero({ children }: HeroProps) {
     );
 
     timeline.fromTo(
-      copyRef.current,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, ease: ANIMATION_EASE.base },
+      revealTargets,
+      { opacity: 0, y: 30, pointerEvents: 'none' },
+      {
+        opacity: 1,
+        y: 0,
+        ease: ANIMATION_EASE.base,
+        pointerEvents: 'auto',
+        onStart: () => {
+          for (const element of revealTargets) {
+            element.style.visibility = 'visible';
+            element.removeAttribute('aria-hidden');
+          }
+        },
+      },
       0.35,
     );
-  }, []);
+  }, [isImmersive]);
 
-  const showCopyImmediately = reduceMotion === true;
+  const showCopyImmediately = isImmersive && staticFallback;
+  const copyVisible = !isImmersive || showCopyImmediately;
+  const logoVisible = isImmersive && !showCopyImmediately;
 
   return (
     <section
@@ -67,7 +99,7 @@ export default function Hero({ children }: HeroProps) {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: `linear-gradient(180deg, ${colors.background} 0%, #111111 100%)`,
+        background: `linear-gradient(180deg, ${colors.background} 0%, ${colors.backgroundElevated} 100%)`,
       }}
     >
       <div
@@ -80,7 +112,10 @@ export default function Hero({ children }: HeroProps) {
           justifyContent: 'center',
           zIndex: 10,
           pointerEvents: 'none',
+          opacity: logoVisible ? 1 : 0,
+          visibility: logoVisible ? 'visible' : 'hidden',
         }}
+        aria-hidden={!logoVisible}
       >
         <p
           style={{
@@ -100,43 +135,67 @@ export default function Hero({ children }: HeroProps) {
         </p>
       </div>
 
-      <div
-        ref={copyRef}
-        style={{
-          position: 'relative',
-          zIndex: 20,
-          textAlign: 'center',
-          padding: '0 var(--space-3)',
-          maxWidth: '900px',
-          opacity: showCopyImmediately ? 1 : 0,
-        }}
-      >
-        {children}
-
-        <p
+      {isImmersive ? (
+        <div
+          ref={copyRef}
           style={{
-            fontSize: typography.sizeBody,
-            color: colors.muted,
-            lineHeight: 1.9,
-            fontFamily: typography.fontSerifJp,
-            fontWeight: 300,
-            marginTop: 'var(--space-4)',
-            letterSpacing: '0.04em',
+            position: 'relative',
+            zIndex: 20,
+            textAlign: 'center',
+            padding: '0 var(--space-3)',
+            maxWidth: '900px',
+            opacity: copyVisible ? 1 : 0,
+            pointerEvents: copyVisible ? 'auto' : 'none',
+            visibility: copyVisible ? 'visible' : 'hidden',
           }}
+          aria-hidden={!copyVisible}
         >
-          爆速・安全・低コスト——技術の余白に、創造性を。
-          <br />
-          AIを指揮し、本来の事業価値を形にする環境を創ります。
-        </p>
+          {children}
 
+          <p
+            style={{
+              fontSize: typography.sizeBody,
+              color: colors.muted,
+              lineHeight: 1.9,
+              fontFamily: typography.fontSerifJp,
+              fontWeight: 300,
+              marginTop: 'var(--space-4)',
+              letterSpacing: '0.04em',
+            }}
+          >
+            爆速・安全・低コスト——技術の余白に、創造性を。
+            <br />
+            AIを指揮し、本来の事業価値を形にする環境を創ります。
+          </p>
+        </div>
+      ) : (
         <div
           style={{
-            position: 'fixed',
+            position: 'relative',
+            zIndex: 20,
+            textAlign: 'center',
+            padding: '0 var(--space-3)',
+            maxWidth: '900px',
+          }}
+        >
+          {children}
+        </div>
+      )}
+
+      {isImmersive ? (
+        <div
+          ref={ctaRef}
+          style={{
+            position: 'absolute',
             bottom: 'var(--space-6)',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 30,
+            pointerEvents: copyVisible ? 'auto' : 'none',
+            visibility: copyVisible ? 'visible' : 'hidden',
+            opacity: copyVisible ? 1 : 0,
           }}
+          aria-hidden={!copyVisible}
         >
           <a
             href="/contact"
@@ -158,7 +217,7 @@ export default function Hero({ children }: HeroProps) {
             お問い合わせ
           </a>
         </div>
-      </div>
+      ) : null}
     </section>
   );
 }

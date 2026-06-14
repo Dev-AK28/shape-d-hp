@@ -17,7 +17,7 @@ export function useGsapContext(
   setupRef.current = setup;
 
   const disableAnimation =
-    shouldDisableGsapAnimation(profile.prefersReducedMotion) || reduceMotion === true;
+    shouldDisableGsapAnimation(profile) || reduceMotion === true;
 
   useLayoutEffect(() => {
     if (!isReady || disableAnimation) {

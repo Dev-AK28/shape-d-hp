@@ -12,16 +12,19 @@ function subscribeToDeviceProfile(onStoreChange: () => void) {
   const mobileQuery = window.matchMedia(mobileMaxWidthMediaQuery());
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pointerQuery = window.matchMedia('(pointer: coarse)');
+  const hoverQuery = window.matchMedia('(hover: none)');
 
   mobileQuery.addEventListener('change', onStoreChange);
   motionQuery.addEventListener('change', onStoreChange);
   pointerQuery.addEventListener('change', onStoreChange);
+  hoverQuery.addEventListener('change', onStoreChange);
   window.addEventListener('resize', onStoreChange);
 
   return () => {
     mobileQuery.removeEventListener('change', onStoreChange);
     motionQuery.removeEventListener('change', onStoreChange);
     pointerQuery.removeEventListener('change', onStoreChange);
+    hoverQuery.removeEventListener('change', onStoreChange);
     window.removeEventListener('resize', onStoreChange);
   };
 }

@@ -26,7 +26,8 @@ test.describe('Scroll animations', () => {
   test('shows about timeline immediately under reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await waitForHomePageReady(page);
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0);
 
     const firstTimelineItem = page.locator('[data-timeline-item]').first();
     await firstTimelineItem.scrollIntoViewIfNeeded();

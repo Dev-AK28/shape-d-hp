@@ -22,7 +22,7 @@ export default function MissionVision() {
   const reduceMotion = useReducedMotion();
   const { profile } = useDeviceProfile();
   const showQuotesImmediately =
-    shouldDisableGsapAnimation(profile.prefersReducedMotion) || reduceMotion === true;
+    shouldDisableGsapAnimation(profile) || reduceMotion === true;
   const quotesRef = useRef<HTMLDivElement>(null);
 
   useGsapContext(() => {

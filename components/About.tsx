@@ -23,7 +23,7 @@ export default function About() {
   const reduceMotion = useReducedMotion();
   const { profile } = useDeviceProfile();
   const showTimelineImmediately =
-    shouldDisableGsapAnimation(profile.prefersReducedMotion) || reduceMotion === true;
+    shouldDisableGsapAnimation(profile) || reduceMotion === true;
   const timelineRef = useRef<HTMLUListElement>(null);
 
   useGsapContext(() => {

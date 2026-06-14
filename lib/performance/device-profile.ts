@@ -4,12 +4,14 @@ export type DeviceProfile = {
   isMobile: boolean;
   prefersReducedMotion: boolean;
   prefersCoarsePointer: boolean;
+  prefersHoverNone: boolean;
 };
 
 export const DEFAULT_DEVICE_PROFILE: DeviceProfile = {
   isMobile: false,
   prefersReducedMotion: false,
   prefersCoarsePointer: false,
+  prefersHoverNone: false,
 };
 
 export function mobileMaxWidthMediaQuery(): string {
@@ -31,13 +33,15 @@ export function readDeviceProfile(): DeviceProfile {
     isMobile: isMobileViewport(window.innerWidth),
     prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     prefersCoarsePointer: window.matchMedia('(pointer: coarse)').matches,
+    prefersHoverNone: window.matchMedia('(hover: none)').matches,
   };
 
   if (
     cachedDeviceProfile &&
     cachedDeviceProfile.isMobile === next.isMobile &&
     cachedDeviceProfile.prefersReducedMotion === next.prefersReducedMotion &&
-    cachedDeviceProfile.prefersCoarsePointer === next.prefersCoarsePointer
+    cachedDeviceProfile.prefersCoarsePointer === next.prefersCoarsePointer &&
+    cachedDeviceProfile.prefersHoverNone === next.prefersHoverNone
   ) {
     return cachedDeviceProfile;
   }
