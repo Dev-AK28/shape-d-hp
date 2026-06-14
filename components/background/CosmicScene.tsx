@@ -4,6 +4,7 @@ import Image from 'next/image';
 import type { RefObject } from 'react';
 import { backgroundAssets } from '@/lib/design/background-assets';
 import { colors } from '@/lib/design/tokens';
+import { HERO_DEPTH_PASSAGE } from '@/lib/scroll/animation-tokens';
 
 type CosmicSceneProps = {
   isMobile: boolean;
@@ -37,7 +38,7 @@ export default function CosmicScene({
       <div
         ref={perspectiveDepthRef}
         className="absolute inset-0 will-change-transform"
-        style={{ transformOrigin: '50% 45%' }}
+        style={{ transformOrigin: HERO_DEPTH_PASSAGE.cosmic.transformOrigin }}
       >
       <div ref={baseRef} className="absolute inset-0 will-change-transform">
         <Image

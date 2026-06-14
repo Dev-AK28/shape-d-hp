@@ -21,6 +21,7 @@ import {
 import {
   HERO_DEPTH_PASSAGE,
   HERO_PIN_SCROLL,
+  HERO_PIN_TEST_ID,
 } from '@/lib/scroll/animation-tokens';
 import type { ReactNode } from 'react';
 
@@ -30,8 +31,6 @@ type HeroProps = {
   children?: ReactNode;
   variant?: HeroVariant;
 };
-
-const REVEAL_TIMELINE_START = HERO_DEPTH_PASSAGE.revealTimelineStart;
 
 export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const { profile, isReady } = useDeviceProfile();
@@ -97,7 +96,16 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
 
     timeline.eventCallback('onUpdate', syncScrollRevealed);
 
-    const { approachPhaseEnd, particleBand, logo } = HERO_DEPTH_PASSAGE;
+    const {
+      timelineDuration,
+      approachPhaseEnd,
+      revealTimelineStart,
+      particleBand,
+      logo,
+    } = HERO_DEPTH_PASSAGE;
+    const approachDuration = timelineDuration * approachPhaseEnd;
+    const passDuration = timelineDuration - approachDuration;
+    const revealDuration = timelineDuration - revealTimelineStart * timelineDuration;
 
     if (particleBandRef.current) {
       timeline.fromTo(
@@ -111,6 +119,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           opacity: particleBand.initialOpacity,
           scale: particleBand.approachScale,
           y: particleBand.approachY,
+          duration: approachDuration,
           ease: ANIMATION_EASE.base,
         },
         0,
@@ -122,9 +131,10 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           opacity: 0,
           scale: particleBand.passScale,
           y: particleBand.passY,
+          duration: passDuration,
           ease: ANIMATION_EASE.base,
         },
-        approachPhaseEnd,
+        approachDuration,
       );
     }
 
@@ -134,6 +144,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       {
         scale: logo.approachScale,
         y: logo.approachY,
+        duration: approachDuration,
         ease: ANIMATION_EASE.base,
       },
       0,
@@ -145,9 +156,10 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         scale: logo.passScale,
         opacity: 0,
         y: logo.passY,
+        duration: passDuration,
         ease: ANIMATION_EASE.base,
       },
-      approachPhaseEnd,
+      approachDuration,
     );
 
     timeline.fromTo(
@@ -156,10 +168,11 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       {
         opacity: 1,
         y: 0,
+        duration: revealDuration,
         ease: ANIMATION_EASE.base,
         pointerEvents: 'auto',
       },
-      REVEAL_TIMELINE_START,
+      revealTimelineStart * timelineDuration,
     );
 
     syncScrollRevealed();
@@ -181,7 +194,9 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     : { opacity: logoVisible ? 1 : 0 };
   const reactParticleBandOpacityStyle = gsapControlled
     ? undefined
-    : { opacity: logoVisible ? 0.65 : 0 };
+    : {
+        opacity: logoVisible ? HERO_DEPTH_PASSAGE.particleBand.initialOpacity : 0,
+      };
   const mobileStaticHero = isImmersive && staticFallback && profile.isMobile;
   const showParticleFormation =
     logoVisible && !logoRevealed && !skipFormation;
@@ -190,6 +205,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     <section
       ref={sectionRef}
       data-hero-pin={isImmersive ? '' : undefined}
+      data-testid={isImmersive ? HERO_PIN_TEST_ID : undefined}
       className="noise-bg"
       style={{
         position: 'relative',

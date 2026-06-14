@@ -7,6 +7,7 @@ import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import {
   HERO_DEPTH_PASSAGE,
   HERO_PIN_SCROLL,
+  HERO_PIN_SELECTOR,
 } from '@/lib/scroll/animation-tokens';
 import { gsap } from '@/lib/scroll/gsap-config';
 
@@ -51,7 +52,7 @@ export default function HomePageShell({ children }: HomePageShellProps) {
       });
     }
 
-    const heroSection = mainRef.current.querySelector('[data-hero-pin]');
+    const heroSection = mainRef.current.querySelector(HERO_PIN_SELECTOR);
     if (heroSection && perspectiveDepthRef.current) {
       gsap.fromTo(
         perspectiveDepthRef.current,
@@ -64,6 +65,7 @@ export default function HomePageShell({ children }: HomePageShellProps) {
             start: HERO_PIN_SCROLL.start,
             end: HERO_PIN_SCROLL.end,
             scrub: HERO_PIN_SCROLL.scrub,
+            anticipatePin: HERO_PIN_SCROLL.anticipatePin,
           },
         },
       );

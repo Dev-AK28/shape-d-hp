@@ -62,14 +62,25 @@ export const HERO_PIN_SCROLL = {
   anticipatePin: 1,
 } as const;
 
+/** HomePageShell ↔ Hero coupling for hero pin ScrollTrigger (Issue #100). */
+export const HERO_PIN_TEST_ID = 'hero-pin-section' as const;
+
+export const HERO_PIN_SELECTOR = `[data-testid="${HERO_PIN_TEST_ID}"]` as const;
+
 /**
  * Scroll-driven depth passage (Issue #100): layered scale / translate / opacity
  * simulating camera movement through nebula, particle band, and logo.
+ *
+ * Timeline positions (`approachPhaseEnd`, `revealTimelineStart`) are fractions of
+ * `timelineDuration` (seconds). GSAP tweens must set explicit `duration` from these
+ * fractions so approach / pass phases do not overlap.
  */
 export const HERO_DEPTH_PASSAGE = {
-  /** Normalized timeline position where approach phase ends and pass-through begins. */
+  /** Total scrub timeline length in seconds (scroll maps 0→1 across this span). */
+  timelineDuration: 1,
+  /** Fraction of timelineDuration where approach ends and pass-through begins. */
   approachPhaseEnd: 0.55,
-  /** Copy/CTA reveal — after logo begins receding through depth. */
+  /** Fraction of timelineDuration where copy/CTA reveal begins. */
   revealTimelineStart: 0.35,
   particleBand: {
     initialOpacity: 0.65,
@@ -86,5 +97,6 @@ export const HERO_DEPTH_PASSAGE = {
   },
   cosmic: {
     perspectiveScale: 1.2,
+    transformOrigin: '50% 45%',
   },
 } as const;
