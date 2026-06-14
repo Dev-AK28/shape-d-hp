@@ -48,10 +48,10 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | `/services` | PageHeader + ServicesContent スタガー + TextReveal（Hero なし・StarBackground なし） |
 | `/works` | PageHeader + WorksContent 同上 |
 | `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
-| `/process` | ProcessNavigation / ProcessContent |
-| `/process/development` | DevelopmentContent |
-| `/process/consulting` | ConsultingContent |
-| `/contact` | ScrollReveal + TextReveal（既存） |
+| `/process` | ProcessNavigation — PageHeader + ナビカード |
+| `/process/development` | PageHeader（`DEVELOPMENT`）+ DevelopmentContent スタガー |
+| `/process/consulting` | PageHeader（`CONSULTING`）+ ConsultingContent スタガー |
+| `/contact` | PageHeader（静的タイトル・divider なし・email 行）+ フォーム ScrollReveal |
 
 ### トップ Hero 背景・ロゴ（補足）
 
