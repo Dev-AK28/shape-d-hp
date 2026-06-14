@@ -4,7 +4,6 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
-import { colors, layout, spacing, typography } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -52,72 +51,31 @@ export default function MissionVision() {
 
   return (
     <section
-      style={{
-        position: 'relative',
-        padding: `${spacing.section}px var(--space-3)`,
-        background: 'rgba(10, 10, 10, 0.72)',
-        backdropFilter: 'blur(2px)',
-        overflow: 'hidden',
-      }}
+      className="relative overflow-hidden py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
     >
       <p
         aria-hidden="true"
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          fontSize: 'clamp(40px, 10vw, 140px)',
-          fontWeight: 300,
-          fontFamily: typography.fontDisplay,
-          color: colors.foreground,
-          opacity: 0.04,
-          letterSpacing: '0.08em',
-          whiteSpace: 'nowrap',
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-display text-[clamp(40px,10vw,140px)] font-light tracking-[0.08em] text-[var(--foreground)] opacity-[0.04]"
       >
         SELF-CONGRUENCE
       </p>
 
-      <div
-        style={{
-          maxWidth: layout.contentStandard,
-          margin: '0 auto',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
+      <div className="relative z-[1] mx-auto max-w-[var(--content-standard)]">
         <motion.div
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
-          style={{ marginBottom: spacing.xxl }}
+          className="mb-[var(--space-8)]"
         >
           <h2
-            style={{
-              fontSize: typography.sizeHeading,
-              fontWeight: 300,
-              color: colors.foreground,
-              marginBottom: spacing.sm,
-              fontFamily: typography.fontDisplay,
-              letterSpacing: '0.05em',
-            }}
+            className="mb-[var(--space-2)] font-display text-[clamp(32px,5vw,64px)] font-light text-[var(--foreground)] tracking-[0.05em]"
           >
             <TextReveal as="span" text="VISION" />
           </h2>
-          <div style={{ width: '64px', height: '1px', background: colors.accent }} />
+          <div className="h-px w-16 bg-[var(--accent)]" />
         </motion.div>
 
         <motion.p
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
-          style={{
-            fontSize: typography.sizeSubheading,
-            color: colors.accent,
-            marginBottom: spacing.xxl,
-            fontFamily: typography.fontSerifJp,
-            fontWeight: 300,
-            letterSpacing: '0.06em',
-          }}
+          className="mb-[var(--space-8)] font-serif-jp text-[clamp(20px,2.5vw,28px)] font-light tracking-[0.06em] text-[var(--accent)]"
         >
           自己一致（SELF-CONGRUENCE）への道
         </motion.p>
@@ -127,19 +85,8 @@ export default function MissionVision() {
             <blockquote
               key={quote}
               data-vision-quote
-              style={{
-                fontSize: typography.sizeQuote,
-                color: colors.foreground,
-                lineHeight: 1.85,
-                fontFamily: typography.fontSerifJp,
-                fontWeight: 300,
-                margin: `0 0 ${spacing.xl}px`,
-                padding: 0,
-                border: 'none',
-                opacity: staticReveal ? 1 : 0,
-                maxWidth: '36em',
-                textWrap: 'balance',
-              }}
+              className="mb-[var(--space-6)] max-w-[36em] border-none p-0 font-serif-jp text-[clamp(18px,2.5vw,28px)] font-light leading-[1.85] text-balance text-[var(--foreground)]"
+              style={{ opacity: staticReveal ? 1 : 0 }}
             >
               {quote}
             </blockquote>
