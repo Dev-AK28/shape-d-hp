@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   ANIMATION_DURATION,
   ANIMATION_EASE,
@@ -6,9 +6,25 @@ import {
 import {
   MICRO_INTERACTION,
   isMicroInteractionVariant,
+  shouldEnableMicroInteraction,
 } from '@/lib/scroll/micro-interaction';
 
+function mockWindowMatchMedia(matchesByQuery: Record<string, boolean>) {
+  vi.stubGlobal('window', {
+    matchMedia: (query: string) => ({
+      matches: matchesByQuery[query] ?? false,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
+  });
+}
+
 describe('micro-interaction', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('exports interaction duration aligned with CSS --duration-interaction', () => {
     expect(ANIMATION_DURATION.interaction).toBe(0.25);
   });
@@ -30,5 +46,45 @@ describe('micro-interaction', () => {
     expect(isMicroInteractionVariant('footer')).toBe(true);
     expect(isMicroInteractionVariant('card')).toBe(false);
     expect(isMicroInteractionVariant(undefined)).toBe(false);
+  });
+
+  it('disables micro-interaction when window is unavailable', () => {
+    expect(shouldEnableMicroInteraction()).toBe(false);
+  });
+
+  it('enables micro-interaction on desktop fine-pointer without reduced motion', () => {
+    mockWindowMatchMedia({
+      '(prefers-reduced-motion: reduce)': false,
+      '(pointer: coarse)': false,
+      '(hover: none)': false,
+    });
+
+    expect(shouldEnableMicroInteraction()).toBe(true);
+  });
+
+  it('disables micro-interaction when prefers-reduced-motion is active', () => {
+    mockWindowMatchMedia({
+      '(prefers-reduced-motion: reduce)': true,
+      '(pointer: coarse)': false,
+      '(hover: none)': false,
+    });
+
+    expect(shouldEnableMicroInteraction()).toBe(false);
+  });
+
+  it('disables micro-interaction on coarse pointer or hover:none', () => {
+    mockWindowMatchMedia({
+      '(prefers-reduced-motion: reduce)': false,
+      '(pointer: coarse)': true,
+      '(hover: none)': false,
+    });
+    expect(shouldEnableMicroInteraction()).toBe(false);
+
+    mockWindowMatchMedia({
+      '(prefers-reduced-motion: reduce)': false,
+      '(pointer: coarse)': false,
+      '(hover: none)': true,
+    });
+    expect(shouldEnableMicroInteraction()).toBe(false);
   });
 });

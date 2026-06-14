@@ -146,9 +146,9 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 
 | 要素 | `data-micro-interaction` | hover 変化 | 備考 |
 |------|--------------------------|-----------|------|
-| グローバルナビリンク | `nav` | opacity 0.75 + letter-spacing 0.1em→0.14em | `Navigation.tsx` |
+| グローバルナビリンク | `nav` | opacity 0.75 + letter-spacing 0.1em→0.14em | `Navigation.tsx`（letter-spacing は Link の GSAP preset が制御。子要素に inline / Tailwind で上書きしない） |
 | Hero CTA | `cta` | scale 1.03 + opacity 0.88 | `Hero.tsx` |
-| Footer リンク | `footer` | opacity 0.75 + letter-spacing 微妙に拡大 | `Footer.tsx` |
+| Footer リンク | `footer` | opacity 0.75 + letter-spacing 微妙に拡大 | `Footer.tsx`（`tracking-*` は付与しない。preset SSOT） |
 
 SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/scroll/animation-tokens.ts`（`ANIMATION_DURATION.interaction` = 0.25s、`ANIMATION_EASE.interaction` = `power2.out`）。
 

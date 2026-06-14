@@ -27,7 +27,7 @@ export default function Footer() {
                 <li key={item.href} className="mb-3">
                   <Link
                     href={item.href}
-                    className="inline-block font-serif text-[15px] tracking-wide text-gray-300 no-underline"
+                    className="inline-block font-serif text-[15px] text-gray-300 no-underline"
                     data-micro-interaction="footer"
                   >
                     {item.label}{' '}
@@ -44,12 +44,12 @@ export default function Footer() {
             </h4>
             <ul className="m-0 list-none p-0">
               <li className="mb-3">
-                <Link href="/process/development" className="inline-block font-serif text-[15px] leading-relaxed tracking-wide text-gray-300 no-underline" data-micro-interaction="footer">
+                <Link href="/process/development" className="inline-block font-serif text-[15px] leading-relaxed text-gray-300 no-underline" data-micro-interaction="footer">
                   システム開発プロセス
                 </Link>
               </li>
               <li className="mb-3">
-                <Link href="/process/consulting" className="inline-block font-serif text-[15px] leading-relaxed tracking-wide text-gray-300 no-underline" data-micro-interaction="footer">
+                <Link href="/process/consulting" className="inline-block font-serif text-[15px] leading-relaxed text-gray-300 no-underline" data-micro-interaction="footer">
                   自己表現力向上プロセス
                 </Link>
               </li>

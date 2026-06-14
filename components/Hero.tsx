@@ -379,7 +379,6 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
             data-micro-interaction="cta"
             tabIndex={ctaFocusable ? 0 : -1}
             style={{
-              display: 'inline-block',
               padding: 'var(--space-2) var(--space-6)',
               border: `1px solid ${colors.accent}`,
               borderRadius: '9999px',

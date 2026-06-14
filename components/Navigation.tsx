@@ -110,7 +110,6 @@ export default function Navigation() {
                       ? 'var(--accent)'
                       : 'var(--muted)',
                     fontFamily: 'var(--font-serif-jp)',
-                    letterSpacing: '0.1em',
                   }}
                 >
                   {item.name}
@@ -215,7 +214,6 @@ export default function Navigation() {
                         ? 'var(--accent)'
                         : 'var(--muted)',
                       fontFamily: 'var(--font-serif-jp)',
-                      letterSpacing: '0.1em',
                       borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                     }}
                   >
