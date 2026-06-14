@@ -7,6 +7,7 @@
   --accent: #c4b5a0;
   --accent-subtle: rgba(196, 181, 160, 0.6);
   --border: rgba(240, 240, 240, 0.12);
+  --font-serif: var(--font-display);
 
   /* Motion design tokens */
   --duration-base: 1.4s;
@@ -30,24 +31,19 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', serif;
+}
+
+html[data-custom-cursor='active'],
+html[data-custom-cursor='active'] a,
+html[data-custom-cursor='active'] button {
   cursor: none;
 }
 
 @media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
-  body {
+  html[data-custom-cursor='active'],
+  html[data-custom-cursor='active'] a,
+  html[data-custom-cursor='active'] button {
     cursor: auto;
-  }
-}
-
-a,
-button {
-  cursor: none;
-}
-
-@media (pointer: coarse), (max-width: 767px), (prefers-reduced-motion: reduce) {
-  a,
-  button {
-    cursor: pointer;
   }
 }
 

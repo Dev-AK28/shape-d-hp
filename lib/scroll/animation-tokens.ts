@@ -18,3 +18,9 @@ export const REVEAL_OFFSET = {
   stagger: 0.15,
   maxStaggerItems: 6,
 } as const;
+
+export const GSAP_TICKER = {
+  lagSmoothingActive: 0,
+  lagSmoothingRestoreMs: 500,
+  lagSmoothingRestoreThreshold: 33,
+} as const;

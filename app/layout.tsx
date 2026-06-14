@@ -22,15 +22,6 @@ const notoSerifJp = Noto_Serif_JP({
   preload: true,
 });
 
-/** Latin serif fallback — Cormorant covers display; alias for token compatibility */
-const serifLatin = Cormorant_Garamond({
-  variable: '--font-serif',
-  subsets: ['latin'],
-  weight: ['300', '400'],
-  display: 'swap',
-  preload: true,
-});
-
 export const metadata: Metadata = {
   title: 'SHAPE∞D - AIで効率化し、本来の創造に集中する環境を作る',
   description:
@@ -45,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${cormorant.variable} ${notoSerifJp.variable} ${serifLatin.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${notoSerifJp.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <SmoothScrollProvider>

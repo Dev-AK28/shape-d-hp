@@ -1,6 +1,14 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ANIMATION_DURATION, ANIMATION_EASE } from './animation-tokens';
+import {
+  ANIMATION_DURATION,
+  ANIMATION_EASE,
+  GSAP_TICKER,
+} from './animation-tokens';
+import {
+  shouldDisableSmoothScroll,
+  type DeviceProfile,
+} from '@/lib/performance/device-profile';
 
 let registered = false;
 
@@ -22,15 +30,16 @@ export function configureGsapDefaults(): void {
   });
 }
 
-export function shouldDisableGsapAnimation(prefersReducedMotion: boolean): boolean {
-  return prefersReducedMotion;
+export function shouldDisableGsapAnimation(profile: DeviceProfile): boolean {
+  return shouldDisableSmoothScroll(profile);
 }
 
 export function refreshScrollTrigger(): void {
   if (typeof window === 'undefined') {
     return;
   }
+  registerGsapPlugins();
   ScrollTrigger.refresh();
 }
 
-export { gsap, ScrollTrigger, ANIMATION_DURATION, ANIMATION_EASE };
+export { gsap, ScrollTrigger, ANIMATION_DURATION, ANIMATION_EASE, GSAP_TICKER };

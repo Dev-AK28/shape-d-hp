@@ -6,9 +6,28 @@ import {
 } from '@/lib/scroll/gsap-config';
 
 describe('gsap-config', () => {
-  it('disables GSAP animations when prefers-reduced-motion is active', () => {
-    expect(shouldDisableGsapAnimation(true)).toBe(true);
-    expect(shouldDisableGsapAnimation(false)).toBe(false);
+  it('disables GSAP animations when smooth scroll is disabled', () => {
+    expect(
+      shouldDisableGsapAnimation({
+        isMobile: false,
+        prefersReducedMotion: true,
+        prefersCoarsePointer: false,
+      }),
+    ).toBe(true);
+    expect(
+      shouldDisableGsapAnimation({
+        isMobile: true,
+        prefersReducedMotion: false,
+        prefersCoarsePointer: false,
+      }),
+    ).toBe(true);
+    expect(
+      shouldDisableGsapAnimation({
+        isMobile: false,
+        prefersReducedMotion: false,
+        prefersCoarsePointer: false,
+      }),
+    ).toBe(false);
   });
 
   it('exports animation duration tokens within spec range', () => {

@@ -4,65 +4,99 @@ import { useEffect, useRef, useState } from 'react';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { cursor as cursorTokens } from '@/lib/design/tokens';
 
+const CUSTOM_CURSOR_ATTR = 'data-custom-cursor';
+
+function setCustomCursorActive(active: boolean): void {
+  if (active) {
+    document.documentElement.setAttribute(CUSTOM_CURSOR_ATTR, 'active');
+    return;
+  }
+  document.documentElement.removeAttribute(CUSTOM_CURSOR_ATTR);
+}
+
 export default function CustomCursor() {
   const { profile, isReady } = useDeviceProfile();
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
   const pos = useRef({ x: 0, y: 0 });
   const ring = useRef({ x: 0, y: 0 });
   const frame = useRef(0);
 
+  const isActive =
+    isReady &&
+    !profile.prefersReducedMotion &&
+    !profile.isMobile &&
+    !profile.prefersCoarsePointer;
+
   useEffect(() => {
-    if (
-      !isReady ||
-      profile.prefersReducedMotion ||
-      profile.isMobile ||
-      profile.prefersCoarsePointer
-    ) {
+    if (!isActive) {
+      setCustomCursorActive(false);
       return;
     }
 
-    const onMove = (event: MouseEvent) => {
-      pos.current = { x: event.clientX, y: event.clientY };
-      if (!visible) {
+    const showCursor = (x: number, y: number) => {
+      pos.current = { x, y };
+      ring.current = { x, y };
+      if (!visibleRef.current) {
+        visibleRef.current = true;
         setVisible(true);
+        setCustomCursorActive(true);
       }
     };
 
-    const onLeave = () => setVisible(false);
+    const onMove = (event: MouseEvent) => {
+      showCursor(event.clientX, event.clientY);
+    };
+
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      const rect = target.getBoundingClientRect();
+      showCursor(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    };
+
+    const onLeave = () => {
+      visibleRef.current = false;
+      setVisible(false);
+      setCustomCursorActive(false);
+    };
 
     const animate = () => {
-      ring.current.x += (pos.current.x - ring.current.x) * 0.12;
-      ring.current.y += (pos.current.y - ring.current.y) * 0.12;
+      if (visibleRef.current) {
+        ring.current.x += (pos.current.x - ring.current.x) * cursorTokens.followerLerp;
+        ring.current.y += (pos.current.y - ring.current.y) * cursorTokens.followerLerp;
 
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px)`;
-      }
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${ring.current.x}px, ${ring.current.y}px)`;
+        if (dotRef.current) {
+          dotRef.current.style.transform = `translate3d(${pos.current.x}px, ${pos.current.y}px, 0)`;
+        }
+        if (ringRef.current) {
+          ringRef.current.style.transform = `translate3d(${ring.current.x}px, ${ring.current.y}px, 0)`;
+        }
       }
 
       frame.current = requestAnimationFrame(animate);
     };
 
     window.addEventListener('mousemove', onMove);
+    document.addEventListener('focusin', onFocusIn);
     document.documentElement.addEventListener('mouseleave', onLeave);
     frame.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('mousemove', onMove);
+      document.removeEventListener('focusin', onFocusIn);
       document.documentElement.removeEventListener('mouseleave', onLeave);
       cancelAnimationFrame(frame.current);
+      visibleRef.current = false;
+      setCustomCursorActive(false);
     };
-  }, [isReady, profile, visible]);
+  }, [isActive]);
 
-  if (
-    !isReady ||
-    profile.prefersReducedMotion ||
-    profile.isMobile ||
-    profile.prefersCoarsePointer
-  ) {
+  if (!isActive) {
     return null;
   }
 
@@ -80,6 +114,7 @@ export default function CustomCursor() {
     zIndex: 9999,
     opacity: visible ? 1 : 0,
     transition: 'opacity 0.3s',
+    willChange: 'transform' as const,
   };
 
   const ringStyle = {

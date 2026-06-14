@@ -40,4 +40,5 @@ export const cursor = {
   size: 8,
   followerSize: 32,
   followerOpacity: 0.4,
+  followerLerp: 0.12,
 } as const;

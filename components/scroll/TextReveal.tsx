@@ -7,6 +7,7 @@ import {
   scrollViewport,
   textRevealStagger,
 } from '@/lib/scroll/easing';
+import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 
 type TextRevealProps = {
   text: string;
@@ -42,7 +43,7 @@ export default function TextReveal({
       {segments.map((segment, index) => (
         <motion.span
           key={`${segment}-${index}`}
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: REVEAL_OFFSET.y }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{
             duration: scrollTransition.duration * 0.65,
