@@ -53,6 +53,18 @@ Issue: #51
 - **When** ページを操作する
 - **Then** 星アニメーション・ネビュラ・Lenis が抑制される
 
+- **Given** デスクトップでページ間を遷移する
+- **When** 別ルートへ移動する
+- **Then** `PageTransition` により 0.6s の fade-in が表示される（reduced-motion 時は即時表示）
+
+- **Given** キーボードでナビゲーションを操作する
+- **When** Tab キーでリンク・ボタンにフォーカスする
+- **Then** `:focus-visible` のアクセント色リングが表示される
+
+- **Given** デスクトップまたはモバイルでナビリンクにホバーする
+- **When** マウスをリンク上に置く
+- **Then** opacity のみが変化し、位置・スケールの magnetic 効果は発生しない
+
 ## 検証
 
 ```bash
