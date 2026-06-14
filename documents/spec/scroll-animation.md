@@ -8,7 +8,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 | コンポーネント | 用途 |
 |--------------|------|
-| `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`prefers-reduced-motion` 時無効） |
+| `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`shouldDisableSmoothScroll`: reduced-motion / mobile / coarse pointer 時無効） |
 | `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（reduced-motion 時スキップ） |
 | `PageLoader` | 初回訪問時の軽量ローディング体験（背景透明・LCP 非ブロック） |
 | `ScrollReveal` | セクション単位のフェードリビール |
@@ -19,23 +19,30 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 `lib/scroll/animation-tokens.ts`（GSAP）:
 
-- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6` / `section`: `1.8`
+- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6`（#79 以降） / `section`: `1.8`（#79 以降） / `pageTransition`: `0.6`（#79 以降）
 - `ANIMATION_EASE.base`: `expo.out` / `section`: `power3.inOut` / `reveal`: `power3.out`
-- `REVEAL_OFFSET.y`: `20` / `stagger`: `0.15` / `maxStaggerItems`: `6`
+- `REVEAL_OFFSET.x`: `-20` / `y`: `20` / `stagger`: `0.15` / `textRevealStagger`: `0.06` / `maxStaggerItems`: `6`（#79 以降）
 
 `lib/scroll/gsap-config.ts`:
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
-- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)` + 初期化後 `refreshScrollTrigger()`
 - `shouldDisableGsapAnimation(prefersReducedMotion)` — reduced-motion 時 GSAP アニメーション無効
+- `refreshScrollTrigger()` — ScrollTrigger 計測の再計算
+
+`components/scroll/SmoothScrollProvider.tsx`（Lenis 統合）:
+
+- `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
+- Lenis 初期化後および destroy 後に `refreshScrollTrigger()`
+- Lenis `duration` は `ANIMATION_DURATION.base` を参照
 
 `lib/scroll/easing.ts`（framer-motion、`animation-tokens.ts` を参照）:
 
 - `scrollEase`: `[0.22, 1, 0.36, 1]`
 - `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`
 - `scrollTransition.duration`: `1.4`
-- `scrollVariants`: `fadeUp`, `fadeUpLarge`, `fadeLeft`, `scale`（y offset: 20px）
+- `scrollVariants`: `fadeUp`, `fadeUpLarge`（デフォルト offset は同一、`ScrollReveal` の `y` prop で上書き可）, `fadeLeft`, `scale`（y offset: 20px）
 - `scrollStagger`: `item: 0.15`, `card: 0.15`
+- `textRevealStagger`: `0.06`（`TextReveal` グラフェム単位）
 
 `lib/scroll/reveal-props.ts` の `getScrollRevealProps()` が各コンテンツコンポーネントから参照される。
 
@@ -54,11 +61,13 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 ## アクセシビリティ
 
+- `shouldDisableSmoothScroll(profile)` が true のとき（`prefers-reduced-motion` / mobile / `pointer: coarse`）:
+  - Lenis 無効（ネイティブスクロール）
 - `useReducedMotion()` / `prefers-reduced-motion` 有効時:
-  - Lenis 無効
   - PageLoader 非表示
   - リビールアニメーション duration 0 / initial false
   - ParallaxSection は通常 div にフォールバック
+  - `useGsapContext` は GSAP アニメーションをスキップ
 
 ## 受け入れ基準
 
