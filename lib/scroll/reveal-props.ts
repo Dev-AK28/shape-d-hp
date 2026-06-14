@@ -14,6 +14,8 @@ type ScrollRevealOptions = {
   variant?: ScrollVariant;
   staggerIndex?: number;
   staggerStep?: keyof typeof scrollStagger | number;
+  /** Skip scroll-driven reveal (mobile / coarse pointer / reduced-motion profile). */
+  staticReveal?: boolean;
 };
 
 export type ScrollRevealMotionProps = {
@@ -49,17 +51,19 @@ export function getScrollRevealProps(
     variant = 'fadeUpLarge',
     staggerIndex,
     staggerStep,
+    staticReveal = false,
   } = options;
 
   const staggerDelay = resolveStaggerDelay(staggerIndex, staggerStep);
   const totalDelay = delay + staggerDelay;
+  const useStaticReveal = reduceMotion === true || staticReveal;
 
   return {
-    initial: reduceMotion ? false : scrollVariants[variant].hidden,
+    initial: useStaticReveal ? false : scrollVariants[variant].hidden,
     whileInView: scrollVariants[variant].visible,
     transition: {
-      duration: reduceMotion ? 0 : duration,
-      delay: reduceMotion ? 0 : totalDelay,
+      duration: useStaticReveal ? 0 : duration,
+      delay: useStaticReveal ? 0 : totalDelay,
       ease: scrollEase,
     },
     viewport: scrollViewport,

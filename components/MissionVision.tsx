@@ -8,8 +8,8 @@ import { colors, spacing, typography } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
-import { shouldDisableGsapAnimation } from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 const visionQuotes = [
   '内なる価値観と外なる行動が一致する状態こそが、真の自己実現である。',
@@ -21,8 +21,8 @@ const visionQuotes = [
 export default function MissionVision() {
   const reduceMotion = useReducedMotion();
   const { profile } = useDeviceProfile();
-  const showQuotesImmediately =
-    shouldDisableGsapAnimation(profile) || reduceMotion === true;
+  const staticReveal = shouldUseStaticReveal(profile, reduceMotion);
+  const showQuotesImmediately = staticReveal;
   const quotesRef = useRef<HTMLDivElement>(null);
 
   useGsapContext(() => {
@@ -82,7 +82,10 @@ export default function MissionVision() {
       </p>
 
       <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <motion.div {...getScrollRevealProps(reduceMotion)} style={{ marginBottom: spacing.xxl }}>
+        <motion.div
+          {...getScrollRevealProps(reduceMotion, { staticReveal })}
+          style={{ marginBottom: spacing.xxl }}
+        >
           <h2
             style={{
               fontSize: typography.sizeHeading,
@@ -99,7 +102,7 @@ export default function MissionVision() {
         </motion.div>
 
         <motion.p
-          {...getScrollRevealProps(reduceMotion, { delay: 0.15 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
           style={{
             fontSize: typography.sizeSubheading,
             color: colors.accent,

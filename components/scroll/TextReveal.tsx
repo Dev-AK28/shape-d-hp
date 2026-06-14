@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import {
   scrollEase,
   scrollTransition,
@@ -9,12 +10,15 @@ import {
   textRevealStagger,
 } from '@/lib/scroll/easing';
 import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
+import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 type TextRevealProps = {
   text: string;
   as?: 'h1' | 'h2' | 'h3' | 'p' | 'span';
   className?: string;
   delay?: number;
+  /** Force immediate render without scroll-driven segments. */
+  immediate?: boolean;
 };
 
 function segmentText(text: string): string[] {
@@ -31,11 +35,15 @@ export default function TextReveal({
   as: Tag = 'p',
   className = '',
   delay = 0,
+  immediate = false,
 }: TextRevealProps) {
   const reduceMotion = useReducedMotion();
+  const { profile } = useDeviceProfile();
   const segments = segmentText(text);
+  const showImmediately =
+    immediate || shouldUseStaticReveal(profile, reduceMotion);
 
-  if (reduceMotion) {
+  if (showImmediately) {
     return <Tag className={className}>{text}</Tag>;
   }
 

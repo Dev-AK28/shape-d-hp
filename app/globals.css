@@ -153,3 +153,12 @@ button:not(.nav-menu-button):hover {
     transform: none !important;
   }
 }
+
+/* Mobile / touch: GSAP stagger is disabled — keep timeline and quotes visible */
+@media (max-width: 767px) {
+  [data-timeline-item],
+  [data-vision-quote] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
