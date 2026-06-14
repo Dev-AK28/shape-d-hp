@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_DEVICE_PROFILE } from '@/lib/performance/device-profile';
 import {
   ANIMATION_DURATION,
   ANIMATION_EASE,
@@ -6,9 +7,26 @@ import {
 } from '@/lib/scroll/gsap-config';
 
 describe('gsap-config', () => {
-  it('disables GSAP animations when prefers-reduced-motion is active', () => {
-    expect(shouldDisableGsapAnimation(true)).toBe(true);
-    expect(shouldDisableGsapAnimation(false)).toBe(false);
+  it('disables GSAP animations when smooth scroll is disabled', () => {
+    expect(
+      shouldDisableGsapAnimation({
+        ...DEFAULT_DEVICE_PROFILE,
+        prefersReducedMotion: true,
+      }),
+    ).toBe(true);
+    expect(
+      shouldDisableGsapAnimation({
+        ...DEFAULT_DEVICE_PROFILE,
+        isMobile: true,
+      }),
+    ).toBe(true);
+    expect(
+      shouldDisableGsapAnimation({
+        ...DEFAULT_DEVICE_PROFILE,
+        prefersCoarsePointer: true,
+      }),
+    ).toBe(true);
+    expect(shouldDisableGsapAnimation(DEFAULT_DEVICE_PROFILE)).toBe(false);
   });
 
   it('exports animation duration tokens within spec range', () => {

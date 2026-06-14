@@ -33,6 +33,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     let lenis: InstanceType<Awaited<typeof import('lenis')>['default']> | undefined;
     let cancelled = false;
     let tickerCallback: ((time: number) => void) | undefined;
+    const defaultLagSmoothing = 500;
 
     void (async () => {
       const { default: Lenis } = await import('lenis');
@@ -63,6 +64,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       if (tickerCallback) {
         gsap.ticker.remove(tickerCallback);
       }
+      gsap.ticker.lagSmoothing(defaultLagSmoothing);
       lenis?.destroy();
     };
   }, [isReady, profile]);
