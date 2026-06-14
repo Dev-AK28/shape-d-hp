@@ -43,7 +43,19 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 | パス | 適用内容 |
 |------|---------|
-| `/` | Hero scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision リビール |
+| `/` | Hero scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記） |
+
+### トップ About / MissionVision（Issue #80）
+
+| セクション | コンポーネント | アニメーション | 備考 |
+|-----------|--------------|--------------|------|
+| ABOUT | `About.tsx` | 経歴 `[data-timeline-item]` を GSAP stagger（最大 `REVEAL_OFFSET.maxStaggerItems`） | 心理学 / エンジニアリングは左右分割グリッド + framer-motion リビール |
+| VISION | `MissionVision.tsx` | `[data-vision-quote]` を GSAP stagger | 背景に `SELF-CONGRUENCE` visual word（`aria-hidden`） |
+
+共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `stagger: 0.15` / `ease: ANIMATION_EASE.base`
+
+- `prefers-reduced-motion` 時: `useGsapContext` が GSAP をスキップ（`useDeviceProfile` + framer-motion `useReducedMotion` の両方を参照）。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリで `opacity: 1` を保証
+- StarBackground は使用しない（`colors.background` 単色背景）
 | `/services` | ServicesContent セクション/カード スタガー + TextReveal |
 | `/works` | WorksContent 同上 |
 | `/process` | ProcessNavigation / ProcessContent |
