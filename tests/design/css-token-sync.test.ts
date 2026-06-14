@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, spacing, typographyBlend, warmGrade } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, typographyBlend, warmGrade } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   desktopMinWidthMediaQuery,
@@ -66,16 +66,15 @@ describe('design tokens ↔ globals.css sync', () => {
   });
 
   it('mirrors page header divider classes and section accent CSS variables', () => {
-    for (const [variant, className] of Object.entries(pageHeaderDividers)) {
+    for (const variant of Object.keys(pageHeaderDividers) as Array<
+      keyof typeof pageHeaderDividers
+    >) {
+      const className = pageHeaderDividers[variant];
+      const accentVar = sectionAccentCssVars[variant];
       expect(globalsCss).toContain(`.${className}`);
-      const accentVar =
-        variant === 'blue'
-          ? '--section-blue'
-          : variant === 'purple'
-            ? '--section-purple'
-            : '--section-blue-light';
       expect(globalsCss).toContain(`var(${accentVar})`);
-      expect(globalsCss).toContain(pageHeaderDividerColors[variant as keyof typeof pageHeaderDividerColors]);
+      expect(globalsCss).toContain(pageHeaderDividerColors[variant]);
+      expect(globalsCss).toContain(`${accentVar}: ${pageHeaderDividerColors[variant]}`);
     }
   });
 

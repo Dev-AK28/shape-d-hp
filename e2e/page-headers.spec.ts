@@ -113,6 +113,7 @@ test.describe('Subpage headers', () => {
     const dividerCases = [
       { path: '/services', className: 'page-header-divider-blue' },
       { path: '/works', className: 'page-header-divider-sky' },
+      { path: '/process', className: 'page-header-divider-blue' },
       { path: '/process/development', className: 'page-header-divider-blue' },
       { path: '/process/consulting', className: 'page-header-divider-purple' },
     ] as const;

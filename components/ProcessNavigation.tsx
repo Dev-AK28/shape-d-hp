@@ -10,6 +10,12 @@ const MotionLink = motion.create(Link);
 const processCardLinkClass =
   'inline-block px-12 py-4 rounded-full bg-transparent cursor-pointer text-base font-serif no-underline';
 
+const developmentCardClass =
+  'rounded-xl border border-[color:color-mix(in_srgb,var(--section-blue)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--section-blue)_5%,transparent)] p-16 backdrop-blur-[10px]';
+
+const consultingCardClass =
+  'rounded-xl border border-[color:color-mix(in_srgb,var(--section-purple)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--section-purple)_5%,transparent)] p-16 backdrop-blur-[10px]';
+
 export default function ProcessNavigation() {
   const reduceMotion = useReducedMotion();
 
@@ -26,9 +32,9 @@ export default function ProcessNavigation() {
         <motion.div
           {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
-          className="rounded-xl border border-blue-400/30 bg-blue-400/5 p-16 backdrop-blur-[10px]"
+          className={developmentCardClass}
         >
-          <h2 className="mb-6 font-serif text-[32px] font-light text-blue-400">
+          <h2 className="mb-6 font-serif text-[32px] font-light text-[color:var(--section-blue)]">
             Development Process
           </h2>
           <p className="mb-8 font-serif text-base leading-8 tracking-[0.02em] text-gray-300">
@@ -38,7 +44,7 @@ export default function ProcessNavigation() {
             href="/process/development"
             whileHover={reduceMotion ? undefined : { scale: 1.05 }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-            className={`${processCardLinkClass} border border-blue-400 text-blue-400`}
+            className={`${processCardLinkClass} border border-[color:var(--section-blue)] text-[color:var(--section-blue)]`}
           >
             詳細を見る
           </MotionLink>
@@ -47,9 +53,9 @@ export default function ProcessNavigation() {
         <motion.div
           {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
-          className="rounded-xl border border-violet-400/30 bg-violet-400/5 p-16 backdrop-blur-[10px]"
+          className={consultingCardClass}
         >
-          <h2 className="mb-6 font-serif text-[32px] font-light text-violet-400">
+          <h2 className="mb-6 font-serif text-[32px] font-light text-[color:var(--section-purple)]">
             Consulting Process
           </h2>
           <p className="mb-8 font-serif text-base leading-8 tracking-[0.02em] text-gray-300">
@@ -59,7 +65,7 @@ export default function ProcessNavigation() {
             href="/process/consulting"
             whileHover={reduceMotion ? undefined : { scale: 1.05 }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-            className={`${processCardLinkClass} border border-violet-400 text-violet-400`}
+            className={`${processCardLinkClass} border border-[color:var(--section-purple)] text-[color:var(--section-purple)]`}
           >
             詳細を見る
           </MotionLink>

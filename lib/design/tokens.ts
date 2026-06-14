@@ -30,6 +30,13 @@ export const pageHeaderDividers = {
 
 export type PageHeaderDividerVariant = keyof typeof pageHeaderDividers;
 
+/** CSS custom property names for section accents — mirrors :root in globals.css */
+export const sectionAccentCssVars: Record<PageHeaderDividerVariant, string> = {
+  blue: '--section-blue',
+  purple: '--section-purple',
+  sky: '--section-blue-light',
+};
+
 export const spacing = {
   unit: 8,
   xs: 8,
