@@ -44,7 +44,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 | パス | 適用内容 |
 |------|---------|
-| `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**宇宙背景は `HomePageShell` の fixed `CosmicScene` がフッター上まで全幅に適用** |
+| `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**スクロール領域全体で fixed `CosmicScene` のビジュアル背景が継続**（スタック順は Footer が前面、下記「スタック順」参照） |
 | `/services` | ServicesContent セクション/カード スタガー + TextReveal（Hero なし・単色背景） |
 | `/works` | WorksContent 同上 |
 | `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
@@ -55,7 +55,8 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 ### トップ Hero 背景・ロゴ（補足）
 
-- 背景: `HomePageShell` + `CosmicScene`（fixed、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。`isReady` 後に `CosmicScene` をマウントしモバイル初回ハイドレーションの背景誤読込を防止。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub
+- 背景: `HomePageShell` + `CosmicScene`（fixed `z-0`、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。`isReady` 後に `CosmicScene` をマウントしモバイル初回ハイドレーションの背景誤読込を防止。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub
+- スタック順: `CosmicScene`（`z-0`）< `main`（`z-10`）< `Footer`（`relative z-20`、`app/layout.tsx`）。fixed 背景がフッター上に重ならない
 - ロゴ: `LogoParticleFormation`（Canvas 粒子 → SHAPE∞D 形成）→ 完了後 `BrandLogo`（`shape-d-logo-transparent.png`）。`prefers-reduced-motion` / モバイル静的フォールバック時は粒子スキップ
 - StarBackground はトップでは使用しない
 
