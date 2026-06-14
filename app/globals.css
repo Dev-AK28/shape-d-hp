@@ -16,6 +16,7 @@ html {
 
   /* Motion design tokens */
   --duration-base: 1.4s;
+  --duration-interaction: 0.25s;
   --ease-base: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Spacing (8px grid) */
@@ -100,7 +101,37 @@ html[data-custom-cursor='active'] select {
 
 .hero-cta:hover {
   opacity: 0.75;
+  transition: opacity var(--duration-interaction) var(--ease-base);
 }
+
+a.nav-link:hover {
+  opacity: 0.75;
+  transition: opacity var(--duration-interaction) var(--ease-base);
+}
+
+button:not(.nav-menu-button):hover {
+  opacity: 0.8;
+  transition: opacity var(--duration-interaction) var(--ease-base);
+}
+
+@media (pointer: coarse), (hover: none) {
+  a.nav-link:hover,
+  button:not(.nav-menu-button):hover,
+  .hero-cta:hover {
+    opacity: 1;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.nav-link:hover,
+  button:not(.nav-menu-button):hover,
+  .hero-cta:hover {
+    opacity: 1;
+    transition: none;
+  }
+}
+
 .noise-bg {
   position: relative;
 }

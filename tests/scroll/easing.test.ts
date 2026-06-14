@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ANIMATION_DURATION, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import {
   loopEase,
+  pageTransitionEase,
   scrollStagger,
   scrollTransition,
   scrollVariants,
@@ -32,5 +33,9 @@ describe('easing ↔ animation-tokens chain', () => {
 
   it('loopEase is easeInOut for decorative loops', () => {
     expect(loopEase).toBe('easeInOut');
+  });
+
+  it('pageTransitionEase matches motion.easeBase curve', () => {
+    expect(pageTransitionEase).toEqual([0.16, 1, 0.3, 1]);
   });
 });

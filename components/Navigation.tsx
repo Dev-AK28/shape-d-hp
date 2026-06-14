@@ -1,36 +1,65 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
+import { isNavItemActive } from '@/lib/navigation/is-nav-active';
 
 const MOBILE_MENU_ID = 'mobile-nav-menu';
 
 export default function Navigation() {
   const reduceMotion = useReducedMotion();
-  const [isOpen, setIsOpen] = useState(false);
+  /** Pathname when menu was opened; auto-closes on route change without effect. */
+  const [menuOpenAtPath, setMenuOpenAtPath] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
+  const isOpen = menuOpenAtPath === pathname;
+
+  const closeMenu = useCallback(() => setMenuOpenAtPath(null), []);
+  const toggleMenu = useCallback(() => {
+    setMenuOpenAtPath((current) => (current === pathname ? null : pathname));
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeMenu();
+      }
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    const handleDesktopResize = () => {
+      if (desktopQuery.matches) {
+        closeMenu();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    desktopQuery.addEventListener('change', handleDesktopResize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      desktopQuery.removeEventListener('change', handleDesktopResize);
+    };
+  }, [isOpen, closeMenu]);
 
   const navItems = [
     { name: 'ホーム', href: '/' },
@@ -38,7 +67,7 @@ export default function Navigation() {
     { name: '実績', href: '/works' },
     { name: '制作の流れ', href: '/process' },
     { name: '哲学', href: '/philosophy' },
-    { name: 'お問い合わせ', href: '/contact' }
+    { name: 'お問い合わせ', href: '/contact' },
   ];
 
   return (
@@ -53,28 +82,33 @@ export default function Navigation() {
     >
       <div className="mx-auto max-w-[1400px] px-6 py-5">
         <div className="flex items-center justify-between">
-          <Link href="/" className="no-underline">
-            <motion.div whileHover={reduceMotion ? undefined : { scale: 1.05 }} className="flex items-center">
+          <Link href="/" className="no-underline nav-link">
+            <div className="flex items-center">
               <BrandLogo height={48} priority />
-            </motion.div>
+            </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div style={{ display: isMobile ? 'none' : 'flex', gap: '32px', alignItems: 'center' }}>
+          {/* Desktop Navigation — md: (768px) matches MOBILE_BREAKPOINT_PX */}
+          <div className="hidden items-center gap-8 md:flex">
             {navItems.map((item) => (
-              <Link key={item.name} href={item.href} style={{ textDecoration: 'none' }}>
-                <motion.div
-                  whileHover={reduceMotion ? undefined : { y: -2 }}
+              <Link
+                key={item.name}
+                href={item.href}
+                className="nav-link"
+                style={{ textDecoration: 'none' }}
+              >
+                <div
                   style={{
                     fontSize: '14px',
-                    color: pathname === item.href ? '#60a5fa' : '#9ca3af',
-                    transition: reduceMotion ? undefined : 'color 0.3s ease',
-                    fontFamily: 'serif',
-                    letterSpacing: '0.1em'
+                    color: isNavItemActive(pathname, item.href)
+                      ? 'var(--accent)'
+                      : 'var(--muted)',
+                    fontFamily: 'var(--font-serif-jp)',
+                    letterSpacing: '0.1em',
                   }}
                 >
                   {item.name}
-                </motion.div>
+                </div>
               </Link>
             ))}
           </div>
@@ -82,17 +116,17 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <motion.button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
+            className="nav-menu-button block md:hidden"
+            onClick={toggleMenu}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
             aria-expanded={isOpen}
             aria-controls={MOBILE_MENU_ID}
             style={{
-              display: isMobile ? 'block' : 'none',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: '8px'
+              padding: '8px',
             }}
           >
             <div style={{ width: '24px', height: '20px', position: 'relative' }}>
@@ -103,8 +137,7 @@ export default function Navigation() {
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
-                  background: '#60a5fa',
-                  transition: reduceMotion ? undefined : 'all 0.3s ease',
+                  background: 'var(--accent)',
                 }}
               />
               <motion.span
@@ -114,9 +147,8 @@ export default function Navigation() {
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
-                  background: '#60a5fa',
+                  background: 'var(--accent)',
                   top: '9px',
-                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
               <motion.span
@@ -126,9 +158,8 @@ export default function Navigation() {
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
-                  background: '#60a5fa',
+                  background: 'var(--accent)',
                   top: '18px',
-                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
             </div>
@@ -141,6 +172,7 @@ export default function Navigation() {
         {isOpen && (
           <motion.div
             id={MOBILE_MENU_ID}
+            className="md:hidden"
             initial={reduceMotion ? false : { opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: -20 }}
@@ -153,7 +185,7 @@ export default function Navigation() {
               background: 'rgba(0, 0, 0, 0.98)',
               backdropFilter: 'blur(20px)',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '24px'
+              padding: '24px',
             }}
           >
             {navItems.map((item, index) => (
@@ -165,22 +197,24 @@ export default function Navigation() {
               >
                 <Link
                   href={item.href}
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMenu}
+                  className="nav-link"
                   style={{ textDecoration: 'none' }}
                 >
-                  <motion.div
-                    whileHover={reduceMotion ? undefined : { x: 8 }}
+                  <div
                     style={{
                       padding: '16px 0',
                       fontSize: '16px',
-                      color: pathname === item.href ? '#60a5fa' : '#9ca3af',
-                      fontFamily: 'serif',
+                      color: isNavItemActive(pathname, item.href)
+                        ? 'var(--accent)'
+                        : 'var(--muted)',
+                      fontFamily: 'var(--font-serif-jp)',
                       letterSpacing: '0.1em',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                     }}
                   >
                     {item.name}
-                  </motion.div>
+                  </div>
                 </Link>
               </motion.div>
             ))}

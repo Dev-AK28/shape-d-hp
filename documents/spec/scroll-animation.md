@@ -11,6 +11,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`prefers-reduced-motion` 時無効） |
 | `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（reduced-motion 時スキップ） |
 | `PageLoader` | 初回訪問時の軽量ローディング体験（背景透明・LCP 非ブロック） |
+| `PageTransition` | `app/template.tsx` 経由のページ本文 fade-in（0.6s、初回訪問は即時、reduced-motion 時即時） |
 | `ScrollReveal` | セクション単位のフェードリビール |
 | `TextReveal` | 見出しのグラフェム/ワード単位リビール |
 | `ParallaxSection` | スクロール連動パララックス（`prefers-reduced-motion` 時無効） |
@@ -19,7 +20,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 `lib/scroll/animation-tokens.ts`（GSAP）:
 
-- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6` / `section`: `1.8`
+- `ANIMATION_DURATION.base`: `1.4` / `hero`: `1.6` / `section`: `1.8` / `pageTransition`: `0.6`
 - `ANIMATION_EASE.base`: `expo.out` / `section`: `power3.inOut` / `reveal`: `power3.out`
 - `REVEAL_OFFSET.y`: `20` / `stagger`: `0.15` / `maxStaggerItems`: `6`
 
@@ -70,6 +71,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 - `useReducedMotion()` / `prefers-reduced-motion` 有効時:
   - Lenis 無効
   - PageLoader 非表示
+  - PageTransition 即時表示（duration 0）
   - リビールアニメーション duration 0 / initial false
   - ParallaxSection は通常 div にフォールバック
   - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events` / `aria-hidden` で非表示時の操作を防止）

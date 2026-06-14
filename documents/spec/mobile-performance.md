@@ -15,6 +15,10 @@ Issue: #51
 | Hero `immersive` | トップのみ。GSAP pin はデスクトップ精密ポインタのみ。モバイル/reduced-motion 時は静的フォールバック（コピー即時表示） |
 | `NebulaBackground` | Philosophy 等で継続利用。モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時・IO 無効）。`@keyframes` は `app/globals.css` の `nebula-philosophy-*` |
 | `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
+| `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示、2回目以降のルート遷移のみ fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
+| Micro-interactions | ナビ `.nav-link` とボタン hover は opacity 変化のみ（magnetic effect なし）。タッチ端末・`prefers-reduced-motion` では hover opacity 無効。`:focus-visible` でキーボードフォーカスリング |
+| フォント | `next/font` で Cormorant Garamond + Noto Serif JP を preload（`app/layout.tsx`） |
+| GSAP | tree-shaking: `gsap` + `gsap/ScrollTrigger` のみ import。bundle 目安 ~38KB（Lenis ~8KB + GSAP ~30KB） |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
 
 ## デバイスプロファイル
@@ -50,6 +54,30 @@ Issue: #51
 - **Given** モバイルまたは `prefers-reduced-motion: reduce` が有効
 - **When** トップ Hero を操作する
 - **Then** GSAP pin は無効化され、静的フォールバックが表示される
+
+- **Given** デスクトップでページ間を遷移する
+- **When** 初回訪問後に別ルートへ移動する
+- **Then** ページ本文が `PageTransition` により 0.6s の fade-in される（ナビは常時表示、reduced-motion 時は即時表示）
+
+- **Given** サイトへ初回訪問する
+- **When** トップページが表示される
+- **Then** LCP 候補が `PageTransition` により隠されず即時表示される
+
+- **Given** キーボードでナビゲーションを操作する
+- **When** Tab キーでリンク・ボタンにフォーカスする
+- **Then** `:focus-visible` のアクセント色リングが表示される
+
+- **Given** デスクトップまたはモバイルでナビリンクにホバーする
+- **When** マウスをリンク上に置く
+- **Then** opacity のみが変化し、位置・スケールの magnetic 効果は発生しない
+
+- **Given** モバイルでハンバーガーメニューを開く
+- **When** メニューが表示される
+- **Then** 背景スクロールがロックされ、Escape キーまたはリンク選択でメニューが閉じる
+
+- **Given** モバイルメニューが開いている
+- **When** 別ルートへ遷移する、またはビューポートが 768px 以上になる
+- **Then** メニューが自動的に閉じ、スクロールロックが解除される
 
 ## 検証
 

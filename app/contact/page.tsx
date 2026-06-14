@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import Navigation from '@/components/Navigation';
 import ScrollReveal from '@/components/scroll/ScrollReveal';
 import TextReveal from '@/components/scroll/TextReveal';
 import SectionShell from '@/components/ui/SectionShell';
@@ -65,7 +64,6 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[var(--background)] to-black">
-      <Navigation />
       <SectionShell padding="sm" className="flex min-h-[60vh] items-center justify-center pt-[120px]">
         <ScrollReveal className="max-w-[800px] text-center">
           <h1 className="mb-6 font-serif text-[clamp(48px,6vw,64px)] font-light tracking-wider text-white">
