@@ -26,10 +26,10 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 `lib/scroll/gsap-config.ts`:
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
-- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
+- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)` + 初期化後 `refreshScrollTrigger()`
 - `shouldDisableGsapAnimation(prefersReducedMotion)` — reduced-motion 時 GSAP アニメーション無効
 
-`lib/scroll/easing.ts`（framer-motion）:
+`lib/scroll/easing.ts`（framer-motion、`animation-tokens.ts` を参照）:
 
 - `scrollEase`: `[0.22, 1, 0.36, 1]`
 - `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`

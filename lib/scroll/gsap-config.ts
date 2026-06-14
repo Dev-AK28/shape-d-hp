@@ -11,9 +11,6 @@ export function registerGsapPlugins(): void {
 
   gsap.registerPlugin(ScrollTrigger);
   ScrollTrigger.config({ ignoreMobileResize: true });
-  ScrollTrigger.defaults({
-    ease: ANIMATION_EASE.base,
-  });
 
   registered = true;
 }

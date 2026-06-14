@@ -1,3 +1,5 @@
+import { ANIMATION_DURATION, REVEAL_OFFSET } from './animation-tokens';
+
 export const scrollEase = [0.22, 1, 0.36, 1] as const;
 
 export const scrollViewport = {
@@ -7,7 +9,7 @@ export const scrollViewport = {
 };
 
 export const scrollTransition = {
-  duration: 1.4,
+  duration: ANIMATION_DURATION.base,
   ease: scrollEase,
 };
 
@@ -15,11 +17,11 @@ export const textRevealStagger = 0.06;
 
 export const scrollVariants = {
   fadeUp: {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: REVEAL_OFFSET.y },
     visible: { opacity: 1, y: 0 },
   },
   fadeUpLarge: {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: REVEAL_OFFSET.y },
     visible: { opacity: 1, y: 0 },
   },
   fadeLeft: {
@@ -35,6 +37,6 @@ export const scrollVariants = {
 export type ScrollVariant = keyof typeof scrollVariants;
 
 export const scrollStagger = {
-  item: 0.15,
-  card: 0.15,
+  item: REVEAL_OFFSET.stagger,
+  card: REVEAL_OFFSET.stagger,
 } as const;

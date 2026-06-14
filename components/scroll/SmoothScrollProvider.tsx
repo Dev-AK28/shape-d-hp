@@ -6,6 +6,7 @@ import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
 import {
   configureGsapDefaults,
   gsap,
+  refreshScrollTrigger,
   registerGsapPlugins,
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
@@ -29,41 +30,45 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       return;
     }
 
-    let lenis: {
-      raf: (time: number) => void;
-      destroy: () => void;
-      on: (event: string, callback: () => void) => void;
-    } | undefined;
+    type LenisInstance = InstanceType<Awaited<typeof import('lenis')>['default']>;
+    let lenis: LenisInstance | undefined;
     let cancelled = false;
     let tickerCallback: ((time: number) => void) | undefined;
 
     void (async () => {
-      const { default: Lenis } = await import('lenis');
-      await import('lenis/dist/lenis.css');
+      try {
+        const { default: Lenis } = await import('lenis');
+        await import('lenis/dist/lenis.css');
 
-      if (cancelled) {
-        return;
+        if (cancelled) {
+          return;
+        }
+
+        const instance = new Lenis({
+          duration: 1.4,
+          smoothWheel: true,
+        });
+        lenis = instance;
+
+        instance.on('scroll', ScrollTrigger.update);
+
+        tickerCallback = (time: number) => {
+          lenis?.raf(time * 1000);
+        };
+
+        gsap.ticker.add(tickerCallback);
+        gsap.ticker.lagSmoothing(0);
+        refreshScrollTrigger();
+      } catch {
+        // Lenis unavailable — fall back to native scroll without breaking the page.
       }
-
-      lenis = new Lenis({
-        duration: 1.4,
-        smoothWheel: true,
-      });
-
-      lenis.on('scroll', ScrollTrigger.update);
-
-      tickerCallback = (time: number) => {
-        lenis?.raf(time * 1000);
-      };
-
-      gsap.ticker.add(tickerCallback);
-      gsap.ticker.lagSmoothing(0);
     })();
 
     return () => {
       cancelled = true;
       if (tickerCallback) {
         gsap.ticker.remove(tickerCallback);
+        gsap.ticker.lagSmoothing(500, 33);
       }
       lenis?.destroy();
     };
