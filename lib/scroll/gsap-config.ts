@@ -30,6 +30,7 @@ export function refreshScrollTrigger(): void {
   if (typeof window === 'undefined') {
     return;
   }
+  registerGsapPlugins();
   ScrollTrigger.refresh();
 }
 

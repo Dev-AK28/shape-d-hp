@@ -81,6 +81,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
           GSAP_TICKER.lagSmoothingRestoreThreshold,
         );
       }
+      lenis?.off('scroll', ScrollTrigger.update);
       lenis?.destroy();
       refreshScrollTrigger();
     };

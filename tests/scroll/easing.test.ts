@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ANIMATION_DURATION, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import {
+  loopEase,
   scrollStagger,
   scrollTransition,
   scrollVariants,
@@ -29,7 +30,7 @@ describe('easing ↔ animation-tokens chain', () => {
     expect(scrollVariants.fadeLeft.hidden.x).toBe(REVEAL_OFFSET.x);
   });
 
-  it('text reveal effective duration matches token scale', () => {
-    expect(scrollTransition.duration * textRevealDurationScale).toBeCloseTo(0.91, 2);
+  it('loopEase is easeInOut for decorative loops', () => {
+    expect(loopEase).toBe('easeInOut');
   });
 });

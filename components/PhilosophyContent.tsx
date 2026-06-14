@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import StarBackground from '@/components/StarBackground';
 import TextReveal from '@/components/scroll/TextReveal';
 import { ANIMATION_DURATION, REVEAL_DELAY } from '@/lib/scroll/animation-tokens';
+import { loopEase } from '@/lib/scroll/easing';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function PhilosophyContent() {
@@ -110,7 +111,7 @@ export default function PhilosophyContent() {
                     opacity: [0.8, 1, 0.8],
                     scale: [1, 1.02, 1]
                   }}
-                  transition={{ duration: reduceMotion ? 0 : 6, repeat: reduceMotion ? 0 : Infinity, ease: 'easeInOut' }}
+                  transition={{ duration: reduceMotion ? 0 : 6, repeat: reduceMotion ? 0 : Infinity, ease: loopEase }}
                 >
                   {item.letter}
                 </motion.div>
@@ -167,7 +168,7 @@ export default function PhilosophyContent() {
               animate={reduceMotion ? undefined : {
                 opacity: [0.8, 1, 0.8]
               }}
-              transition={{ duration: reduceMotion ? 0 : 8, repeat: reduceMotion ? 0 : Infinity, ease: 'easeInOut' }}
+              transition={{ duration: reduceMotion ? 0 : 8, repeat: reduceMotion ? 0 : Infinity, ease: loopEase }}
             >
               心理学とエンジニアリングの融合が<br />
               自己一致への道を照らす
