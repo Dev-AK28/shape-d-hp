@@ -6,11 +6,13 @@ import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
 import {
   pillarTextClass,
+  sectionAccentDividerClass,
   sectionCaptionClass,
   sectionHeadingClass,
   sectionHistoryCaptionClass,
+  timelineBodyClass,
+  timelineIndexClass,
 } from '@/lib/design/section-typography-classes';
-import { typographyFontClasses, typographySizeClasses } from '@/lib/design/tokens';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -69,7 +71,7 @@ export default function About() {
           <h2 className={sectionHeadingClass}>
             <TextReveal as="span" text="ABOUT" />
           </h2>
-          <div className="h-px w-16 bg-[var(--accent)]" />
+          <div className={sectionAccentDividerClass} />
         </motion.div>
 
         <div
@@ -111,16 +113,10 @@ export default function About() {
                 <span
                   className="absolute -left-[calc(var(--space-4)+4px)] top-1.5 size-2 rounded-full bg-[var(--accent)]"
                 />
-                <span
-                  className={`mb-[var(--space-1)] block ${typographyFontClasses.serif} ${typographySizeClasses.caption} text-[color:var(--muted)]`}
-                >
+                <span className={timelineIndexClass}>
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <p
-                  className={`m-0 ${typographyFontClasses.serifJp} ${typographySizeClasses.body} leading-[1.8] text-[color:var(--foreground)]`}
-                >
-                  {item}
-                </p>
+                <p className={timelineBodyClass}>{item}</p>
               </li>
             ))}
           </ul>

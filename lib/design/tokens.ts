@@ -78,6 +78,16 @@ export const typographySizeClasses = {
   visualWord: 'type-size-visual-word',
 } as const;
 
+/** CSS custom property names for typography sizes — mirrors :root in globals.css */
+export const typographySizeCssVars: Record<keyof typeof typographySizeClasses, string> = {
+  heading: '--type-size-heading',
+  subheading: '--type-size-subheading',
+  quote: '--type-size-quote',
+  body: '--type-size-body',
+  caption: '--type-size-caption',
+  visualWord: '--type-size-visual-word',
+};
+
 /** CSS utility for font stacks — Issue #15 */
 export const typographyFontClasses = {
   /** Cormorant via :root --font-serif = --font-display */

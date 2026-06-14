@@ -4,8 +4,13 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
-import { sectionHeadingClass } from '@/lib/design/section-typography-classes';
-import { typographyFontClasses, typographySizeClasses } from '@/lib/design/tokens';
+import {
+  sectionAccentDividerClass,
+  sectionHeadingClass,
+  visualWordClass,
+  visionLeadClass,
+  visionQuoteClass,
+} from '@/lib/design/section-typography-classes';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
@@ -55,10 +60,7 @@ export default function MissionVision() {
     <section
       className="relative overflow-hidden py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
     >
-      <p
-        aria-hidden="true"
-        className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap ${typographyFontClasses.serif} ${typographySizeClasses.visualWord} font-light tracking-[0.08em] text-[color:var(--foreground)] opacity-[0.04]`}
-      >
+      <p aria-hidden="true" className={visualWordClass}>
         SELF-CONGRUENCE
       </p>
 
@@ -70,12 +72,12 @@ export default function MissionVision() {
           <h2 className={sectionHeadingClass}>
             <TextReveal as="span" text="VISION" />
           </h2>
-          <div className="h-px w-16 bg-[var(--accent)]" />
+          <div className={sectionAccentDividerClass} />
         </motion.div>
 
         <motion.p
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
-          className={`mb-[var(--space-8)] ${typographyFontClasses.serifJp} ${typographySizeClasses.subheading} font-light tracking-[0.06em] text-[color:var(--accent)]`}
+          className={visionLeadClass}
         >
           自己一致（SELF-CONGRUENCE）への道
         </motion.p>
@@ -85,7 +87,7 @@ export default function MissionVision() {
             <blockquote
               key={quote}
               data-vision-quote
-              className={`mb-[var(--space-6)] max-w-[36em] border-none p-0 ${typographyFontClasses.serifJp} ${typographySizeClasses.quote} font-light leading-[1.85] text-balance text-[color:var(--foreground)]`}
+              className={visionQuoteClass}
               style={{ opacity: staticReveal ? 1 : 0 }}
             >
               {quote}

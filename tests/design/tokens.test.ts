@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import {
   pillarTextClass,
+  sectionAccentDividerClass,
   sectionCaptionClass,
   sectionHeadingClass,
+  sectionHistoryCaptionClass,
+  timelineBodyClass,
+  timelineIndexClass,
+  visualWordClass,
+  visionLeadClass,
+  visionQuoteClass,
 } from '@/lib/design/section-typography-classes';
-import { colors, layout, motion, spacing, typography, typographyFontClasses, typographySizeClasses } from '@/lib/design/tokens';
+import { colors, layout, motion, spacing, typography, typographyFontClasses, typographySizeClasses, typographySizeCssVars } from '@/lib/design/tokens';
 
 describe('design tokens', () => {
   it('defines dark minimal color palette', () => {
@@ -47,11 +54,24 @@ describe('design tokens', () => {
     expect(typographyFontClasses.serifJp).toBe('type-font-serif-jp');
   });
 
+  it('maps typography size CSS vars to type-size-* utilities', () => {
+    expect(typographySizeCssVars.heading).toBe('--type-size-heading');
+    expect(typographySizeCssVars.visualWord).toBe('--type-size-visual-word');
+    expect(Object.keys(typographySizeCssVars).length).toBe(Object.keys(typographySizeClasses).length);
+  });
+
   it('embeds typography utilities in shared home section classes', () => {
     expect(sectionHeadingClass).toContain(typographyFontClasses.serif);
     expect(sectionHeadingClass).toContain(typographySizeClasses.heading);
     expect(sectionCaptionClass).toContain(typographySizeClasses.caption);
+    expect(sectionHistoryCaptionClass).toContain(typographySizeClasses.caption);
     expect(pillarTextClass).toContain(typographyFontClasses.serifJp);
     expect(pillarTextClass).toContain(typographySizeClasses.subheading);
+    expect(sectionAccentDividerClass).toContain('bg-[var(--accent)]');
+    expect(visualWordClass).toContain(typographySizeClasses.visualWord);
+    expect(visionLeadClass).toContain(typographySizeClasses.subheading);
+    expect(visionQuoteClass).toContain(typographySizeClasses.quote);
+    expect(timelineIndexClass).toContain(typographySizeClasses.caption);
+    expect(timelineBodyClass).toContain(typographySizeClasses.body);
   });
 });
