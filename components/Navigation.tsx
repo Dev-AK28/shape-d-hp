@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
+import { isNavItemActive } from '@/lib/navigation/is-nav-active';
 
 const MOBILE_MENU_ID = 'mobile-nav-menu';
 
@@ -12,25 +13,39 @@ export default function Navigation() {
   const reduceMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
+
+  const closeMenu = useCallback(() => setIsOpen(false), []);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    if (!isOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeMenu();
+      }
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, closeMenu]);
 
   const navItems = [
     { name: 'ホーム', href: '/' },
@@ -38,7 +53,7 @@ export default function Navigation() {
     { name: '実績', href: '/works' },
     { name: '制作の流れ', href: '/process' },
     { name: '哲学', href: '/philosophy' },
-    { name: 'お問い合わせ', href: '/contact' }
+    { name: 'お問い合わせ', href: '/contact' },
   ];
 
   return (
@@ -59,14 +74,21 @@ export default function Navigation() {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div style={{ display: isMobile ? 'none' : 'flex', gap: '32px', alignItems: 'center' }}>
+          {/* Desktop Navigation — md: (768px) matches MOBILE_BREAKPOINT_PX */}
+          <div className="hidden items-center gap-8 md:flex">
             {navItems.map((item) => (
-              <Link key={item.name} href={item.href} className="nav-link" style={{ textDecoration: 'none' }}>
+              <Link
+                key={item.name}
+                href={item.href}
+                className="nav-link"
+                style={{ textDecoration: 'none' }}
+              >
                 <div
                   style={{
                     fontSize: '14px',
-                    color: pathname === item.href ? 'var(--accent)' : 'var(--muted)',
+                    color: isNavItemActive(pathname, item.href)
+                      ? 'var(--accent)'
+                      : 'var(--muted)',
                     fontFamily: 'var(--font-serif-jp)',
                     letterSpacing: '0.1em',
                   }}
@@ -80,18 +102,17 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <motion.button
             type="button"
-            className="nav-menu-button"
+            className="nav-menu-button block md:hidden"
             onClick={() => setIsOpen(!isOpen)}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
             aria-expanded={isOpen}
             aria-controls={MOBILE_MENU_ID}
             style={{
-              display: isMobile ? 'block' : 'none',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: '8px'
+              padding: '8px',
             }}
           >
             <div style={{ width: '24px', height: '20px', position: 'relative' }}>
@@ -103,7 +124,6 @@ export default function Navigation() {
                   width: '100%',
                   height: '2px',
                   background: 'var(--accent)',
-                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
               <motion.span
@@ -115,7 +135,6 @@ export default function Navigation() {
                   height: '2px',
                   background: 'var(--accent)',
                   top: '9px',
-                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
               <motion.span
@@ -127,7 +146,6 @@ export default function Navigation() {
                   height: '2px',
                   background: 'var(--accent)',
                   top: '18px',
-                  transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
             </div>
@@ -152,7 +170,7 @@ export default function Navigation() {
               background: 'rgba(0, 0, 0, 0.98)',
               backdropFilter: 'blur(20px)',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '24px'
+              padding: '24px',
             }}
           >
             {navItems.map((item, index) => (
@@ -164,7 +182,7 @@ export default function Navigation() {
               >
                 <Link
                   href={item.href}
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMenu}
                   className="nav-link"
                   style={{ textDecoration: 'none' }}
                 >
@@ -172,7 +190,9 @@ export default function Navigation() {
                     style={{
                       padding: '16px 0',
                       fontSize: '16px',
-                      color: pathname === item.href ? 'var(--accent)' : 'var(--muted)',
+                      color: isNavItemActive(pathname, item.href)
+                        ? 'var(--accent)'
+                        : 'var(--muted)',
                       fontFamily: 'var(--font-serif-jp)',
                       letterSpacing: '0.1em',
                       borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
