@@ -182,6 +182,8 @@ SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/s
 | `ProcessNavigation.tsx` | 移行済み（`--section-blue` / `--section-purple` CSS 変数 + `color-mix`） |
 | `PhilosophyProgressDots.tsx` | 移行済み（CSS 変数 `--accent` / `--muted`） |
 | `PageHeader.tsx` 区切り線 | 移行済み（`dividerVariant` + `page-header-divider-*` クラス） |
+| `About.tsx` | 移行済み（Tailwind + `var(--space-*)` / `var(--content-wide)` 等） |
+| `MissionVision.tsx` | 移行済み（同上 + `var(--content-standard)`） |
 | その他コンテンツコンポーネント | 未移行（順次対応） |
 
 セクションアクセント色（`blue` / `purple` / `sky`）は `lib/design/tokens.ts` の `colors.blue` 等と `:root` の `--section-*` CSS 変数、Tailwind の `blue-400` / `violet-400` / `blue-300` を対応付ける。`css-token-sync.test.ts` で TS ↔ CSS の同期を検証する。
