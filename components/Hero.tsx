@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import BrandLogo from '@/components/BrandLogo';
 import LogoParticleFormation from '@/components/hero/LogoParticleFormation';
@@ -37,6 +37,12 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const staticFallback = !isReady || shouldDisableGsapAnimation(profile);
   const skipFormation = staticFallback || reduceMotion === true;
   const [formationComplete, setFormationComplete] = useState(false);
+  const [scrollRevealed, setScrollRevealed] = useState(false);
+  const setScrollRevealedRef = useRef(setScrollRevealed);
+
+  useEffect(() => {
+    setScrollRevealedRef.current = setScrollRevealed;
+  });
   const logoRevealed = skipFormation || formationComplete;
 
   useGsapContext(() => {
@@ -51,6 +57,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     }
 
     const revealTargets = [copyRef.current, ctaRef.current];
+    gsap.set(revealTargets, { opacity: 0, y: 30, pointerEvents: 'none' });
 
     const timeline = gsap.timeline({
       scrollTrigger: {
@@ -90,19 +97,23 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         y: 0,
         ease: ANIMATION_EASE.base,
         pointerEvents: 'auto',
-        onStart: () => {
-          for (const element of revealTargets) {
-            element.style.visibility = 'visible';
-            element.removeAttribute('aria-hidden');
-          }
-        },
+        onStart: () => setScrollRevealedRef.current(true),
+        onReverseComplete: () => setScrollRevealedRef.current(false),
       },
       0.35,
     );
-  }, [isImmersive]);
+  }, [isImmersive, staticFallback]);
 
+  const gsapControlled = isImmersive && !staticFallback;
   const showCopyImmediately = isImmersive && staticFallback;
   const copyVisible = !isImmersive || showCopyImmediately;
+  const ctaFocusable = copyVisible || scrollRevealed;
+  const reactRevealStyle = gsapControlled
+    ? undefined
+    : {
+        opacity: copyVisible ? 1 : 0,
+        pointerEvents: copyVisible ? ('auto' as const) : ('none' as const),
+      };
   const logoVisible = isImmersive && !showCopyImmediately;
   const mobileStaticHero = isImmersive && staticFallback && profile.isMobile;
   const showParticleFormation =
@@ -203,8 +214,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
             textAlign: 'center',
             padding: '0 var(--space-3)',
             maxWidth: layout.contentStandard,
-            opacity: copyVisible ? 1 : 0,
-            pointerEvents: copyVisible ? 'auto' : 'none',
+            ...reactRevealStyle,
           }}
         >
           {children}
@@ -258,13 +268,13 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
                   transform: 'translateX(-50%)',
                 }),
             zIndex: 30,
-            pointerEvents: copyVisible ? 'auto' : 'none',
-            opacity: copyVisible ? 1 : 0,
+            ...reactRevealStyle,
           }}
         >
           <a
             href="/contact"
             className="hero-cta"
+            tabIndex={ctaFocusable ? 0 : -1}
             style={{
               display: 'inline-block',
               padding: 'var(--space-2) var(--space-6)',
