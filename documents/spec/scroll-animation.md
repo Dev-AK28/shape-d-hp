@@ -45,8 +45,8 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | パス | 適用内容 |
 |------|---------|
 | `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**スクロール領域全体で fixed `CosmicScene` のビジュアル背景が継続**（スタック順は Footer が前面、下記「スタック順」参照） |
-| `/services` | ServicesContent セクション/カード スタガー + TextReveal（Hero なし・単色背景） |
-| `/works` | WorksContent 同上 |
+| `/services` | PageHeader + ServicesContent スタガー + TextReveal（Hero なし・StarBackground なし） |
+| `/works` | PageHeader + WorksContent 同上 |
 | `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
 | `/process` | ProcessNavigation / ProcessContent |
 | `/process/development` | DevelopmentContent |
