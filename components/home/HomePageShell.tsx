@@ -45,7 +45,7 @@ export default function HomePageShell({ children }: HomePageShellProps) {
         },
       });
     }
-  }, []);
+  }, [isReady]);
 
   return (
     <>
