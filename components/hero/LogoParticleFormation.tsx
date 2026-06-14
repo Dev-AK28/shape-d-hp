@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { backgroundAssets } from '@/lib/design/background-assets';
 import {
+  fitSampleDimensions,
+  LOGO_PARTICLE_RENDER_SCALE,
   sampleLogoTargetPointsFromImageData,
   type LogoSamplePoint,
 } from '@/lib/hero/sample-logo-target-points';
@@ -59,8 +61,9 @@ async function sampleTargetPointsFromLogo(
   }
 
   const image = await loadLogoImage(src);
-  const width = image.naturalWidth;
-  const height = image.naturalHeight;
+  const naturalWidth = image.naturalWidth;
+  const naturalHeight = image.naturalHeight;
+  const { width, height } = fitSampleDimensions(naturalWidth, naturalHeight);
 
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -103,27 +106,28 @@ export default function LogoParticleFormation({
     let cancelled = false;
 
     const run = async () => {
-      const { points, width, height } = await sampleTargetPointsFromLogo(
-        backgroundAssets.brandLogoTransparent,
-      );
-      if (cancelled) {
-        return;
-      }
+      try {
+        const { points, width, height } = await sampleTargetPointsFromLogo(
+          backgroundAssets.brandLogoTransparent,
+        );
+        if (cancelled) {
+          return;
+        }
 
-      if (points.length === 0 || width === 0 || height === 0) {
-        onCompleteRef.current?.();
-        return;
-      }
+        if (points.length === 0 || width === 0 || height === 0) {
+          onCompleteRef.current?.();
+          return;
+        }
 
-      sampleSizeRef.current = { width, height };
-      particlesRef.current = createParticles(points);
-      startRef.current = null;
+        sampleSizeRef.current = { width, height };
+        particlesRef.current = createParticles(points);
+        startRef.current = null;
 
-      const durationMs = 2400;
-      let canvasWidth = 0;
-      let canvasHeight = 0;
+        const durationMs = 2400;
+        let canvasWidth = 0;
+        let canvasHeight = 0;
 
-      const render = (timestamp: number) => {
+        const render = (timestamp: number) => {
         if (cancelled) {
           return;
         }
@@ -165,7 +169,8 @@ export default function LogoParticleFormation({
         const centerY = displayHeight / 2;
         const { width: sampleWidth, height: sampleHeight } = sampleSizeRef.current;
         const scale =
-          Math.min(displayWidth / sampleWidth, displayHeight / sampleHeight) * 0.98;
+          Math.min(displayWidth / sampleWidth, displayHeight / sampleHeight) *
+          LOGO_PARTICLE_RENDER_SCALE;
 
         for (const particle of particlesRef.current) {
           particle.x += (particle.tx - particle.x) * (0.04 + eased * 0.08);
@@ -201,7 +206,12 @@ export default function LogoParticleFormation({
         onCompleteRef.current?.();
       };
 
-      frameRef.current = window.requestAnimationFrame(render);
+        frameRef.current = window.requestAnimationFrame(render);
+      } catch {
+        if (!cancelled) {
+          onCompleteRef.current?.();
+        }
+      }
     };
 
     void run();

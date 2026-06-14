@@ -2,7 +2,25 @@ import { expect, type Page } from '@playwright/test';
 
 export const LOGO_ALT = 'SHAPE∞D Logo';
 
+/** Particle formation duration in Hero immersive mode (ms). */
+export const HERO_PARTICLE_FORMATION_MS = 2400;
+
 const HERO_HEADING = /AIで効率化し、.*本来の創造に集中する環境を作る。/;
+
+export async function expectHeroBrandLogoAfterFormation(page: Page): Promise<void> {
+  const heroSection = page.locator('main section').first();
+  const heroBrandLogo = heroSection.getByRole('img', { name: LOGO_ALT });
+
+  await expect(heroBrandLogo).toBeVisible({
+    timeout: HERO_PARTICLE_FORMATION_MS + 4000,
+  });
+
+  await expect(async () => {
+    const box = await heroBrandLogo.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box?.width ?? 0).toBeGreaterThan(100);
+  }).toPass({ timeout: 5000 });
+}
 
 export async function waitForHomePageReady(page: Page): Promise<void> {
   await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });

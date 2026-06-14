@@ -4,6 +4,32 @@ export const LOGO_SAMPLE_STEP = 6;
 export const LOGO_MAX_PARTICLES = 900;
 export const LOGO_ALPHA_THRESHOLD = 140;
 
+/** Longest edge when rasterizing PNG for particle targets (reduces getImageData memory). */
+export const LOGO_SAMPLE_MAX_DIMENSION = 768;
+
+/**
+ * Canvas particle scale vs sampled silhouette bounds.
+ * 0.98 inset aligns dot cluster with `BrandLogo` object-contain padding in hero stage.
+ */
+export const LOGO_PARTICLE_RENDER_SCALE = 0.98;
+
+export function fitSampleDimensions(
+  width: number,
+  height: number,
+  maxDimension = LOGO_SAMPLE_MAX_DIMENSION,
+): { width: number; height: number } {
+  const longest = Math.max(width, height);
+  if (longest <= maxDimension) {
+    return { width, height };
+  }
+
+  const scale = maxDimension / longest;
+  return {
+    width: Math.round(width * scale),
+    height: Math.round(height * scale),
+  };
+}
+
 export function sampleLogoTargetPointsFromImageData(
   width: number,
   height: number,

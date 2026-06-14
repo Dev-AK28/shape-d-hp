@@ -6,9 +6,25 @@ import {
   BRAND_LOGO_WIDTH,
 } from '@/lib/design/brand-logo-constants';
 import {
+  fitSampleDimensions,
   LOGO_MAX_PARTICLES,
+  LOGO_SAMPLE_MAX_DIMENSION,
   sampleLogoTargetPointsFromImageData,
 } from '@/lib/hero/sample-logo-target-points';
+
+describe('fitSampleDimensions', () => {
+  it('downscales PNG dimensions to the sample max edge', () => {
+    const fitted = fitSampleDimensions(BRAND_LOGO_WIDTH, BRAND_LOGO_HEIGHT);
+
+    expect(Math.max(fitted.width, fitted.height)).toBe(LOGO_SAMPLE_MAX_DIMENSION);
+    expect(fitted.width).toBe(768);
+    expect(fitted.height).toBe(512);
+  });
+
+  it('keeps small assets unchanged', () => {
+    expect(fitSampleDimensions(320, 200)).toEqual({ width: 320, height: 200 });
+  });
+});
 
 describe('sampleLogoTargetPointsFromImageData', () => {
   it('samples alpha points from the brand logo PNG silhouette', async () => {
