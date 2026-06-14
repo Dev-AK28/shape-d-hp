@@ -56,7 +56,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `stagger: 0.15` / `ease: ANIMATION_EASE.base`
 
-- `prefers-reduced-motion` / モバイル / coarse pointer 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリで reduced-motion 時 `opacity: 1` を保証
+- `prefers-reduced-motion` / モバイル / coarse pointer 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`shouldUseStaticReveal()` により `getScrollRevealProps({ staticReveal: true })` と `TextReveal` の即時表示を適用。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリ（`max-width: 767px` および `prefers-reduced-motion`）で `opacity: 1` を保証
 - StarBackground は使用しない（`colors.background` 単色背景）
 | `/services` | ServicesContent セクション/カード スタガー + TextReveal |
 | `/works` | WorksContent 同上 |
@@ -77,7 +77,8 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
   - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events` / `aria-hidden` で非表示時の操作を防止）
 - モバイル / coarse pointer 時:
   - Lenis 無効
-  - Hero `immersive`: GSAP pin 無効（静的フォールバック）
+  - Hero `immersive`: GSAP pin 無効（静的フォールバック）。`height: auto`・CTA をフロー内配置し About へスクロールしやすくする
+  - About / MissionVision: `shouldUseStaticReveal` により framer-motion / TextReveal を即時表示
 
 ## 受け入れ基準
 

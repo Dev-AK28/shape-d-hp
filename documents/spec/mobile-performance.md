@@ -55,6 +55,11 @@ Issue: #51
 - **When** トップ Hero を操作する
 - **Then** GSAP pin は無効化され、静的フォールバックが表示される
 
+- **Given** モバイル幅（390px / 375px）でトップページを閲覧している
+- **When** Hero のお問い合わせボタンから下方向へスクロールする
+- **Then** About および MissionVision のコンテンツが表示される
+- **And** フッター直前に意図しない大きな空白領域がない
+
 - **Given** デスクトップでページ間を遷移する
 - **When** 初回訪問後に別ルートへ移動する
 - **Then** ページ本文が `PageTransition` により 0.6s の fade-in される（ナビは常時表示、reduced-motion 時は即時表示）
