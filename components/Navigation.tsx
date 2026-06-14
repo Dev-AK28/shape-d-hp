@@ -101,7 +101,7 @@ export default function Navigation() {
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
-                  background: '#60a5fa',
+                  background: 'var(--accent)',
                   transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
               />
@@ -112,7 +112,7 @@ export default function Navigation() {
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
-                  background: '#60a5fa',
+                  background: 'var(--accent)',
                   top: '9px',
                   transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
@@ -124,7 +124,7 @@ export default function Navigation() {
                   position: 'absolute',
                   width: '100%',
                   height: '2px',
-                  background: '#60a5fa',
+                  background: 'var(--accent)',
                   top: '18px',
                   transition: reduceMotion ? undefined : 'all 0.3s ease',
                 }}
@@ -164,21 +164,21 @@ export default function Navigation() {
                 <Link
                   href={item.href}
                   onClick={() => setIsOpen(false)}
+                  className="nav-link"
                   style={{ textDecoration: 'none' }}
                 >
-                  <motion.div
-                    whileHover={reduceMotion ? undefined : { x: 8 }}
+                  <div
                     style={{
                       padding: '16px 0',
                       fontSize: '16px',
-                      color: pathname === item.href ? '#60a5fa' : '#9ca3af',
-                      fontFamily: 'serif',
+                      color: pathname === item.href ? 'var(--accent)' : 'var(--muted)',
+                      fontFamily: 'var(--font-serif-jp)',
                       letterSpacing: '0.1em',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                     }}
                   >
                     {item.name}
-                  </motion.div>
+                  </div>
                 </Link>
               </motion.div>
             ))}
