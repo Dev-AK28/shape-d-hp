@@ -80,6 +80,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <motion.button
             type="button"
+            className="nav-menu-button"
             onClick={() => setIsOpen(!isOpen)}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
