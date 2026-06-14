@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import TextReveal from '@/components/scroll/TextReveal';
-import { colors, spacing, typography } from '@/lib/design/tokens';
+import { colors, layout, spacing, typography } from '@/lib/design/tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function ServicesContent() {
@@ -99,7 +99,7 @@ export default function ServicesContent() {
         background: colors.background,
       }}
     >
-      <div style={{ maxWidth: '1040px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <motion.div
           {...getScrollRevealProps(reduceMotion)}
           style={{ marginBottom: spacing.xxl }}

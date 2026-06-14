@@ -106,79 +106,102 @@ export default function LogoParticleFormation({
       return;
     }
 
-    const targets = sampleTargetPoints();
-    if (targets.length === 0) {
-      onCompleteRef.current?.();
-      return;
-    }
+    let cancelled = false;
 
-    particlesRef.current = createParticles(targets);
-    startRef.current = null;
-
-    const durationMs = 2400;
-
-    const render = (timestamp: number) => {
-      if (startRef.current === null) {
-        startRef.current = timestamp;
+    const run = async () => {
+      if (typeof document !== 'undefined' && document.fonts?.ready) {
+        await document.fonts.ready;
       }
-
-      const progress = Math.min(1, (timestamp - startRef.current) / durationMs);
-      const eased = 1 - (1 - progress) ** 3;
-      const canvas = canvasRef.current;
-      const ctx = canvas?.getContext('2d');
-
-      if (!canvas || !ctx) {
+      if (cancelled) {
         return;
       }
 
-      const dpr = window.devicePixelRatio || 1;
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, width, height);
+      const targets = sampleTargetPoints();
+      if (targets.length === 0) {
+        onCompleteRef.current?.();
+        return;
+      }
 
-      const focalLength = 520;
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const scale = Math.min(width / SAMPLE_WIDTH, height / SAMPLE_HEIGHT) * 0.92;
+      particlesRef.current = createParticles(targets);
+      startRef.current = null;
 
-      for (const particle of particlesRef.current) {
-        particle.x += (particle.tx - particle.x) * (0.04 + eased * 0.08);
-        particle.y += (particle.ty - particle.y) * (0.04 + eased * 0.08);
-        particle.z += (particle.tz - particle.z) * (0.05 + eased * 0.06);
+      const durationMs = 2400;
+      let canvasWidth = 0;
+      let canvasHeight = 0;
 
-        const depth = focalLength / (focalLength - particle.z);
-        const px = centerX + particle.x * scale * depth;
-        const py = centerY + particle.y * scale * depth;
-        const size = particle.size * depth * (0.6 + eased * 0.5);
-        const alpha = particle.opacity * (0.35 + eased * 0.65);
-
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(240, 240, 240, ${alpha})`;
-        ctx.arc(px, py, size, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (progress > 0.55) {
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(196, 181, 160, ${alpha * 0.35})`;
-          ctx.arc(px, py, size * 2.2, 0, Math.PI * 2);
-          ctx.fill();
+      const render = (timestamp: number) => {
+        if (startRef.current === null) {
+          startRef.current = timestamp;
         }
-      }
 
-      if (progress < 1) {
-        frameRef.current = window.requestAnimationFrame(render);
-        return;
-      }
+        const progress = Math.min(1, (timestamp - startRef.current) / durationMs);
+        const eased = 1 - (1 - progress) ** 3;
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
 
-      onCompleteRef.current?.();
+        if (!canvas || !ctx) {
+          onCompleteRef.current?.();
+          return;
+        }
+
+        const dpr = window.devicePixelRatio || 1;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+
+        if (width !== canvasWidth || height !== canvasHeight) {
+          canvasWidth = width;
+          canvasHeight = height;
+          canvas.width = Math.floor(width * dpr);
+          canvas.height = Math.floor(height * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        ctx.clearRect(0, 0, width, height);
+
+        const focalLength = 520;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const scale = Math.min(width / SAMPLE_WIDTH, height / SAMPLE_HEIGHT) * 0.92;
+
+        for (const particle of particlesRef.current) {
+          particle.x += (particle.tx - particle.x) * (0.04 + eased * 0.08);
+          particle.y += (particle.ty - particle.y) * (0.04 + eased * 0.08);
+          particle.z += (particle.tz - particle.z) * (0.05 + eased * 0.06);
+
+          const depth = focalLength / (focalLength - particle.z);
+          const px = centerX + particle.x * scale * depth;
+          const py = centerY + particle.y * scale * depth;
+          const size = particle.size * depth * (0.6 + eased * 0.5);
+          const alpha = particle.opacity * (0.35 + eased * 0.65);
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(240, 240, 240, ${alpha})`;
+          ctx.arc(px, py, size, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (progress > 0.55) {
+            ctx.beginPath();
+            ctx.fillStyle = `rgba(196, 181, 160, ${alpha * 0.35})`;
+            ctx.arc(px, py, size * 2.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        if (progress < 1) {
+          frameRef.current = window.requestAnimationFrame(render);
+          return;
+        }
+
+        onCompleteRef.current?.();
+      };
+
+      frameRef.current = window.requestAnimationFrame(render);
     };
 
-    frameRef.current = window.requestAnimationFrame(render);
+    void run();
 
     return () => {
+      cancelled = true;
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
       }

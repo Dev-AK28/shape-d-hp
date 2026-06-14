@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import BrandLogo from '@/components/BrandLogo';
-import { useHomeScrollRefs } from '@/components/home/HomeScrollContext';
 import LogoParticleFormation from '@/components/hero/LogoParticleFormation';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { backgroundAssets } from '@/lib/design/background-assets';
@@ -28,7 +27,6 @@ type HeroProps = {
 export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const { profile, isReady } = useDeviceProfile();
   const reduceMotion = useReducedMotion();
-  const homeScroll = useHomeScrollRefs();
   const sectionRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const particleBandRef = useRef<HTMLDivElement>(null);
@@ -64,22 +62,6 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         anticipatePin: 1,
       },
     });
-
-    if (homeScroll?.baseRef.current) {
-      timeline.to(
-        homeScroll.baseRef.current,
-        { scale: 1.18, ease: ANIMATION_EASE.base },
-        0,
-      );
-    }
-
-    if (homeScroll?.nebulaRef.current) {
-      timeline.to(
-        homeScroll.nebulaRef.current,
-        { y: -64, opacity: 0.62, ease: ANIMATION_EASE.base },
-        0,
-      );
-    }
 
     if (particleBandRef.current) {
       timeline.to(
@@ -117,7 +99,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       },
       0.35,
     );
-  }, [homeScroll, isImmersive]);
+  }, [isImmersive]);
 
   const showCopyImmediately = isImmersive && staticFallback;
   const copyVisible = !isImmersive || showCopyImmediately;
@@ -191,7 +173,6 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
                 fill
                 sizes="(max-width: 768px) 92vw, 960px"
                 className="object-contain object-center"
-                priority={isImmersive}
               />
             </div>
           </div>
@@ -223,9 +204,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
             maxWidth: layout.contentStandard,
             opacity: copyVisible ? 1 : 0,
             pointerEvents: copyVisible ? 'auto' : 'none',
-            visibility: copyVisible ? 'visible' : 'hidden',
           }}
-          aria-hidden={!copyVisible}
         >
           {children}
 
