@@ -343,9 +343,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         <div
           ref={scrollIndicatorRef}
           data-testid="hero-scroll-indicator"
-          aria-hidden
-          className="absolute bottom-[var(--space-3)] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 pointer-events-none select-none"
-          style={{ opacity: 0 }}
+          aria-hidden={true}
+          className="absolute bottom-[var(--space-3)] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 pointer-events-none select-none opacity-0"
         >
           <span className="type-size-caption type-font-serif-jp tracking-[0.12em] text-[color:var(--accent-subtle)]">
             SCROLL

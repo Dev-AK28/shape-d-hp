@@ -60,7 +60,8 @@ test.describe('Home page desktop', () => {
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
     await expectHeroBrandLogoAfterFormation(page);
 
-    // Indicator fades in after formation + 1.2s delay (REVEAL_DELAY.heroScrollIndicator)
+    // Indicator fades in after REVEAL_DELAY.heroScrollIndicator (1.2s delay + 0.6s animation).
+    // 4 000ms gives ~2 200ms of CI buffer after formation completes.
     await expect(page.getByTestId('hero-scroll-indicator')).toBeVisible({ timeout: 4000 });
 
     // After scrolling, CTA appears and indicator fades out
