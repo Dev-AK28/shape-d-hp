@@ -60,14 +60,17 @@ test.describe('Home page desktop', () => {
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
     await expectHeroBrandLogoAfterFormation(page);
 
-    // Indicator fades in after REVEAL_DELAY.heroScrollIndicator (1.2s delay + 0.6s animation).
+    // Playwright considers opacity:0 elements as "visible" — use toHaveCSS to check GSAP opacity.
+    // Indicator animates 0→1 after REVEAL_DELAY.heroScrollIndicator (delay 1.2s + duration 0.6s).
     // 4 000ms gives ~2 200ms of CI buffer after formation completes.
-    await expect(page.getByTestId('hero-scroll-indicator')).toBeVisible({ timeout: 4000 });
+    const indicator = page.getByTestId('hero-scroll-indicator');
+    await expect(indicator).toHaveCSS('opacity', '1', { timeout: 4000 });
 
-    // After scrolling, CTA appears and indicator fades out
+    // Scroll to trigger copy/CTA reveal via GSAP scrub. Wait for CTA opacity=1 (confirms
+    // scrollRevealed is true), then verify indicator fades out (opacity 1→0, duration 0.4s).
     await page.mouse.wheel(0, 900);
-    await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByTestId('hero-scroll-indicator')).not.toBeVisible({ timeout: 3000 });
+    await expect(page.locator('a.hero-cta')).toHaveCSS('opacity', '1', { timeout: 10_000 });
+    await expect(indicator).toHaveCSS('opacity', '0', { timeout: 5000 });
   });
 
   test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
