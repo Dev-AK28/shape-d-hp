@@ -52,8 +52,10 @@ describe('typographyBlend tokens (Issue #101)', () => {
   it('applies cosmic blend to Hero heading and lead copy', () => {
     expect(pageSource).toContain('typographyBlend.classCosmic');
     expect(pageSource).toContain('typographyBlend.testIdCosmic');
+    // className に typographyBlend.classCosmic が含まれ、リード文が存在することを確認
+    // テンプレートリテラル／単独属性どちらの形式でも成立するよう汎化
     expect(heroSource).toMatch(
-      /className=\{typographyBlend\.classCosmic\}[\s\S]*爆速・安全・低コスト/,
+      /typographyBlend\.classCosmic[\s\S]{0,200}爆速・安全・低コスト/,
     );
   });
 

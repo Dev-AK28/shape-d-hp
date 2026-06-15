@@ -87,8 +87,7 @@ export default function MissionVision() {
             <blockquote
               key={quote}
               data-vision-quote
-              className={visionQuoteClass}
-              style={{ opacity: staticReveal ? 1 : 0 }}
+              className={`${visionQuoteClass} ${staticReveal ? 'opacity-100' : 'opacity-0'}`}
             >
               {quote}
             </blockquote>

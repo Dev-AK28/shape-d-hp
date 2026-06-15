@@ -140,8 +140,7 @@ export default function PhilosophyContent() {
             <span
               data-overlay-letter
               aria-hidden="true"
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-[200] leading-none type-font-serif text-[clamp(280px,40vw,560px)] text-[color:var(--foreground)]"
-              style={{ opacity: 0.04 }}
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-[200] leading-none type-font-serif text-[clamp(280px,40vw,560px)] text-[color:var(--foreground)] opacity-[0.04]"
             >
               {item.letter}
             </span>

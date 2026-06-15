@@ -107,8 +107,7 @@ export default function About() {
               <li
                 key={item}
                 data-timeline-item
-                className="relative mb-[var(--space-4)]"
-                style={{ opacity: staticReveal ? 1 : 0 }}
+                className={`relative mb-[var(--space-4)] ${staticReveal ? 'opacity-100' : 'opacity-0'}`}
               >
                 <span
                   className="absolute -left-[calc(var(--space-4)+4px)] top-1.5 size-2 rounded-full bg-[var(--accent)]"

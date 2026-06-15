@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import type { RefObject } from 'react';
 import { backgroundAssets } from '@/lib/design/background-assets';
-import { colors, warmGrade } from '@/lib/design/tokens';
+import { warmGrade } from '@/lib/design/tokens';
 
 type CosmicSceneProps = {
   isMobile: boolean;
@@ -33,9 +33,8 @@ export default function CosmicScene({
 
   return (
     <div
-      className={`pointer-events-none overflow-hidden ${fixed ? 'fixed inset-0 z-0' : 'absolute inset-0'}`}
+      className={`pointer-events-none overflow-hidden bg-[#0a0a0a] ${fixed ? 'fixed inset-0 z-0' : 'absolute inset-0'}`}
       aria-hidden="true"
-      style={{ background: colors.background }}
     >
       <div
         ref={perspectiveDepthRef}
@@ -52,11 +51,7 @@ export default function CosmicScene({
           className="object-cover object-center"
         />
         <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.45) 100%)',
-          }}
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,10,0.15)_0%,rgba(10,10,10,0.45)_100%)]"
         />
       </div>
 
