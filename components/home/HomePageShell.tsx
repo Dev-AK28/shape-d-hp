@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from 'react';
 import CosmicScene from '@/components/background/CosmicScene';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
+import { shouldDisableWebGL } from '@/lib/performance/device-profile';
 import {
   HERO_DEPTH_PASSAGE,
   HERO_PIN_SCROLL,
@@ -83,6 +84,7 @@ export default function HomePageShell({ children }: HomePageShellProps) {
           perspectiveTransformOrigin={HERO_DEPTH_PASSAGE.cosmic.transformOrigin}
           priority
           fixed
+          enableWebGL={!shouldDisableWebGL(profile)}
         />
       ) : null}
       <main ref={mainRef} className="relative z-10 min-h-screen">

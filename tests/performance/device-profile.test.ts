@@ -8,6 +8,7 @@ import {
   resetDeviceProfileCache,
   shouldAnimateStars,
   shouldDisableSmoothScroll,
+  shouldDisableWebGL,
 } from '@/lib/performance/device-profile';
 
 describe('device-profile', () => {
@@ -65,5 +66,33 @@ describe('device-profile', () => {
 
   it('includes prefersHoverNone in the default profile', () => {
     expect(DEFAULT_DEVICE_PROFILE.prefersHoverNone).toBe(false);
+  });
+
+  it('includes hasWebGL as false in the default profile (SSR safe)', () => {
+    expect(DEFAULT_DEVICE_PROFILE.hasWebGL).toBe(false);
+  });
+
+  it('disables WebGL on mobile', () => {
+    expect(
+      shouldDisableWebGL({ ...DEFAULT_DEVICE_PROFILE, isMobile: true, hasWebGL: true }),
+    ).toBe(true);
+  });
+
+  it('disables WebGL when prefers-reduced-motion is set', () => {
+    expect(
+      shouldDisableWebGL({ ...DEFAULT_DEVICE_PROFILE, prefersReducedMotion: true, hasWebGL: true }),
+    ).toBe(true);
+  });
+
+  it('disables WebGL when the browser has no WebGL support', () => {
+    expect(
+      shouldDisableWebGL({ ...DEFAULT_DEVICE_PROFILE, hasWebGL: false }),
+    ).toBe(true);
+  });
+
+  it('enables WebGL on desktop with WebGL support and no reduced-motion preference', () => {
+    expect(
+      shouldDisableWebGL({ ...DEFAULT_DEVICE_PROFILE, hasWebGL: true }),
+    ).toBe(false);
   });
 });

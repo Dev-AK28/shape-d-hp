@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import type { RefObject } from 'react';
+import WebGLHeroDepth from '@/components/background/WebGLHeroDepth';
 import { backgroundAssets } from '@/lib/design/background-assets';
 import { warmGrade } from '@/lib/design/tokens';
 
@@ -17,6 +18,12 @@ type CosmicSceneProps = {
   priority?: boolean;
   /** Fixed viewport backdrop for full-page home experience. */
   fixed?: boolean;
+  /**
+   * Enable the WebGL animated starfield layer.
+   * Caller is responsible for gating this with shouldDisableWebGL().
+   * When false/undefined, the static background image serves as the sole background.
+   */
+  enableWebGL?: boolean;
 };
 
 export default function CosmicScene({
@@ -28,6 +35,7 @@ export default function CosmicScene({
   perspectiveTransformOrigin = '50% 45%',
   priority = false,
   fixed = false,
+  enableWebGL = false,
 }: CosmicSceneProps) {
   const src = isMobile ? backgroundAssets.heroCosmicMobile : backgroundAssets.heroCosmicDesktop;
 
@@ -74,6 +82,8 @@ export default function CosmicScene({
         className="cosmic-warm-grade-overlay absolute inset-0"
         data-testid={warmGrade.testId}
       />
+
+      {enableWebGL && <WebGLHeroDepth />}
       </div>
     </div>
   );
