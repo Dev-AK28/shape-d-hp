@@ -20,6 +20,7 @@ import {
   shouldDisableGsapAnimation,
 } from '@/lib/scroll/gsap-config';
 import {
+  ANIMATION_DURATION,
   HERO_DEPTH_PASSAGE,
   HERO_PIN_SCROLL,
   HERO_PIN_TEST_ID,
@@ -69,7 +70,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     if (!gsapControlled || !formationComplete || scrollRevealed || !scrollIndicatorRef.current) return;
     const tween = gsap.to(scrollIndicatorRef.current, {
       opacity: 1,
-      duration: 0.6,
+      duration: ANIMATION_DURATION.heroScrollIndicator,
       delay: REVEAL_DELAY.heroScrollIndicator,
       ease: ANIMATION_EASE.reveal,
     });

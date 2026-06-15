@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectFooterVisibleAboveCosmicBackground, expectHeroBrandLogoAfterFormation, LOGO_ALT, waitForHomePageReady } from './helpers';
-import { REVEAL_DELAY } from '../lib/scroll/animation-tokens';
+import { ANIMATION_DURATION, REVEAL_DELAY } from '../lib/scroll/animation-tokens';
 
 test.describe('Home page', () => {
   test('shows hero heading after load', async ({ page }) => {
@@ -82,15 +82,22 @@ test.describe('Home page desktop', () => {
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
     // Scroll immediately after page load. Formation takes HERO_PARTICLE_FORMATION_MS (2400ms)
-    // from mount; the GSAP scrub (scrub:1 → 1s lag) sets scrollRevealed within ~1s,
-    // leaving at least ~900ms before formation completes.
+    // after image-load completion; the GSAP scrub (scrub: 1.6 = ANIMATION_DURATION.hero) sets
+    // scrollRevealed within ~1s (exponential catch-up to 93% of trigger range), leaving
+    // significant margin before formation finishes.
     await page.mouse.wheel(0, 900);
 
+    // Confirm the scroll was actually processed by GSAP and scrollRevealed=true fired
+    // before formation completes. Without this, a GSAP init failure would silently
+    // keep opacity:0 via the CSS class, not the guard — making the assertion vacuous.
+    await expect(page.locator('a.hero-cta')).toHaveCSS('opacity', '1', { timeout: 5000 });
+
     // Wait for formation to complete, then wait past the full indicator reveal window
-    // (REVEAL_DELAY.heroScrollIndicator delay + animation) to confirm no fade-in was triggered.
+    // (REVEAL_DELAY.heroScrollIndicator delay + ANIMATION_DURATION.heroScrollIndicator)
+    // to confirm no fade-in was triggered.
     await expectHeroBrandLogoAfterFormation(page);
     const postFormationWaitMs = Math.ceil(
-      (REVEAL_DELAY.heroScrollIndicator + 0.6) * 1000 + 500,
+      (REVEAL_DELAY.heroScrollIndicator + ANIMATION_DURATION.heroScrollIndicator) * 1000 + 500, // +500ms CI buffer
     );
     await page.waitForTimeout(postFormationWaitMs);
 
