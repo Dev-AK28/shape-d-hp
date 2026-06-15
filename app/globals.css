@@ -245,11 +245,24 @@ button:not(.nav-menu-button):hover {
   font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }
 
-/* GSAP stagger targets: ensure content stays visible when motion is reduced or on mobile */
-@media (prefers-reduced-motion: reduce), (max-width: 767px) {
+/* GSAP stagger targets: ensure content stays visible when motion is reduced */
+@media (prefers-reduced-motion: reduce) {
   [data-timeline-item],
   [data-vision-quote] {
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+/* Prevent hydration flash on mobile: during SSR→hydration, isReady transitions
+   from false to true and switches [data-timeline-item]/[data-vision-quote] from
+   opacity-100 to opacity-0 before GSAP can set up ScrollTrigger.
+   This rule (specificity 0-1-0) overrides Tailwind's .opacity-0 class during
+   that window. GSAP inline styles (highest precedence) override this rule once
+   animations are initialized, so scroll-driven reveals still work correctly. */
+@media (max-width: 767px) {
+  [data-timeline-item],
+  [data-vision-quote] {
+    opacity: 1;
   }
 }

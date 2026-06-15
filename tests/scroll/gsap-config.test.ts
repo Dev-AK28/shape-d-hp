@@ -7,7 +7,7 @@ import {
 } from '@/lib/scroll/gsap-config';
 
 describe('gsap-config', () => {
-  it('disables GSAP animations when smooth scroll is disabled', () => {
+  it('disables GSAP animations only when prefers-reduced-motion is active', () => {
     expect(
       shouldDisableGsapAnimation({
         ...DEFAULT_DEVICE_PROFILE,
@@ -19,13 +19,13 @@ describe('gsap-config', () => {
         ...DEFAULT_DEVICE_PROFILE,
         isMobile: true,
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       shouldDisableGsapAnimation({
         ...DEFAULT_DEVICE_PROFILE,
         prefersCoarsePointer: true,
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(shouldDisableGsapAnimation(DEFAULT_DEVICE_PROFILE)).toBe(false);
   });
 

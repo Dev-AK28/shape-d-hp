@@ -20,20 +20,20 @@ describe('device-profile', () => {
     expect(isMobileViewport(768)).toBe(false);
   });
 
-  it('disables smooth scroll on mobile, coarse pointer, or reduced motion', () => {
+  it('disables smooth scroll only when prefers-reduced-motion is active', () => {
     expect(shouldDisableSmoothScroll(DEFAULT_DEVICE_PROFILE)).toBe(false);
     expect(
       shouldDisableSmoothScroll({
         ...DEFAULT_DEVICE_PROFILE,
         isMobile: true,
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       shouldDisableSmoothScroll({
         ...DEFAULT_DEVICE_PROFILE,
         prefersCoarsePointer: true,
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       shouldDisableSmoothScroll({
         ...DEFAULT_DEVICE_PROFILE,
@@ -72,10 +72,10 @@ describe('device-profile', () => {
     expect(DEFAULT_DEVICE_PROFILE.hasWebGL).toBe(false);
   });
 
-  it('disables WebGL on mobile', () => {
+  it('enables WebGL on mobile when WebGL is supported and no reduced-motion preference', () => {
     expect(
       shouldDisableWebGL({ ...DEFAULT_DEVICE_PROFILE, isMobile: true, hasWebGL: true }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('disables WebGL when prefers-reduced-motion is set', () => {
