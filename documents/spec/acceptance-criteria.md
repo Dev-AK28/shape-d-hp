@@ -10,6 +10,13 @@ Then 成功メッセージが表示される
 
 ```gherkin
 Given ユーザーがお問い合わせページにいる
+When 必須項目（お名前・メールアドレス・メッセージ）を空のまま送信ボタンを押す
+Then ブラウザの HTML5 バリデーションが発火し、フォームは送信されない
+And 空の必須フィールドが :invalid 状態になる
+```
+
+```gherkin
+Given ユーザーがお問い合わせページにいる
 When 不正なメールアドレスで送信する
 Then API は 400 を返す
 ```
@@ -95,6 +102,7 @@ Then 進捗ドットが対応セクションに追従する
 
 | 基準 | テスト |
 |------|--------|
+| 必須項目空のまま → ブラウザバリデーション発火 | `e2e/contact.spec.ts`（`shows browser validation for empty required fields`） |
 | フォームバリデーション | `tests/contact/schema.test.ts` |
 | 未知フィールド（`to` 等）無視 | `tests/contact/schema.test.ts` |
 | レート制限（429） | `tests/contact/rate-limit.test.ts`, `tests/contact/route.test.ts` |
