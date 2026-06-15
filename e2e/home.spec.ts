@@ -67,10 +67,12 @@ test.describe('Home page desktop', () => {
     const indicator = page.getByTestId('hero-scroll-indicator');
     await expect(indicator).toHaveCSS('opacity', '1', { timeout: 4000 });
 
-    // Scroll to trigger copy/CTA reveal via GSAP scrub. Wait for CTA opacity=1 (confirms
-    // scrollRevealed is true), then verify indicator fades out (opacity 1→0, duration 0.4s).
+    // Scroll to trigger copy/CTA reveal via GSAP scrub. GSAP animates the ctaRef wrapper div,
+    // not a.hero-cta itself (CSS opacity is not inherited). Use locator('..') to target the
+    // GSAP-controlled parent and confirm opacity=1 (implies scrollRevealed=true), then verify
+    // indicator fades out (opacity 1→0, duration 0.4s).
     await page.mouse.wheel(0, 900);
-    await expect(page.locator('a.hero-cta')).toHaveCSS('opacity', '1', { timeout: 10_000 });
+    await expect(page.locator('a.hero-cta').locator('..')).toHaveCSS('opacity', '1', { timeout: 10_000 });
     await expect(indicator).toHaveCSS('opacity', '0', { timeout: 5000 });
   });
 
@@ -87,10 +89,10 @@ test.describe('Home page desktop', () => {
     // significant margin before formation finishes.
     await page.mouse.wheel(0, 900);
 
-    // Confirm the scroll was actually processed by GSAP and scrollRevealed=true fired
-    // before formation completes. Without this, a GSAP init failure would silently
-    // keep opacity:0 via the CSS class, not the guard — making the assertion vacuous.
-    await expect(page.locator('a.hero-cta')).toHaveCSS('opacity', '1', { timeout: 5000 });
+    // Confirm the scroll was processed by GSAP and scrollRevealed=true fired before formation
+    // completes. GSAP animates the ctaRef wrapper div; locator('..') targets the actual
+    // GSAP-controlled parent (CSS opacity is not inherited, so a.hero-cta itself is always 1).
+    await expect(page.locator('a.hero-cta').locator('..')).toHaveCSS('opacity', '1', { timeout: 5000 });
 
     // Wait for formation to complete, then wait past the full indicator reveal window
     // (REVEAL_DELAY.heroScrollIndicator delay + ANIMATION_DURATION.heroScrollIndicator)
