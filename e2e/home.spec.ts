@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectFooterVisibleAboveCosmicBackground, expectHeroBrandLogoAfterFormation, LOGO_ALT, waitForHomePageReady } from './helpers';
+import { REVEAL_DELAY } from '../lib/scroll/animation-tokens';
 
 test.describe('Home page', () => {
   test('shows hero heading after load', async ({ page }) => {
@@ -71,6 +72,32 @@ test.describe('Home page desktop', () => {
     await page.mouse.wheel(0, 900);
     await expect(page.locator('a.hero-cta')).toHaveCSS('opacity', '1', { timeout: 10_000 });
     await expect(indicator).toHaveCSS('opacity', '0', { timeout: 5000 });
+  });
+
+  test('does not show scroll indicator when user scrolls before particle formation completes', async ({ page }) => {
+    // Regression test for the early-scroll race condition fixed in PR #139.
+    // scrollRevealed guard prevents the fade-in tween from starting when the user
+    // scrolls before formationComplete=true.
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    // Scroll immediately after page load. Formation takes HERO_PARTICLE_FORMATION_MS (2400ms)
+    // from mount; the GSAP scrub (scrub:1 → 1s lag) sets scrollRevealed within ~1s,
+    // leaving at least ~900ms before formation completes.
+    await page.mouse.wheel(0, 900);
+
+    // Wait for formation to complete, then wait past the full indicator reveal window
+    // (REVEAL_DELAY.heroScrollIndicator delay + animation) to confirm no fade-in was triggered.
+    await expectHeroBrandLogoAfterFormation(page);
+    const postFormationWaitMs = Math.ceil(
+      (REVEAL_DELAY.heroScrollIndicator + 0.6) * 1000 + 500,
+    );
+    await page.waitForTimeout(postFormationWaitMs);
+
+    // With scrollRevealed=true when formationComplete fires, the fade-in guard prevents
+    // the tween from starting. Indicator must remain at opacity:0.
+    const indicator = page.getByTestId('hero-scroll-indicator');
+    await expect(indicator).toHaveCSS('opacity', '0');
   });
 
   test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
