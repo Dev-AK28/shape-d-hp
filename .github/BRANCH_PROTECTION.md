@@ -49,10 +49,20 @@ GitHub は自分の PR への `--approve` を拒否する。`enforce_admins: tru
 gh api repos/Dev-AK28/shape-d-hp/branches/main/protection/enforce_admins -X DELETE
 
 # 2. マージ（CI quality は引き続き必須）
-gh pr merge <number> --squash --admin --delete-branch
+gh pr merge <number> --merge --admin --delete-branch
 
-# 3. 管理者適用を再有効化
+# 3. 管理者適用を再有効化（必須・忘れずに実行）
 gh api repos/Dev-AK28/shape-d-hp/branches/main/protection/enforce_admins -X POST
+```
+
+> `--squash` ではなく `--merge`（マージコミット）を使用することで、PR 単位のコミット履歴を main に保持し変更の追跡性を確保する。
+
+### 再有効化の確認
+
+```bash
+gh api repos/Dev-AK28/shape-d-hp/branches/main/protection/enforce_admins \
+  --jq '{enabled: .enabled}'
+# 期待値: {"enabled": true}
 ```
 
 ### その他
@@ -60,3 +70,4 @@ gh api repos/Dev-AK28/shape-d-hp/branches/main/protection/enforce_admins -X POST
 | 方法 | 説明 |
 |------|------|
 | 別アカウントレビュー | 2 つ目の GitHub アカウントで Approve すれば `--admin` 不要 |
+| この運用の実績 | PR #119, #122, #123, #125, #126, #127, #128 にてこの手順でマージ済み（2026-06） |
