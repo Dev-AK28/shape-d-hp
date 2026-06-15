@@ -342,6 +342,10 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         </div>
       ) : null}
 
+      {formationComplete ? (
+        <span data-testid="hero-formation-complete" className="sr-only" aria-hidden />
+      ) : null}
+
       {isImmersive && gsapControlled ? (
         <div
           ref={scrollIndicatorRef}

@@ -106,10 +106,10 @@ test.describe('Home page desktop', () => {
       { timeout: 5000 },
     );
 
-    // Wait for formation to complete, then wait past the full indicator reveal window
-    // (REVEAL_DELAY.heroScrollIndicator delay + ANIMATION_DURATION.heroScrollIndicator)
-    // to confirm no fade-in was triggered.
-    await expectHeroBrandLogoAfterFormation(page);
+    // Wait for formation to complete. After scrolling, the depth passage hides the logo
+    // (opacity→0), so expectHeroBrandLogoAfterFormation cannot be used. Instead, wait for
+    // the hero-formation-complete sentinel element that Hero mounts when formationComplete=true.
+    await page.getByTestId('hero-formation-complete').waitFor({ state: 'attached', timeout: 10000 });
     const postFormationWaitMs = Math.ceil(
       (REVEAL_DELAY.heroScrollIndicator + ANIMATION_DURATION.heroScrollIndicator) * 1000 + 500, // +500ms CI buffer
     );
