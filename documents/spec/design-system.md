@@ -183,11 +183,17 @@ SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/s
 | コンポーネント | 状態 |
 |----------------|------|
 | `ProcessNavigation.tsx` | 移行済み（`--section-blue` / `--section-purple` CSS 変数 + `color-mix`） |
+| `About.tsx` | 移行済み（Tailwind + `var(--space-*)` / `var(--content-wide)` 等。opacity を `opacity-100/opacity-0` に移行） |
+| `MissionVision.tsx` | 移行済み（同上 + `var(--content-standard)`。blockquote opacity を `opacity-100/opacity-0` に移行） |
+| `Hero.tsx` | 移行済み（section / logoRef / particleBandRef / copyRef / ctaRef を Tailwind に移行。GSAP 制御の動的 opacity/visibility は style 維持） |
+| `Navigation.tsx` | 移行済み（nav リンク色・ハンバーガーボタン・アイコン div を Tailwind に移行） |
+| `CosmicScene.tsx` | 移行済み（外側 div `bg-[#0a0a0a]`、グラデーション `bg-[linear-gradient(...)]`。`perspectiveTransformOrigin` は動的 prop のため style 維持） |
+| `PhilosophyContent.tsx` | 移行済み（overlay letter `opacity-[0.04]` に移行。item.bgTint は動的値のため style 維持） |
 | `PhilosophyProgressDots.tsx` | 移行済み（CSS 変数 `--accent` / `--muted`） |
 | `PageHeader.tsx` 区切り線 | 移行済み（`dividerVariant` + `page-header-divider-*` クラス） |
-| `About.tsx` | 移行済み（Tailwind + `var(--space-*)` / `var(--content-wide)` 等） |
-| `MissionVision.tsx` | 移行済み（同上 + `var(--content-standard)`） |
-| その他コンテンツコンポーネント | 未移行（順次対応） |
+| `DevelopmentContent.tsx` | 未移行（23 箇所・次優先） |
+| `WorksContent.tsx` / `ServicesContent.tsx` / `ConsultingContent.tsx` | 未移行（各 48–52 箇所・順次対応） |
+| その他（`BrandLogo` / `StarBackground` / `NebulaBackground` / `ParallaxSection`） | 動的値のため style 維持が妥当（Tailwind 移行対象外） |
 
 セクションアクセント色（`blue` / `purple` / `sky`）は `lib/design/tokens.ts` の `colors.blue` 等と `:root` の `--section-*` CSS 変数、Tailwind の `blue-400` / `violet-400` / `blue-300` を対応付ける。`css-token-sync.test.ts` で TS ↔ CSS の同期を検証する。
 
