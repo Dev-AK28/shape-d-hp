@@ -99,7 +99,13 @@ test.describe('390px — /philosophy', () => {
 
     await expectNoHorizontalOverflow(page);
 
-    await expect(page.getByRole('heading', { name: 'SELF-CONGRUENCE' })).toBeVisible();
+    // SELF-CONGRUENCE is in the first full-screen panel and animates in via
+    // framer-motion whileInView. Nudge scroll to ensure IntersectionObserver fires,
+    // then allow time for the animation to complete.
+    await page.evaluate(() => window.scrollBy(0, 1));
+    await expect(page.getByRole('heading', { name: 'SELF-CONGRUENCE' })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });
 
