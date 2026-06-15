@@ -92,6 +92,28 @@ test.describe('Navigation mobile layout', () => {
     await page.keyboard.press('Escape');
     await expect(nav.getByRole('link', { name: '哲学' })).toHaveCount(0);
   });
+
+  test('closes hamburger menu when viewport expands to 768px', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+    await expect(nav.getByRole('link', { name: '哲学' })).toBeVisible();
+
+    // spec: 開いている間 document.body.style.overflow = 'hidden'
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+
+    // viewport を 768px 以上に拡大 — matchMedia change event を発火させメニューを閉じる
+    await page.setViewportSize({ width: 768, height: 844 });
+
+    // 768px では desktop nav が表示されるためリンクロールでは判定できない。
+    // Framer Motion が #mobile-nav-menu を DOM から除去するまで待機。
+    await expect(page.locator('#mobile-nav-menu')).toHaveCount(0);
+
+    // spec: スクロールロックが解除されること
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+  });
 });
 
 test.describe('Navigation desktop layout', () => {
