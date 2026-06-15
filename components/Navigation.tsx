@@ -103,7 +103,7 @@ export default function Navigation() {
                 data-micro-interaction="nav"
               >
                 <div
-                  className={`type-size-body type-font-serif-jp ${
+                  className={`text-sm type-font-serif-jp ${
                     isNavItemActive(pathname, item.href)
                       ? 'text-[color:var(--accent)]'
                       : 'text-[color:var(--muted)]'
