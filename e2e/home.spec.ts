@@ -55,6 +55,20 @@ test.describe('Home page desktop', () => {
     await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
   });
 
+  test('shows scroll indicator after particle formation and hides after scroll', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectHeroBrandLogoAfterFormation(page);
+
+    // Indicator fades in after formation + 1.2s delay (REVEAL_DELAY.heroScrollIndicator)
+    await expect(page.getByTestId('hero-scroll-indicator')).toBeVisible({ timeout: 4000 });
+
+    // After scrolling, CTA appears and indicator fades out
+    await page.mouse.wheel(0, 900);
+    await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('hero-scroll-indicator')).not.toBeVisible({ timeout: 3000 });
+  });
+
   test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);

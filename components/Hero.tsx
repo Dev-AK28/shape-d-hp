@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 import LogoParticleFormation from '@/components/hero/LogoParticleFormation';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
@@ -22,6 +23,7 @@ import {
   HERO_DEPTH_PASSAGE,
   HERO_PIN_SCROLL,
   HERO_PIN_TEST_ID,
+  REVEAL_DELAY,
 } from '@/lib/scroll/animation-tokens';
 import type { ReactNode } from 'react';
 
@@ -40,6 +42,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const particleBandRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
 
   const isImmersive = variant === 'immersive';
   const staticFallback = !isReady || shouldDisableGsapAnimation(profile);
@@ -57,6 +60,31 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     setLogoScrollHiddenRef.current = setLogoScrollHidden;
   });
   const logoRevealed = skipFormation || formationComplete;
+  const gsapControlled = isImmersive && !staticFallback;
+
+  // Fade-in scroll indicator after particle formation completes.
+  useEffect(() => {
+    if (!gsapControlled || !formationComplete || !scrollIndicatorRef.current) return;
+    const tween = gsap.to(scrollIndicatorRef.current, {
+      opacity: 1,
+      duration: 0.6,
+      delay: REVEAL_DELAY.heroScrollIndicator,
+      ease: ANIMATION_EASE.reveal,
+    });
+    return () => { tween.kill(); };
+  }, [formationComplete, gsapControlled]);
+
+  // Fade-out scroll indicator once the scroll reveal has triggered.
+  useEffect(() => {
+    if (!scrollIndicatorRef.current || !scrollRevealed) return;
+    const tween = gsap.to(scrollIndicatorRef.current, {
+      opacity: 0,
+      duration: 0.4,
+      ease: ANIMATION_EASE.base,
+      overwrite: true,
+    });
+    return () => { tween.kill(); };
+  }, [scrollRevealed]);
 
   useGsapContext(() => {
     if (
@@ -189,7 +217,6 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     syncScrollRevealed();
   }, [isImmersive, staticFallback]);
 
-  const gsapControlled = isImmersive && !staticFallback;
   const showCopyImmediately = isImmersive && staticFallback;
   const copyVisible = !isImmersive || showCopyImmediately;
   const logoVisible = isImmersive && !showCopyImmediately;
@@ -309,6 +336,25 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           >
             お問い合わせ
           </a>
+        </div>
+      ) : null}
+
+      {isImmersive && gsapControlled ? (
+        <div
+          ref={scrollIndicatorRef}
+          data-testid="hero-scroll-indicator"
+          aria-hidden
+          className="absolute bottom-[var(--space-3)] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 pointer-events-none select-none"
+          style={{ opacity: 0 }}
+        >
+          <span className="type-size-caption type-font-serif-jp tracking-[0.12em] text-[color:var(--accent-subtle)]">
+            SCROLL
+          </span>
+          <ChevronDown
+            size={14}
+            strokeWidth={1.5}
+            className="text-[color:var(--accent-subtle)] motion-safe:animate-bounce"
+          />
         </div>
       ) : null}
     </section>
