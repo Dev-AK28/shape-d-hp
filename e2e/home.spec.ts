@@ -68,11 +68,17 @@ test.describe('Home page desktop', () => {
     await expect(indicator).toHaveCSS('opacity', '1', { timeout: 4000 });
 
     // Scroll to trigger copy/CTA reveal via GSAP scrub. GSAP animates the ctaRef wrapper div,
-    // not a.hero-cta itself (CSS opacity is not inherited). Use locator('..') to target the
-    // GSAP-controlled parent and confirm opacity=1 (implies scrollRevealed=true), then verify
-    // indicator fades out (opacity 1→0, duration 0.4s).
+    // not a.hero-cta itself (CSS opacity is not inherited). GSAP scrub (exponential smoothing)
+    // may settle at 0.999x rather than exactly 1.0; use waitForFunction with >= 0.99 threshold
+    // to confirm scrollRevealed=true, then verify indicator fades out (opacity 1→0, duration 0.4s).
     await page.mouse.wheel(0, 900);
-    await expect(page.locator('a.hero-cta').locator('..')).toHaveCSS('opacity', '1', { timeout: 10_000 });
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('a.hero-cta')?.parentElement;
+        return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
+      },
+      { timeout: 10_000 },
+    );
     await expect(indicator).toHaveCSS('opacity', '0', { timeout: 5000 });
   });
 
@@ -90,9 +96,15 @@ test.describe('Home page desktop', () => {
     await page.mouse.wheel(0, 900);
 
     // Confirm the scroll was processed by GSAP and scrollRevealed=true fired before formation
-    // completes. GSAP animates the ctaRef wrapper div; locator('..') targets the actual
-    // GSAP-controlled parent (CSS opacity is not inherited, so a.hero-cta itself is always 1).
-    await expect(page.locator('a.hero-cta').locator('..')).toHaveCSS('opacity', '1', { timeout: 5000 });
+    // completes. GSAP animates the ctaRef wrapper div (CSS opacity is not inherited). GSAP scrub
+    // may settle at 0.999x rather than exactly 1.0; use waitForFunction with >= 0.99 threshold.
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('a.hero-cta')?.parentElement;
+        return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
+      },
+      { timeout: 5000 },
+    );
 
     // Wait for formation to complete, then wait past the full indicator reveal window
     // (REVEAL_DELAY.heroScrollIndicator delay + ANIMATION_DURATION.heroScrollIndicator)
