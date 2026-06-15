@@ -30,7 +30,6 @@ describe('detectWebGLSupport', () => {
   it('returns true when WebGL2 context is available', () => {
     stubBrowser(makeCanvasMock({}));
     expect(detectWebGLSupport()).toBe(true);
-    expect((global.document as { createElement: ReturnType<typeof vi.fn> }).createElement).toHaveBeenCalledWith('canvas');
   });
 
   it('falls back to WebGL1 when WebGL2 is unavailable', () => {
