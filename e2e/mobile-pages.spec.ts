@@ -99,13 +99,14 @@ test.describe('390px — /philosophy', () => {
 
     await expectNoHorizontalOverflow(page);
 
-    // SELF-CONGRUENCE is in the first full-screen panel and animates in via
-    // framer-motion whileInView. Nudge scroll to ensure IntersectionObserver fires,
-    // then allow time for the animation to complete.
+    // TextReveal splits text into inline-block character spans, which causes the
+    // ARIA accessible name to include spaces ("S E L F - ..."), breaking getByRole.
+    // Use DOM textContent filter instead. The outer motion.div and inner TextReveal
+    // both start at opacity:0 and animate in via framer-motion whileInView.
     await page.evaluate(() => window.scrollBy(0, 1));
-    await expect(page.getByRole('heading', { name: 'SELF-CONGRUENCE' })).toBeVisible({
-      timeout: 10000,
-    });
+    await expect(
+      page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first(),
+    ).toBeVisible({ timeout: 10000 });
   });
 });
 
