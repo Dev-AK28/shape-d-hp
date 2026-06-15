@@ -2,30 +2,15 @@ import Hero from '@/components/Hero';
 import About from '@/components/About';
 import MissionVision from '@/components/MissionVision';
 import HomePageShell from '@/components/home/HomePageShell';
-import { layout, typography, typographyBlend } from '@/lib/design/tokens';
-
-const heroHeadingStyle = {
-  fontSize: typography.sizePageHeading,
-  fontFamily: typography.fontSerifJp,
-  color: 'var(--foreground)',
-  marginBottom: 'var(--space-2)',
-  lineHeight: 1.55,
-  fontWeight: 300,
-  letterSpacing: '0.04em',
-  textAlign: 'center' as const,
-  textWrap: 'balance' as const,
-  maxWidth: layout.contentProse,
-  marginInline: 'auto',
-};
+import { typographyBlend } from '@/lib/design/tokens';
 
 export default function Home() {
   return (
     <HomePageShell>
       <Hero>
         <h1
-          className={typographyBlend.classCosmic}
+          className={`${typographyBlend.classCosmic} text-[clamp(24px,4vw,40px)] type-font-serif-jp font-light leading-[1.55] tracking-[0.04em] text-center text-balance max-w-[var(--content-prose)] mx-auto mb-[var(--space-2)] text-[color:var(--foreground)]`}
           data-testid={typographyBlend.testIdCosmic}
-          style={heroHeadingStyle}
         >
           AIで効率化し、
           <br />
