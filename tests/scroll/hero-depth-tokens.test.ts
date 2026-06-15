@@ -6,6 +6,7 @@ import {
   HERO_PIN_SCROLL,
   HERO_PIN_SELECTOR,
   HERO_PIN_TEST_ID,
+  REVEAL_DELAY,
 } from '@/lib/scroll/animation-tokens';
 
 describe('hero depth passage tokens', () => {
@@ -62,5 +63,9 @@ describe('hero depth passage tokens', () => {
 
   it('defines cosmic transform origin in SSOT', () => {
     expect(HERO_DEPTH_PASSAGE.cosmic.transformOrigin).toBe('50% 45%');
+  });
+
+  it('defines hero scroll indicator reveal delay as 1.2s SSOT', () => {
+    expect(REVEAL_DELAY.heroScrollIndicator).toBe(1.2);
   });
 });
