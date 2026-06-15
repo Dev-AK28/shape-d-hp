@@ -5,6 +5,8 @@ export const ANIMATION_DURATION = {
   hero: 1.6,
   /** Staggered Hero child blocks (values / CTA) — faster than main hero title. */
   heroChild: 1.2,
+  /** Hero scroll indicator fade-in duration (opacity 0→1 after REVEAL_DELAY.heroScrollIndicator). */
+  heroScrollIndicator: 0.6,
   /** Large display typography (Philosophy acronym letters) — slower reveal. */
   display: 2,
   section: 1.8,

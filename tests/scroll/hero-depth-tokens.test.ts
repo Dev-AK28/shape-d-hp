@@ -2,10 +2,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  ANIMATION_DURATION,
   HERO_DEPTH_PASSAGE,
   HERO_PIN_SCROLL,
   HERO_PIN_SELECTOR,
   HERO_PIN_TEST_ID,
+  REVEAL_DELAY,
 } from '@/lib/scroll/animation-tokens';
 
 describe('hero depth passage tokens', () => {
@@ -62,5 +64,13 @@ describe('hero depth passage tokens', () => {
 
   it('defines cosmic transform origin in SSOT', () => {
     expect(HERO_DEPTH_PASSAGE.cosmic.transformOrigin).toBe('50% 45%');
+  });
+
+  it('defines hero scroll indicator reveal delay as 1.2s SSOT', () => {
+    expect(REVEAL_DELAY.heroScrollIndicator).toBe(1.2);
+  });
+
+  it('defines hero scroll indicator fade-in duration as 0.6s SSOT', () => {
+    expect(ANIMATION_DURATION.heroScrollIndicator).toBe(0.6);
   });
 });
