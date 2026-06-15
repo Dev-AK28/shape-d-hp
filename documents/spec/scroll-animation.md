@@ -74,7 +74,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `stagger: 0.15` / `ease: ANIMATION_EASE.base`
 
-- `prefers-reduced-motion` / モバイル / coarse pointer 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`shouldUseStaticReveal(profile, reduceMotion, isReady)` により `!isReady` 時も含め `getScrollRevealProps({ staticReveal: true })` と `TextReveal` の即時表示を適用。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリ（`prefers-reduced-motion: reduce` および `max-width: 767px`）で `opacity: 1` を保証
+- `prefers-reduced-motion` 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`shouldUseStaticReveal(profile, reduceMotion, isReady)` により `!isReady` 時も含め `getScrollRevealProps({ staticReveal: true })` と `TextReveal` の即時表示を適用。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリ（`prefers-reduced-motion: reduce`）で `opacity: 1` を保証
 
 ## アクセシビリティ
 
@@ -85,16 +85,12 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
   - リビールアニメーション duration 0 / initial false
   - ParallaxSection は通常 div にフォールバック
   - Hero `immersive`: GSAP pin 無効、ロゴ非表示・コピー/CTA を即時表示（`pointer-events: auto`）
-- デスクトップ Hero `immersive`（GSAP pin 有効）:
+- Hero `immersive`（GSAP pin 有効 — デスクトップ・モバイル共通）:
   - コピー/CTA・ロゴ層（`logoRef` / `particleBandRef`）の `opacity` / `pointer-events` は GSAP が制御（React インラインスタイルと競合しない）
 - ポインター hover マイクロインタ（#103）: ナビ / Hero CTA / Footer は `MicroInteractionBinder` + GSAP `quickTo`（`lib/scroll/micro-interaction.ts`）。reduced-motion / coarse pointer 時はバインドしない — 詳細は [`design-system.md`](./design-system.md) Micro-interactions 節
   - `scrollRevealed` / `logoScrollHidden` はタイムライン `onUpdate` で copy / logo の `opacity` から同期し、スクロール位置復元時も `tabIndex` / `aria-hidden` がずれない
   - スクロールリビール前の CTA は `tabIndex={-1}` でキーボードフォーカスを防止。リビール後は `tabIndex={0}`
   - 粒子形成中の `BrandLogo` は `aria-hidden` で a11y ツリーから除外
-- モバイル / coarse pointer 時:
-  - Lenis 無効
-  - Hero `immersive`: GSAP pin 無効（静的フォールバック）。`height: auto`・CTA をフロー内配置し About へスクロールしやすくする
-  - About / MissionVision: `shouldUseStaticReveal` により framer-motion / TextReveal を即時表示
 
 ## 受け入れ基準
 

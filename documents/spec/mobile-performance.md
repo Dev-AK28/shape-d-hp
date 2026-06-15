@@ -11,8 +11,8 @@ Issue: #51
 | 領域 | 対策 |
 |------|------|
 | `StarBackground` | 共通化・lint 解消は [`star-background.md`](./star-background.md)（Issue #1）を参照。モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止し `box-shadow` グローを解除（IO 初回判定前はスキップ）、`prefers-reduced-motion` 時は静止しスクロールイン後にグローを復元。IO は `threshold: 0.15` + `rootMargin` で複数インスタンスの同時稼働を抑制。`isReady` 後に IO を有効化 |
-| `SmoothScrollProvider` | モバイル・タッチ（`pointer: coarse`）・`prefers-reduced-motion` 時は Lenis 無効。プロファイル変更時に Lenis を create/destroy。Lenis 初期化後に `ScrollTrigger.refresh()` |
-| Hero `immersive` | トップのみ。GSAP pin はデスクトップ精密ポインタのみ。モバイル/reduced-motion 時は静的フォールバック（コピー即時表示） |
+| `SmoothScrollProvider` | `prefers-reduced-motion` 時のみ Lenis 無効（モバイル・タッチ端末も Lenis 有効）。プロファイル変更時に Lenis を create/destroy。Lenis 初期化後に `ScrollTrigger.refresh()` |
+| Hero `immersive` | トップのみ。GSAP pin はデスクトップ・モバイル共通で有効。`prefers-reduced-motion` 時のみ静的フォールバック（コピー即時表示） |
 | `NebulaBackground` | Philosophy 等で継続利用。モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時・IO 無効）。`@keyframes` は `app/globals.css` の `nebula-philosophy-*` |
 | `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
 | `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示、2回目以降のルート遷移のみ fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
@@ -48,11 +48,11 @@ Issue: #51
 - **When** 改善前後を比較する
 - **Then** Performance スコアまたは LCP / TBT が改善している
 
-- **Given** デスクトップでトップ Hero を確認する
+- **Given** デスクトップまたはモバイルでトップ Hero を確認する
 - **When** スクロールで pin アニメーションを実行する
 - **Then** ロゴが縮小・消失しキャッチコピーが現れる（`CosmicScene` 宇宙背景は `HomePageShell` によりフッター手前まで継続）
 
-- **Given** モバイルまたは `prefers-reduced-motion: reduce` が有効
+- **Given** `prefers-reduced-motion: reduce` が有効
 - **When** トップ Hero を操作する
 - **Then** GSAP pin は無効化され、静的フォールバックが表示される
 

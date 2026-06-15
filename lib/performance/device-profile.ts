@@ -66,7 +66,7 @@ export function resetDeviceProfileCache(): void {
 }
 
 export function shouldDisableSmoothScroll(profile: DeviceProfile): boolean {
-  return profile.prefersReducedMotion || profile.isMobile || profile.prefersCoarsePointer;
+  return profile.prefersReducedMotion;
 }
 
 export function shouldAnimateStars(profile: DeviceProfile): boolean {
@@ -79,5 +79,5 @@ export function shouldAnimateStars(profile: DeviceProfile): boolean {
  * The existing static CosmicScene background serves as the fallback in all cases.
  */
 export function shouldDisableWebGL(profile: DeviceProfile): boolean {
-  return profile.isMobile || profile.prefersReducedMotion || !profile.hasWebGL;
+  return profile.prefersReducedMotion || !profile.hasWebGL;
 }
