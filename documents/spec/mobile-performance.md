@@ -109,8 +109,6 @@ repeat(auto-fit, minmax(min(350px, 100%), 1fr))
 
 対象コンポーネント: `ServicesContent`, `WorksContent`, `ConsultingContent`, `DevelopmentContent`
 
-> **注記**: `Contact`（`components/Contact.tsx`）にも同パターンを適用済みだが、このコンポーネントはどの `app/` ページからも import されていないデッドコードであり、実際のレンダリングには影響しない。削除は Issue #120 で追跡中。
-
 ### DevelopmentContent の例外（300px 閾値）
 
 `DevelopmentContent.tsx` のステップカードグリッドは `minmax(min(300px, 100%), 1fr)` を使用しており、他コンポーネントの `350px` とは異なる。これはカード内に円形ステップ番号（120px）とテキストブロックが横並びになる 2 カラムレイアウトのため、より狭い幅で折り返す設計意図による。320px viewport 以下での水平オーバーフロー防止は同様に保証される。
