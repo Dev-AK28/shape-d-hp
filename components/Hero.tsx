@@ -63,8 +63,10 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const gsapControlled = isImmersive && !staticFallback;
 
   // Fade-in scroll indicator after particle formation completes.
+  // Guard against scrollRevealed to avoid post-formation flash when the user
+  // already scrolled during the 2400ms formation window.
   useEffect(() => {
-    if (!gsapControlled || !formationComplete || !scrollIndicatorRef.current) return;
+    if (!gsapControlled || !formationComplete || scrollRevealed || !scrollIndicatorRef.current) return;
     const tween = gsap.to(scrollIndicatorRef.current, {
       opacity: 1,
       duration: 0.6,
@@ -72,7 +74,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       ease: ANIMATION_EASE.reveal,
     });
     return () => { tween.kill(); };
-  }, [formationComplete, gsapControlled]);
+  }, [formationComplete, gsapControlled, scrollRevealed]);
 
   // Fade-out scroll indicator once the scroll reveal has triggered.
   useEffect(() => {
