@@ -105,8 +105,9 @@ test.describe('Home page desktop', () => {
 
     // With scrollRevealed=true when formationComplete fires, the fade-in guard prevents
     // the tween from starting. Indicator must remain at opacity:0.
+    // waitForTimeout above already consumed the full reveal window; 1000ms is enough here.
     const indicator = page.getByTestId('hero-scroll-indicator');
-    await expect(indicator).toHaveCSS('opacity', '0');
+    await expect(indicator).toHaveCSS('opacity', '0', { timeout: 1000 });
   });
 
   test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
