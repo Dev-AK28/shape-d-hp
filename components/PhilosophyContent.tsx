@@ -4,7 +4,6 @@ import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import PhilosophyProgressDots from '@/components/PhilosophyProgressDots';
 import TextReveal from '@/components/scroll/TextReveal';
-import { colors, spacing, typography } from '@/lib/design/tokens';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { usePanelActiveIndex } from '@/lib/hooks/usePanelActiveIndex';
@@ -125,7 +124,7 @@ export default function PhilosophyContent() {
   }, [enableSnap]);
 
   return (
-    <section style={{ position: 'relative', background: colors.background }}>
+    <section className="relative bg-[var(--background)]">
       <PhilosophyProgressDots letters={sectionLetters} activeIndex={activeIndex} />
 
       <div ref={panelsRef}>
@@ -133,86 +132,40 @@ export default function PhilosophyContent() {
           <div
             key={item.letter}
             data-philosophy-panel
+            className="relative flex min-h-svh items-center justify-center overflow-hidden py-[var(--space-section)] px-[var(--space-3)]"
             style={{
-              minHeight: '100svh',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: `${spacing.section}px var(--space-3)`,
-              background: `linear-gradient(180deg, ${colors.background} 0%, ${item.bgTint} 50%, ${colors.background} 100%)`,
-              overflow: 'hidden',
+              background: `linear-gradient(180deg, var(--background) 0%, ${item.bgTint} 50%, var(--background) 100%)`,
             }}
           >
             <span
               data-overlay-letter
               aria-hidden="true"
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                fontSize: 'clamp(280px, 40vw, 560px)',
-                fontWeight: 200,
-                fontFamily: typography.fontDisplay,
-                color: colors.foreground,
-                opacity: 0.04,
-                lineHeight: 1,
-                pointerEvents: 'none',
-                userSelect: 'none',
-              }}
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-[200] leading-none type-font-serif text-[clamp(280px,40vw,560px)] text-[color:var(--foreground)]"
+              style={{ opacity: 0.04 }}
             >
               {item.letter}
             </span>
 
-            <div style={{ maxWidth: '720px', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+            <div className="relative z-[1] max-w-[720px] text-center">
               <motion.div {...getScrollRevealProps(reduceMotion)}>
-                <h2
-                  style={{
-                    fontSize: typography.sizeSubheading,
-                    fontWeight: 300,
-                    color: colors.foreground,
-                    marginBottom: spacing.sm,
-                    fontFamily: typography.fontDisplay,
-                    letterSpacing: '0.1em',
-                  }}
-                >
+                <h2 className="mb-[var(--space-2)] type-size-subheading type-font-serif font-light tracking-[0.1em] text-[color:var(--foreground)]">
                   <TextReveal as="span" text={item.title} />
                 </h2>
-                <p
-                  style={{
-                    fontSize: typography.sizeBody,
-                    color: colors.accent,
-                    letterSpacing: '0.15em',
-                    marginBottom: spacing.xl,
-                  }}
-                >
+                <p className="mb-[var(--space-6)] type-size-body tracking-[0.15em] text-[color:var(--accent)]">
                   {item.subtitle}
                 </p>
               </motion.div>
 
               <motion.p
                 {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
-                style={{
-                  fontSize: 'clamp(18px, 2.5vw, 24px)',
-                  color: colors.foreground,
-                  lineHeight: 1.9,
-                  fontFamily: typography.fontSerifJp,
-                  fontWeight: 300,
-                  marginBottom: spacing.lg,
-                }}
+                className="mb-[var(--space-4)] font-light leading-[1.9] type-font-serif-jp text-[clamp(18px,2.5vw,24px)] text-[color:var(--foreground)]"
               >
                 {item.description}
               </motion.p>
 
               <motion.p
                 {...getScrollRevealProps(reduceMotion, { delay: 0.35 })}
-                style={{
-                  fontSize: typography.sizeBody,
-                  color: colors.muted,
-                  lineHeight: 2,
-                  fontFamily: typography.fontSerifJp,
-                }}
+                className="leading-[2] type-size-body type-font-serif-jp text-[color:var(--muted)]"
               >
                 {item.detail}
               </motion.p>
@@ -221,27 +174,11 @@ export default function PhilosophyContent() {
         ))}
       </div>
 
-      <div
-        style={{
-          minHeight: '60svh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: `${spacing.section}px var(--space-3)`,
-          textAlign: 'center',
-        }}
-      >
-        <div style={{ maxWidth: '800px' }}>
+      <div className="flex min-h-[60svh] items-center justify-center py-[var(--space-section)] px-[var(--space-3)] text-center">
+        <div className="max-w-[800px]">
           <motion.h2
             {...getScrollRevealProps(reduceMotion)}
-            style={{
-              fontSize: typography.sizeHeading,
-              fontWeight: 300,
-              color: colors.foreground,
-              fontFamily: typography.fontSerifJp,
-              lineHeight: 1.5,
-              marginBottom: spacing.xl,
-            }}
+            className="mb-[var(--space-6)] font-light leading-[1.5] type-size-heading type-font-serif-jp text-[color:var(--foreground)]"
           >
             心理学とエンジニアリングの融合が
             <br />
@@ -250,16 +187,7 @@ export default function PhilosophyContent() {
           <motion.a
             href="/contact"
             {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
-            style={{
-              display: 'inline-block',
-              padding: 'var(--space-2) var(--space-4)',
-              border: `1px solid ${colors.accent}`,
-              borderRadius: '9999px',
-              color: colors.accent,
-              textDecoration: 'none',
-              fontFamily: typography.fontSerifJp,
-              transition: 'opacity var(--duration-base) var(--ease-base)',
-            }}
+            className="inline-block rounded-full border border-[var(--accent)] py-[var(--space-2)] px-[var(--space-4)] no-underline type-font-serif-jp text-[color:var(--accent)] transition-opacity duration-[var(--duration-base)] ease-[var(--ease-base)]"
           >
             お問い合わせ
           </motion.a>
