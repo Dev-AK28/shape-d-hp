@@ -45,7 +45,7 @@ export default function Contact() {
           <div style={{ width: '96px', height: '1px', background: 'linear-gradient(to right, transparent, #60a5fa, transparent)' }}></div>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '80px', alignItems: 'center', marginBottom: '120px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '80px', alignItems: 'center', marginBottom: '120px' }}>
           <motion.div
             {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
           >

@@ -95,7 +95,7 @@ export default function WorksContent() {
               {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 0.2 })}
               style={{ marginBottom: index < projects.length - 1 ? '160px' : '0' }}
             >
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '64px', alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '64px', alignItems: 'center' }}>
                 {/* Image Placeholder */}
                 <motion.div
                   {...getScrollRevealProps(reduceMotion, {
@@ -180,7 +180,7 @@ export default function WorksContent() {
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
             CONCEPT WORKS
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '48px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {conceptWorks.map((work, index) => (
               <motion.div
                 key={work.id}
