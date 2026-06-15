@@ -95,13 +95,33 @@ Issue: #51
 - **And** ハンバーガーボタンのタップ領域は 44px 以上である
 - **And** モバイルヘッダー高さは compact 化前（約 88px）より低い
 
+## グリッドレイアウト（モバイル水平オーバーフロー防止）
+
+Issue: #118
+
+`repeat(auto-fit, minmax(350px, 1fr))` は 390px viewport（padding 24px × 2 = 48px 差し引き後 342px）で水平オーバーフローを引き起こす。`ProcessNavigation.tsx` のパターンに倣い、全コンテンツコンポーネントで以下を使用する:
+
+```
+repeat(auto-fit, minmax(min(350px, 100%), 1fr))
+```
+
+`min(350px, 100%)` により、コンテナ幅が 350px 未満のとき最小値が `100%` になりオーバーフローを防ぐ。
+
+対象コンポーネント: `ServicesContent`, `WorksContent`, `Contact`, `ConsultingContent`
+
+## モバイルナビゲーション（ハンバーガーメニュー）
+
+- 開く: ハンバーガーボタンタップ → `aria-label="メニューを開く"` → メニュー表示
+- 閉じる: リンクタップ / Escape キー / viewport 768px 以上
+- スクロールロック: 開いている間 `document.body.style.overflow = 'hidden'`
+
 ## 検証
 
 ```bash
 npm run optimize:images
 npm test
 npm run build
-npm run test:e2e -- e2e/home.spec.ts  # フッター可視性（desktop + mobile）
+npm run test:e2e -- e2e/home.spec.ts e2e/navigation.spec.ts e2e/mobile-pages.spec.ts
 ```
 
 Lighthouse（Mobile）で Performance / LCP / TBT を計測し、Issue コメントに改善前後を記録する。
