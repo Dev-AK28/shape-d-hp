@@ -24,7 +24,7 @@ export function configureGsapDefaults(): void {
   });
 }
 
-/** Align GSAP scroll-driven effects with Lenis disable policy (mobile / coarse / reduced motion). */
+/** Align GSAP scroll-driven effects with Lenis disable policy (prefers-reduced-motion only). */
 export function shouldDisableGsapAnimation(profile: DeviceProfile): boolean {
   return shouldDisableSmoothScroll(profile);
 }
