@@ -71,7 +71,7 @@ export default function DevelopmentContent() {
               {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 'card' })}
               style={{ marginBottom: index < steps.length - 1 ? '100px' : '0' }}
             >
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '64px', alignItems: 'start' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '64px', alignItems: 'start' }}>
                 {/* Step Number */}
                 <motion.div
                   {...getScrollRevealProps(reduceMotion, {

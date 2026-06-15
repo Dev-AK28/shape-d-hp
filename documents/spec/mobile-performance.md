@@ -107,7 +107,7 @@ repeat(auto-fit, minmax(min(350px, 100%), 1fr))
 
 `min(350px, 100%)` により、コンテナ幅が 350px 未満のとき最小値が `100%` になりオーバーフローを防ぐ。
 
-対象コンポーネント: `ServicesContent`, `WorksContent`, `Contact`, `ConsultingContent`
+対象コンポーネント: `ServicesContent`, `WorksContent`, `Contact`, `ConsultingContent`, `DevelopmentContent`
 
 ## モバイルナビゲーション（ハンバーガーメニュー）
 
