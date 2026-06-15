@@ -48,6 +48,15 @@ yarn-error.log*
 tmp-review-*.md
 .godd/state/
 
+# Local agent / tooling artifacts
+agent-tools/
+CLAUDE.md
+
+# GoDD agent ephemeral state (local-only; avoids review noise)
+.godd/
+config.godd
+/GoDD-MCP-alpha.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
