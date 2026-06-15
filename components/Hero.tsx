@@ -278,7 +278,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           {children}
 
           <p
-            className={`${typographyBlend.classCosmic} type-size-body type-font-serif-jp font-light leading-[1.85] mt-[var(--space-4)] tracking-[0.04em] max-w-[680px] mx-auto text-[color:var(--muted)]`}
+            className={`${typographyBlend.classCosmic} type-size-body type-font-serif-jp font-light leading-[1.85] mt-[var(--space-4)] tracking-[0.04em] max-w-[var(--content-prose)] mx-auto text-[color:var(--muted)]`}
           >
             爆速・安全・低コスト——技術の余白に、創造性を。
             <br />
