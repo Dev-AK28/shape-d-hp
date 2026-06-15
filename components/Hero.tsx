@@ -261,7 +261,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
 
           <div
             aria-hidden={logoVisible && !logoRevealed}
-            className="absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out"
+            className="absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.0)]"
             style={{ opacity: logoRevealed || !logoVisible ? 1 : 0 }}
           >
             <BrandLogo variant="hero" priority={isImmersive} className="w-full" />
@@ -272,7 +272,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       {isImmersive ? (
         <div
           ref={copyRef}
-          className="relative z-20 text-center px-[var(--space-3)] max-w-[880px]"
+          className="relative z-20 text-center px-[var(--space-3)] max-w-[var(--content-standard)]"
           style={reactRevealStyle}
         >
           {children}
@@ -286,7 +286,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           </p>
         </div>
       ) : (
-        <div className="relative z-20 text-center px-[var(--space-3)] max-w-[880px]">
+        <div className="relative z-20 text-center px-[var(--space-3)] max-w-[var(--content-standard)]">
           {children ?? <BrandLogo variant="hero" className="w-[min(80vw,420px)]" priority />}
         </div>
       )}
@@ -303,7 +303,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         >
           <a
             href="/contact"
-            className="hero-cta inline-block px-[var(--space-6)] py-[var(--space-2)] border border-[var(--accent)] rounded-full text-[color:var(--accent)] bg-black/35 backdrop-blur-[6px] type-size-body type-font-serif-jp no-underline tracking-[0.08em]"
+            className="hero-cta inline-block px-[var(--space-6)] py-[var(--space-2)] border border-[var(--accent)] rounded-full text-[color:var(--accent)] bg-[#0a0a0a]/35 backdrop-blur-[6px] type-size-body type-font-serif-jp no-underline tracking-[0.08em]"
             data-micro-interaction="cta"
             tabIndex={ctaFocusable ? 0 : -1}
           >
