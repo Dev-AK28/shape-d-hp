@@ -60,6 +60,38 @@ test.describe('Navigation mobile layout', () => {
     expect(buttonBox?.width).toBeGreaterThanOrEqual(44);
     expect(buttonBox?.height).toBeGreaterThanOrEqual(44);
   });
+
+  test('opens hamburger menu and closes on link tap', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    const menuButton = nav.getByRole('button', { name: /メニューを開く/ });
+
+    await menuButton.click();
+
+    await expect(nav.getByRole('button', { name: /メニューを閉じる/ })).toBeVisible();
+    await expect(nav.getByRole('link', { name: '商品・サービス' })).toBeVisible();
+
+    // spec: 開いている間 document.body.style.overflow = 'hidden'
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+
+    await nav.getByRole('link', { name: '商品・サービス' }).click();
+    await expect(page).toHaveURL(/\/services$/);
+    await expect(page.locator('main h1').first()).toContainText('SERVICES');
+  });
+
+  test('closes hamburger menu with Escape key', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+    await expect(nav.getByRole('link', { name: '哲学' })).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(nav.getByRole('link', { name: '哲学' })).toHaveCount(0);
+  });
 });
 
 test.describe('Navigation desktop layout', () => {

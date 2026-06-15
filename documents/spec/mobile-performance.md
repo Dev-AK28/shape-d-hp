@@ -95,13 +95,39 @@ Issue: #51
 - **And** ハンバーガーボタンのタップ領域は 44px 以上である
 - **And** モバイルヘッダー高さは compact 化前（約 88px）より低い
 
+## グリッドレイアウト（モバイル水平オーバーフロー防止）
+
+Issue: #118
+
+`repeat(auto-fit, minmax(350px, 1fr))` は 390px viewport（padding 24px × 2 = 48px 差し引き後 342px）で水平オーバーフローを引き起こす。`ProcessNavigation.tsx` のパターンに倣い、全コンテンツコンポーネントで以下を使用する:
+
+```
+repeat(auto-fit, minmax(min(350px, 100%), 1fr))
+```
+
+`min(350px, 100%)` により、コンテナ幅が 350px 未満のとき最小値が `100%` になりオーバーフローを防ぐ。
+
+対象コンポーネント: `ServicesContent`, `WorksContent`, `ConsultingContent`, `DevelopmentContent`
+
+> **注記**: `Contact`（`components/Contact.tsx`）にも同パターンを適用済みだが、このコンポーネントはどの `app/` ページからも import されていないデッドコードであり、実際のレンダリングには影響しない。削除は Issue #120 で追跡中。
+
+### DevelopmentContent の例外（300px 閾値）
+
+`DevelopmentContent.tsx` のステップカードグリッドは `minmax(min(300px, 100%), 1fr)` を使用しており、他コンポーネントの `350px` とは異なる。これはカード内に円形ステップ番号（120px）とテキストブロックが横並びになる 2 カラムレイアウトのため、より狭い幅で折り返す設計意図による。320px viewport 以下での水平オーバーフロー防止は同様に保証される。
+
+## モバイルナビゲーション（ハンバーガーメニュー）
+
+- 開く: ハンバーガーボタンタップ → `aria-label="メニューを開く"` → メニュー表示
+- 閉じる: リンクタップ / Escape キー / viewport 768px 以上
+- スクロールロック: 開いている間 `document.body.style.overflow = 'hidden'`
+
 ## 検証
 
 ```bash
 npm run optimize:images
 npm test
 npm run build
-npm run test:e2e -- e2e/home.spec.ts  # フッター可視性（desktop + mobile）
+npm run test:e2e -- e2e/home.spec.ts e2e/navigation.spec.ts e2e/mobile-pages.spec.ts
 ```
 
 Lighthouse（Mobile）で Performance / LCP / TBT を計測し、Issue コメントに改善前後を記録する。
