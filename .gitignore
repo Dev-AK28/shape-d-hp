@@ -50,7 +50,6 @@ tmp-review-*.md
 
 # Local agent / tooling artifacts
 agent-tools/
-CLAUDE.md
 
 # GoDD agent ephemeral state (local-only; avoids review noise)
 .godd/
