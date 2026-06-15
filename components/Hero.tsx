@@ -11,7 +11,7 @@ import {
   BRAND_LOGO_HERO_CLASS,
   brandLogoHeroAspectRatio,
 } from '@/lib/design/brand-logo-constants';
-import { colors, layout, typography, typographyBlend } from '@/lib/design/tokens';
+import { typographyBlend } from '@/lib/design/tokens';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import {
   ANIMATION_EASE,
@@ -216,38 +216,16 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     <section
       ref={sectionRef}
       data-testid={isImmersive ? HERO_PIN_TEST_ID : undefined}
-      className="noise-bg"
-      style={{
-        position: 'relative',
-        ...(mobileStaticHero
-          ? {
-              height: 'auto',
-              minHeight: 'auto',
-              paddingTop: 'calc(var(--space-8) + env(safe-area-inset-top, 0px))',
-              paddingBottom: 'var(--space-8)',
-            }
-          : {
-              height: '100svh',
-              minHeight: '100svh',
-            }),
-        display: 'flex',
-        flexDirection: mobileStaticHero ? 'column' : 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: mobileStaticHero ? 'visible' : 'hidden',
-        background: 'transparent',
-      }}
+      className={`noise-bg relative flex items-center justify-center bg-transparent ${
+        mobileStaticHero
+          ? 'flex-col h-auto overflow-visible pt-[calc(var(--space-8)_+_env(safe-area-inset-top,_0px))] pb-[var(--space-8)]'
+          : 'flex-row h-svh min-h-svh overflow-hidden'
+      }`}
     >
       <div
         ref={logoRef}
+        className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
         style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10,
-          pointerEvents: 'none',
           ...reactLogoOpacityStyle,
           visibility: logoVisible ? 'visible' : 'hidden',
         }}
@@ -256,22 +234,10 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         {isImmersive ? (
           <div
             ref={particleBandRef}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              ...reactParticleBandOpacityStyle,
-            }}
+            className="absolute inset-0 flex items-center justify-center"
+            style={reactParticleBandOpacityStyle}
           >
-            <div
-              style={{
-                position: 'relative',
-                width: 'min(92vw, 960px)',
-                aspectRatio: '16 / 9',
-              }}
-            >
+            <div className="relative w-[min(92vw,960px)] aspect-[16/9]">
               <Image
                 src={backgroundAssets.heroParticleBand}
                 alt=""
@@ -295,11 +261,8 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
 
           <div
             aria-hidden={logoVisible && !logoRevealed}
-            className="absolute inset-0 flex items-center justify-center"
-            style={{
-              opacity: logoRevealed || !logoVisible ? 1 : 0,
-              transition: 'opacity 700ms ease',
-            }}
+            className="absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-in-out"
+            style={{ opacity: logoRevealed || !logoVisible ? 1 : 0 }}
           >
             <BrandLogo variant="hero" priority={isImmersive} className="w-full" />
           </div>
@@ -309,30 +272,13 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       {isImmersive ? (
         <div
           ref={copyRef}
-          style={{
-            position: 'relative',
-            zIndex: 20,
-            textAlign: 'center',
-            padding: '0 var(--space-3)',
-            maxWidth: layout.contentStandard,
-            ...reactRevealStyle,
-          }}
+          className="relative z-20 text-center px-[var(--space-3)] max-w-[880px]"
+          style={reactRevealStyle}
         >
           {children}
 
           <p
-            className={typographyBlend.classCosmic}
-            style={{
-              fontSize: typography.sizeBody,
-              color: colors.muted,
-              lineHeight: 1.85,
-              fontFamily: typography.fontSerifJp,
-              fontWeight: 300,
-              marginTop: 'var(--space-4)',
-              letterSpacing: '0.04em',
-              maxWidth: layout.contentProse,
-              marginInline: 'auto',
-            }}
+            className={`${typographyBlend.classCosmic} type-size-body type-font-serif-jp font-light leading-[1.85] mt-[var(--space-4)] tracking-[0.04em] max-w-[680px] mx-auto text-[color:var(--muted)]`}
           >
             爆速・安全・低コスト——技術の余白に、創造性を。
             <br />
@@ -340,15 +286,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           </p>
         </div>
       ) : (
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 20,
-            textAlign: 'center',
-            padding: '0 var(--space-3)',
-            maxWidth: layout.contentStandard,
-          }}
-        >
+        <div className="relative z-20 text-center px-[var(--space-3)] max-w-[880px]">
           {children ?? <BrandLogo variant="hero" className="w-[min(80vw,420px)]" priority />}
         </div>
       )}
@@ -356,40 +294,18 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       {isImmersive ? (
         <div
           ref={ctaRef}
-          style={{
-            ...(mobileStaticHero
-              ? {
-                  position: 'relative',
-                  marginTop: 'var(--space-6)',
-                  textAlign: 'center',
-                }
-              : {
-                  position: 'absolute',
-                  bottom: 'var(--space-6)',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                }),
-            zIndex: 30,
-            ...reactRevealStyle,
-          }}
+          className={`z-30 ${
+            mobileStaticHero
+              ? 'relative mt-[var(--space-6)] text-center'
+              : 'absolute bottom-[var(--space-6)] left-1/2 -translate-x-1/2'
+          }`}
+          style={reactRevealStyle}
         >
           <a
             href="/contact"
-            className="hero-cta inline-block"
+            className="hero-cta inline-block px-[var(--space-6)] py-[var(--space-2)] border border-[var(--accent)] rounded-full text-[color:var(--accent)] bg-black/35 backdrop-blur-[6px] type-size-body type-font-serif-jp no-underline tracking-[0.08em]"
             data-micro-interaction="cta"
             tabIndex={ctaFocusable ? 0 : -1}
-            style={{
-              padding: 'var(--space-2) var(--space-6)',
-              border: `1px solid ${colors.accent}`,
-              borderRadius: '9999px',
-              color: colors.accent,
-              background: 'rgba(10, 10, 10, 0.35)',
-              backdropFilter: 'blur(6px)',
-              fontSize: typography.sizeBody,
-              fontFamily: typography.fontSerifJp,
-              textDecoration: 'none',
-              letterSpacing: '0.08em',
-            }}
           >
             お問い合わせ
           </a>

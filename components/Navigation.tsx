@@ -101,16 +101,13 @@ export default function Navigation() {
                 href={item.href}
                 className="nav-link inline-block no-underline"
                 data-micro-interaction="nav"
-                style={{ textDecoration: 'none' }}
               >
                 <div
-                  style={{
-                    fontSize: '14px',
-                    color: isNavItemActive(pathname, item.href)
-                      ? 'var(--accent)'
-                      : 'var(--muted)',
-                    fontFamily: 'var(--font-serif-jp)',
-                  }}
+                  className={`type-size-body type-font-serif-jp ${
+                    isNavItemActive(pathname, item.href)
+                      ? 'text-[color:var(--accent)]'
+                      : 'text-[color:var(--muted)]'
+                  }`}
                 >
                   {item.name}
                 </div>
@@ -121,50 +118,28 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <motion.button
             type="button"
-            className="nav-menu-button flex h-11 w-11 items-center justify-center p-0 md:hidden"
+            className="nav-menu-button flex h-11 w-11 items-center justify-center bg-transparent border-0 cursor-pointer p-0 md:hidden"
             onClick={toggleMenu}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
             aria-expanded={isOpen}
             aria-controls={MOBILE_MENU_ID}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-            }}
           >
-            <div style={{ width: '24px', height: '20px', position: 'relative' }}>
+            <div className="w-6 h-5 relative">
               <motion.span
                 animate={reduceMotion ? undefined : { rotate: isOpen ? 45 : 0, y: isOpen ? 8 : 0 }}
                 transition={{ duration: reduceMotion ? 0 : 0.3 }}
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '2px',
-                  background: 'var(--accent)',
-                }}
+                className="absolute w-full h-[2px] bg-[var(--accent)]"
               />
               <motion.span
                 animate={reduceMotion ? undefined : { opacity: isOpen ? 0 : 1 }}
                 transition={{ duration: reduceMotion ? 0 : 0.3 }}
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '2px',
-                  background: 'var(--accent)',
-                  top: '9px',
-                }}
+                className="absolute w-full h-[2px] bg-[var(--accent)] top-[9px]"
               />
               <motion.span
                 animate={reduceMotion ? undefined : { rotate: isOpen ? -45 : 0, y: isOpen ? -8 : 0 }}
                 transition={{ duration: reduceMotion ? 0 : 0.3 }}
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '2px',
-                  background: 'var(--accent)',
-                  top: '18px',
-                }}
+                className="absolute w-full h-[2px] bg-[var(--accent)] top-[18px]"
               />
             </div>
           </motion.button>
@@ -176,21 +151,11 @@ export default function Navigation() {
         {isOpen && (
           <motion.div
             id={MOBILE_MENU_ID}
-            className="md:hidden"
+            className="absolute top-full left-0 right-0 bg-black/[.98] backdrop-blur-[20px] border-b border-white/10 px-5 py-4 md:hidden"
             initial={reduceMotion ? false : { opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: -20 }}
             transition={{ duration: reduceMotion ? 0 : 0.3 }}
-            style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              background: 'rgba(0, 0, 0, 0.98)',
-              backdropFilter: 'blur(20px)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '16px 20px',
-            }}
           >
             {navItems.map((item, index) => (
               <motion.div
@@ -204,18 +169,13 @@ export default function Navigation() {
                   onClick={closeMenu}
                   className="nav-link inline-block no-underline"
                   data-micro-interaction="nav"
-                  style={{ textDecoration: 'none' }}
                 >
                   <div
-                    style={{
-                      padding: '16px 0',
-                      fontSize: '16px',
-                      color: isNavItemActive(pathname, item.href)
-                        ? 'var(--accent)'
-                        : 'var(--muted)',
-                      fontFamily: 'var(--font-serif-jp)',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                    }}
+                    className={`py-4 type-size-body type-font-serif-jp border-b border-white/[.05] ${
+                      isNavItemActive(pathname, item.href)
+                        ? 'text-[color:var(--accent)]'
+                        : 'text-[color:var(--muted)]'
+                    }`}
                   >
                     {item.name}
                   </div>
