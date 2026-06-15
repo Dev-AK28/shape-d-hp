@@ -14,7 +14,7 @@ type ScrollRevealOptions = {
   variant?: ScrollVariant;
   staggerIndex?: number;
   staggerStep?: keyof typeof scrollStagger | number;
-  /** Skip scroll-driven reveal (mobile / coarse pointer / reduced-motion profile). */
+  /** Skip scroll-driven reveal (reduced-motion profile or explicit override). */
   staticReveal?: boolean;
 };
 
