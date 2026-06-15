@@ -4,12 +4,20 @@ import MissionVision from '@/components/MissionVision';
 import HomePageShell from '@/components/home/HomePageShell';
 import { typographyBlend } from '@/lib/design/tokens';
 
+const heroH1ClassName = [
+  typographyBlend.classCosmic,
+  'text-[clamp(24px,4vw,40px)] type-font-serif-jp font-light',
+  'leading-[1.55] tracking-[0.04em] text-center text-balance',
+  'max-w-[var(--content-prose)] mx-auto mb-[var(--space-2)]',
+  'text-[color:var(--foreground)]',
+].join(' ');
+
 export default function Home() {
   return (
     <HomePageShell>
       <Hero>
         <h1
-          className={`${typographyBlend.classCosmic} text-[clamp(24px,4vw,40px)] type-font-serif-jp font-light leading-[1.55] tracking-[0.04em] text-center text-balance max-w-[var(--content-prose)] mx-auto mb-[var(--space-2)] text-[color:var(--foreground)]`}
+          className={heroH1ClassName}
           data-testid={typographyBlend.testIdCosmic}
         >
           AIで効率化し、
