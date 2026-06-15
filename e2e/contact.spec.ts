@@ -29,6 +29,26 @@ test.describe('Contact page', () => {
     });
   });
 
+  test('shows browser validation for empty required fields', async ({ page }) => {
+    await page.goto('/contact');
+
+    const nameField = page.locator('#name');
+    await nameField.scrollIntoViewIfNeeded();
+    await expect(nameField).toBeVisible();
+
+    // 必須項目を空のまま送信ボタンをクリック
+    await page.getByRole('button', { name: '送信する' }).click();
+
+    // HTML5 constraint validation: name フィールドは空のため invalid になる
+    const nameValid = await nameField.evaluate(
+      (el: HTMLInputElement) => el.validity.valid,
+    );
+    expect(nameValid).toBe(false);
+
+    // フォームは送信されないため成功メッセージは表示されない
+    await expect(page.getByRole('status')).toHaveCount(0);
+  });
+
   test('shows rate limit error message', async ({ page }) => {
     await page.route('**/api/contact', async (route) => {
       await route.fulfill({
