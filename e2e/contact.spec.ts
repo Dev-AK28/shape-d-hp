@@ -39,11 +39,15 @@ test.describe('Contact page', () => {
     // 必須項目を空のまま送信ボタンをクリック
     await page.getByRole('button', { name: '送信する' }).click();
 
-    // HTML5 constraint validation: name フィールドは空のため invalid になる
-    const nameValid = await nameField.evaluate(
-      (el: HTMLInputElement) => el.validity.valid,
-    );
+    // spec GWT: お名前・メールアドレス・メッセージの全必須フィールドが :invalid になる
+    const [nameValid, emailValid, messageValid] = await Promise.all([
+      nameField.evaluate((el: HTMLInputElement) => el.validity.valid),
+      page.locator('#email').evaluate((el: HTMLInputElement) => el.validity.valid),
+      page.locator('#message').evaluate((el: HTMLTextAreaElement) => el.validity.valid),
+    ]);
     expect(nameValid).toBe(false);
+    expect(emailValid).toBe(false);
+    expect(messageValid).toBe(false);
 
     // フォームは送信されないため成功メッセージは表示されない
     await expect(page.getByRole('status')).toHaveCount(0);
