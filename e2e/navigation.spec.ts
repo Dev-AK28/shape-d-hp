@@ -73,6 +73,10 @@ test.describe('Navigation mobile layout', () => {
     await expect(nav.getByRole('button', { name: /メニューを閉じる/ })).toBeVisible();
     await expect(nav.getByRole('link', { name: '商品・サービス' })).toBeVisible();
 
+    // spec: 開いている間 document.body.style.overflow = 'hidden'
+    const scrollLock = await page.evaluate(() => document.body.style.overflow);
+    expect(scrollLock).toBe('hidden');
+
     await nav.getByRole('link', { name: '商品・サービス' }).click();
     await expect(page).toHaveURL(/\/services$/);
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
