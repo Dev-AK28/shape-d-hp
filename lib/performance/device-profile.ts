@@ -1,3 +1,5 @@
+import { detectWebGLSupport } from '@/lib/webgl/support';
+
 export const MOBILE_BREAKPOINT_PX = 768;
 
 export type DeviceProfile = {
@@ -5,6 +7,8 @@ export type DeviceProfile = {
   prefersReducedMotion: boolean;
   prefersCoarsePointer: boolean;
   prefersHoverNone: boolean;
+  /** WebGL 2 or WebGL 1 is available in this browser. False during SSR. */
+  hasWebGL: boolean;
 };
 
 export const DEFAULT_DEVICE_PROFILE: DeviceProfile = {
@@ -12,6 +16,7 @@ export const DEFAULT_DEVICE_PROFILE: DeviceProfile = {
   prefersReducedMotion: false,
   prefersCoarsePointer: false,
   prefersHoverNone: false,
+  hasWebGL: false,
 };
 
 export function mobileMaxWidthMediaQuery(): string {
@@ -38,6 +43,7 @@ export function readDeviceProfile(): DeviceProfile {
     prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     prefersCoarsePointer: window.matchMedia('(pointer: coarse)').matches,
     prefersHoverNone: window.matchMedia('(hover: none)').matches,
+    hasWebGL: detectWebGLSupport(),
   };
 
   if (
@@ -45,7 +51,8 @@ export function readDeviceProfile(): DeviceProfile {
     cachedDeviceProfile.isMobile === next.isMobile &&
     cachedDeviceProfile.prefersReducedMotion === next.prefersReducedMotion &&
     cachedDeviceProfile.prefersCoarsePointer === next.prefersCoarsePointer &&
-    cachedDeviceProfile.prefersHoverNone === next.prefersHoverNone
+    cachedDeviceProfile.prefersHoverNone === next.prefersHoverNone &&
+    cachedDeviceProfile.hasWebGL === next.hasWebGL
   ) {
     return cachedDeviceProfile;
   }
@@ -64,4 +71,13 @@ export function shouldDisableSmoothScroll(profile: DeviceProfile): boolean {
 
 export function shouldAnimateStars(profile: DeviceProfile): boolean {
   return !profile.prefersReducedMotion;
+}
+
+/**
+ * Returns true when WebGL should be disabled.
+ * Disabled on mobile, reduced-motion preference, or WebGL-unsupported browsers.
+ * The existing static CosmicScene background serves as the fallback in all cases.
+ */
+export function shouldDisableWebGL(profile: DeviceProfile): boolean {
+  return profile.isMobile || profile.prefersReducedMotion || !profile.hasWebGL;
 }
