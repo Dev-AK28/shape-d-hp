@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectFooterVisibleAboveCosmicBackground, expectHeroBrandLogoAfterFormation, LOGO_ALT, waitForHomePageReady } from './helpers';
+import { ANIMATION_DURATION, REVEAL_DELAY } from '../lib/scroll/animation-tokens';
 
 test.describe('Home page', () => {
   test('shows hero heading after load', async ({ page }) => {
@@ -66,11 +67,59 @@ test.describe('Home page desktop', () => {
     const indicator = page.getByTestId('hero-scroll-indicator');
     await expect(indicator).toHaveCSS('opacity', '1', { timeout: 4000 });
 
-    // Scroll to trigger copy/CTA reveal via GSAP scrub. Wait for CTA opacity=1 (confirms
-    // scrollRevealed is true), then verify indicator fades out (opacity 1→0, duration 0.4s).
+    // Scroll to trigger copy/CTA reveal via GSAP scrub. GSAP animates the ctaRef wrapper div,
+    // not a.hero-cta itself (CSS opacity is not inherited). GSAP scrub (exponential smoothing)
+    // may settle at 0.999x rather than exactly 1.0; use waitForFunction with >= 0.99 threshold
+    // to confirm scrollRevealed=true, then verify indicator fades out (opacity 1→0, duration 0.4s).
     await page.mouse.wheel(0, 900);
-    await expect(page.locator('a.hero-cta')).toHaveCSS('opacity', '1', { timeout: 10_000 });
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('a.hero-cta')?.parentElement;
+        return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
+      },
+      { timeout: 10_000 },
+    );
     await expect(indicator).toHaveCSS('opacity', '0', { timeout: 5000 });
+  });
+
+  test('does not show scroll indicator when user scrolls before particle formation completes', async ({ page }) => {
+    // Regression test for the early-scroll race condition fixed in PR #139.
+    // scrollRevealed guard prevents the fade-in tween from starting when the user
+    // scrolls before formationComplete=true.
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    // Scroll immediately after page load. Formation takes HERO_PARTICLE_FORMATION_MS (2400ms)
+    // after image-load completion; the GSAP scrub (scrub: 1.6 = ANIMATION_DURATION.hero) sets
+    // scrollRevealed within ~1s (exponential catch-up to 93% of trigger range), leaving
+    // significant margin before formation finishes.
+    await page.mouse.wheel(0, 900);
+
+    // Confirm the scroll was processed by GSAP and scrollRevealed=true fired before formation
+    // completes. GSAP animates the ctaRef wrapper div (CSS opacity is not inherited). GSAP scrub
+    // may settle at 0.999x rather than exactly 1.0; use waitForFunction with >= 0.99 threshold.
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('a.hero-cta')?.parentElement;
+        return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
+      },
+      { timeout: 5000 },
+    );
+
+    // Wait for formation to complete. After scrolling, the depth passage hides the logo
+    // (opacity→0), so expectHeroBrandLogoAfterFormation cannot be used. Instead, wait for
+    // the hero-formation-complete sentinel element that Hero mounts when formationComplete=true.
+    await page.getByTestId('hero-formation-complete').waitFor({ state: 'attached', timeout: 10000 });
+    const postFormationWaitMs = Math.ceil(
+      (REVEAL_DELAY.heroScrollIndicator + ANIMATION_DURATION.heroScrollIndicator) * 1000 + 500, // +500ms CI buffer
+    );
+    await page.waitForTimeout(postFormationWaitMs);
+
+    // With scrollRevealed=true when formationComplete fires, the fade-in guard prevents
+    // the tween from starting. Indicator must remain at opacity:0.
+    // waitForTimeout above already consumed the full reveal window; 1000ms is enough here.
+    const indicator = page.getByTestId('hero-scroll-indicator');
+    await expect(indicator).toHaveCSS('opacity', '0', { timeout: 1000 });
   });
 
   test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
