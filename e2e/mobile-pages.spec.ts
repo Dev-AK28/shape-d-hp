@@ -2,9 +2,9 @@
  * Mobile parity regression tests (issue #118).
  * Verifies that key content is visible and no horizontal overflow occurs at mobile viewports.
  */
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-async function expectNoHorizontalOverflow(page: import('@playwright/test').Page) {
+async function expectNoHorizontalOverflow(page: Page) {
   const hasOverflow = await page.evaluate(
     () => document.documentElement.scrollWidth > window.innerWidth,
   );
@@ -131,6 +131,20 @@ test.describe('375px — /services', () => {
 
     await expect(page.getByRole('heading', { name: 'Digital Solution' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
+  });
+});
+
+test.describe('375px — /works', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('shows project sections without horizontal overflow', async ({ page }) => {
+    await page.goto('/works');
+    await expect(page.locator('main h1').first()).toContainText('WORKS');
+
+    await expectNoHorizontalOverflow(page);
+
+    await expect(page.getByRole('heading', { name: 'PROJECTS' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'CONCEPT WORKS' })).toBeVisible();
   });
 });
 
