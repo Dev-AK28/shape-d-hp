@@ -127,7 +127,9 @@ Then 進捗ドットが対応セクションに追従する
 | E2E（モバイル初期表示・#151） | `e2e/mobile-pages.spec.ts`（375px / 390px でページ読み込み直後の累積 opacity ≈ 1 を `expectPainted()` で検証） |
 | E2E（Philosophy） | `e2e/philosophy.spec.ts` |
 | Philosophy 構造 / パネル追従 | `tests/philosophy/content.test.ts` |
-| スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
+| スクロールリビール props（animate / whileInView 排他） | `tests/scroll/reveal-props.test.ts` |
+| shouldUseStaticReveal 基本行列 | `tests/scroll/static-reveal.test.ts` |
+| useStaticReveal / hook 拡張行列 | `tests/scroll/use-static-reveal.test.ts`（#154 renderHook follow-up） |
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
 | Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
 | Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |
