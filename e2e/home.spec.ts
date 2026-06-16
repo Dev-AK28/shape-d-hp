@@ -74,7 +74,7 @@ test.describe('Home page desktop', () => {
     await page.mouse.wheel(0, 900);
     await page.waitForFunction(
       () => {
-        const el = document.querySelector('a.hero-cta')?.parentElement;
+        const el = document.querySelector('[data-testid="hero-cta-wrapper"]');
         return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
       },
       { timeout: 10_000 },
@@ -100,7 +100,7 @@ test.describe('Home page desktop', () => {
     // may settle at 0.999x rather than exactly 1.0; use waitForFunction with >= 0.99 threshold.
     await page.waitForFunction(
       () => {
-        const el = document.querySelector('a.hero-cta')?.parentElement;
+        const el = document.querySelector('[data-testid="hero-cta-wrapper"]');
         return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
       },
       { timeout: 5000 },
