@@ -15,6 +15,7 @@ import {
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 const sections = [
   {
@@ -73,7 +74,8 @@ const sectionLetters = sections.map((section) => section.letter);
 
 export default function PhilosophyContent() {
   const reduceMotion = useReducedMotion();
-  const { profile } = useDeviceProfile();
+  const { profile, isReady } = useDeviceProfile();
+  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
   const panelsRef = useRef<HTMLDivElement>(null);
   const activeIndex = usePanelActiveIndex(panelsRef);
   const enableSnap = !profile.isMobile && !profile.prefersCoarsePointer;
@@ -146,7 +148,7 @@ export default function PhilosophyContent() {
             </span>
 
             <div className="relative z-[1] max-w-[720px] text-center">
-              <motion.div {...getScrollRevealProps(reduceMotion)}>
+              <motion.div {...getScrollRevealProps(reduceMotion, { staticReveal })}>
                 <h2 className="mb-[var(--space-2)] type-size-subheading type-font-serif font-light tracking-[0.1em] text-[color:var(--foreground)]">
                   <TextReveal as="span" text={item.title} />
                 </h2>
@@ -156,14 +158,14 @@ export default function PhilosophyContent() {
               </motion.div>
 
               <motion.p
-                {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
+                {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
                 className="mb-[var(--space-4)] font-light leading-[1.9] type-font-serif-jp text-[clamp(18px,2.5vw,24px)] text-[color:var(--foreground)]"
               >
                 {item.description}
               </motion.p>
 
               <motion.p
-                {...getScrollRevealProps(reduceMotion, { delay: 0.35 })}
+                {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.35 })}
                 className="leading-[2] type-size-body type-font-serif-jp text-[color:var(--muted)]"
               >
                 {item.detail}
@@ -176,7 +178,7 @@ export default function PhilosophyContent() {
       <div className="flex min-h-[60svh] items-center justify-center py-[var(--space-section)] px-[var(--space-3)] text-center">
         <div className="max-w-[800px]">
           <motion.h2
-            {...getScrollRevealProps(reduceMotion)}
+            {...getScrollRevealProps(reduceMotion, { staticReveal })}
             className="mb-[var(--space-6)] font-light leading-[1.5] type-size-heading type-font-serif-jp text-[color:var(--foreground)]"
           >
             心理学とエンジニアリングの融合が
@@ -185,7 +187,7 @@ export default function PhilosophyContent() {
           </motion.h2>
           <motion.a
             href="/contact"
-            {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
+            {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
             className="inline-block rounded-full border border-[var(--accent)] py-[var(--space-2)] px-[var(--space-4)] no-underline type-font-serif-jp text-[color:var(--accent)] transition-opacity duration-[var(--duration-base)] ease-[var(--ease-base)]"
           >
             お問い合わせ

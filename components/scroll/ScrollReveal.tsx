@@ -1,7 +1,9 @@
 'use client';
 
 import { motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 import type { ScrollVariant } from '@/lib/scroll/easing';
 
 type ScrollRevealProps = HTMLMotionProps<'div'> & {
@@ -20,6 +22,8 @@ export default function ScrollReveal({
   ...props
 }: ScrollRevealProps) {
   const reduceMotion = useReducedMotion();
+  const { profile, isReady } = useDeviceProfile();
+  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
   const resolvedVariant =
     y !== undefined && variant === 'fadeUp'
       ? ('fadeUpLarge' as const)
@@ -29,10 +33,11 @@ export default function ScrollReveal({
     delay,
     duration,
     variant: resolvedVariant,
+    staticReveal,
   });
 
   const initial =
-    y !== undefined && !reduceMotion && resolvedVariant === 'fadeUpLarge'
+    !staticReveal && y !== undefined && !reduceMotion && resolvedVariant === 'fadeUpLarge'
       ? { opacity: 0, y }
       : revealProps.initial;
 

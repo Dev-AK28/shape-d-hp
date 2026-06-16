@@ -2,7 +2,9 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 import Link from 'next/link';
 
 const MotionLink = motion.create(Link);
@@ -18,6 +20,8 @@ const consultingCardClass =
 
 export default function ProcessNavigation() {
   const reduceMotion = useReducedMotion();
+  const { profile, isReady } = useDeviceProfile();
+  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
 
   return (
     <PageHeader
@@ -30,7 +34,7 @@ export default function ProcessNavigation() {
         className="mx-auto mt-[120px] grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(400px,100%),1fr))] gap-16"
       >
         <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.2 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
           className={developmentCardClass}
         >
@@ -51,7 +55,7 @@ export default function ProcessNavigation() {
         </motion.div>
 
         <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
           className={consultingCardClass}
         >
