@@ -58,16 +58,16 @@ export function getScrollRevealProps(
 
   const staggerDelay = resolveStaggerDelay(staggerIndex, staggerStep);
   const totalDelay = delay + staggerDelay;
-  const useStaticReveal = reduceMotion === true || staticReveal;
+  const isStaticReveal = reduceMotion === true || staticReveal;
 
   const visible = scrollVariants[variant].visible;
   const transition = {
-    duration: useStaticReveal ? 0 : duration,
-    delay: useStaticReveal ? 0 : totalDelay,
+    duration: isStaticReveal ? 0 : duration,
+    delay: isStaticReveal ? 0 : totalDelay,
     ease: scrollEase,
   };
 
-  if (useStaticReveal) {
+  if (isStaticReveal) {
     return {
       initial: false,
       animate: visible,
