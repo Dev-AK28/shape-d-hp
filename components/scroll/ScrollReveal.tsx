@@ -47,6 +47,8 @@ export default function ScrollReveal({
 
   return (
     <motion.div
+      // Remount at mobile breakpoint so framer `initial` re-evaluates (#151 resize).
+      // Focus loss on resize is tracked in #155.
       key={profile.isMobile ? 'mobile' : 'desktop'}
       initial={initial}
       transition={revealProps.transition}
