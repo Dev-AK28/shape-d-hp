@@ -42,19 +42,21 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 ### staticReveal ガード（MUST・Issue #151）
 
-`getScrollRevealProps()` / `ScrollReveal` を使う **すべての** framer-motion リビール消費コンポーネントは、`shouldUseStaticReveal(profile, reduceMotion, isReady)` を算出して `staticReveal` として渡さなければならない（`About` / `MissionVision` と同一パターン）。
+`getScrollRevealProps()` / `ScrollReveal` を使う **すべての** framer-motion リビール消費コンポーネントは、共有フック `useStaticReveal()` から `staticReveal` を取得し、各呼び出しに渡さなければならない。
 
 ```tsx
-const reduceMotion = useReducedMotion();
-const { profile, isReady } = useDeviceProfile();
-const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+// lib/hooks/useStaticReveal.ts に集約（shouldUseStaticReveal の 3 行重複を解消）
+const { reduceMotion, staticReveal } = useStaticReveal();
+// profile が別途必要な場合（例: PhilosophyContent の snap 判定）:
+const { profile, reduceMotion, staticReveal } = useStaticReveal();
 // 各呼び出しに { staticReveal, ... } を渡す
 ```
 
 - **理由**: `staticReveal` を渡さない場合、`getScrollRevealProps` は `initial: opacity 0`（hidden）でマウントし、表示は IntersectionObserver（framer-motion `whileInView`）の発火に完全依存する。`!isReady`（SSR / ハイドレーション初回）でも `opacity: 0` で描画されるため、モバイルで Lenis スムーズスクロール有効化（#138）後、ビューポート上部で `whileInView` が発火せずコンテンツがフッター手前まで非表示になる不具合が発生した（#151：`/services`・`/works` ほか）。
 - `shouldUseStaticReveal` は `!isReady` で `true` を返すため、SSR / 初回レンダリングでは必ず `initial: false`（即時表示）でマウントされ、IO 発火に依存せずコンテンツが描画される。`prefers-reduced-motion` 時も `true`。
-- 適用済みコンポーネント: `About` / `MissionVision` / `ServicesContent` / `WorksContent` / `ConsultingContent` / `DevelopmentContent` / `ProcessNavigation` / `PhilosophyContent` / `ScrollReveal`（→ `PageHeader`・`/contact` フォーム）。
-- 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が 375px / 390px でページ読み込み直後（スクロールなし）の累積 opacity ≈ 1 を検証する（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。
+- **設計判断（デスクトップ挙動のトレードオフ・#151）**: framer-motion の `initial` は **マウント時のみ** 評価される。クライアント初回レンダリングは常に `isReady=false`（`useDeviceProfile` の `getServerSnapshot`）→ `staticReveal=true` → `initial: false` で確定する。このため **デスクトップでも当該ページの framer フェードアップ（スクロールで下から現れる演出）は実質無効化され、コンテンツは即時表示になる**。これは `About` / `MissionVision` と同一挙動であり、劇的なモーションは GSAP（`TextReveal` / pin / snap）が担う設計に収束させる **意図的な判断** である。#151 の受け入れ基準（「読み込み時に表示される」）・LCP・信頼性を優先する。デスクトップの framer リビール演出を復活させる場合は別アプローチ（デバイス条件付き `staticReveal`）が必要 → enhancement として #153 で追跡する。
+- 適用済みコンポーネント: `About` / `MissionVision` / `ServicesContent` / `WorksContent` / `ConsultingContent` / `DevelopmentContent` / `ProcessNavigation` / `PhilosophyContent` / `TextReveal` / `ScrollReveal`（→ `PageHeader`・`/contact` フォーム）。いずれも `useStaticReveal()` 経由に統一。
+- 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が 375px / 390px でページ読み込み直後（スクロールなし）の累積 opacity ≈ 1 を検証する（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。対象: `/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact`。
 
 ## 適用ページ
 
