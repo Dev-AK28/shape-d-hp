@@ -132,6 +132,24 @@ repeat(auto-fit, minmax(min(350px, 100%), 1fr))
 - 閉じる: リンクタップ / Escape キー / viewport 768px 以上
 - スクロールロック: 開いている間 `document.body.style.overflow = 'hidden'`
 
+## トップページ大見出しクリップ修正（Issue #150）
+
+iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION` 大見出しの先頭文字が画面外に切れる問題を修正。
+
+**根本原因**:
+1. `getScrollRevealProps` の staticReveal モードが `animate: { opacity: 1, y: 0 }` を返し、Framer Motion が不要な `transform: translateY(0px)` を付与していた。これが `backdrop-filter: blur()` と組み合わさると iOS Chrome/Safari で GPU コンポジット層が誤クリッピングを起こす。
+2. `MissionVision.tsx` の `section` に `overflow-hidden` が設定されており、上記コンポジット層の誤動作時に見出しが左端でクリップされていた。
+
+**修正内容**:
+- `lib/scroll/reveal-props.ts`: staticReveal モードの `animate` を `{ opacity: 1 }` のみに変更（transform プロパティを除外）
+- `components/MissionVision.tsx`: `overflow-hidden` を section 全体でなく装飾テキスト（SELF-CONGRUENCE）専用ラッパー `div.absolute.inset-0.overflow-hidden` のみに移動
+
+**受け入れ基準**:
+- Given 375px viewport でトップページを開く
+- When ABOUT / VISION セクションが画面内に入る
+- Then `h2.ABOUT` および `h2.VISION` の左端が viewport 内（x ≥ 0）に収まっている
+- And 水平スクロールが発生しない（`scrollWidth ≤ innerWidth`）
+
 ## 検証
 
 ```bash
