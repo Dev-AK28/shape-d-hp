@@ -150,6 +150,45 @@ iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION
 - Then `h2.ABOUT` および `h2.VISION` の左端がセクション左 padding 内（x ≥ 24px）に収まっている
 - And 水平スクロールが発生しない（`scrollWidth ≤ innerWidth`）
 
+## Hero CLS 修正：coarse pointer + reduced-motion（Issue #149）
+
+iPad Pro 等の大画面タッチ端末で `prefers-reduced-motion` が有効な場合、SSR/ハイドレーション中に
+`useDeviceProfile` が `DEFAULT_DEVICE_PROFILE`（`prefersCoarsePointer: false`）を返す間は
+`mobileStaticHero=false`（`h-svh` + absolute 下部 CTA）でレンダリングされる。
+`isReady=true` 後に `mobileStaticHero=true`（`flex-col h-auto` + フロー内 CTA）へ切り替わり CLS が発生する。
+
+**根本原因**:
+`useSyncExternalStore` の設計上、SSR snapshot は常に `DEFAULT_DEVICE_PROFILE` を使用するため、
+`prefersCoarsePointer` の実値は hydration 完了まで不明。
+
+**修正内容**:
+- `app/globals.css`: `@media (pointer: coarse) and (prefers-reduced-motion: reduce)` ブロックを追加し、
+  `[data-hero="immersive"]`（section）と `[data-hero-cta]`（CTA ラッパー）を CSS レベルで
+  mobile flow layout に切り替える。ブラウザは CSS を初回ペイント前に適用するため CLS が発生しない
+- `components/Hero.tsx`: 上記 CSS セレクタ用に `data-hero="immersive"` と `data-hero-cta=""` を追加
+
+**設計根拠**:
+- Tailwind ユーティリティは `@import "tailwindcss"` 位置に展開される。それより後の CSS は
+  cascade 上の後方に位置するため `!important` 不要。特異度は `[data-hero="immersive"]` が
+  Tailwind と同じ（0-1-0）で document order で勝ち、`[data-hero="immersive"] [data-hero-cta]`
+  は Tailwind より高い（0-2-0）ため特異度でも確実に勝つ
+- JS `mobileStaticHero` フラグと CSS ブロックは `pointer: coarse` デバイスの steady state で
+  ほぼ同一レイアウトに収束する（CSS は追加で `min-height: 100svh` を設定するが、JS className path
+  はこれを省略する。いずれも正しい表示結果を生む）。ただし `isMobile=true + pointer:fine`
+  の組み合わせ（例: 幅 < 768px のスマートフォンに Bluetooth マウスを接続した場合。
+  iPad mini ポートレートは 768px のため `isMobile = width < 768 = false` であり該当しない）は
+  CSS override の発火条件（`pointer: coarse`）を満たさないため `min-height: 100svh` は付与されず、
+  JS の `h-auto` のみが適用される。この端末では Hero の高さはコンテンツ量に依存するが、
+  意図した表示結果となる
+- `data-*` 属性は className を変更しないため React hydration mismatch は発生しない
+
+**受け入れ基準**:
+- Given 1024px viewport（iPad Pro）で `pointer: coarse` かつ `prefers-reduced-motion: reduce` の端末
+- When トップページを開く
+- Then Hero セクションが初回ペイントから `flex-col` レイアウト（CLS なし）で表示される
+- And CTA（お問い合わせ）がビューポート内に表示される（virtual keyboard で隠れない）
+- And `data-hero="immersive"` と `data-hero-cta` 属性が DOM に存在する
+
 ## 検証
 
 ```bash

@@ -251,6 +251,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     <section
       ref={sectionRef}
       data-testid={isImmersive ? HERO_PIN_TEST_ID : undefined}
+      data-hero={isImmersive ? 'immersive' : undefined}
       className={`noise-bg relative flex items-center justify-center bg-transparent ${
         mobileStaticHero
           ? 'flex-col h-auto overflow-visible pt-[calc(var(--space-8)_+_env(safe-area-inset-top,_0px))] pb-[var(--space-8)]'
@@ -329,6 +330,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       {isImmersive ? (
         <div
           ref={ctaRef}
+          data-hero-cta=""
           className={`z-30 ${
             mobileStaticHero
               ? 'relative mt-[var(--space-6)] text-center'
