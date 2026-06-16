@@ -147,7 +147,7 @@ iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION
 **受け入れ基準**:
 - Given 375px viewport でトップページを開く
 - When ABOUT / VISION セクションが画面内に入る
-- Then `h2.ABOUT` および `h2.VISION` の左端が viewport 内（x ≥ 0）に収まっている
+- Then `h2.ABOUT` および `h2.VISION` の左端がセクション左 padding 内（x ≥ 24px）に収まっている
 - And 水平スクロールが発生しない（`scrollWidth ≤ innerWidth`）
 
 ## 検証
