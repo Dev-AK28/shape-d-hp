@@ -56,7 +56,8 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 - `shouldUseStaticReveal` は `!isReady` で `true` を返すため、SSR / 初回レンダリングでは必ず `initial: false`（即時表示）でマウントされ、IO 発火に依存せずコンテンツが描画される。`prefers-reduced-motion` 時も `true`。
 - **設計判断（デスクトップ挙動のトレードオフ・#151）**: framer-motion の `initial` は **マウント時のみ** 評価される。クライアント初回レンダリングは常に `isReady=false`（`useDeviceProfile` の `getServerSnapshot`）→ `staticReveal=true` → `initial: false` で確定する。このため **デスクトップでも当該ページの framer フェードアップ（スクロールで下から現れる演出）は実質無効化され、コンテンツは即時表示になる**。これは `About` / `MissionVision` と同一挙動であり、劇的なモーションは GSAP（`TextReveal` / pin / snap）が担う設計に収束させる **意図的な判断** である。#151 の受け入れ基準（「読み込み時に表示される」）・LCP・信頼性を優先する。デスクトップの framer リビール演出を復活させる場合は別アプローチ（デバイス条件付き `staticReveal`）が必要 → enhancement として #153 で追跡する。
 - 適用済みコンポーネント: `About` / `MissionVision` / `ServicesContent` / `WorksContent` / `ConsultingContent` / `DevelopmentContent` / `ProcessNavigation` / `PhilosophyContent` / `TextReveal` / `ScrollReveal`（→ `PageHeader`・`/contact` フォーム）。いずれも `useStaticReveal()` 経由に統一。
-- 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が 375px / 390px でページ読み込み直後（スクロールなし）の累積 opacity ≈ 1 を検証する（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。対象: `/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact`。
+- **`TextReveal` の hydration ラッチ（#151）**: `TextReveal` は条件分岐で plain text と `motion.span`（`opacity: 0` + `whileInView`）を切り替える。初回レンダリングで `staticReveal=true`（`!isReady`）だった場合は **ラッチ** して hydration 後も即時表示を維持し、モバイルで IO 非発火による非表示に戻らないようにする。
+- 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が **375px / 390px の両方** で対象 7 ルート（`/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact`）について、ページ読み込み直後（スクロールなし）の累積 opacity ≈ 1 を検証する（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。
 
 ## 適用ページ
 

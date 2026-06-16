@@ -50,7 +50,7 @@ Then テキスト・要素が段階的にリビールされる
 ```
 
 ```gherkin
-Given モバイル幅で /services・/works・/process 系・/philosophy を開く（#151）
+Given モバイル幅（375px / 390px）で /services・/works・/process 系・/philosophy・/contact を開く（#151）
 When ページ読み込み完了後、まだスクロールしていない
 Then メインコンテンツが opacity 1 で描画され、フッター手前まで非表示にならない
 ```
