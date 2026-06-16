@@ -7,6 +7,7 @@ import { ChevronDown } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 import LogoParticleFormation from '@/components/hero/LogoParticleFormation';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { backgroundAssets } from '@/lib/design/background-assets';
 import {
   BRAND_LOGO_HERO_CLASS,
@@ -238,7 +239,11 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     : {
         opacity: logoVisible ? HERO_DEPTH_PASSAGE.particleBand.initialOpacity : 0,
       };
-  const mobileStaticHero = isImmersive && staticFallback && profile.isMobile;
+  // Use the static touch layout for any touch-primary device (mobile viewport or coarse pointer)
+  // when GSAP is disabled. Large tablets (iPad Pro, large Android) report prefersCoarsePointer
+  // but not isMobile, so they need the same flow layout to avoid absolute-positioned CTA being
+  // hidden under virtual keyboards or browser chrome. See Issue #136.
+  const mobileStaticHero = isImmersive && staticFallback && isTouchInputDevice(profile);
   const showParticleFormation =
     logoVisible && !logoRevealed && !skipFormation;
 
