@@ -6,6 +6,7 @@ import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
  * Contract tests for `useStaticReveal()` wiring.
  * The hook delegates to `shouldUseStaticReveal(profile, reduceMotion, isReady)` —
  * keep matrices in sync with lib/hooks/useStaticReveal.ts.
+ * Hook-level `renderHook` coverage: #154 (@testing-library/react).
  */
 describe('useStaticReveal contract (shouldUseStaticReveal matrix)', () => {
   it('returns true on mobile SPA after isReady (profile.isMobile — #151)', () => {

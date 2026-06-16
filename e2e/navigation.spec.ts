@@ -83,6 +83,19 @@ test.describe('Navigation mobile layout', () => {
     await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
   });
 
+  test('SPA hamburger nav to /works paints below-fold content (#151)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+    await nav.getByRole('link', { name: '実績' }).click();
+
+    await expect(page).toHaveURL(/\/works$/);
+    await expect(page.locator('main h1').first()).toContainText('WORKS');
+    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
+  });
+
   test('closes hamburger menu with Escape key', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });

@@ -53,6 +53,8 @@ test.describe('390px — /works', () => {
     await expect(page.getByRole('heading', { name: 'CONCEPT WORKS' })).toBeVisible();
 
     // #151: below-the-fold content must be painted on load, not stuck at opacity 0
+    // 375px と同型（PROJECTS + CONCEPT WORKS）
+    await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }));
     await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
   });
 });
