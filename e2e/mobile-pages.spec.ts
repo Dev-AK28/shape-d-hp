@@ -120,14 +120,12 @@ test.describe('390px — /philosophy', () => {
 
     await expectNoHorizontalOverflow(page);
 
-    // #151: the below-the-fold CTA (framer-motion reveal wrapper) must be painted on
-    // load. Targets a motion.* wrapper (not TextReveal, which re-renders post-hydration).
+    // #151: below-the-fold CTA (staticReveal → animate-only on mobile) must be painted on load
     await expectPainted(
       page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first(),
     );
 
-    // TextReveal splits animated text into inline-block spans (breaking getByRole);
-    // with staticReveal latch (#151) panel titles mount immediately visible on load.
+    // Panel titles: TextReveal latch + live staticReveal on mobile
     await expectPainted(
       page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first(),
     );
@@ -252,6 +250,7 @@ test.describe('375px — /philosophy', () => {
 
     await expectNoHorizontalOverflow(page);
 
+    // #151: CTA + panel titles must be painted on load (staticReveal / animate-only)
     await expectPainted(
       page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first(),
     );
