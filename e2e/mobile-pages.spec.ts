@@ -2,13 +2,40 @@
  * Mobile parity regression tests (issue #118).
  * Verifies that key content is visible and no horizontal overflow occurs at mobile viewports.
  */
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 async function expectNoHorizontalOverflow(page: Page) {
   const hasOverflow = await page.evaluate(
     () => document.documentElement.scrollWidth > window.innerWidth,
   );
   expect(hasOverflow, 'horizontal overflow detected').toBe(false);
+}
+
+/**
+ * Asserts the element is actually painted (cumulative ancestor opacity ≈ 1),
+ * not merely "visible" per Playwright (which ignores opacity).
+ *
+ * Regression guard for issue #151: framer-motion scroll-reveal wrappers without
+ * the `staticReveal` guard mounted at `opacity: 0` and depended on
+ * IntersectionObserver firing. On mobile (Lenis smooth scroll, #138) the trigger
+ * did not fire near the top, leaving below-the-fold content invisible until the
+ * footer. The fix mounts content visible during initial render, so cumulative
+ * opacity must be 1 on load without any scrolling.
+ */
+async function expectPainted(locator: Locator) {
+  const opacity = await locator.evaluate((el) => {
+    let node: HTMLElement | null = el as HTMLElement;
+    let cumulative = 1;
+    while (node) {
+      const value = Number.parseFloat(getComputedStyle(node).opacity || '1');
+      if (!Number.isNaN(value)) {
+        cumulative *= value;
+      }
+      node = node.parentElement;
+    }
+    return cumulative;
+  });
+  expect(opacity, 'content is hidden (cumulative opacity ~0)').toBeGreaterThan(0.99);
 }
 
 // ── 390px (iPhone 14 Pro / Pixel 7) ─────────────────────────────────────────
@@ -24,6 +51,9 @@ test.describe('390px — /services', () => {
 
     await expect(page.getByRole('heading', { name: 'Digital Solution' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
+
+    // #151: below-the-fold content must be painted on load, not stuck at opacity 0
+    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
   });
 
   test('shows CTA link', async ({ page }) => {
@@ -44,6 +74,9 @@ test.describe('390px — /works', () => {
 
     await expect(page.getByRole('heading', { name: 'PROJECTS' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'CONCEPT WORKS' })).toBeVisible();
+
+    // #151: below-the-fold content must be painted on load, not stuck at opacity 0
+    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
   });
 });
 
@@ -138,6 +171,10 @@ test.describe('375px — /services', () => {
 
     await expect(page.getByRole('heading', { name: 'Digital Solution' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
+
+    // #151: iPhone SE repro — content must be painted on load without scrolling
+    await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }));
+    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
   });
 });
 
@@ -152,6 +189,10 @@ test.describe('375px — /works', () => {
 
     await expect(page.getByRole('heading', { name: 'PROJECTS' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'CONCEPT WORKS' })).toBeVisible();
+
+    // #151: iPhone SE repro — content must be painted on load without scrolling
+    await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }));
+    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
   });
 });
 
