@@ -8,6 +8,7 @@ import {
   type HTMLMotionProps,
 } from 'framer-motion';
 import { useRef, type HTMLAttributes, type ReactNode } from 'react';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
@@ -59,8 +60,9 @@ export function StaggerItem({
   staggerStep = REVEAL_OFFSET.stagger,
   ...props
 }: StaggerItemProps) {
-  const reduceMotion = useReducedMotion();
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const revealProps = getScrollRevealProps(reduceMotion, {
+    staticReveal,
     delay: baseDelay,
     staggerIndex: index,
     staggerStep,
