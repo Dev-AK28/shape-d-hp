@@ -17,7 +17,8 @@ export type StaticRevealState = {
  * Shared scroll-reveal state for framer-motion `whileInView` consumers.
  *
  * Centralizes the `shouldUseStaticReveal(profile, reduceMotion, isReady)` pattern so
- * every reveal consumer mounts content visible during SSR / initial render (`!isReady`),
+ * every reveal consumer mounts content visible during SSR / initial render (`!isReady`)
+ * or on mobile (`profile.isMobile`, incl. SPA client navigation after #151),
  * instead of depending on IntersectionObserver firing (which broke on mobile Lenis — #151).
  */
 export function useStaticReveal(): StaticRevealState {

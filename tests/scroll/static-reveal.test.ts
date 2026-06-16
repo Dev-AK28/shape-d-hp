@@ -4,13 +4,14 @@ import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 describe('shouldUseStaticReveal', () => {
-  it('returns false for mobile profile without reduced-motion (animations enabled on mobile)', () => {
+  it('returns true for mobile profile (IO-unreliable on Lenis — #151, incl. SPA client nav)', () => {
     expect(
       shouldUseStaticReveal(
         { ...DEFAULT_DEVICE_PROFILE, isMobile: true },
         false,
+        true,
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('returns true when reduced motion is enabled', () => {
