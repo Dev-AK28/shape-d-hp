@@ -51,6 +51,7 @@ type StaggerItemProps = HTMLMotionProps<'div'> & {
   staggerStep?: number;
 };
 
+/** @deprecated Unused export — if adopted, pass `useStaticReveal().staticReveal` to `getScrollRevealProps` (#151). */
 export function StaggerItem({
   children,
   index,

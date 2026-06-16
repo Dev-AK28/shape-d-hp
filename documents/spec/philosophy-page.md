@@ -29,7 +29,7 @@ Issue: #81
 | セクション snap | `ScrollTrigger.snap` — duration `1.8` / ease `power3.inOut` | 無効（`useGsapContext` スキップ） |
 | モバイル snap | `isMobile` または `prefersCoarsePointer` 時は snap 無効 | 同上 |
 | 文字 opacity scrub | `0.04` → `0.08` | 静的 `0.04` |
-| テキストリビール | `getScrollRevealProps` + `TextReveal` | duration 0 |
+| テキストリビール | `getScrollRevealProps` + `TextReveal`（`useStaticReveal` / hydration ラッチ — #151） | `staticReveal` 経由で即時表示 |
 | 進捗ドット | `usePanelActiveIndex`（IntersectionObserver） | **有効**（GSAP 非依存） |
 
 `snap` は `panelsRef`（6 パネルのみ）に適用。CTA ブロックは snap 計算から除外する。
