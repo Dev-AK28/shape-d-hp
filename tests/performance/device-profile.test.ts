@@ -123,5 +123,11 @@ describe('device-profile', () => {
         isTouchInputDevice({ ...DEFAULT_DEVICE_PROFILE, prefersReducedMotion: true }),
       ).toBe(false);
     });
+
+    it('returns false for hover:none alone (prefersHoverNone does not imply touch layout)', () => {
+      expect(
+        isTouchInputDevice({ ...DEFAULT_DEVICE_PROFILE, prefersHoverNone: true }),
+      ).toBe(false);
+    });
   });
 });

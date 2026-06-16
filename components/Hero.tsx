@@ -7,6 +7,7 @@ import { ChevronDown } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 import LogoParticleFormation from '@/components/hero/LogoParticleFormation';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { backgroundAssets } from '@/lib/design/background-assets';
 import {
   BRAND_LOGO_HERO_CLASS,
@@ -19,7 +20,6 @@ import {
   gsap,
   shouldDisableGsapAnimation,
 } from '@/lib/scroll/gsap-config';
-import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import {
   ANIMATION_DURATION,
   HERO_DEPTH_PASSAGE,
