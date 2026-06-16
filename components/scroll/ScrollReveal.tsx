@@ -12,8 +12,10 @@ type ScrollRevealProps = HTMLMotionProps<'div'> & {
   /**
    * Custom initial y-offset in pixels for scroll-driven reveal.
    * Ignored when `staticReveal` is true (mobile / reduced-motion): in that mode
-   * `getScrollRevealProps` returns `animate`-only props with no initial hidden state,
+   * `getScrollRevealProps` returns `{ animate: { opacity: 1 } }` — opacity-only, no transform —
    * so overriding y would have no effect. Desktop and non-static paths apply the offset.
+   * The transform-free animate is intentional: it avoids GPU compositing conflicts with
+   * `backdrop-filter` ancestors on iOS (#150).
    */
   y?: number;
 };

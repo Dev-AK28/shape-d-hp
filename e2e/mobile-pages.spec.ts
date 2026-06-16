@@ -304,21 +304,23 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
     await expectNoHorizontalOverflow(page);
 
     // Verify the headings are not clipped: bounding box must start at or after section left edge
-    // (the section has px-[24px] padding, so text x ≥ 24px within the section)
+    // (the section has px-[var(--space-3)] = 24px padding, so text x ≥ 24px within the section)
+    await aboutHeading.scrollIntoViewIfNeeded();
     await expect(async () => {
       const aboutBox = await aboutHeading.boundingBox();
       expect(aboutBox).not.toBeNull();
       if (!aboutBox) return;
-      // heading x must be ≥ 0 (not scrolled off-screen to the left)
-      expect(aboutBox.x, 'ABOUT heading left edge must be within viewport').toBeGreaterThanOrEqual(0);
+      // heading x must be ≥ 24 (section left padding — not scrolled off-screen)
+      expect(aboutBox.x, 'ABOUT heading left edge must be within section padding').toBeGreaterThanOrEqual(24);
     }).toPass({ timeout: 3_000 });
 
+    await visionHeading.scrollIntoViewIfNeeded();
     await expect(async () => {
       const visionBox = await visionHeading.boundingBox();
       expect(visionBox).not.toBeNull();
       if (!visionBox) return;
-      // heading x must be ≥ 0 (not scrolled off-screen to the left)
-      expect(visionBox.x, 'VISION heading left edge must be within viewport').toBeGreaterThanOrEqual(0);
+      // heading x must be ≥ 24 (section left padding — not scrolled off-screen)
+      expect(visionBox.x, 'VISION heading left edge must be within section padding').toBeGreaterThanOrEqual(24);
     }).toPass({ timeout: 3_000 });
   });
 });
