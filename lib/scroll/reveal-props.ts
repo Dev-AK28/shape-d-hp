@@ -18,14 +18,30 @@ type ScrollRevealOptions = {
   staticReveal?: boolean;
 };
 
-export type ScrollRevealMotionProps = {
-  initial: false | TargetAndTransition;
-  /** Immediate visible target when staticReveal / reduced-motion (no IO). */
-  animate?: TargetAndTransition;
-  whileInView?: TargetAndTransition;
+/** Props for immediate reveal (staticReveal / reduced-motion): animate at mount, no IO. */
+export type StaticScrollRevealProps = {
+  initial: false;
+  animate: TargetAndTransition;
+  whileInView?: never;
+  viewport?: never;
   transition: Transition;
-  viewport?: ViewportOptions;
 };
+
+/** Props for scroll-driven reveal: hidden until IntersectionObserver fires. */
+export type DynamicScrollRevealProps = {
+  initial: TargetAndTransition;
+  animate?: never;
+  whileInView: TargetAndTransition;
+  viewport: ViewportOptions;
+  transition: Transition;
+};
+
+/**
+ * Discriminated union: `animate` is present iff staticReveal/reduced-motion (immediate);
+ * `whileInView` + `viewport` are present iff scroll-driven (IO-dependent).
+ * The two modes are mutually exclusive at the type level via `never` cross-fields.
+ */
+export type ScrollRevealMotionProps = StaticScrollRevealProps | DynamicScrollRevealProps;
 
 function resolveStaggerDelay(
   staggerIndex: number | undefined,

@@ -118,8 +118,8 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
  * Regression guard for issue #151.
  *
  * Uses toPass() to absorb the ~1 rAF gap between framer duration:0 commit and
- * getComputedStyle resolution on slow CI frames. 200ms covers CI jitter (~50ms)
- * while still catching accidental non-zero transitions (< 200ms).
+ * getComputedStyle resolution on slow CI frames. 200ms covers CI jitter (~50ms);
+ * any element that has not reached opacity 1 within 200ms is reported as a failure.
  *
  * Limitation: does not detect visibility:hidden, display:none, or off-viewport placement.
  */

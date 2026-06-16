@@ -59,6 +59,9 @@ export default function ScrollReveal({
       initial={initial}
       transition={revealProps.transition}
       {...motionRevealProps}
+      // Consumer props intentionally spread last: className / style / event handlers override
+      // motionRevealProps. Callers must not pass whileInView/animate/viewport — to enforce
+      // this at the type level, Omit those keys from ScrollRevealProps (tracked in #155).
       {...props}
     >
       {children}
