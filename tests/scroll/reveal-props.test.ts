@@ -2,19 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 describe('getScrollRevealProps', () => {
-  it('returns animate-only props when reduced motion is enabled', () => {
-    const props = getScrollRevealProps(true);
-
-    expect(props.initial).toBe(false);
-    expect(props.animate).toEqual({ opacity: 1, y: 0 });
-    expect(props.whileInView).toBeUndefined();
-    expect(props.viewport).toBeUndefined();
-    expect(props.transition.duration).toBe(0);
-    expect(props.transition.delay).toBe(0);
-  });
-
-  it('returns animate-only props when staticReveal is enabled (#151)', () => {
-    const props = getScrollRevealProps(false, { staticReveal: true });
+  it.each([
+    { label: 'reduced motion', reduceMotion: true as const, options: {} },
+    { label: 'staticReveal option (#151)', reduceMotion: false as const, options: { staticReveal: true } },
+  ])('returns animate-only props when $label is enabled', ({ reduceMotion, options }) => {
+    const props = getScrollRevealProps(reduceMotion, options);
 
     expect(props.initial).toBe(false);
     expect(props.animate).toEqual({ opacity: 1, y: 0 });

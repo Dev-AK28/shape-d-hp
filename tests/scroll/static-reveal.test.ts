@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_DEVICE_PROFILE } from '@/lib/performance/device-profile';
 import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
+/**
+ * shouldUseStaticReveal 基本行列（mobile / reduced-motion / !isReady / desktop）。
+ * 拡張行列（large tablet 等）は use-static-reveal.test.ts。animate contract は reveal-props.test.ts。
+ */
 describe('shouldUseStaticReveal', () => {
   it('returns true for mobile profile (IO-unreliable on Lenis — #151, incl. SPA client nav)', () => {
     expect(

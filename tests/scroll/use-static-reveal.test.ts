@@ -6,6 +6,7 @@ import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
  * Contract tests for `useStaticReveal()` wiring.
  * The hook delegates to `shouldUseStaticReveal(profile, reduceMotion, isReady)` —
  * keep matrices in sync with lib/hooks/useStaticReveal.ts.
+ * 基本行列の重複ケースは static-reveal.test.ts、animate contract は reveal-props.test.ts。
  * Hook-level `renderHook` coverage: #154 (@testing-library/react).
  */
 describe('useStaticReveal contract (shouldUseStaticReveal matrix)', () => {
