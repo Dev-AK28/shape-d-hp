@@ -147,14 +147,11 @@ test.describe('390px — /philosophy', () => {
       page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first(),
     );
 
-    // TextReveal splits text into inline-block character spans, which causes the
-    // ARIA accessible name to include spaces ("S E L F - ..."), breaking getByRole.
-    // Use DOM textContent filter instead. The outer motion.div and inner TextReveal
-    // both start at opacity:0 and animate in via framer-motion whileInView.
-    await page.evaluate(() => window.scrollBy(0, 1));
-    await expect(
+    // TextReveal splits animated text into inline-block spans (breaking getByRole);
+    // with staticReveal latch (#151) panel titles mount immediately visible on load.
+    await expectPainted(
       page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    );
   });
 });
 
@@ -191,6 +188,7 @@ test.describe('375px — /services', () => {
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
 
     // #151: iPhone SE repro — content must be painted on load without scrolling
+    await expectPainted(page.locator('main h1').first());
     await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }));
     await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
   });
@@ -240,8 +238,63 @@ test.describe('375px — /process/consulting', () => {
     await expectNoHorizontalOverflow(page);
 
     await expect(page.getByRole('heading', { name: '3 Steps Process' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '自覚' })).toBeVisible();
 
-    // #151: iPhone SE repro — section heading must be painted on load without scrolling
+    // #151: iPhone SE repro — step content must be painted on load without scrolling
     await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }));
+    await expectPainted(page.getByRole('heading', { name: '自覚' }));
+  });
+});
+
+test.describe('375px — /process', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('shows both process cards without horizontal overflow', async ({ page }) => {
+    await page.goto('/process');
+    await expect(page.locator('main h1').first()).toContainText('PROCESS');
+
+    await expectNoHorizontalOverflow(page);
+
+    await expect(page.getByRole('heading', { name: 'Development Process' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
+
+    // #151: iPhone SE repro — below-the-fold card must be painted on load
+    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }));
+  });
+});
+
+test.describe('375px — /philosophy', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('shows philosophy panels without horizontal overflow', async ({ page }) => {
+    await page.goto('/philosophy');
+    await expect(page).toHaveURL(/\/philosophy$/);
+    await expect(page.locator('main h1')).toHaveCount(1);
+
+    await expectNoHorizontalOverflow(page);
+
+    await expectPainted(
+      page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first(),
+    );
+    await expectPainted(
+      page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first(),
+    );
+  });
+});
+
+test.describe('375px — /contact', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('shows contact form without horizontal overflow', async ({ page }) => {
+    await page.goto('/contact');
+    await expect(page.locator('main h1').first()).toContainText('CONTACT');
+
+    await expectNoHorizontalOverflow(page);
+
+    await expect(page.getByTestId('page-header-email')).toBeVisible();
+    await expect(page.getByRole('button', { name: '送信する' })).toBeVisible();
+
+    // #151: iPhone SE repro — ScrollReveal-wrapped form must be painted on load
+    await expectPainted(page.getByRole('button', { name: '送信する' }));
   });
 });
