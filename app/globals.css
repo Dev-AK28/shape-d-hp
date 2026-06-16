@@ -266,3 +266,30 @@ button:not(.nav-menu-button):hover {
     opacity: 1;
   }
 }
+
+/* ── Hero CLS prevention: coarse-pointer + reduced-motion (Issue #149) ──────── */
+/* On touch-primary large screens (iPad Pro, large Android tablets) with
+   prefers-reduced-motion, the JS mobileStaticHero flag switches Hero from
+   h-svh/absolute-CTA to h-auto/flow-CTA only after hydration (isReady: false→true),
+   causing a visible layout shift. This @media block replicates the same layout from
+   the very first browser paint, eliminating the shift.
+   The JS flag and this CSS converge to the same layout in steady state. */
+@media (pointer: coarse) and (prefers-reduced-motion: reduce) {
+  [data-hero="immersive"] {
+    flex-direction: column;
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+    padding-top: calc(var(--space-8) + env(safe-area-inset-top, 0px));
+    padding-bottom: var(--space-8);
+  }
+
+  [data-hero-cta] {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-top: var(--space-6);
+    text-align: center;
+  }
+}
