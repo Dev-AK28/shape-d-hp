@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_DEVICE_PROFILE } from '@/lib/performance/device-profile';
-import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 describe('shouldUseStaticReveal', () => {
@@ -26,18 +25,5 @@ describe('shouldUseStaticReveal', () => {
 
   it('returns false for desktop without reduced motion', () => {
     expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, false)).toBe(false);
-  });
-});
-
-describe('getScrollRevealProps staticReveal', () => {
-  it('returns static visible state when staticReveal is enabled', () => {
-    const props = getScrollRevealProps(false, { staticReveal: true });
-
-    expect(props.initial).toBe(false);
-    expect(props.animate).toEqual({ opacity: 1, y: 0 });
-    expect(props.whileInView).toBeUndefined();
-    expect(props.viewport).toBeUndefined();
-    expect(props.transition.duration).toBe(0);
-    expect(props.transition.delay).toBe(0);
   });
 });
