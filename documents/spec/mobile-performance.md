@@ -170,7 +170,7 @@ iPad Pro 等の大画面タッチ端末で `prefers-reduced-motion` が有効な
 **設計根拠**:
 - Tailwind ユーティリティは `@import "tailwindcss"` 位置に展開される。それより後の CSS は
   同じ特異度（0-1-0）で cascade 上の後方に位置するため `!important` 不要
-- JS `mobileStaticHero` フラグと CSS ブロックは steady state で同一レイアウトに収束する
+- JS `mobileStaticHero` フラグと CSS ブロックは steady state でほぼ同一レイアウトに収束する（CSS は追加で `min-height: 100svh` を設定するが、JS className path はこれを省略する。いずれも正しい表示結果を生む）
 - `data-*` 属性は className を変更しないため React hydration mismatch は発生しない
 
 **受け入れ基準**:
