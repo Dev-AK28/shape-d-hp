@@ -60,7 +60,7 @@ export function StaggerItem({
   staggerStep = REVEAL_OFFSET.stagger,
   ...props
 }: StaggerItemProps) {
-  const { reduceMotion, staticReveal } = useStaticReveal();
+  const { reduceMotion, staticReveal, profile } = useStaticReveal();
   const revealProps = getScrollRevealProps(reduceMotion, {
     staticReveal,
     delay: baseDelay,
@@ -69,12 +69,19 @@ export function StaggerItem({
     variant: 'fadeLeft',
   });
 
+  const motionRevealProps = revealProps.animate
+    ? { animate: revealProps.animate }
+    : {
+        whileInView: revealProps.whileInView,
+        viewport: revealProps.viewport,
+      };
+
   return (
     <motion.div
+      key={profile.isMobile ? 'mobile' : 'desktop'}
       initial={revealProps.initial}
-      whileInView={revealProps.whileInView}
       transition={revealProps.transition}
-      viewport={revealProps.viewport}
+      {...motionRevealProps}
       {...props}
     >
       {children}

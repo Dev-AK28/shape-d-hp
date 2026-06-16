@@ -6,6 +6,8 @@ describe('getScrollRevealProps', () => {
     const props = getScrollRevealProps(true);
 
     expect(props.initial).toBe(false);
+    expect(props.animate).toEqual({ opacity: 1, y: 0 });
+    expect(props.whileInView).toBeUndefined();
     expect(props.transition.duration).toBe(0);
     expect(props.transition.delay).toBe(0);
   });

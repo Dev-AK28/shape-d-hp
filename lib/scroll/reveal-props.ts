@@ -20,9 +20,11 @@ type ScrollRevealOptions = {
 
 export type ScrollRevealMotionProps = {
   initial: false | TargetAndTransition;
-  whileInView: TargetAndTransition;
+  /** Immediate visible target when staticReveal / reduced-motion (no IO). */
+  animate?: TargetAndTransition;
+  whileInView?: TargetAndTransition;
   transition: Transition;
-  viewport: ViewportOptions;
+  viewport?: ViewportOptions;
 };
 
 function resolveStaggerDelay(
@@ -58,14 +60,25 @@ export function getScrollRevealProps(
   const totalDelay = delay + staggerDelay;
   const useStaticReveal = reduceMotion === true || staticReveal;
 
+  const visible = scrollVariants[variant].visible;
+  const transition = {
+    duration: useStaticReveal ? 0 : duration,
+    delay: useStaticReveal ? 0 : totalDelay,
+    ease: scrollEase,
+  };
+
+  if (useStaticReveal) {
+    return {
+      initial: false,
+      animate: visible,
+      transition,
+    };
+  }
+
   return {
-    initial: useStaticReveal ? false : scrollVariants[variant].hidden,
-    whileInView: scrollVariants[variant].visible,
-    transition: {
-      duration: useStaticReveal ? 0 : duration,
-      delay: useStaticReveal ? 0 : totalDelay,
-      ease: scrollEase,
-    },
+    initial: scrollVariants[variant].hidden,
+    whileInView: visible,
+    transition,
     viewport: scrollViewport,
   };
 }

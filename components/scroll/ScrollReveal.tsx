@@ -20,7 +20,7 @@ export default function ScrollReveal({
   y,
   ...props
 }: ScrollRevealProps) {
-  const { reduceMotion, staticReveal } = useStaticReveal();
+  const { reduceMotion, staticReveal, profile } = useStaticReveal();
   const resolvedVariant =
     y !== undefined && variant === 'fadeUp'
       ? ('fadeUpLarge' as const)
@@ -38,12 +38,19 @@ export default function ScrollReveal({
       ? { opacity: 0, y }
       : revealProps.initial;
 
+  const motionRevealProps = revealProps.animate
+    ? { animate: revealProps.animate }
+    : {
+        whileInView: revealProps.whileInView,
+        viewport: revealProps.viewport,
+      };
+
   return (
     <motion.div
+      key={profile.isMobile ? 'mobile' : 'desktop'}
       initial={initial}
-      whileInView={revealProps.whileInView}
       transition={revealProps.transition}
-      viewport={revealProps.viewport}
+      {...motionRevealProps}
       {...props}
     >
       {children}

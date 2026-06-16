@@ -50,9 +50,10 @@ export default function TextReveal({
 }: TextRevealProps) {
   const { staticReveal } = useStaticReveal();
   const segments = segmentText(text);
-  // Latch immediate display from first render (!isReady → staticReveal=true).
-  // useState initializer runs once; hydration cannot flip back to motion.span IO mode (#151).
-  const [showImmediately] = useState(() => immediate || staticReveal);
+  // Latch first-paint staticReveal (!isReady) so hydration cannot flip back to IO mode (#151).
+  // Also react to profile.isMobile changes (e.g. viewport resize) via live staticReveal.
+  const [initialStaticReveal] = useState(() => staticReveal);
+  const showImmediately = immediate || staticReveal || initialStaticReveal;
   const mergedClassName = mergeBlendClass(className, blend);
 
   if (showImmediately) {
