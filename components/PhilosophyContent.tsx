@@ -1,11 +1,11 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PhilosophyProgressDots from '@/components/PhilosophyProgressDots';
 import TextReveal from '@/components/scroll/TextReveal';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { usePanelActiveIndex } from '@/lib/hooks/usePanelActiveIndex';
 import {
   ANIMATION_DURATION,
@@ -15,7 +15,6 @@ import {
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 const sections = [
   {
@@ -73,9 +72,7 @@ const sections = [
 const sectionLetters = sections.map((section) => section.letter);
 
 export default function PhilosophyContent() {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const { profile, reduceMotion, staticReveal } = useStaticReveal();
   const panelsRef = useRef<HTMLDivElement>(null);
   const activeIndex = usePanelActiveIndex(panelsRef);
   const enableSnap = !profile.isMobile && !profile.prefersCoarsePointer;

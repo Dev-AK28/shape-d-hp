@@ -1,15 +1,12 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 export default function ServicesContent() {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const digitalServices = [
     {
       id: 1,

@@ -1,17 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function WorksContent() {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const projects = [
     {
       id: 1,

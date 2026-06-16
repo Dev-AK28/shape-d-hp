@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
 import {
@@ -11,11 +11,10 @@ import {
   visionLeadClass,
   visionQuoteClass,
 } from '@/lib/design/section-typography-classes';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 const visionQuotes = [
   '内なる価値観と外なる行動が一致する状態こそが、真の自己実現である。',
@@ -25,9 +24,7 @@ const visionQuotes = [
 ];
 
 export default function MissionVision() {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const quotesRef = useRef<HTMLDivElement>(null);
 
   useGsapContext(() => {

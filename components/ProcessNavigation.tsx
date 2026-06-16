@@ -1,10 +1,9 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 import Link from 'next/link';
 
 const MotionLink = motion.create(Link);
@@ -19,9 +18,7 @@ const consultingCardClass =
   'rounded-xl border border-[color:color-mix(in_srgb,var(--section-purple)_30%,transparent)] bg-[color:color-mix(in_srgb,var(--section-purple)_5%,transparent)] p-16 backdrop-blur-[10px]';
 
 export default function ProcessNavigation() {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const { reduceMotion, staticReveal } = useStaticReveal();
 
   return (
     <PageHeader

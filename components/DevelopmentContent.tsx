@@ -1,16 +1,13 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function DevelopmentContent() {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const steps = [
     {
       id: 1,
