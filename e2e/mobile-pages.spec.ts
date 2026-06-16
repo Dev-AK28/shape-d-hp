@@ -123,14 +123,14 @@ test.describe('390px — /philosophy', () => {
     await expectNoHorizontalOverflow(page);
 
     // #151: below-the-fold CTA (staticReveal → animate-only on mobile) must be painted on load
-    await expectPainted(
-      page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first(),
-    );
+    const ctaHeading = page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first();
+    await expect(ctaHeading).toBeVisible({ timeout: 5000 });
+    await expectPainted(ctaHeading);
 
     // Panel titles: TextReveal latch + live staticReveal on mobile
-    await expectPainted(
-      page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first(),
-    );
+    const panelHeading = page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first();
+    await expect(panelHeading).toBeVisible({ timeout: 5000 });
+    await expectPainted(panelHeading);
   });
 });
 
@@ -191,6 +191,24 @@ test.describe('375px — /works', () => {
   });
 });
 
+test.describe('375px — /process', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('shows both process cards without horizontal overflow', async ({ page }) => {
+    await page.goto('/process');
+    await expect(page.locator('main h1').first()).toContainText('PROCESS');
+
+    await expectNoHorizontalOverflow(page);
+
+    await expect(page.getByRole('heading', { name: 'Development Process' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
+
+    // #151: iPhone SE repro — both cards must be painted on load
+    await expectPainted(page.getByRole('heading', { name: 'Development Process' }));
+    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }));
+  });
+});
+
 test.describe('375px — /process/development', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
@@ -225,24 +243,6 @@ test.describe('375px — /process/consulting', () => {
   });
 });
 
-test.describe('375px — /process', () => {
-  test.use({ viewport: { width: 375, height: 812 } });
-
-  test('shows both process cards without horizontal overflow', async ({ page }) => {
-    await page.goto('/process');
-    await expect(page.locator('main h1').first()).toContainText('PROCESS');
-
-    await expectNoHorizontalOverflow(page);
-
-    await expect(page.getByRole('heading', { name: 'Development Process' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
-
-    // #151: iPhone SE repro — both cards must be painted on load
-    await expectPainted(page.getByRole('heading', { name: 'Development Process' }));
-    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }));
-  });
-});
-
 test.describe('375px — /philosophy', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
@@ -254,12 +254,13 @@ test.describe('375px — /philosophy', () => {
     await expectNoHorizontalOverflow(page);
 
     // #151: CTA + panel titles must be painted on load (staticReveal / animate-only)
-    await expectPainted(
-      page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first(),
-    );
-    await expectPainted(
-      page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first(),
-    );
+    const ctaHeading = page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first();
+    await expect(ctaHeading).toBeVisible({ timeout: 5000 });
+    await expectPainted(ctaHeading);
+
+    const panelHeading = page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first();
+    await expect(panelHeading).toBeVisible({ timeout: 5000 });
+    await expectPainted(panelHeading);
   });
 });
 

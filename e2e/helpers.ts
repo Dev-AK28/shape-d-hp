@@ -117,8 +117,9 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
  * Asserts cumulative ancestor CSS opacity ≈ 1 (Playwright toBeVisible ignores opacity).
  * Regression guard for issue #151.
  *
- * Uses toPass() so framer-motion duration:0 commits are still in the first rAF when
- * evaluate() fires — avoids rare false-negative on slow CI frames.
+ * Uses toPass() to absorb the ~1 rAF gap between framer duration:0 commit and
+ * getComputedStyle resolution on slow CI frames. 200ms covers CI jitter (~50ms)
+ * while still catching accidental non-zero transitions (< 200ms).
  *
  * Limitation: does not detect visibility:hidden, display:none, or off-viewport placement.
  */
@@ -137,5 +138,5 @@ export async function expectPainted(locator: Locator) {
       return cumulative;
     });
     expect(opacity, 'content is hidden (cumulative opacity ~0)').toBeGreaterThan(0.99);
-  }).toPass({ timeout: 3000 });
+  }).toPass({ timeout: 200 });
 }
