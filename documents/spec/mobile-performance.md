@@ -70,11 +70,11 @@ Issue: #51
 - **When** フッター領域がビューポートに入る
 - **Then** 著作権表示（`© 2026`）およびナビリンクが `CosmicScene` 固定背景の下に隠れず読める
 
-- **Given** モバイル幅（390px）でトップからハンバーガーメニュー経由で `/services` へ SPA 遷移する（#151）
+- **Given** モバイル幅（375px / 390px）でトップからハンバーガーメニュー経由で `/services` へ SPA 遷移する（#151）
 - **When** 遷移直後（スクロールなし）
 - **Then** ページ本文が `PageTransition` により opacity 0 のまま残らず、下層の framer リビール見出し（例: Human Solution）が累積 opacity ≈ 1 で描画される
 
-- **Given** モバイル幅（390px）でトップからハンバーガーメニュー経由で `/works` へ SPA 遷移する（#151）
+- **Given** モバイル幅（375px / 390px）でトップからハンバーガーメニュー経由で `/works` へ SPA 遷移する（#151）
 - **When** 遷移直後（スクロールなし）
 - **Then** 下層の framer リビール見出し（例: CONCEPT WORKS）が累積 opacity ≈ 1 で描画される
 

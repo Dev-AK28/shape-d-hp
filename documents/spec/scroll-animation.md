@@ -60,7 +60,8 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
   - **モバイル（`profile.isMobile`）**: フルロード・SPA いずれも `staticReveal=true`（#151）。`PageTransition` もモバイルでは fade をスキップ。
   - 意図: 劇的なモーションは GSAP（pin / snap / About タイムライン）が担い、framer は信頼性・LCP・#151 受け入れ基準を優先。#153 でデスクトップ framer 演出復活を enhancement として検討可能。
 - 適用済みコンポーネント: `About` / `MissionVision` / `ServicesContent` / `WorksContent` / `ConsultingContent` / `DevelopmentContent` / `ProcessNavigation` / `PhilosophyContent` / `TextReveal` / `ScrollReveal`（→ `PageHeader`・`/contact` フォーム）。いずれも `useStaticReveal()` 経由に統一。
-- **`TextReveal` の hydration ラッチ（#151）**: `TextReveal` は条件分岐で plain text と `motion.span`（`opacity: 0` + `whileInView`）を切り替える。初回レンダリングで `staticReveal=true`（`!isReady`）だった場合は **ラッチ** して hydration 後も即時表示を維持し、モバイルで IO 非発火による非表示に戻らないようにする。
+- **`TextReveal` の hydration ラッチ（#151）**: `TextReveal` は条件分岐で plain text と `motion.span`（`opacity: 0` + `whileInView`）を切り替える。初回レンダリングで `staticReveal=true`（`!isReady`）だった場合は **ラッチ** して hydration 後も即時表示を維持する。`profile.isMobile` への変化（viewport リサイズ）は live `staticReveal` で追従する（`TextReveal` / `ScrollReveal`）。直接 `motion.div` に spread するコンテンツコンポーネントのリサイズ remount は #155 で follow-up。
+- **`staticReveal` 時の IO 省略**: `getScrollRevealProps({ staticReveal: true })` は `animate`（即時 visible）のみ返し、`whileInView` / `viewport` を付与しない（モバイル subpage の IntersectionObserver 登録コスト削減）。
 - 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が **375px / 390px の両方** で対象 7 ルート（`/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact`）について、ページ読み込み直後（スクロールなし）の累積 opacity ≈ 1 を検証する（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。
 
 ## 適用ページ
