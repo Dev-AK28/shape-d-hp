@@ -273,7 +273,9 @@ button:not(.nav-menu-button):hover {
    h-svh/absolute-CTA to h-auto/flow-CTA only after hydration (isReady: false→true),
    causing a visible layout shift. This @media block replicates the same layout from
    the very first browser paint, eliminating the shift.
-   The JS flag and this CSS converge to the same layout in steady state. */
+   Convergence note: JS (mobileStaticHero=true) and CSS converge to the same layout,
+   except that CSS additionally sets min-height: 100svh which the Tailwind className
+   path omits; both produce the correct visual result. */
 @media (pointer: coarse) and (prefers-reduced-motion: reduce) {
   [data-hero="immersive"] {
     flex-direction: column;
@@ -284,7 +286,9 @@ button:not(.nav-menu-button):hover {
     padding-bottom: var(--space-8);
   }
 
-  [data-hero-cta] {
+  /* Scoped under [data-hero="immersive"] to prevent accidental style leakage
+     if data-hero-cta is used outside the Hero section in the future. */
+  [data-hero="immersive"] [data-hero-cta] {
     position: relative;
     bottom: auto;
     left: auto;

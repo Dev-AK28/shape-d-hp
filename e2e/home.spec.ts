@@ -186,7 +186,14 @@ test.describe('Home page mobile', () => {
 test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => {
   test.use({ viewport: { width: 1024, height: 1366 } });
 
-  test('data attributes are present and CTA is accessible with CSS layout override', async ({ page }) => {
+  test('real CSS @media rule fires and CTA is accessible in flow layout', async ({ page }) => {
+    // page.emulateMedia() does not support 'pointer' — use CDP to activate the
+    // @media (pointer: coarse) and (prefers-reduced-motion: reduce) block in globals.css.
+    // This tests the actual CSS rule, not a simulated addStyleTag override.
+    const cdpSession = await page.context().newCDPSession(page);
+    await cdpSession.send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'pointer', value: 'coarse' }],
+    });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
 
@@ -194,27 +201,20 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     await expect(page.locator('[data-hero="immersive"]')).toBeVisible({ timeout: 10_000 });
 
     // data-hero-cta must be present on the CTA wrapper — required for CSS position override
-    await expect(page.locator('[data-hero-cta]')).toBeVisible();
+    await expect(page.locator('[data-hero="immersive"] [data-hero-cta]')).toBeVisible();
 
-    // Simulate the @media (pointer: coarse) and (prefers-reduced-motion: reduce) block
-    // to verify that when the media query fires the CTA remains accessible and in-viewport.
-    await page.addStyleTag({
-      content: [
-        '[data-hero="immersive"]{flex-direction:column!important;height:auto!important;min-height:100svh!important;overflow:visible!important;padding-top:calc(64px + env(safe-area-inset-top,0px))!important;padding-bottom:64px!important;}',
-        '[data-hero-cta]{position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;margin-top:48px!important;text-align:center!important;}',
-      ].join('\n'),
-    });
-
-    const ctaLink = page.locator('[data-hero-cta] .hero-cta');
+    const ctaLink = page.locator('[data-hero="immersive"] [data-hero-cta] .hero-cta');
     await expect(ctaLink).toBeVisible();
 
-    // CTA must be within the page (not pushed off-screen by absolute positioning)
+    // Off-screen guard: CTA must not be pushed outside the viewport by absolute positioning.
+    // With the CSS override active, the CTA is flow-positioned (relative) and centered.
     await expect(async () => {
       const box = await ctaLink.boundingBox();
       expect(box).not.toBeNull();
       if (!box) return;
       expect(box.y, 'CTA must be within the viewport height').toBeLessThan(1366);
-      expect(box.x, 'CTA must be within the viewport width').toBeGreaterThan(0);
+      // x > 0: ensures CTA is not hidden off the left edge of the viewport
+      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThan(0);
     }).toPass({ timeout: 3_000 });
   });
 });
