@@ -9,7 +9,9 @@ describe('getScrollRevealProps', () => {
     const props = getScrollRevealProps(reduceMotion, options);
 
     expect(props.initial).toBe(false);
-    expect(props.animate).toEqual({ opacity: 1, y: 0 });
+    // #150: staticReveal animate must be opacity-only (no transform) to avoid GPU compositing
+    // layer conflicts with backdrop-filter that clip heading content on iOS at 375px.
+    expect(props.animate).toEqual({ opacity: 1 });
     expect(props.whileInView).toBeUndefined();
     expect(props.viewport).toBeUndefined();
     expect(props.transition.duration).toBe(0);

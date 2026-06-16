@@ -84,9 +84,12 @@ export function getScrollRevealProps(
   };
 
   if (isStaticReveal) {
+    // Only animate opacity – omitting transform properties prevents Framer Motion from
+    // injecting `transform: translateY(0px)` which creates a GPU compositing layer that
+    // interacts badly with `backdrop-filter` on iOS and can clip adjacent content (#150).
     return {
       initial: false,
-      animate: visible,
+      animate: { opacity: 1 },
       transition,
     };
   }
