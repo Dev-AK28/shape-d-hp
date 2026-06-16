@@ -87,6 +87,12 @@ export function getScrollRevealProps(
     // Suspected interaction: omitting transform properties prevents Framer Motion from
     // injecting `transform: translateY(0px)`, which on iOS may create a GPU compositing
     // layer that is incorrectly clipped when a `backdrop-filter` ancestor is present (#150).
+    //
+    // NOTE: Only opacity is animated here; scale/x/y rely on CSS defaults (initial: false).
+    // If staticReveal toggles dynamically (e.g. viewport resize mid-animation), any
+    // in-progress transform interpolation may freeze at an intermediate value. This is an
+    // accepted trade-off: the scenario requires resizing during an active animation on a
+    // component that uses a non-opacity variant, which is an unlikely edge case.
     return {
       initial: false,
       animate: { opacity: 1 },

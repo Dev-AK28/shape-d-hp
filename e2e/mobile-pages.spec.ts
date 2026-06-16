@@ -282,6 +282,10 @@ test.describe('375px — /contact', () => {
 });
 
 // ── 375px (iPhone SE) — Home page (#150) ────────────────────────────────────
+// Note: A 390px home page mobile test exists in e2e/home.spec.ts ("Home page mobile").
+// This 375px suite is intentionally placed here to keep #150 regression guards
+// co-located with other mobile-specific painting tests. See issue #159 for
+// consolidating home-page mobile coverage into a single file.
 
 test.describe('375px — / (home: ABOUT / VISION headings)', () => {
   test.use({ viewport: { width: 375, height: 812 } });
