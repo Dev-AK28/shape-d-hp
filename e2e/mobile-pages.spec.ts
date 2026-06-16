@@ -280,3 +280,51 @@ test.describe('375px — /contact', () => {
     await expectPainted(page.getByRole('button', { name: '送信する' }));
   });
 });
+
+// ── 375px (iPhone SE) — Home page (#150) ────────────────────────────────────
+// Note: A 390px home page mobile test exists in e2e/home.spec.ts ("Home page mobile").
+// This 375px suite is intentionally placed here to keep #150 regression guards
+// co-located with other mobile-specific painting tests. See issue #159 for
+// consolidating home-page mobile coverage into a single file.
+
+test.describe('375px — / (home: ABOUT / VISION headings)', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('ABOUT and VISION headings are fully visible without horizontal overflow', async ({ page }) => {
+    await page.goto('/');
+
+    // Wait for hydration – heading must be visible without scrolling
+    const aboutHeading = page.locator('h2').filter({ hasText: /^ABOUT$/ }).first();
+    const visionHeading = page.locator('h2').filter({ hasText: /^VISION$/ }).first();
+
+    await expect(aboutHeading).toBeVisible({ timeout: 10_000 });
+    await expect(visionHeading).toBeVisible({ timeout: 10_000 });
+
+    // #150: headings must be painted (opacity ≈ 1) — not hidden by any ancestor
+    await expectPainted(aboutHeading);
+    await expectPainted(visionHeading);
+
+    // #150: no horizontal overflow — heading text must not extend beyond viewport
+    await expectNoHorizontalOverflow(page);
+
+    // Verify the headings are not clipped: bounding box must start at or after section left edge
+    // (the section has px-[var(--space-3)] = 24px padding, so text x ≥ 24px within the section)
+    await aboutHeading.scrollIntoViewIfNeeded();
+    await expect(async () => {
+      const aboutBox = await aboutHeading.boundingBox();
+      expect(aboutBox).not.toBeNull();
+      if (!aboutBox) return;
+      // heading x must be ≥ 24 (section left padding — not scrolled off-screen)
+      expect(aboutBox.x, 'ABOUT heading left edge must be within section padding').toBeGreaterThanOrEqual(24);
+    }).toPass({ timeout: 3_000 });
+
+    await visionHeading.scrollIntoViewIfNeeded();
+    await expect(async () => {
+      const visionBox = await visionHeading.boundingBox();
+      expect(visionBox).not.toBeNull();
+      if (!visionBox) return;
+      // heading x must be ≥ 24 (section left padding — not scrolled off-screen)
+      expect(visionBox.x, 'VISION heading left edge must be within section padding').toBeGreaterThanOrEqual(24);
+    }).toPass({ timeout: 3_000 });
+  });
+});

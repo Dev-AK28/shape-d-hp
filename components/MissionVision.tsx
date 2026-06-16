@@ -55,11 +55,14 @@ export default function MissionVision() {
 
   return (
     <section
-      className="relative overflow-hidden py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
+      className="relative py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
     >
-      <p aria-hidden="true" className={visualWordClass}>
-        SELF-CONGRUENCE
-      </p>
+      {/* Clip decorative background text without affecting heading compositing (#150) */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <p className={visualWordClass}>
+          SELF-CONGRUENCE
+        </p>
+      </div>
 
       <div className="relative z-[1] mx-auto max-w-[var(--content-standard)]">
         <motion.div
