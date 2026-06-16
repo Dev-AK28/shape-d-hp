@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import {
@@ -49,7 +50,9 @@ export default function TextReveal({
 }: TextRevealProps) {
   const { staticReveal } = useStaticReveal();
   const segments = segmentText(text);
-  const showImmediately = immediate || staticReveal;
+  // Latch immediate display from first render (!isReady → staticReveal=true).
+  // useState initializer runs once; hydration cannot flip back to motion.span IO mode (#151).
+  const [showImmediately] = useState(() => immediate || staticReveal);
   const mergedClassName = mergeBlendClass(className, blend);
 
   if (showImmediately) {
