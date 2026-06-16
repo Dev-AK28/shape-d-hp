@@ -27,7 +27,9 @@ test.describe('390px — /services', () => {
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
 
     // #151: below-the-fold content must be painted on load, not stuck at opacity 0
+    // 375px と同型（Digital Solution + Human Solution）— fold 下の代表見出しを両方検証
     await expectPainted(page.locator('main h1').first());
+    await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }));
     await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
   });
 

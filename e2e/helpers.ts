@@ -114,8 +114,10 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
 }
 
 /**
- * Asserts cumulative ancestor opacity ≈ 1 (Playwright toBeVisible ignores opacity).
+ * Asserts cumulative ancestor CSS opacity ≈ 1 (Playwright toBeVisible ignores opacity).
  * Regression guard for issue #151.
+ *
+ * Limitation: does not detect visibility:hidden, display:none, or off-viewport placement.
  */
 export async function expectPainted(locator: Locator) {
   const opacity = await locator.evaluate((el) => {
