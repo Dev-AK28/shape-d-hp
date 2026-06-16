@@ -69,6 +69,19 @@ export function shouldDisableSmoothScroll(profile: DeviceProfile): boolean {
   return profile.prefersReducedMotion;
 }
 
+/**
+ * Returns true for touch-primary devices: mobile viewport (<768px) or coarse pointer
+ * (large tablets such as iPad Pro, large Android tablets).
+ *
+ * Used to determine whether to apply the static touch-friendly Hero layout when GSAP
+ * is disabled (e.g. prefers-reduced-motion). On touch devices, absolute-positioned
+ * elements can be obscured by virtual keyboards or browser chrome, so a flow-based
+ * layout (flex-col h-auto) is safer than h-svh with absolute bottom positioning.
+ */
+export function isTouchInputDevice(profile: DeviceProfile): boolean {
+  return profile.isMobile || profile.prefersCoarsePointer;
+}
+
 export function shouldAnimateStars(profile: DeviceProfile): boolean {
   return !profile.prefersReducedMotion;
 }

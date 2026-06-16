@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   DEFAULT_DEVICE_PROFILE,
   isMobileViewport,
+  isTouchInputDevice,
   mobileMaxWidthMediaQuery,
   desktopMinWidthMediaQuery,
   readDeviceProfile,
@@ -94,5 +95,33 @@ describe('device-profile', () => {
     expect(
       shouldDisableWebGL({ ...DEFAULT_DEVICE_PROFILE, hasWebGL: true }),
     ).toBe(false);
+  });
+
+  describe('isTouchInputDevice', () => {
+    it('returns false for desktop with mouse pointer', () => {
+      expect(isTouchInputDevice(DEFAULT_DEVICE_PROFILE)).toBe(false);
+    });
+
+    it('returns true for mobile viewport (< 768px)', () => {
+      expect(isTouchInputDevice({ ...DEFAULT_DEVICE_PROFILE, isMobile: true })).toBe(true);
+    });
+
+    it('returns true for coarse pointer device (large tablet, e.g. iPad Pro)', () => {
+      expect(
+        isTouchInputDevice({ ...DEFAULT_DEVICE_PROFILE, prefersCoarsePointer: true }),
+      ).toBe(true);
+    });
+
+    it('returns true when both isMobile and prefersCoarsePointer are true', () => {
+      expect(
+        isTouchInputDevice({ ...DEFAULT_DEVICE_PROFILE, isMobile: true, prefersCoarsePointer: true }),
+      ).toBe(true);
+    });
+
+    it('is independent of prefers-reduced-motion', () => {
+      expect(
+        isTouchInputDevice({ ...DEFAULT_DEVICE_PROFILE, prefersReducedMotion: true }),
+      ).toBe(false);
+    });
   });
 });
