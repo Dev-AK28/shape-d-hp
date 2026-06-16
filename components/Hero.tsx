@@ -330,6 +330,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
               : 'absolute bottom-[var(--space-6)] left-1/2 -translate-x-1/2'
           }`}
           style={reactRevealStyle}
+          data-testid="hero-cta-wrapper"
         >
           <a
             href="/contact"
