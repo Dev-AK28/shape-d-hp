@@ -50,6 +50,12 @@ Then テキスト・要素が段階的にリビールされる
 ```
 
 ```gherkin
+Given モバイル幅で /services・/works・/process 系・/philosophy を開く（#151）
+When ページ読み込み完了後、まだスクロールしていない
+Then メインコンテンツが opacity 1 で描画され、フッター手前まで非表示にならない
+```
+
+```gherkin
 Given ユーザーが prefers-reduced-motion を有効にしている
 When ページを閲覧する
 Then アニメーションは無効化または最小限に抑えられる
@@ -118,6 +124,7 @@ Then 進捗ドットが対応セクションに追従する
 | 粒子ロゴ PNG サンプリング | `tests/hero/sample-logo-target-points.test.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
 | E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
+| E2E（モバイル初期表示・#151） | `e2e/mobile-pages.spec.ts`（375px / 390px でページ読み込み直後の累積 opacity ≈ 1 を `expectPainted()` で検証） |
 | E2E（Philosophy） | `e2e/philosophy.spec.ts` |
 | Philosophy 構造 / パネル追従 | `tests/philosophy/content.test.ts` |
 | スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
