@@ -105,6 +105,7 @@ test.describe('390px — /process/consulting', () => {
     await expect(page.getByRole('heading', { name: '自覚' })).toBeVisible();
 
     // #151: below-the-fold step content must be painted on load, not stuck at opacity 0
+    await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }));
     await expectPainted(page.getByRole('heading', { name: '自覚' }));
   });
 });

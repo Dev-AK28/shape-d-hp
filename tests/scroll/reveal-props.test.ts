@@ -13,6 +13,17 @@ describe('getScrollRevealProps', () => {
     expect(props.transition.delay).toBe(0);
   });
 
+  it('returns animate-only props when staticReveal is enabled (#151)', () => {
+    const props = getScrollRevealProps(false, { staticReveal: true });
+
+    expect(props.initial).toBe(false);
+    expect(props.animate).toEqual({ opacity: 1, y: 0 });
+    expect(props.whileInView).toBeUndefined();
+    expect(props.viewport).toBeUndefined();
+    expect(props.transition.duration).toBe(0);
+    expect(props.transition.delay).toBe(0);
+  });
+
   it('uses whileInView (not animate) for scroll-driven reveal', () => {
     const props = getScrollRevealProps(false);
 
