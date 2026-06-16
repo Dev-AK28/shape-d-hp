@@ -71,7 +71,8 @@ test.describe('390px — /process', () => {
     await expect(page.getByRole('heading', { name: 'Development Process' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
 
-    // #151: below-the-fold card must be painted on load, not stuck at opacity 0
+    // #151: both cards must be painted on load, not stuck at opacity 0
+    await expectPainted(page.getByRole('heading', { name: 'Development Process' }));
     await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }));
   });
 });
@@ -236,7 +237,8 @@ test.describe('375px — /process', () => {
     await expect(page.getByRole('heading', { name: 'Development Process' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
 
-    // #151: iPhone SE repro — below-the-fold card must be painted on load
+    // #151: iPhone SE repro — both cards must be painted on load
+    await expectPainted(page.getByRole('heading', { name: 'Development Process' }));
     await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }));
   });
 });

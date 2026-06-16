@@ -117,20 +117,25 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
  * Asserts cumulative ancestor CSS opacity ≈ 1 (Playwright toBeVisible ignores opacity).
  * Regression guard for issue #151.
  *
+ * Uses toPass() so framer-motion duration:0 commits are still in the first rAF when
+ * evaluate() fires — avoids rare false-negative on slow CI frames.
+ *
  * Limitation: does not detect visibility:hidden, display:none, or off-viewport placement.
  */
 export async function expectPainted(locator: Locator) {
-  const opacity = await locator.evaluate((el) => {
-    let node: HTMLElement | null = el as HTMLElement;
-    let cumulative = 1;
-    while (node) {
-      const value = Number.parseFloat(getComputedStyle(node).opacity || '1');
-      if (!Number.isNaN(value)) {
-        cumulative *= value;
+  await expect(async () => {
+    const opacity = await locator.evaluate((el) => {
+      let node: HTMLElement | null = el as HTMLElement;
+      let cumulative = 1;
+      while (node) {
+        const value = Number.parseFloat(getComputedStyle(node).opacity || '1');
+        if (!Number.isNaN(value)) {
+          cumulative *= value;
+        }
+        node = node.parentElement;
       }
-      node = node.parentElement;
-    }
-    return cumulative;
-  });
-  expect(opacity, 'content is hidden (cumulative opacity ~0)').toBeGreaterThan(0.99);
+      return cumulative;
+    });
+    expect(opacity, 'content is hidden (cumulative opacity ~0)').toBeGreaterThan(0.99);
+  }).toPass({ timeout: 3000 });
 }
