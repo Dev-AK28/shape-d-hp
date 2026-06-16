@@ -9,6 +9,12 @@ type ScrollRevealProps = HTMLMotionProps<'div'> & {
   delay?: number;
   duration?: number;
   variant?: ScrollVariant;
+  /**
+   * Custom initial y-offset in pixels for scroll-driven reveal.
+   * Ignored when `staticReveal` is true (mobile / reduced-motion): in that mode
+   * `getScrollRevealProps` returns `animate`-only props with no initial hidden state,
+   * so overriding y would have no effect. Desktop and non-static paths apply the offset.
+   */
   y?: number;
 };
 
