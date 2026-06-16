@@ -21,6 +21,18 @@ describe('shouldUseStaticReveal', () => {
     expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, true)).toBe(true);
   });
 
+  it('returns true when profile.prefersReducedMotion is set even if reduceMotion hook is false', () => {
+    // shouldDisableGsapAnimation(profile) reads profile.prefersReducedMotion independently of
+    // framer-motion useReducedMotion(). Covers DeviceProfile / framer desync edge case.
+    expect(
+      shouldUseStaticReveal(
+        { ...DEFAULT_DEVICE_PROFILE, prefersReducedMotion: true },
+        false,
+        true,
+      ),
+    ).toBe(true);
+  });
+
   it('returns true before device profile is ready', () => {
     expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, false, false)).toBe(
       true,
