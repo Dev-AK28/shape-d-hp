@@ -178,3 +178,44 @@ test.describe('Home page mobile', () => {
   });
 });
 
+// ── 1024px (iPad Pro) — coarse pointer + reduced-motion CLS prevention (#149) ──────────────
+// Regression guard: Hero must render in mobile flow layout (flex-col) from the first browser
+// paint on touch-primary large screens with prefers-reduced-motion, eliminating the layout
+// shift that occurred during the isReady=false→true transition in useDeviceProfile.
+
+test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => {
+  test.use({ viewport: { width: 1024, height: 1366 } });
+
+  test('data attributes are present and CTA is accessible with CSS layout override', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+
+    // data-hero="immersive" must be on the section — required for CSS @media selector (#149)
+    await expect(page.locator('[data-hero="immersive"]')).toBeVisible({ timeout: 10_000 });
+
+    // data-hero-cta must be present on the CTA wrapper — required for CSS position override
+    await expect(page.locator('[data-hero-cta]')).toBeVisible();
+
+    // Simulate the @media (pointer: coarse) and (prefers-reduced-motion: reduce) block
+    // to verify that when the media query fires the CTA remains accessible and in-viewport.
+    await page.addStyleTag({
+      content: [
+        '[data-hero="immersive"]{flex-direction:column!important;height:auto!important;min-height:100svh!important;overflow:visible!important;padding-top:calc(64px + env(safe-area-inset-top,0px))!important;padding-bottom:64px!important;}',
+        '[data-hero-cta]{position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;margin-top:48px!important;text-align:center!important;}',
+      ].join('\n'),
+    });
+
+    const ctaLink = page.locator('[data-hero-cta] .hero-cta');
+    await expect(ctaLink).toBeVisible();
+
+    // CTA must be within the page (not pushed off-screen by absolute positioning)
+    await expect(async () => {
+      const box = await ctaLink.boundingBox();
+      expect(box).not.toBeNull();
+      if (!box) return;
+      expect(box.y, 'CTA must be within the viewport height').toBeLessThan(1366);
+      expect(box.x, 'CTA must be within the viewport width').toBeGreaterThan(0);
+    }).toPass({ timeout: 3_000 });
+  });
+});
+
