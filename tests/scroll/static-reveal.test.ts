@@ -1,20 +1,36 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_DEVICE_PROFILE } from '@/lib/performance/device-profile';
-import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
+/**
+ * shouldUseStaticReveal 基本行列（mobile / reduced-motion / !isReady / desktop）。
+ * 拡張行列（large tablet 等）は use-static-reveal.test.ts。animate contract は reveal-props.test.ts。
+ */
 describe('shouldUseStaticReveal', () => {
-  it('returns false for mobile profile without reduced-motion (animations enabled on mobile)', () => {
+  it('returns true for mobile profile (IO-unreliable on Lenis — #151, incl. SPA client nav)', () => {
     expect(
       shouldUseStaticReveal(
         { ...DEFAULT_DEVICE_PROFILE, isMobile: true },
         false,
+        true,
       ),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('returns true when reduced motion is enabled', () => {
     expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, true)).toBe(true);
+  });
+
+  it('returns true when profile.prefersReducedMotion is set even if reduceMotion hook is false', () => {
+    // shouldDisableGsapAnimation(profile) reads profile.prefersReducedMotion independently of
+    // framer-motion useReducedMotion(). Covers DeviceProfile / framer desync edge case.
+    expect(
+      shouldUseStaticReveal(
+        { ...DEFAULT_DEVICE_PROFILE, prefersReducedMotion: true },
+        false,
+        true,
+      ),
+    ).toBe(true);
   });
 
   it('returns true before device profile is ready', () => {
@@ -25,15 +41,5 @@ describe('shouldUseStaticReveal', () => {
 
   it('returns false for desktop without reduced motion', () => {
     expect(shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, false)).toBe(false);
-  });
-});
-
-describe('getScrollRevealProps staticReveal', () => {
-  it('returns static visible state when staticReveal is enabled', () => {
-    const props = getScrollRevealProps(false, { staticReveal: true });
-
-    expect(props.initial).toBe(false);
-    expect(props.transition.duration).toBe(0);
-    expect(props.transition.delay).toBe(0);
   });
 });

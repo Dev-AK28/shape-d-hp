@@ -1,7 +1,8 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import {
   scrollEase,
   scrollTransition,
@@ -11,7 +12,6 @@ import {
 } from '@/lib/scroll/easing';
 import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import { typographyBlend } from '@/lib/design/tokens';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 type TextRevealProps = {
   text: string;
@@ -48,11 +48,12 @@ export default function TextReveal({
   immediate = false,
   blend = 'solid',
 }: TextRevealProps) {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
+  const { staticReveal } = useStaticReveal();
   const segments = segmentText(text);
-  const showImmediately =
-    immediate || shouldUseStaticReveal(profile, reduceMotion, isReady);
+  // Latch first-paint staticReveal (!isReady) so hydration cannot flip back to IO mode (#151).
+  // Also react to profile.isMobile changes (e.g. viewport resize) via live staticReveal.
+  const [initialStaticReveal] = useState(() => staticReveal);
+  const showImmediately = immediate || staticReveal || initialStaticReveal;
   const mergedClassName = mergeBlendClass(className, blend);
 
   if (showImmediately) {

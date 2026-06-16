@@ -50,6 +50,12 @@ Then テキスト・要素が段階的にリビールされる
 ```
 
 ```gherkin
+Given モバイル幅（375px / 390px）で /services・/works・/process 系・/philosophy・/contact を開く（#151）
+When ページ読み込み完了後、まだスクロールしていない
+Then メインコンテンツが opacity 1 で描画され、フッター手前まで非表示にならない
+```
+
+```gherkin
 Given ユーザーが prefers-reduced-motion を有効にしている
 When ページを閲覧する
 Then アニメーションは無効化または最小限に抑えられる
@@ -116,11 +122,14 @@ Then 進捗ドットが対応セクションに追従する
 | E2E（トップ Hero） | `e2e/home.spec.ts`（粒子 Canvas 描画・形成後ロゴの hero ステージ内センター整合: `expectHeroBrandLogoAfterFormation`） |
 | E2E（下層ページ見出し） | `e2e/page-headers.spec.ts`（`PageHeader` 中央配置・h1・リード文・divider/email/starBackground のページ別断言） |
 | 粒子ロゴ PNG サンプリング | `tests/hero/sample-logo-target-points.test.ts` |
-| E2E（全ナビリンク） | `e2e/navigation.spec.ts` |
+| E2E（全ナビリンク） | `e2e/navigation.spec.ts`（375/390px ハンバーガー → `/services`・`/works` SPA 遷移後の `expectPainted` 含む） |
 | E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
+| E2E（モバイル初期表示・#151） | `e2e/mobile-pages.spec.ts`（375px / 390px でページ読み込み直後の累積 opacity ≈ 1 を `expectPainted()` で検証） |
 | E2E（Philosophy） | `e2e/philosophy.spec.ts` |
 | Philosophy 構造 / パネル追従 | `tests/philosophy/content.test.ts` |
-| スクロールリビール props | `tests/scroll/reveal-props.test.ts` |
+| スクロールリビール props（animate / whileInView 排他） | `tests/scroll/reveal-props.test.ts` |
+| shouldUseStaticReveal 基本行列 | `tests/scroll/static-reveal.test.ts` |
+| useStaticReveal / hook 拡張行列 | `tests/scroll/use-static-reveal.test.ts`（#154 renderHook follow-up） |
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
 | Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
 | Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |

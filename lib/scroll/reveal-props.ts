@@ -18,12 +18,30 @@ type ScrollRevealOptions = {
   staticReveal?: boolean;
 };
 
-export type ScrollRevealMotionProps = {
-  initial: false | TargetAndTransition;
-  whileInView: TargetAndTransition;
+/** Props for immediate reveal (staticReveal / reduced-motion): animate at mount, no IO. */
+export type StaticScrollRevealProps = {
+  initial: false;
+  animate: TargetAndTransition;
+  whileInView?: never;
+  viewport?: never;
   transition: Transition;
-  viewport: ViewportOptions;
 };
+
+/** Props for scroll-driven reveal: hidden until IntersectionObserver fires. */
+export type DynamicScrollRevealProps = {
+  initial: TargetAndTransition;
+  animate?: never;
+  whileInView: TargetAndTransition;
+  viewport: ViewportOptions;
+  transition: Transition;
+};
+
+/**
+ * Discriminated union: `animate` is present iff staticReveal/reduced-motion (immediate);
+ * `whileInView` + `viewport` are present iff scroll-driven (IO-dependent).
+ * The two modes are mutually exclusive at the type level via `never` cross-fields.
+ */
+export type ScrollRevealMotionProps = StaticScrollRevealProps | DynamicScrollRevealProps;
 
 function resolveStaggerDelay(
   staggerIndex: number | undefined,
@@ -56,16 +74,27 @@ export function getScrollRevealProps(
 
   const staggerDelay = resolveStaggerDelay(staggerIndex, staggerStep);
   const totalDelay = delay + staggerDelay;
-  const useStaticReveal = reduceMotion === true || staticReveal;
+  const isStaticReveal = reduceMotion === true || staticReveal;
+
+  const visible = scrollVariants[variant].visible;
+  const transition = {
+    duration: isStaticReveal ? 0 : duration,
+    delay: isStaticReveal ? 0 : totalDelay,
+    ease: scrollEase,
+  };
+
+  if (isStaticReveal) {
+    return {
+      initial: false,
+      animate: visible,
+      transition,
+    };
+  }
 
   return {
-    initial: useStaticReveal ? false : scrollVariants[variant].hidden,
-    whileInView: scrollVariants[variant].visible,
-    transition: {
-      duration: useStaticReveal ? 0 : duration,
-      delay: useStaticReveal ? 0 : totalDelay,
-      ease: scrollEase,
-    },
+    initial: scrollVariants[variant].hidden,
+    whileInView: visible,
+    transition,
     viewport: scrollViewport,
   };
 }

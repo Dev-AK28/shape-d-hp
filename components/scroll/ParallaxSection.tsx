@@ -8,6 +8,7 @@ import {
   type HTMLMotionProps,
 } from 'framer-motion';
 import { useRef, type HTMLAttributes, type ReactNode } from 'react';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
@@ -51,6 +52,7 @@ type StaggerItemProps = HTMLMotionProps<'div'> & {
   staggerStep?: number;
 };
 
+/** @deprecated Unused export — if adopted, pass `useStaticReveal().staticReveal` to `getScrollRevealProps` (#151). */
 export function StaggerItem({
   children,
   index,
@@ -58,20 +60,28 @@ export function StaggerItem({
   staggerStep = REVEAL_OFFSET.stagger,
   ...props
 }: StaggerItemProps) {
-  const reduceMotion = useReducedMotion();
+  const { reduceMotion, staticReveal, profile } = useStaticReveal();
   const revealProps = getScrollRevealProps(reduceMotion, {
+    staticReveal,
     delay: baseDelay,
     staggerIndex: index,
     staggerStep,
     variant: 'fadeLeft',
   });
 
+  const motionRevealProps = revealProps.animate
+    ? { animate: revealProps.animate }
+    : {
+        whileInView: revealProps.whileInView,
+        viewport: revealProps.viewport,
+      };
+
   return (
     <motion.div
+      key={profile.isMobile ? 'mobile' : 'desktop'}
       initial={revealProps.initial}
-      whileInView={revealProps.whileInView}
       transition={revealProps.transition}
-      viewport={revealProps.viewport}
+      {...motionRevealProps}
       {...props}
     >
       {children}

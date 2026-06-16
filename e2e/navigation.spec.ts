@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { waitForHomePageReady } from './helpers';
+import { expectPainted, waitForHomePageReady } from './helpers';
 
 const NAV_ITEMS = [
   { name: 'ホーム', href: '/', urlPattern: /\/$/ },
@@ -79,6 +79,21 @@ test.describe('Navigation mobile layout', () => {
     await nav.getByRole('link', { name: '商品・サービス' }).click();
     await expect(page).toHaveURL(/\/services$/);
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
+    // #151: SPA client nav must not remount content at opacity 0 (mobile Lenis)
+    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
+  });
+
+  test('SPA hamburger nav to /works paints below-fold content (#151)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+    await nav.getByRole('link', { name: '実績' }).click();
+
+    await expect(page).toHaveURL(/\/works$/);
+    await expect(page.locator('main h1').first()).toContainText('WORKS');
+    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
   });
 
   test('closes hamburger menu with Escape key', async ({ page }) => {
@@ -113,6 +128,36 @@ test.describe('Navigation mobile layout', () => {
 
     // spec: スクロールロックが解除されること
     await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+  });
+});
+
+test.describe('375px SPA client nav — expectPainted (#151)', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('hamburger → /services paints below-fold content', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+    await nav.getByRole('link', { name: '商品・サービス' }).click();
+
+    await expect(page).toHaveURL(/\/services$/);
+    await expect(page.locator('main h1').first()).toContainText('SERVICES');
+    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
+  });
+
+  test('hamburger → /works paints below-fold content', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+    await nav.getByRole('link', { name: '実績' }).click();
+
+    await expect(page).toHaveURL(/\/works$/);
+    await expect(page.locator('main h1').first()).toContainText('WORKS');
+    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
   });
 });
 

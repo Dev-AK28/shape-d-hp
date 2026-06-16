@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import { shouldPageTransitionFade } from '@/lib/navigation/page-transition-policy';
 import { pageTransitionEase } from '@/lib/scroll/easing';
@@ -20,7 +21,12 @@ export function resetPageTransitionVisitForTests(): void {
 
 export default function PageTransition({ children }: PageTransitionProps) {
   const reduceMotion = useReducedMotion();
-  const shouldFade = shouldPageTransitionFade(hasVisitedOnce, reduceMotion);
+  const { profile } = useDeviceProfile();
+  const shouldFade = shouldPageTransitionFade(
+    hasVisitedOnce,
+    reduceMotion,
+    profile.isMobile,
+  );
 
   useEffect(() => {
     hasVisitedOnce = true;

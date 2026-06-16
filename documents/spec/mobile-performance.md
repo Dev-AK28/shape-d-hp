@@ -15,7 +15,7 @@ Issue: #51
 | Hero `immersive` | トップのみ。GSAP pin はデスクトップ・モバイル共通で有効。`prefers-reduced-motion` 時のみ静的フォールバック（コピー即時表示） |
 | `NebulaBackground` | Philosophy 等で継続利用。モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時・IO 無効）。`@keyframes` は `app/globals.css` の `nebula-philosophy-*` |
 | `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
-| `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示、2回目以降のルート遷移のみ fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
+| `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示。**モバイル（`profile.isMobile`）は SPA クライアント遷移でも即時表示**（#151）。デスクトップのみ 2 回目以降のルート遷移で fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
 | Micro-interactions | ナビ `.nav-link` とボタン hover は opacity 変化のみ（magnetic effect なし）。タッチ端末・`prefers-reduced-motion` では hover opacity 無効。`:focus-visible` でキーボードフォーカスリング |
 | `Navigation`（モバイル） | `px-4 py-3`、ロゴ `height=36`、ハンバーガー `44×44px` タップ領域。デスクトップは `px-6 py-5`・ロゴ `height=48` を維持（Issue #74） |
 | フォント | `next/font` で Cormorant Garamond + Noto Serif JP を preload（`app/layout.tsx`） |
@@ -61,9 +61,22 @@ Issue: #51
 - **Then** About および MissionVision のコンテンツが表示される
 - **And** フッター直前に意図しない大きな空白領域がない
 
+- **Given** モバイル幅（375px / 390px）で `/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact` を開く（Issue #151）
+- **When** ページ読み込みが完了し、まだスクロールしていない
+- **Then** メインコンテンツ（各セクション見出し・カード）が `opacity: 1` で描画されており、フッター付近までスクロールしないと表示されない状態にならない
+- **And** これは framer-motion リビール消費コンポーネントが `useStaticReveal()` 経由で `staticReveal` を取得し渡すことで保証される（`profile.isMobile` により SPA クライアント遷移時も即時表示。`TextReveal` は初回 `staticReveal` をラッチ）。詳細: [`scroll-animation.md`](./scroll-animation.md) の staticReveal ガード節
+
 - **Given** トップページを最下部までスクロールする
 - **When** フッター領域がビューポートに入る
 - **Then** 著作権表示（`© 2026`）およびナビリンクが `CosmicScene` 固定背景の下に隠れず読める
+
+- **Given** モバイル幅（375px / 390px）でトップからハンバーガーメニュー経由で `/services` へ SPA 遷移する（#151）
+- **When** 遷移直後（スクロールなし）
+- **Then** ページ本文が `PageTransition` により opacity 0 のまま残らず、下層の framer リビール見出し（例: Human Solution）が累積 opacity ≈ 1 で描画される
+
+- **Given** モバイル幅（375px / 390px）でトップからハンバーガーメニュー経由で `/works` へ SPA 遷移する（#151）
+- **When** 遷移直後（スクロールなし）
+- **Then** 下層の framer リビール見出し（例: CONCEPT WORKS）が累積 opacity ≈ 1 で描画される
 
 - **Given** デスクトップでページ間を遷移する
 - **When** 初回訪問後に別ルートへ移動する

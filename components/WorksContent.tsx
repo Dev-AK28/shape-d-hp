@@ -1,13 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function WorksContent() {
-  const reduceMotion = useReducedMotion();
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const projects = [
     {
       id: 1,
@@ -83,7 +84,7 @@ export default function WorksContent() {
       <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* PROJECTS Section */}
         <motion.div
-          {...getScrollRevealProps(reduceMotion)}
+          {...getScrollRevealProps(reduceMotion, { staticReveal })}
           style={{ marginBottom: '160px' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
@@ -92,13 +93,14 @@ export default function WorksContent() {
           {projects.map((work, index) => (
             <motion.div
               key={work.id}
-              {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 0.2 })}
+              {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 0.2 })}
               style={{ marginBottom: index < projects.length - 1 ? '160px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '64px', alignItems: 'center' }}>
                 {/* Image Placeholder */}
                 <motion.div
                   {...getScrollRevealProps(reduceMotion, {
+                    staticReveal,
                     variant: 'scale',
                     staggerIndex: index,
                     staggerStep: 0.2,
@@ -174,7 +176,7 @@ export default function WorksContent() {
 
         {/* CONCEPT WORKS Section */}
         <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
           style={{ marginBottom: '120px' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
@@ -185,6 +187,7 @@ export default function WorksContent() {
               <motion.div
                 key={work.id}
                 {...getScrollRevealProps(reduceMotion, {
+                  staticReveal,
                   delay: 0.5,
                   staggerIndex: index,
                   staggerStep: 'card',
@@ -259,7 +262,7 @@ export default function WorksContent() {
 
         {/* GoDD Footer */}
         <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
           style={{ textAlign: 'center', paddingTop: '64px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
         >
           <p style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em', fontFamily: 'serif' }}>

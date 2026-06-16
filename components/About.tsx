@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import TextReveal from '@/components/scroll/TextReveal';
 import {
@@ -13,11 +13,10 @@ import {
   timelineBodyClass,
   timelineIndexClass,
 } from '@/lib/design/section-typography-classes';
-import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 
 const career = [
   '心理学専攻で学士号を取得。学術的な人間理解の素地を築く。',
@@ -28,9 +27,7 @@ const career = [
 ];
 
 export default function About() {
-  const reduceMotion = useReducedMotion();
-  const { profile, isReady } = useDeviceProfile();
-  const staticReveal = shouldUseStaticReveal(profile, reduceMotion, isReady);
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const timelineRef = useRef<HTMLUListElement>(null);
 
   useGsapContext(() => {

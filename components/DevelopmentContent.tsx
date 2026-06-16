@@ -1,12 +1,13 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function DevelopmentContent() {
-  const reduceMotion = useReducedMotion();
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const steps = [
     {
       id: 1,
@@ -68,13 +69,14 @@ export default function DevelopmentContent() {
           {steps.map((step, index) => (
             <motion.div
               key={step.id}
-              {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 'card' })}
+              {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card' })}
               style={{ marginBottom: index < steps.length - 1 ? '100px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '64px', alignItems: 'start' }}>
                 {/* Step Number */}
                 <motion.div
                   {...getScrollRevealProps(reduceMotion, {
+                    staticReveal,
                     variant: 'scale',
                     staggerIndex: index,
                     staggerStep: 'card',
@@ -156,7 +158,7 @@ export default function DevelopmentContent() {
         </div>
 
         <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.2))', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>

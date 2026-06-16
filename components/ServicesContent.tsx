@@ -1,11 +1,12 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function ServicesContent() {
-  const reduceMotion = useReducedMotion();
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const digitalServices = [
     {
       id: 1,
@@ -101,7 +102,7 @@ export default function ServicesContent() {
       <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Digital Solution Section */}
         <motion.div
-          {...getScrollRevealProps(reduceMotion)}
+          {...getScrollRevealProps(reduceMotion, { staticReveal })}
           style={{ marginBottom: '160px' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#60a5fa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -111,7 +112,7 @@ export default function ServicesContent() {
             {digitalServices.map((service, index) => (
               <motion.div
                 key={service.id}
-                {...getScrollRevealProps(reduceMotion, { staggerIndex: index, staggerStep: 'card' })}
+                {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card' })}
                 whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
                 style={{ padding: '48px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
@@ -181,7 +182,7 @@ export default function ServicesContent() {
 
         {/* Human Solution Section */}
         <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.4 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
           style={{ marginBottom: '120px' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -192,6 +193,7 @@ export default function ServicesContent() {
               <motion.div
                 key={service.id}
                 {...getScrollRevealProps(reduceMotion, {
+                  staticReveal,
                   delay: 0.5,
                   staggerIndex: index,
                   staggerStep: 'card',
@@ -249,7 +251,7 @@ export default function ServicesContent() {
         </motion.div>
 
         <motion.div
-          {...getScrollRevealProps(reduceMotion, { delay: 0.8 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
           style={{ marginTop: '120px', textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.1))', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
