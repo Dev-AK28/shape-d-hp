@@ -91,6 +91,9 @@ test.describe('390px — /process', () => {
 
     await expect(page.getByRole('heading', { name: 'Development Process' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
+
+    // #151: below-the-fold card must be painted on load, not stuck at opacity 0
+    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }));
   });
 });
 
@@ -104,6 +107,9 @@ test.describe('390px — /process/development', () => {
     await expectNoHorizontalOverflow(page);
 
     await expect(page.getByRole('heading', { name: '要件定義' })).toBeVisible();
+
+    // #151: below-the-fold step content must be painted on load, not stuck at opacity 0
+    await expectPainted(page.getByRole('heading', { name: '要件定義' }));
   });
 });
 
@@ -118,6 +124,9 @@ test.describe('390px — /process/consulting', () => {
 
     await expect(page.getByRole('heading', { name: '3 Steps Process' })).toBeVisible();
     await expect(page.getByRole('heading', { name: '自覚' })).toBeVisible();
+
+    // #151: below-the-fold step content must be painted on load, not stuck at opacity 0
+    await expectPainted(page.getByRole('heading', { name: '自覚' }));
   });
 });
 
@@ -131,6 +140,12 @@ test.describe('390px — /philosophy', () => {
     await expect(page.locator('main h1')).toHaveCount(1);
 
     await expectNoHorizontalOverflow(page);
+
+    // #151: the below-the-fold CTA (framer-motion reveal wrapper) must be painted on
+    // load. Targets a motion.* wrapper (not TextReveal, which re-renders post-hydration).
+    await expectPainted(
+      page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first(),
+    );
 
     // TextReveal splits text into inline-block character spans, which causes the
     // ARIA accessible name to include spaces ("S E L F - ..."), breaking getByRole.
@@ -155,6 +170,9 @@ test.describe('390px — /contact', () => {
     // Contact page exposes the email address in the page header and a form
     await expect(page.getByTestId('page-header-email')).toBeVisible();
     await expect(page.getByRole('button', { name: '送信する' })).toBeVisible();
+
+    // #151: the form is wrapped in <ScrollReveal>; its content must be painted on load
+    await expectPainted(page.getByRole('button', { name: '送信する' }));
   });
 });
 
@@ -206,6 +224,9 @@ test.describe('375px — /process/development', () => {
     await expectNoHorizontalOverflow(page);
 
     await expect(page.getByRole('heading', { name: '要件定義' })).toBeVisible();
+
+    // #151: iPhone SE repro — step content must be painted on load without scrolling
+    await expectPainted(page.getByRole('heading', { name: '要件定義' }));
   });
 });
 
@@ -219,5 +240,8 @@ test.describe('375px — /process/consulting', () => {
     await expectNoHorizontalOverflow(page);
 
     await expect(page.getByRole('heading', { name: '3 Steps Process' })).toBeVisible();
+
+    // #151: iPhone SE repro — section heading must be painted on load without scrolling
+    await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }));
   });
 });
