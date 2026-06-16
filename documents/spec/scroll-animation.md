@@ -61,7 +61,7 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
   - 意図: 劇的なモーションは GSAP（pin / snap / About タイムライン）が担い、framer は信頼性・LCP・#151 受け入れ基準を優先。#153 でデスクトップ framer 演出復活を enhancement として検討可能。
 - 適用済みコンポーネント: `About` / `MissionVision` / `ServicesContent` / `WorksContent` / `ConsultingContent` / `DevelopmentContent` / `ProcessNavigation` / `PhilosophyContent` / `TextReveal` / `ScrollReveal`（→ `PageHeader`・`/contact` フォーム）。いずれも `useStaticReveal()` 経由に統一。
 - **`TextReveal` の hydration ラッチ（#151）**: `TextReveal` は条件分岐で plain text と `motion.span`（`opacity: 0` + `whileInView`）を切り替える。初回レンダリングで `staticReveal=true`（`!isReady`）だった場合は **ラッチ** して hydration 後も即時表示を維持する。`profile.isMobile` への変化（viewport リサイズ）は live `staticReveal` で追従する（`TextReveal` / `ScrollReveal`）。直接 `motion.div` に spread するコンテンツコンポーネントのリサイズ remount は #155 で follow-up。
-- **`staticReveal` 時の IO 省略**: `getScrollRevealProps({ staticReveal: true })` は `animate`（即時 visible）のみ返し、`whileInView` / `viewport` を付与しない（モバイル subpage の IntersectionObserver 登録コスト削減）。`tests/scroll/reveal-props.test.ts` で animate / whileInView の排他を contract 化。
+- **`staticReveal` 時の IO 省略**: `getScrollRevealProps({ staticReveal: true })` は `animate`（即時 visible）のみ返し、`whileInView` / `viewport` を付与しない（モバイル subpage の IntersectionObserver 登録コスト削減）。contract テスト: `tests/scroll/reveal-props.test.ts`（animate / whileInView 排他）、`tests/scroll/static-reveal.test.ts` + `tests/scroll/use-static-reveal.test.ts`（`shouldUseStaticReveal` / hook 配線行列）。
 - **`ScrollReveal` の `key={profile.isMobile}`**: 768px 境界リサイズで framer `initial` を再評価するため remount。フォーカス喪失等の副作用は #155 で follow-up。
 - 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が **375px / 390px の両方** で対象 7 ルート（`/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact`）について、ページ読み込み直後（スクロールなし）の累積 opacity ≈ 1 を検証する（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。
 
@@ -100,7 +100,7 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `stagger: 0.15` / `ease: ANIMATION_EASE.base`
 
 - `prefers-reduced-motion` 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`shouldUseStaticReveal(profile, reduceMotion, isReady)` により `!isReady` 時も含め `getScrollRevealProps({ staticReveal: true })` と `TextReveal` の即時表示を適用。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリ（`prefers-reduced-motion: reduce`）で `opacity: 1` を保証
-- モバイル（`prefers-reduced-motion` なし）時: GSAP・Lenis は有効。**GSAP** の `[data-timeline-item]` / `[data-vision-quote]`（About / MissionVision）は初期 `opacity: 0` から ScrollTrigger で reveal される。**framer-motion** リビール（下層ページ）は `useStaticReveal()` により `profile.isMobile` または `!isReady` で即時表示（IO 非依存）。framer の `initial` / `TextReveal` ラッチはマウント時固定のため、hydration 後も hidden に戻らない。
+- モバイル（`prefers-reduced-motion` なし）時: GSAP・Lenis は有効。**GSAP** の `[data-timeline-item]` / `[data-vision-quote]`（About / MissionVision）は初期 `opacity: 0` から ScrollTrigger で reveal される。**framer-motion** リビール（下層ページ）は `useStaticReveal()` により `profile.isMobile` または `!isReady` で即時表示（IO 非依存）。`TextReveal` は初回 `staticReveal` をラッチして hydration 後も hidden に戻らず、`profile.isMobile` 変化（viewport リサイズ）は live `staticReveal` で追従する。直接 `motion.div` spread の remount は #155。
 
 ## アクセシビリティ
 
