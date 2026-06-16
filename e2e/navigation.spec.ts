@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { waitForHomePageReady } from './helpers';
+import { expectPainted, waitForHomePageReady } from './helpers';
 
 const NAV_ITEMS = [
   { name: 'ホーム', href: '/', urlPattern: /\/$/ },
@@ -79,6 +79,8 @@ test.describe('Navigation mobile layout', () => {
     await nav.getByRole('link', { name: '商品・サービス' }).click();
     await expect(page).toHaveURL(/\/services$/);
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
+    // #151: SPA client nav must not remount content at opacity 0 (mobile Lenis)
+    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
   });
 
   test('closes hamburger menu with Escape key', async ({ page }) => {

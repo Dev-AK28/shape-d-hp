@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { LOGO_PARTICLE_FORMATION_MS } from '../lib/hero/sample-logo-target-points';
 
 export const LOGO_ALT = 'SHAPE∞D Logo';
@@ -111,4 +111,24 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
     );
     expect(isFooterOnTop).toBe(true);
   }).toPass({ timeout: 5_000 });
+}
+
+/**
+ * Asserts cumulative ancestor opacity ≈ 1 (Playwright toBeVisible ignores opacity).
+ * Regression guard for issue #151.
+ */
+export async function expectPainted(locator: Locator) {
+  const opacity = await locator.evaluate((el) => {
+    let node: HTMLElement | null = el as HTMLElement;
+    let cumulative = 1;
+    while (node) {
+      const value = Number.parseFloat(getComputedStyle(node).opacity || '1');
+      if (!Number.isNaN(value)) {
+        cumulative *= value;
+      }
+      node = node.parentElement;
+    }
+    return cumulative;
+  });
+  expect(opacity, 'content is hidden (cumulative opacity ~0)').toBeGreaterThan(0.99);
 }
