@@ -46,4 +46,31 @@ describe('useStaticReveal contract (shouldUseStaticReveal matrix)', () => {
       ),
     ).toBe(false);
   });
+
+  // #153: Desktop full-load recovery — staticReveal transitions true→false after hydration.
+  // ScrollReveal key='static'→'reveal' remount and TextReveal showImmediately=false
+  // are both driven by this value change.
+  it('returns true before isReady (SSR snapshot) regardless of profile — ensures hydration match', () => {
+    // Desktop profile with isReady=false: still true (hydration-safe initial state)
+    expect(
+      shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, false, false),
+    ).toBe(true);
+  });
+
+  it('returns false after isReady on desktop — enables whileInView scroll reveal (#153)', () => {
+    // This state change (true→false) triggers ScrollReveal remount and TextReveal IO mode.
+    expect(
+      shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, null, true),
+    ).toBe(false);
+  });
+
+  it('returns true after isReady on mobile — no regression from #151', () => {
+    expect(
+      shouldUseStaticReveal(
+        { ...DEFAULT_DEVICE_PROFILE, isMobile: true },
+        null,
+        true,
+      ),
+    ).toBe(true);
+  });
 });

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import {
@@ -50,10 +49,15 @@ export default function TextReveal({
 }: TextRevealProps) {
   const { staticReveal } = useStaticReveal();
   const segments = segmentText(text);
-  // Latch first-paint staticReveal (!isReady) so hydration cannot flip back to IO mode (#151).
-  // Also react to profile.isMobile changes (e.g. viewport resize) via live staticReveal.
-  const [initialStaticReveal] = useState(() => staticReveal);
-  const showImmediately = immediate || staticReveal || initialStaticReveal;
+  // `staticReveal` is already hydration-safe:
+  //   - SSR / first client render (!isReady): always true → renders plain text (matches server) (#151)
+  //   - After hydration on desktop (isReady=true, isMobile=false): false → switches to per-char
+  //     whileInView reveal (#153)
+  //   - After hydration on mobile (isReady=true, isMobile=true): true → stays plain text (#151)
+  //   - Viewport resize (mobile↔desktop): live staticReveal reacts correctly
+  // The former latch (initialStaticReveal) was redundant: shouldUseStaticReveal guarantees true
+  // during !isReady regardless of profile, so hydration always matches the server snapshot.
+  const showImmediately = immediate || staticReveal;
   const mergedClassName = mergeBlendClass(className, blend);
 
   if (showImmediately) {
