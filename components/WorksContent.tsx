@@ -84,6 +84,7 @@ export default function WorksContent() {
       <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* PROJECTS Section */}
         <motion.div
+          key={staticReveal ? 'static-projects' : 'reveal-projects'}
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
           style={{ marginBottom: '160px' }}
         >
@@ -176,6 +177,7 @@ export default function WorksContent() {
 
         {/* CONCEPT WORKS Section */}
         <motion.div
+          key={staticReveal ? 'static-concept' : 'reveal-concept'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
           style={{ marginBottom: '120px' }}
         >
@@ -262,6 +264,7 @@ export default function WorksContent() {
 
         {/* GoDD Footer */}
         <motion.div
+          key={staticReveal ? 'static-footer' : 'reveal-footer'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
           style={{ textAlign: 'center', paddingTop: '64px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
         >

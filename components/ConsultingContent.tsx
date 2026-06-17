@@ -61,6 +61,7 @@ export default function ConsultingContent() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         {/* Introduction */}
         <motion.div
+          key={staticReveal ? 'static-intro' : 'reveal-intro'}
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
         >
@@ -99,6 +100,7 @@ export default function ConsultingContent() {
 
         {/* 3 Steps */}
         <motion.div
+          key={staticReveal ? 'static-steps' : 'reveal-steps'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
           style={{ marginBottom: '160px' }}
         >
@@ -170,6 +172,7 @@ export default function ConsultingContent() {
 
         {/* 8 Perspectives Narrative */}
         <motion.div
+          key={staticReveal ? 'static-perspective' : 'reveal-perspective'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.6 })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
         >
@@ -205,6 +208,7 @@ export default function ConsultingContent() {
         </motion.div>
 
         <motion.div
+          key={staticReveal ? 'static-cta' : 'reveal-cta'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(167, 139, 250, 0.1), rgba(167, 139, 250, 0.2))', backdropFilter: 'blur(10px)' }}
         >
