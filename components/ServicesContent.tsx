@@ -102,6 +102,7 @@ export default function ServicesContent() {
       <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Digital Solution Section */}
         <motion.div
+          key={staticReveal ? 'static-digital' : 'reveal-digital'}
           {...getScrollRevealProps(reduceMotion, { staticReveal })}
           style={{ marginBottom: '160px' }}
         >
@@ -182,6 +183,7 @@ export default function ServicesContent() {
 
         {/* Human Solution Section */}
         <motion.div
+          key={staticReveal ? 'static-human' : 'reveal-human'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
           style={{ marginBottom: '120px' }}
         >

@@ -68,7 +68,7 @@ export default function DevelopmentContent() {
           <div style={{ marginBottom: '120px' }}>
           {steps.map((step, index) => (
             <motion.div
-              key={step.id}
+              key={staticReveal ? `static-step-${step.id}` : `reveal-step-${step.id}`}
               {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card' })}
               style={{ marginBottom: index < steps.length - 1 ? '100px' : '0' }}
             >
@@ -158,6 +158,7 @@ export default function DevelopmentContent() {
         </div>
 
         <motion.div
+          key={staticReveal ? 'static-cta' : 'reveal-cta'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.2))', backdropFilter: 'blur(10px)' }}
         >

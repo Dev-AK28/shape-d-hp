@@ -31,6 +31,7 @@ export default function ProcessNavigation() {
         className="mx-auto mt-[120px] grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(400px,100%),1fr))] gap-16"
       >
         <motion.div
+          key={staticReveal ? 'static-dev' : 'reveal-dev'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
           className={developmentCardClass}
@@ -52,6 +53,7 @@ export default function ProcessNavigation() {
         </motion.div>
 
         <motion.div
+          key={staticReveal ? 'static-cons' : 'reveal-cons'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
           className={consultingCardClass}

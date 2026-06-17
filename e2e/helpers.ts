@@ -121,9 +121,12 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
  * getComputedStyle resolution on slow CI frames. 200ms covers CI jitter (~50ms);
  * any element that has not reached opacity 1 within 200ms is reported as a failure.
  *
+ * For desktop scroll reveal animations (framer duration ~1.4s), pass a higher timeout
+ * (e.g. `expectPainted(el, 2500)`) to wait for the full animation to complete (#153).
+ *
  * Limitation: does not detect visibility:hidden, display:none, or off-viewport placement.
  */
-export async function expectPainted(locator: Locator) {
+export async function expectPainted(locator: Locator, timeout = 200) {
   await expect(async () => {
     const opacity = await locator.evaluate((el) => {
       let node: HTMLElement | null = el as HTMLElement;
@@ -138,5 +141,5 @@ export async function expectPainted(locator: Locator) {
       return cumulative;
     });
     expect(opacity, 'content is hidden (cumulative opacity ~0)').toBeGreaterThan(0.99);
-  }).toPass({ timeout: 200 });
+  }).toPass({ timeout });
 }

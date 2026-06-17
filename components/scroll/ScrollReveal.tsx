@@ -28,7 +28,7 @@ export default function ScrollReveal({
   y,
   ...props
 }: ScrollRevealProps) {
-  const { reduceMotion, staticReveal, profile } = useStaticReveal();
+  const { reduceMotion, staticReveal } = useStaticReveal();
   const resolvedVariant =
     y !== undefined && variant === 'fadeUp'
       ? ('fadeUpLarge' as const)
@@ -55,9 +55,11 @@ export default function ScrollReveal({
 
   return (
     <motion.div
-      // Remount at mobile breakpoint so framer `initial` re-evaluates (#151 resize).
-      // Focus loss on resize is tracked in #155.
-      key={profile.isMobile ? 'mobile' : 'desktop'}
+      // Remount when staticReveal changes so framer `initial` re-evaluates.
+      // Handles both mobile/desktop breakpoint resize (#151) and the isReady→true
+      // hydration transition on desktop (#153: restores whileInView scroll reveal).
+      // Focus loss side-effects are tracked in #155.
+      key={staticReveal ? 'static' : 'reveal'}
       initial={initial}
       transition={revealProps.transition}
       {...motionRevealProps}
