@@ -73,14 +73,14 @@ export default function Navigation() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-[1000] ${
-        reduceMotion ? '' : 'transition-all duration-300'
+        reduceMotion ? '' : 'transition-[background-color,border-color,backdrop-filter] duration-300'
       } ${
         isScrolled
           ? 'border-b border-white/10 bg-black/95 backdrop-blur-xl'
           : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto max-w-[1400px] px-4 py-3 md:px-6 md:py-5">
+      <div className="mx-auto max-w-[1400px] px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-3 md:px-6 md:pt-[max(1.25rem,env(safe-area-inset-top,0px))] md:pb-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="no-underline nav-link">
             <div className="flex items-center">

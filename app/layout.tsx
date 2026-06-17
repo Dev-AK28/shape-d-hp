@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Noto_Serif_JP } from 'next/font/google';
 import Footer from '@/components/Footer';
 import Navigation from '@/components/Navigation';
@@ -23,6 +23,10 @@ const notoSerifJp = Noto_Serif_JP({
   display: 'swap',
   preload: true,
 });
+
+export const viewport: Viewport = {
+  viewportFit: 'cover',
+};
 
 export const metadata: Metadata = {
   title: 'SHAPE∞D - AIで効率化し、本来の創造に集中する環境を作る',
