@@ -80,7 +80,7 @@ export default function Navigation() {
           : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto max-w-[1400px] px-4 py-3 md:px-6 md:py-5">
+      <div className="mx-auto max-w-[1400px] px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-3 md:px-6 md:pt-[max(1.25rem,env(safe-area-inset-top,0px))] md:pb-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="no-underline nav-link">
             <div className="flex items-center">

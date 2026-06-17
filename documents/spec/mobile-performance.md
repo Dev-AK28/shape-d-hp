@@ -17,7 +17,7 @@ Issue: #51
 | `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
 | `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示。**モバイル（`profile.isMobile`）は SPA クライアント遷移でも即時表示**（#151）。デスクトップのみ 2 回目以降のルート遷移で fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
 | Micro-interactions | ナビ `.nav-link` とボタン hover は opacity 変化のみ（magnetic effect なし）。タッチ端末・`prefers-reduced-motion` では hover opacity 無効。`:focus-visible` でキーボードフォーカスリング |
-| `Navigation`（モバイル） | `px-4 py-3`、ロゴ `height=36`、ハンバーガー `44×44px` タップ領域。デスクトップは `px-6 py-5`・ロゴ `height=48` を維持（Issue #74） |
+| `Navigation`（モバイル） | `px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-3`、ロゴ `height=36`、ハンバーガー `44×44px` タップ領域。デスクトップは `px-6 pt-[max(1.25rem,env(safe-area-inset-top,0px))] pb-5`・ロゴ `height=48` を維持（Issue #74）。`viewport-fit=cover` 有効時にノッチ/Dynamic Island と重複しないよう上部パディングを `safe-area-inset-top` に応じて伸長（Issue #162） |
 | フォント | `next/font` で Cormorant Garamond + Noto Serif JP を preload（`app/layout.tsx`） |
 | GSAP | tree-shaking: `gsap` + `gsap/ScrollTrigger` のみ import。bundle 目安 ~38KB（Lenis ~8KB + GSAP ~30KB） |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
@@ -104,9 +104,15 @@ Issue: #51
 
 - **Given** モバイル幅（390px）でトップページを表示する
 - **When** 固定ヘッダーの高さを確認する
-- **Then** ヘッダーがコンパクト（ロゴ 36px・`py-3`）であり、本文の初期表示領域が確保されている
+- **Then** ヘッダーがコンパクト（ロゴ 36px・上部は `max(12px, safe-area-inset-top)`）であり、本文の初期表示領域が確保されている
 - **And** ハンバーガーボタンのタップ領域は 44px 以上である
 - **And** モバイルヘッダー高さは compact 化前（約 88px）より低い
+
+- **Given** iOS ノッチ/Dynamic Island デバイスでトップページを表示する
+- **When** ページ読み込みが完了する
+- **Then** `<meta name="viewport">` に `viewport-fit=cover` が含まれる
+- **And** Navigation バー（`fixed top-0`）のロゴ・リンクがノッチ/Dynamic Island の背後に隠れない
+- **And** Hero 静的フォールバック（mobileStaticHero パス）の本文開始位置が Navigation 下端より下にある（`padding-top: calc(64px + safe-area-inset-top) > nav-height`）
 
 ## グリッドレイアウト（モバイル水平オーバーフロー防止）
 
@@ -149,6 +155,53 @@ iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION
 - When ABOUT / VISION セクションが画面内に入る
 - Then `h2.ABOUT` および `h2.VISION` の左端がセクション左 padding 内（x ≥ 24px）に収まっている
 - And 水平スクロールが発生しない（`scrollWidth ≤ innerWidth`）
+
+## iOS Safe Area 対応（Issue #162）
+
+### 概要
+
+`app/layout.tsx` に `export const viewport: Viewport = { viewportFit: 'cover' }` を追加することで
+`viewport-fit=cover` を有効化。これにより iOS ノッチ/Dynamic Island 環境で
+`env(safe-area-inset-top, 0px)` が正しく非ゼロ値を返すようになる。
+
+### safe-area 対応コンポーネント一覧
+
+| コンポーネント/ファイル | 対応内容 |
+|------------------------|---------|
+| `app/layout.tsx` | `viewport-fit=cover` を `viewport` export で設定 |
+| `components/Navigation.tsx` | `fixed top-0` に `pt-[max(base,env(safe-area-inset-top,0px))]` を適用 |
+| `components/Hero.tsx` | mobileStaticHero パスで `pt-[calc(var(--space-8)_+_env(safe-area-inset-top,_0px))]` |
+| `app/globals.css` | `@media (pointer:coarse) and (prefers-reduced-motion:reduce)` ブロックで同等の `padding-top` |
+| `components/PhilosophyProgressDots.tsx` | 右端の `safe-area-inset-right` を適用済み |
+
+### 設計根拠：Navigation と Hero の padding 計算
+
+Navigation の高さ（safe-area = S px の端末）:
+```
+pt = max(12px, S)  ≈ S  (ノッチデバイスでは S > 12 が確実)
+logo height = 36px
+pb = 12px
+total nav height ≈ S + 48px
+```
+
+Hero mobileStaticHero の上部 padding:
+```
+pt = var(--space-8) + S = 64px + S
+```
+
+差分:
+```
+(64 + S) − (S + 48) = 16px  ≥ 0  （safe-area 値によらず一定の余白を確保）
+```
+
+Hero と globals.css の `env(safe-area-inset-top)` は Navigation の safe-area 吸収分と
+二重計上しているように見えるが、両者を加算した差が常に正になるため意図的な対称設計である。
+Navigation fix 適用後も Hero 側の変更は不要。
+
+### 未対応項目（別 Issue 管理）
+
+- GSAP Hero スクロールインジケータの `safe-area-inset-bottom`（装飾要素、重大度: 低）
+- E2E テストでの safe-area 値シミュレーション（Playwright 通常 viewport では inset = 0）
 
 ## Hero CLS 修正：coarse pointer + reduced-motion（Issue #149）
 
