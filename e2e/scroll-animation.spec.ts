@@ -55,10 +55,9 @@ test.describe('Scroll animations', () => {
  *
  * The key={staticReveal ? 'static' : 'reveal'} remount in ScrollReveal.tsx
  * forces framer-motion to re-evaluate `initial` once `isReady=true` on desktop.
- *
- * Note: Content components that spread `getScrollRevealProps` directly onto
- * `motion.div` (ServicesContent, WorksContent, ProcessNavigation) are tracked
- * separately and are NOT covered by these tests. See Issue #169.
+ * Content components (ServicesContent, WorksContent, etc.) received the same
+ * key pattern on their top-level motion.div elements in this PR (#153).
+ * E2E coverage for content components is also added in this suite below.
  */
 test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
@@ -75,5 +74,20 @@ test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', ()
 
     // Allow for framer transition: duration 1.4s + delay 0.15s ≈ 1.6s total.
     await expectPainted(nameInput, 2500);
+  });
+
+  // Content component regression: ServicesContent top-level section motion.div
+  // now has key={staticReveal ? 'static-digital' : 'reveal-digital'}, which
+  // triggers remount on isReady→true transition and enables whileInView (#153).
+  test('/services: Digital Solution section is painted after scrolling', async ({ page }) => {
+    await page.goto('/services');
+    await page.waitForLoadState('networkidle');
+
+    // "Digital Solution" is an h3 inside ServicesContent — below the PageHeader fold.
+    const heading = page.getByRole('heading', { name: 'Digital Solution' });
+    await heading.scrollIntoViewIfNeeded();
+
+    // Allow for framer transition: duration 1.4s + delay 0s ≈ 1.4s total.
+    await expectPainted(heading, 2500);
   });
 });
