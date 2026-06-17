@@ -64,7 +64,7 @@ Issue: #51
 - **Given** モバイル幅（375px / 390px）で `/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact` を開く（Issue #151）
 - **When** ページ読み込みが完了し、まだスクロールしていない
 - **Then** メインコンテンツ（各セクション見出し・カード）が `opacity: 1` で描画されており、フッター付近までスクロールしないと表示されない状態にならない
-- **And** これは framer-motion リビール消費コンポーネントが `useStaticReveal()` 経由で `staticReveal` を取得し渡すことで保証される（`profile.isMobile` により SPA クライアント遷移時も即時表示。`TextReveal` は初回 `staticReveal` をラッチ）。詳細: [`scroll-animation.md`](./scroll-animation.md) の staticReveal ガード節
+- **And** これは framer-motion リビール消費コンポーネントが `useStaticReveal()` 経由で `staticReveal` を取得し渡すことで保証される（`profile.isMobile` により SPA クライアント遷移時も即時表示。`TextReveal` は `shouldUseStaticReveal` の `!isReady` ガードにより hydration 安全性が確保されており、初回ラッチは不要）。詳細: [`scroll-animation.md`](./scroll-animation.md) の staticReveal ガード節
 
 - **Given** トップページを最下部までスクロールする
 - **When** フッター領域がビューポートに入る

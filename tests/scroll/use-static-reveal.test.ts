@@ -52,6 +52,11 @@ describe('useStaticReveal contract (shouldUseStaticReveal matrix)', () => {
   // are both driven by this value change.
   // Note: the isReady=false case (→true) is already covered by
   // "returns true on desktop first full load" above.
+  //
+  // reduceMotion=null here mirrors useReducedMotion()'s unresolved state (framer returns
+  // boolean|null). shouldUseStaticReveal treats null identically to false (only === true
+  // triggers static). Both null and false yield the same result; null is used below to
+  // represent the realistic hook output before the OS preference is known.
   it('returns false after isReady on desktop — enables whileInView scroll reveal (#153)', () => {
     // This state change (true→false) triggers ScrollReveal remount and TextReveal IO mode.
     expect(
