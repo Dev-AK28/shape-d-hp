@@ -73,7 +73,7 @@ export default function Navigation() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-[1000] ${
-        reduceMotion ? '' : 'transition-all duration-300'
+        reduceMotion ? '' : 'transition-[background-color,border-color,backdrop-filter] duration-300'
       } ${
         isScrolled
           ? 'border-b border-white/10 bg-black/95 backdrop-blur-xl'
