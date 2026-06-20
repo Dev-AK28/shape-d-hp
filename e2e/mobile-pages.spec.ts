@@ -26,9 +26,11 @@ test.describe('390px — /services', () => {
     await expect(page.getByRole('heading', { name: 'Digital Solution' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
 
-    // #180: page header is in viewport — IO fires after hydration remount, allow full animation
+    // #180: h1 は above-fold（viewport 内確定）のため scrollIntoViewIfNeeded() 不要。
+    // ハイドレーション後の isReady=true 遷移 → ScrollReveal key remount → IO 即発火。
+    // framer duration 1.4s を吸収するため 2500ms を使用。
     await expectPainted(page.locator('main h1').first(), 2500);
-    // #180: below-fold section headings reveal on scroll
+    // #180: fold 下の見出しはスクロール後に reveal — scrollIntoViewIfNeeded() 必須
     await page.getByRole('heading', { name: 'Digital Solution' }).scrollIntoViewIfNeeded();
     await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 2500);
     await page.getByRole('heading', { name: 'Human Solution' }).scrollIntoViewIfNeeded();
@@ -175,9 +177,11 @@ test.describe('375px — /services', () => {
     await expect(page.getByRole('heading', { name: 'Digital Solution' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
 
-    // #180: page header in viewport — IO fires after hydration remount, allow full animation
+    // #180: h1 は above-fold（viewport 内確定）のため scrollIntoViewIfNeeded() 不要。
+    // ハイドレーション後の isReady=true 遷移 → ScrollReveal key remount → IO 即発火。
+    // framer duration 1.4s を吸収するため 2500ms を使用。
     await expectPainted(page.locator('main h1').first(), 2500);
-    // #180: below-fold section headings reveal on scroll
+    // #180: fold 下の見出しはスクロール後に reveal — scrollIntoViewIfNeeded() 必須
     await page.getByRole('heading', { name: 'Digital Solution' }).scrollIntoViewIfNeeded();
     await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 2500);
     await page.getByRole('heading', { name: 'Human Solution' }).scrollIntoViewIfNeeded();
@@ -362,9 +366,11 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
 });
 
 // ── desktop → mobile resize regression (#155 / #180) ────────────────────────
+// #180 以降、isMobile は staticReveal に影響しない（デスクトップ・モバイル双方が whileInView）。
+// リサイズ後も staticReveal=false のまま変化しないため remount は発生せず、
+// スクロールした要素が reveal されることを検証する。
 // After #180, isMobile no longer affects staticReveal — both desktop and mobile
-// use scroll-driven reveal (whileInView). On resize, staticReveal stays false and
-// cards reveal when scrolled into view. Verifies scroll reveal works after resize.
+// use scroll-driven reveal (whileInView). staticReveal stays false after resize.
 
 test.describe('desktop → mobile resize — /services scroll reveal (#155)', () => {
   test('service cards reveal on scroll after resizing from desktop to mobile', async ({ page }) => {
@@ -374,7 +380,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
 
     await page.setViewportSize({ width: 390, height: 844 });
 
-    // After resize to mobile, scroll to a service card and verify it reveals
+    // リサイズ後、スクロールしてカードが reveal されることを確認（remount は発生しない）
     const cardTitle = page.locator('h3').filter({ hasText: 'AIプロダクト開発' }).first();
     await cardTitle.scrollIntoViewIfNeeded();
     await expect(cardTitle).toBeVisible({ timeout: 5000 });
@@ -388,6 +394,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
 
     await page.setViewportSize({ width: 390, height: 844 });
 
+    // リサイズ後、スクロールしてプロジェクトカードが reveal されることを確認
     const projectTitle = page.locator('h3').filter({ hasText: 'AIアドバイザーツール' }).first();
     await projectTitle.scrollIntoViewIfNeeded();
     await expect(projectTitle).toBeVisible({ timeout: 5000 });
