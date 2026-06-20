@@ -40,6 +40,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.8",
-    "wait-on": "^8.0.5"
+    "wait-on": "^9.0.10"
   }
 }
