@@ -109,6 +109,24 @@ test.describe('Subpage headers', () => {
     }
   });
 
+  /**
+   * Regression test for Issue #167 — PageHeader safe-area-inset-top compensation.
+   *
+   * In standard Playwright viewports env(safe-area-inset-top) resolves to 0px,
+   * so padding-top should equal the base 120px. This guards against accidental
+   * removal of the safe-area formula and verifies no-notch devices are unaffected.
+   * Actual notch-device behaviour (safe-area > 0) cannot be simulated in Playwright;
+   * see Issue #166 for that E2E coverage.
+   */
+  test('PageHeader padding-top is ≥ 120px on standard viewport (safe-area = 0)', async ({ page }) => {
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    const paddingTop = await page.getByTestId('page-header').evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(paddingTop).toBeGreaterThanOrEqual(120);
+  });
+
   test('page headers apply dividerVariant gradient classes', async ({ page }) => {
     const dividerCases = [
       { path: '/services', className: 'page-header-divider-blue' },

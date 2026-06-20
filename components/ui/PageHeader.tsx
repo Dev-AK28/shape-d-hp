@@ -45,7 +45,7 @@ export default function PageHeader({
     <SectionShell
       padding="sm"
       data-testid="page-header"
-      className={`flex flex-col items-center justify-center pt-[120px] ${className}`}
+      className={`flex flex-col items-center justify-center pt-[calc(120px+env(safe-area-inset-top,0px))] ${className}`}
     >
       {starBackground ? <StarBackground config={{ count: 100 }} /> : null}
 

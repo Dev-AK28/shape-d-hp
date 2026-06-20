@@ -173,6 +173,7 @@ iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION
 | `components/Hero.tsx` | mobileStaticHero パスで `pt-[calc(var(--space-8)_+_env(safe-area-inset-top,_0px))]` |
 | `app/globals.css` | `@media (pointer:coarse) and (prefers-reduced-motion:reduce)` ブロックで同等の `padding-top` |
 | `components/PhilosophyProgressDots.tsx` | 右端の `safe-area-inset-right` を適用済み |
+| `components/ui/PageHeader.tsx` | `pt-[calc(120px+env(safe-area-inset-top,0px))]` でノッチ端末でもナビ直下余白を維持（Issue #167） |
 
 ### 設計根拠：Navigation と Hero の padding 計算
 
@@ -198,10 +199,26 @@ Hero と globals.css の `env(safe-area-inset-top)` は Navigation の safe-area
 二重計上しているように見えるが、両者を加算した差が常に正になるため意図的な対称設計である。
 Navigation fix 適用後も Hero 側の変更は不要。
 
+### 設計根拠：PageHeader の padding 計算（Issue #167）
+
+`PageHeader` は全サブページ（`/services`, `/works`, `/contact`, `/process/*`）で使用される。
+`pt-[120px]` 固定では、ノッチ端末で Navigation 高さが増加した分だけナビ直下余白が縮小する。
+
+```
+PageHeader pt (修正前) = 120px (固定)
+Navigation height (S=59px) ≈ S + 48px = 107px
+ナビ直下余白 = 120 - 107 = 13px  ← 視覚的に狭い
+
+PageHeader pt (修正後) = 120px + S = 179px
+ナビ直下余白 = 179 - 107 = 72px  ← ノッチなし端末と同等以上
+```
+
+ノッチなし端末（S=0）では `120px + 0 = 120px` で変化なし。
+
 ### 未対応項目（別 Issue 管理）
 
-- GSAP Hero スクロールインジケータの `safe-area-inset-bottom`（装飾要素、重大度: 低）
-- E2E テストでの safe-area 値シミュレーション（Playwright 通常 viewport では inset = 0）
+- GSAP Hero スクロールインジケータの `safe-area-inset-bottom`（装飾要素、重大度: 低）→ Issue #165
+- E2E テストでの safe-area 値シミュレーション（Playwright 通常 viewport では inset = 0）→ Issue #166
 
 ## Hero CLS 修正：coarse pointer + reduced-motion（Issue #149）
 
