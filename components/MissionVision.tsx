@@ -57,7 +57,15 @@ export default function MissionVision() {
     <section
       className="relative py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
     >
-      {/* Clip decorative background text without affecting heading compositing (#150) */}
+      {/* overflow-hidden: clips the absolutely positioned <p> to section boundaries,
+          preventing it from disrupting compositing layers of elements within this section (#150). */}
+      {/* pointer-events-none is intentional and non-redundant with the
+          pointer-events-none inside visualWordClass (on the child <p>):
+          absolute inset-0 covers the full section, so without it the empty areas outside <p>
+          would block click/tap events on section content.
+          Keeping pointer-events-none also complements aria-hidden="true" for a purely
+          decorative overlay: a hidden element should not intercept mouse/touch
+          input from sighted users (#158). */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <p className={visualWordClass}>
           SELF-CONGRUENCE
