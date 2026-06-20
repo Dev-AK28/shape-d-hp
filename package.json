@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "lighthouse:check": "node scripts/lighthouse-check.mjs"
+    "lighthouse:check": "node scripts/lighthouse-check.mjs",
+    "postinstall": "node -e \"try{require('fs').rmdirSync('node_modules/@types/json5 2')}catch(e){}\""
   },
   "dependencies": {
     "@upstash/redis": "^1.38.0",
