@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "lighthouse:check": "node scripts/lighthouse-check.mjs",
-    "postinstall": "node -e \"try{require('fs').rmSync('node_modules/@types/json5 2',{recursive:true,force:true})}catch(e){}\""
+    "postinstall": "node -e \"try{const fs=require('fs'),d='node_modules/@types';for(const n of fs.readdirSync(d)){if(/ \\d+$/.test(n))fs.rmSync(d+'/'+n,{recursive:true,force:true})}}catch(e){}\""
   },
   "dependencies": {
     "@upstash/redis": "^1.38.0",
