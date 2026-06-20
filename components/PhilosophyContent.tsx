@@ -85,8 +85,8 @@ export default function PhilosophyContent() {
   // GSAP-driven active index for horizontal scroll on desktop.
   const [gsapActiveIndex, setGsapActiveIndex] = useState(0);
   const setGsapActiveIndexRef = useRef(setGsapActiveIndex);
-  // Sync ref each render so the GSAP onUpdate always has the latest setter.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Keep GSAP onUpdate callback on the latest setter without re-running useGsapContext.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- ref mirror only; GSAP setup must not re-init on setState identity changes
   useEffect(() => { setGsapActiveIndexRef.current = setGsapActiveIndex; });
 
   // IO-based index for mobile vertical mode.

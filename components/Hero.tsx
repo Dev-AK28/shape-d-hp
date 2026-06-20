@@ -221,7 +221,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       ctaRef.current,
       { opacity: 0, y: 36, scale: 0.97, pointerEvents: 'none' },
       { opacity: 1, y: 0, scale: 1, duration: revealDuration * 0.9, ease: 'power3.out', pointerEvents: 'auto' },
-      revealTimelineStart * timelineDuration + 0.07,
+      revealTimelineStart * timelineDuration + HERO_DEPTH_PASSAGE.ctaStaggerOffset,
     );
 
     syncScrollRevealed();

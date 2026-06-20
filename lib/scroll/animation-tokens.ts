@@ -88,6 +88,8 @@ export const HERO_DEPTH_PASSAGE = {
   approachPhaseEnd: 0.55,
   /** Fraction of timelineDuration where copy/CTA reveal begins. */
   revealTimelineStart: 0.35,
+  /** CTA reveal start offset (seconds) after copy reveal — creates a subtle entrance stagger. */
+  ctaStaggerOffset: 0.07,
   /** Logo opacity hides at copy reveal so cosmic mix-blend-mode composites against nebula only (#101). */
   logoOpacityHideAt: 0.35,
   particleBand: {
