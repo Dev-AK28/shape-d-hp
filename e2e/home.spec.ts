@@ -89,11 +89,13 @@ test.describe('Home page desktop', () => {
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
     const indicator = page.getByTestId('hero-scroll-indicator');
+    // Wait for the indicator to be mounted (only rendered in isImmersive && gsapControlled path).
+    await expect(indicator).toBeAttached();
     // Verify env(safe-area-inset-bottom) formula is present in class attribute.
     const className = await indicator.getAttribute('class') ?? '';
     expect(className).toContain('safe-area-inset-bottom');
 
-    // On standard Playwright viewport (safe-area = 0), bottom == var(--space-3) (24px).
+    // On standard Playwright viewport safe-area-inset-bottom = 0 (#166), so bottom = var(--space-3) = 24px.
     const bottomPx = await indicator.evaluate(
       (el) => parseFloat(getComputedStyle(el).bottom),
     );
