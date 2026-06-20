@@ -81,7 +81,7 @@ test.describe('Navigation mobile layout', () => {
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
     // #180: SPA nav uses scroll reveal on mobile; scroll to below-fold content then check
     const humanSolution390 = page.getByRole('heading', { name: 'Human Solution' });
-    await humanSolution390.scrollIntoViewIfNeeded();
+    await humanSolution390.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(humanSolution390, 5000);
   });
 
@@ -96,7 +96,7 @@ test.describe('Navigation mobile layout', () => {
     await expect(page).toHaveURL(/\/works$/);
     await expect(page.locator('main h1').first()).toContainText('WORKS');
     const conceptWorks390 = page.getByRole('heading', { name: 'CONCEPT WORKS' });
-    await conceptWorks390.scrollIntoViewIfNeeded();
+    await conceptWorks390.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(conceptWorks390, 5000);
   });
 
@@ -151,7 +151,7 @@ test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
     await expect(page).toHaveURL(/\/services$/);
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
     const humanSolution = page.getByRole('heading', { name: 'Human Solution' });
-    await humanSolution.scrollIntoViewIfNeeded();
+    await humanSolution.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(humanSolution, 5000);
   });
 
@@ -166,7 +166,7 @@ test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
     await expect(page).toHaveURL(/\/works$/);
     await expect(page.locator('main h1').first()).toContainText('WORKS');
     const conceptWorks = page.getByRole('heading', { name: 'CONCEPT WORKS' });
-    await conceptWorks.scrollIntoViewIfNeeded();
+    await conceptWorks.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(conceptWorks, 5000);
   });
 });

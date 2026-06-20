@@ -26,14 +26,15 @@ test.describe('390px — /services', () => {
     await expect(page.getByRole('heading', { name: 'Digital Solution' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
 
-    // #180: h1 は above-fold（viewport 内確定）のため scrollIntoViewIfNeeded() 不要。
+    // #180: h1 は above-fold（viewport 内確定）のため scroll 不要。
     // ハイドレーション後の isReady=true 遷移 → ScrollReveal key remount → IO 即発火。
-    // framer duration 1.4s を吸収するため 2500ms を使用。
+    // framer duration 1.4s + CI IO 発火遅延を吸収するため 5000ms を使用。
     await expectPainted(page.locator('main h1').first(), 5000);
-    // #180: fold 下の見出しはスクロール後に reveal — scrollIntoViewIfNeeded() 必須
-    await page.getByRole('heading', { name: 'Digital Solution' }).scrollIntoViewIfNeeded();
+    // #180: fold 下の見出しはスクロール後に reveal。
+    // block:'center' で要素をビューポート中央に配置し headless CI でも IO を確実に発火させる。
+    await page.getByRole('heading', { name: 'Digital Solution' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 5000);
-    await page.getByRole('heading', { name: 'Human Solution' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'Human Solution' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Human Solution' }), 5000);
   });
 
@@ -57,9 +58,9 @@ test.describe('390px — /works', () => {
     await expect(page.getByRole('heading', { name: 'CONCEPT WORKS' })).toBeVisible();
 
     // #180: below-fold section headings reveal on scroll
-    await page.getByRole('heading', { name: 'PROJECTS' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'PROJECTS' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }), 5000);
-    await page.getByRole('heading', { name: 'CONCEPT WORKS' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'CONCEPT WORKS' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }), 5000);
   });
 });
@@ -77,9 +78,9 @@ test.describe('390px — /process', () => {
     await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
 
     // #180: below-fold cards reveal on scroll
-    await page.getByRole('heading', { name: 'Development Process' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'Development Process' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Development Process' }), 5000);
-    await page.getByRole('heading', { name: 'Consulting Process' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'Consulting Process' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }), 5000);
   });
 });
@@ -96,7 +97,7 @@ test.describe('390px — /process/development', () => {
     await expect(page.getByRole('heading', { name: '要件定義' })).toBeVisible();
 
     // #180: below-fold step reveals on scroll
-    await page.getByRole('heading', { name: '要件定義' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: '要件定義' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: '要件定義' }), 5000);
   });
 });
@@ -114,9 +115,9 @@ test.describe('390px — /process/consulting', () => {
     await expect(page.getByRole('heading', { name: '自覚' })).toBeVisible();
 
     // #180: below-fold step reveals on scroll
-    await page.getByRole('heading', { name: '3 Steps Process' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: '3 Steps Process' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }), 5000);
-    await page.getByRole('heading', { name: '自覚' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: '自覚' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: '自覚' }), 5000);
   });
 });
@@ -134,12 +135,12 @@ test.describe('390px — /philosophy', () => {
 
     // #180: elements reveal when scrolled into view
     const ctaHeading = page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first();
-    await ctaHeading.scrollIntoViewIfNeeded();
+    await ctaHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expect(ctaHeading).toBeVisible({ timeout: 5000 });
     await expectPainted(ctaHeading, 5000);
 
     const panelHeading = page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first();
-    await panelHeading.scrollIntoViewIfNeeded();
+    await panelHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expect(panelHeading).toBeVisible({ timeout: 5000 });
     await expectPainted(panelHeading, 5000);
   });
@@ -158,7 +159,7 @@ test.describe('390px — /contact', () => {
     await expect(page.getByRole('button', { name: '送信する' })).toBeVisible();
 
     // #180: form is wrapped in ScrollReveal; scroll into view then check painted
-    await page.getByRole('button', { name: '送信する' }).scrollIntoViewIfNeeded();
+    await page.getByRole('button', { name: '送信する' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('button', { name: '送信する' }), 5000);
   });
 });
@@ -177,14 +178,15 @@ test.describe('375px — /services', () => {
     await expect(page.getByRole('heading', { name: 'Digital Solution' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Human Solution' })).toBeVisible();
 
-    // #180: h1 は above-fold（viewport 内確定）のため scrollIntoViewIfNeeded() 不要。
+    // #180: h1 は above-fold（viewport 内確定）のため scroll 不要。
     // ハイドレーション後の isReady=true 遷移 → ScrollReveal key remount → IO 即発火。
-    // framer duration 1.4s を吸収するため 2500ms を使用。
+    // framer duration 1.4s + CI IO 発火遅延を吸収するため 5000ms を使用。
     await expectPainted(page.locator('main h1').first(), 5000);
-    // #180: fold 下の見出しはスクロール後に reveal — scrollIntoViewIfNeeded() 必須
-    await page.getByRole('heading', { name: 'Digital Solution' }).scrollIntoViewIfNeeded();
+    // #180: fold 下の見出しはスクロール後に reveal。
+    // block:'center' で要素をビューポート中央に配置し headless CI でも IO を確実に発火させる。
+    await page.getByRole('heading', { name: 'Digital Solution' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 5000);
-    await page.getByRole('heading', { name: 'Human Solution' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'Human Solution' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Human Solution' }), 5000);
   });
 });
@@ -202,9 +204,9 @@ test.describe('375px — /works', () => {
     await expect(page.getByRole('heading', { name: 'CONCEPT WORKS' })).toBeVisible();
 
     // #180: below-fold section headings reveal on scroll
-    await page.getByRole('heading', { name: 'PROJECTS' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'PROJECTS' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }), 5000);
-    await page.getByRole('heading', { name: 'CONCEPT WORKS' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'CONCEPT WORKS' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }), 5000);
   });
 });
@@ -222,9 +224,9 @@ test.describe('375px — /process', () => {
     await expect(page.getByRole('heading', { name: 'Consulting Process' })).toBeVisible();
 
     // #180: below-fold cards reveal on scroll
-    await page.getByRole('heading', { name: 'Development Process' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'Development Process' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Development Process' }), 5000);
-    await page.getByRole('heading', { name: 'Consulting Process' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'Consulting Process' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }), 5000);
   });
 });
@@ -241,7 +243,7 @@ test.describe('375px — /process/development', () => {
     await expect(page.getByRole('heading', { name: '要件定義' })).toBeVisible();
 
     // #180: below-fold step reveals on scroll
-    await page.getByRole('heading', { name: '要件定義' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: '要件定義' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: '要件定義' }), 5000);
   });
 });
@@ -259,9 +261,9 @@ test.describe('375px — /process/consulting', () => {
     await expect(page.getByRole('heading', { name: '自覚' })).toBeVisible();
 
     // #180: below-fold steps reveal on scroll
-    await page.getByRole('heading', { name: '3 Steps Process' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: '3 Steps Process' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }), 5000);
-    await page.getByRole('heading', { name: '自覚' }).scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: '自覚' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('heading', { name: '自覚' }), 5000);
   });
 });
@@ -278,12 +280,12 @@ test.describe('375px — /philosophy', () => {
 
     // #180: elements reveal when scrolled into view
     const ctaHeading = page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first();
-    await ctaHeading.scrollIntoViewIfNeeded();
+    await ctaHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expect(ctaHeading).toBeVisible({ timeout: 5000 });
     await expectPainted(ctaHeading, 5000);
 
     const panelHeading = page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first();
-    await panelHeading.scrollIntoViewIfNeeded();
+    await panelHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expect(panelHeading).toBeVisible({ timeout: 5000 });
     await expectPainted(panelHeading, 5000);
   });
@@ -302,7 +304,7 @@ test.describe('375px — /contact', () => {
     await expect(page.getByRole('button', { name: '送信する' })).toBeVisible();
 
     // #180: form is wrapped in ScrollReveal; scroll into view then check painted
-    await page.getByRole('button', { name: '送信する' }).scrollIntoViewIfNeeded();
+    await page.getByRole('button', { name: '送信する' }).evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(page.getByRole('button', { name: '送信する' }), 5000);
   });
 });
@@ -335,9 +337,9 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
 
     // #150 / #180: headings are below Hero (below fold); scroll into view then check painted.
     // Use 2500ms to cover the full framer-motion scroll reveal animation (duration 1.4s).
-    await aboutHeading.scrollIntoViewIfNeeded();
+    await aboutHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(aboutHeading, 5000);
-    await visionHeading.scrollIntoViewIfNeeded();
+    await visionHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(visionHeading, 5000);
 
     // #150: no horizontal overflow — heading text must not extend beyond viewport
@@ -345,7 +347,7 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
 
     // Verify the headings are not clipped: bounding box must start at or after section left edge
     // (the section has px-[var(--space-3)] = 24px padding, so text x ≥ 24px within the section)
-    await aboutHeading.scrollIntoViewIfNeeded();
+    await aboutHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expect(async () => {
       const aboutBox = await aboutHeading.boundingBox();
       expect(aboutBox).not.toBeNull();
@@ -354,7 +356,7 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
       expect(aboutBox.x, 'ABOUT heading left edge must be within section padding').toBeGreaterThanOrEqual(24);
     }).toPass({ timeout: 3_000 });
 
-    await visionHeading.scrollIntoViewIfNeeded();
+    await visionHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expect(async () => {
       const visionBox = await visionHeading.boundingBox();
       expect(visionBox).not.toBeNull();
@@ -384,7 +386,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
     const cardTitle = page.locator('h3').filter({ hasText: 'AIプロダクト開発' }).first();
     // resize 後の React re-render が完了するまで DOM 安定を待つ
     await expect(cardTitle).toBeVisible({ timeout: 5000 });
-    await cardTitle.scrollIntoViewIfNeeded();
+    await cardTitle.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(cardTitle, 5000);
   });
 
@@ -399,7 +401,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
     const projectTitle = page.locator('h3').filter({ hasText: 'AIアドバイザーツール' }).first();
     // resize 後の React re-render が完了するまで DOM 安定を待つ
     await expect(projectTitle).toBeVisible({ timeout: 5000 });
-    await projectTitle.scrollIntoViewIfNeeded();
+    await projectTitle.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(projectTitle, 5000);
   });
 });
