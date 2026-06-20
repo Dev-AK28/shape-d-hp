@@ -63,8 +63,8 @@ export default function MissionVision() {
           pointer-events-none inside visualWordClass (on the child <p>):
           absolute inset-0 covers the full section, so without it the empty areas outside <p>
           would block click/tap events on section content.
-          Keeping pointer-events-none also aligns with aria-hidden="true" best practice:
-          an element hidden from the accessibility tree should not intercept mouse/touch
+          Keeping pointer-events-none also complements aria-hidden="true" for a purely
+          decorative overlay: a hidden element should not intercept mouse/touch
           input from sighted users (#158). */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <p className={visualWordClass}>
