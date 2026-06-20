@@ -145,7 +145,10 @@ export default function PhilosophyContent() {
             </span>
 
             <div className="relative z-[1] max-w-[720px] text-center">
-              <motion.div {...getScrollRevealProps(reduceMotion, { staticReveal })}>
+              <motion.div
+                key={staticReveal ? `static-${item.letter}-heading` : `reveal-${item.letter}-heading`}
+                {...getScrollRevealProps(reduceMotion, { staticReveal })}
+              >
                 <h2 className="mb-[var(--space-2)] type-size-subheading type-font-serif font-light tracking-[0.1em] text-[color:var(--foreground)]">
                   <TextReveal as="span" text={item.title} />
                 </h2>
@@ -155,6 +158,7 @@ export default function PhilosophyContent() {
               </motion.div>
 
               <motion.p
+                key={staticReveal ? `static-${item.letter}-body` : `reveal-${item.letter}-body`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
                 className="mb-[var(--space-4)] font-light leading-[1.9] type-font-serif-jp text-[clamp(18px,2.5vw,24px)] text-[color:var(--foreground)]"
               >
@@ -162,6 +166,7 @@ export default function PhilosophyContent() {
               </motion.p>
 
               <motion.p
+                key={staticReveal ? `static-${item.letter}-detail` : `reveal-${item.letter}-detail`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.35 })}
                 className="leading-[2] type-size-body type-font-serif-jp text-[color:var(--muted)]"
               >
@@ -175,6 +180,7 @@ export default function PhilosophyContent() {
       <div className="flex min-h-[60svh] items-center justify-center py-[var(--space-section)] px-[var(--space-3)] text-center">
         <div className="max-w-[800px]">
           <motion.h2
+            key={staticReveal ? 'static-closing-heading' : 'reveal-closing-heading'}
             {...getScrollRevealProps(reduceMotion, { staticReveal })}
             className="mb-[var(--space-6)] font-light leading-[1.5] type-size-heading type-font-serif-jp text-[color:var(--foreground)]"
           >
@@ -183,6 +189,7 @@ export default function PhilosophyContent() {
             自己一致への道を照らす
           </motion.h2>
           <motion.a
+            key={staticReveal ? 'static-closing-cta' : 'reveal-closing-cta'}
             href="/contact"
             {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
             className="inline-block rounded-full border border-[var(--accent)] py-[var(--space-2)] px-[var(--space-4)] no-underline type-font-serif-jp text-[color:var(--accent)] transition-opacity duration-[var(--duration-base)] ease-[var(--ease-base)]"
