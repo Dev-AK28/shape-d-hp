@@ -135,26 +135,28 @@ export default function PhilosophyContent() {
         },
       });
 
-      // Horizontal pan animation
-      tl.to(panelsRef.current, { x: -scrollDistance, ease: 'none' });
+      // Horizontal pan animation — duration must be explicit so letter tweens
+      // (positioned as fractions of panDuration) don't extend the timeline and
+      // cause the pan to complete before all scroll distance is consumed.
+      tl.to(panelsRef.current, { x: -scrollDistance, ease: 'none', duration: PHILOSOPHY_HORIZONTAL.panDuration });
 
       // Per-panel letter opacity: fades in at panel entry, peaks at center, fades out
       panels.forEach((panel, i) => {
         const letter = panel.querySelector('[data-overlay-letter]');
         if (!letter) return;
-        const enter = i / sections.length;
-        const center = (i + 0.5) / sections.length;
+        const enterAt = (i / sections.length) * PHILOSOPHY_HORIZONTAL.panDuration;
+        const centerAt = ((i + 0.5) / sections.length) * PHILOSOPHY_HORIZONTAL.panDuration;
 
         tl.fromTo(
           letter,
           { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityBase },
-          { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityPeak, ease: 'power1.in' },
-          enter,
+          { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityPeak, ease: 'power1.in', duration: PHILOSOPHY_HORIZONTAL.letterFadeDuration },
+          enterAt,
         );
         tl.to(
           letter,
-          { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityBase, ease: 'power1.out' },
-          center,
+          { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityBase, ease: 'power1.out', duration: PHILOSOPHY_HORIZONTAL.letterFadeDuration },
+          centerAt,
         );
       });
     } else {

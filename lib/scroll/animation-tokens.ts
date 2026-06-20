@@ -129,9 +129,19 @@ export const VELOCITY_SKEW = {
 /**
  * Philosophy page horizontal scroll (desktop-only).
  * Panels are pinned and translated on the X axis via GSAP ScrollTrigger.
+ *
+ * `panDuration` is the GSAP timeline duration in seconds. Letter tweens are
+ * positioned as `(i / sections.length) * panDuration` to keep positions
+ * proportional and prevent the pan from completing before the full scroll ends.
+ * `letterFadeDuration` must be short enough that letter tweens do not extend
+ * the total timeline significantly beyond `panDuration`.
  */
 export const PHILOSOPHY_HORIZONTAL = {
   scrub: 1.8,
+  /** GSAP timeline length in seconds; pan and letter tweens are anchored to this. */
+  panDuration: 1,
+  /** Per-panel letter opacity fade in/out duration (seconds). */
+  letterFadeDuration: 0.08,
   letterOpacityPeak: 0.11,
   letterOpacityBase: 0.03,
 } as const;

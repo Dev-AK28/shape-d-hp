@@ -36,6 +36,11 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     let tickerCallback: ((time: number) => void) | undefined;
     const defaultLagSmoothing = 500;
 
+    // Declared outside the IIFE so the cleanup function can null them on unmount,
+    // releasing the quickTo instance and detached DOM reference for GC.
+    let skewSetter: ((v: number) => void) | null = null;
+    let skewTarget: Element | null = null;
+
     void (async () => {
       const { default: Lenis } = await import('lenis');
       await import('lenis/dist/lenis.css');
@@ -50,9 +55,6 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       });
 
       // Velocity-driven skewY: queries DOM fresh on each call to handle SPA route changes.
-      let skewSetter: ((v: number) => void) | null = null;
-      let skewTarget: Element | null = null;
-
       const getSkewSetter = () => {
         const el = document.querySelector('[data-velocity-content]');
         if (el !== skewTarget) {
@@ -92,6 +94,9 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       }
       gsap.ticker.lagSmoothing(defaultLagSmoothing);
       lenis?.destroy();
+      // Release quickTo instance and DOM reference to allow GC.
+      skewSetter = null;
+      skewTarget = null;
     };
   }, [isReady, profile]);
 
