@@ -93,7 +93,7 @@ export default function WorksContent() {
           </h3>
           {projects.map((work, index) => (
             <motion.div
-              key={work.id}
+              key={staticReveal ? `static-project-${work.id}` : `reveal-project-${work.id}`}
               {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 0.2 })}
               style={{ marginBottom: index < projects.length - 1 ? '160px' : '0' }}
             >
@@ -187,7 +187,7 @@ export default function WorksContent() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {conceptWorks.map((work, index) => (
               <motion.div
-                key={work.id}
+                key={staticReveal ? `static-concept-${work.id}` : `reveal-concept-${work.id}`}
                 {...getScrollRevealProps(reduceMotion, {
                   staticReveal,
                   delay: 0.5,

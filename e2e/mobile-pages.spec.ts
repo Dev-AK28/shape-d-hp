@@ -328,3 +328,40 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
     }).toPass({ timeout: 3_000 });
   });
 });
+
+// ── desktop → mobile resize regression (#155) ────────────────────────────────
+// Verifies that framer-motion reveal elements in ServicesContent / WorksContent
+// remount with staticReveal=true (opacity: 1) after a viewport resize from desktop
+// to mobile, without a full page reload.
+// Regression for the edge case where motion.div with only a numeric key (service.id)
+// would not remount when staticReveal toggled, leaving elements invisible.
+
+test.describe('desktop → mobile resize — /services reveal remount (#155)', () => {
+  test('service cards are painted after resizing from desktop to mobile without reload', async ({ page }) => {
+    // Start at desktop width where staticReveal=false (scroll-driven reveal)
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    // Resize to mobile — staticReveal should switch to true, triggering remount
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    // After resize, content components must re-render with staticReveal=true.
+    // The "Digital Solution" heading is the first visible framer element.
+    const digitalHeading = page.locator('h3').filter({ hasText: 'Digital Solution' }).first();
+    await expect(digitalHeading).toBeVisible({ timeout: 5000 });
+    await expectPainted(digitalHeading);
+  });
+
+  test('works project cards are painted after resizing from desktop to mobile without reload', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/works');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    const projectsHeading = page.locator('h3').filter({ hasText: 'PROJECTS' }).first();
+    await expect(projectsHeading).toBeVisible({ timeout: 5000 });
+    await expectPainted(projectsHeading);
+  });
+});

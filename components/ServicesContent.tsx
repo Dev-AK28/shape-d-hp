@@ -112,7 +112,7 @@ export default function ServicesContent() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {digitalServices.map((service, index) => (
               <motion.div
-                key={service.id}
+                key={staticReveal ? `static-service-${service.id}` : `reveal-service-${service.id}`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card' })}
                 whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
                 style={{ padding: '48px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
@@ -193,7 +193,7 @@ export default function ServicesContent() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {humanServices.map((service, index) => (
               <motion.div
-                key={service.id}
+                key={staticReveal ? `static-service-${service.id}` : `reveal-service-${service.id}`}
                 {...getScrollRevealProps(reduceMotion, {
                   staticReveal,
                   delay: 0.5,
@@ -253,6 +253,7 @@ export default function ServicesContent() {
         </motion.div>
 
         <motion.div
+          key={staticReveal ? 'static-cta' : 'reveal-cta'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
           style={{ marginTop: '120px', textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.1))', backdropFilter: 'blur(10px)' }}
         >
