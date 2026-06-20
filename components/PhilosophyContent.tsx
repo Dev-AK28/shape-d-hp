@@ -216,7 +216,7 @@ export default function PhilosophyContent() {
           >
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-cover bg-center mix-blend-screen opacity-[0.55]"
+              className="pointer-events-none absolute inset-0 hidden bg-cover bg-center opacity-[0.55] mix-blend-screen md:block"
               style={{ backgroundImage: `url(${backgroundAssets.philosophyDustTexture})` }}
             />
 
