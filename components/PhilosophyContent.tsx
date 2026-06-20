@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import PhilosophyProgressDots from '@/components/PhilosophyProgressDots';
 import TextReveal from '@/components/scroll/TextReveal';
@@ -15,6 +15,7 @@ import {
   refreshScrollTrigger,
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
+import { PHILOSOPHY_HORIZONTAL } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 const sections = [
@@ -73,42 +74,112 @@ const sections = [
 const sectionLetters = sections.map((section) => section.letter);
 
 export default function PhilosophyContent() {
-  const { profile, reduceMotion, staticReveal } = useStaticReveal();
+  const { profile, reduceMotion, isReady, staticReveal } = useStaticReveal();
   const focusGuardRef = useFocusRestore(staticReveal);
+
+  // sectionWrapperRef: pin/overflow target on desktop.
+  // panelsRef: flex container that GSAP translates horizontally (also queried by IO hook).
+  const sectionWrapperRef = useRef<HTMLDivElement>(null);
   const panelsRef = useRef<HTMLDivElement>(null);
-  const activeIndex = usePanelActiveIndex(panelsRef);
-  const enableSnap = !profile.isMobile && !profile.prefersCoarsePointer;
+
+  // GSAP-driven active index for horizontal scroll on desktop.
+  const [gsapActiveIndex, setGsapActiveIndex] = useState(0);
+  const setGsapActiveIndexRef = useRef(setGsapActiveIndex);
+  // Sync ref each render so the GSAP onUpdate always has the latest setter.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setGsapActiveIndexRef.current = setGsapActiveIndex; });
+
+  // IO-based index for mobile vertical mode.
+  const ioActiveIndex = usePanelActiveIndex(panelsRef);
+
+  const enableHorizontal = !profile.isMobile && !profile.prefersCoarsePointer;
+  const activeIndex = isReady && enableHorizontal ? gsapActiveIndex : ioActiveIndex;
 
   useGsapContext(() => {
     if (!panelsRef.current) {
       return;
     }
 
-    const panels = panelsRef.current.querySelectorAll('[data-philosophy-panel]');
+    const panels = Array.from(
+      panelsRef.current.querySelectorAll<HTMLElement>('[data-philosophy-panel]'),
+    );
 
-    panels.forEach((panel) => {
-      const letter = panel.querySelector('[data-overlay-letter]');
+    if (enableHorizontal && sectionWrapperRef.current) {
+      // ── Desktop: horizontal pin-scroll ──────────────────────────────────────
+      // Apply horizontal flex layout via GSAP (ctx.revert cleans inline styles on unmount).
+      gsap.set(sectionWrapperRef.current, { overflow: 'hidden' });
+      gsap.set(panelsRef.current, {
+        display: 'flex',
+        flexDirection: 'row',
+        width: `${sections.length * 100}vw`,
+      });
+      gsap.set(panels, { width: '100vw', minHeight: '100svh', flexShrink: 0 });
 
-      if (letter) {
-        gsap.fromTo(
-          letter,
-          { opacity: 0.04 },
-          {
-            opacity: 0.08,
-            duration: ANIMATION_DURATION.section,
-            ease: ANIMATION_EASE.section,
-            scrollTrigger: {
-              trigger: panel,
-              start: 'top 80%',
-              end: 'bottom 20%',
-              scrub: true,
-            },
+      const scrollDistance = (sections.length - 1) * window.innerWidth;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionWrapperRef.current,
+          pin: true,
+          pinSpacing: true,
+          start: 'top top',
+          end: `+=${scrollDistance}`,
+          scrub: PHILOSOPHY_HORIZONTAL.scrub,
+          onUpdate: (self) => {
+            const index = Math.min(
+              sections.length - 1,
+              Math.round(self.progress * (sections.length - 1)),
+            );
+            setGsapActiveIndexRef.current(index);
           },
-        );
-      }
-    });
+        },
+      });
 
-    if (enableSnap) {
+      // Horizontal pan animation
+      tl.to(panelsRef.current, { x: -scrollDistance, ease: 'none' });
+
+      // Per-panel letter opacity: fades in at panel entry, peaks at center, fades out
+      panels.forEach((panel, i) => {
+        const letter = panel.querySelector('[data-overlay-letter]');
+        if (!letter) return;
+        const enter = i / sections.length;
+        const center = (i + 0.5) / sections.length;
+
+        tl.fromTo(
+          letter,
+          { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityBase },
+          { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityPeak, ease: 'power1.in' },
+          enter,
+        );
+        tl.to(
+          letter,
+          { opacity: PHILOSOPHY_HORIZONTAL.letterOpacityBase, ease: 'power1.out' },
+          center,
+        );
+      });
+    } else {
+      // ── Mobile: vertical scroll with snap (existing behaviour) ──────────────
+      panels.forEach((panel) => {
+        const letter = panel.querySelector('[data-overlay-letter]');
+        if (letter) {
+          gsap.fromTo(
+            letter,
+            { opacity: 0.04 },
+            {
+              opacity: 0.08,
+              duration: ANIMATION_DURATION.section,
+              ease: ANIMATION_EASE.section,
+              scrollTrigger: {
+                trigger: panel,
+                start: 'top 80%',
+                end: 'bottom 20%',
+                scrub: true,
+              },
+            },
+          );
+        }
+      });
+
       ScrollTrigger.create({
         trigger: panelsRef.current,
         start: 'top top',
@@ -122,12 +193,14 @@ export default function PhilosophyContent() {
     }
 
     refreshScrollTrigger();
-  }, [enableSnap]);
+  }, [enableHorizontal]);
 
   return (
     <section ref={focusGuardRef} className="relative bg-[var(--background)]">
       <PhilosophyProgressDots letters={sectionLetters} activeIndex={activeIndex} />
 
+      {/* sectionWrapperRef = pin target; panelsRef = horizontal flex container */}
+      <div ref={sectionWrapperRef}>
       <div ref={panelsRef}>
         {sections.map((item) => (
           <div
@@ -177,6 +250,7 @@ export default function PhilosophyContent() {
             </div>
           </div>
         ))}
+      </div>
       </div>
 
       <div className="flex min-h-[60svh] items-center justify-center py-[var(--space-section)] px-[var(--space-3)] text-center">
