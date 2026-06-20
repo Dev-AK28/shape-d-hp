@@ -96,15 +96,40 @@ export const HERO_DEPTH_PASSAGE = {
     approachY: 32,
     passScale: 2.05,
     passY: 96,
+    /** CSS blur (px) applied at end of pass-through phase (camera fly-through effect). */
+    passBlurPx: 36,
   },
   logo: {
     approachScale: 1.14,
     approachY: 12,
     passScale: 0.32,
     passY: -72,
+    /** CSS blur (px) applied during pass-through phase (depth-of-field exit). */
+    passBlurPx: 18,
   },
   cosmic: {
     perspectiveScale: 1.2,
     transformOrigin: '50% 45%',
   },
+} as const;
+
+/**
+ * Scroll-velocity–driven skewY applied to `[data-velocity-content]`.
+ * Lenis velocity → gsap.quickTo → CSS skewY.
+ */
+export const VELOCITY_SKEW = {
+  maxDegrees: 1.8,
+  velocityFactor: 0.028,
+  quickToDuration: 0.85,
+  quickToEase: 'power3',
+} as const;
+
+/**
+ * Philosophy page horizontal scroll (desktop-only).
+ * Panels are pinned and translated on the X axis via GSAP ScrollTrigger.
+ */
+export const PHILOSOPHY_HORIZONTAL = {
+  scrub: 1.8,
+  letterOpacityPeak: 0.11,
+  letterOpacityBase: 0.03,
 } as const;

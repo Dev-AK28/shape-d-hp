@@ -10,6 +10,7 @@ import {
   refreshScrollTrigger,
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
+import { VELOCITY_SKEW } from '@/lib/scroll/animation-tokens';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;
@@ -48,7 +49,32 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         smoothWheel: true,
       });
 
-      lenis.on('scroll', ScrollTrigger.update);
+      // Velocity-driven skewY: queries DOM fresh on each call to handle SPA route changes.
+      let skewSetter: ((v: number) => void) | null = null;
+      let skewTarget: Element | null = null;
+
+      const getSkewSetter = () => {
+        const el = document.querySelector('[data-velocity-content]');
+        if (el !== skewTarget) {
+          skewTarget = el;
+          skewSetter = el
+            ? gsap.quickTo(el, 'skewY', {
+                duration: VELOCITY_SKEW.quickToDuration,
+                ease: VELOCITY_SKEW.quickToEase,
+              })
+            : null;
+        }
+        return skewSetter;
+      };
+
+      lenis.on('scroll', (lenisInstance) => {
+        ScrollTrigger.update();
+        const setter = getSkewSetter();
+        if (setter) {
+          const { maxDegrees, velocityFactor } = VELOCITY_SKEW;
+          setter(Math.max(-maxDegrees, Math.min(maxDegrees, lenisInstance.velocity * velocityFactor)));
+        }
+      });
 
       tickerCallback = (time: number) => {
         lenis?.raf(time * 1000);
