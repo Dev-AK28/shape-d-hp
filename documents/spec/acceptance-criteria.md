@@ -73,6 +73,13 @@ When ページを閲覧する
 Then アニメーションは無効化または最小限に抑えられる
 ```
 
+```gherkin
+Given デスクトップ環境でトップページにアクセスし、粒子形成アニメーション（2400ms）進行中である（#135 B案）
+When ユーザーが粒子形成完了前にスクロール操作を行う
+Then GSAP pin が進行し、コピー・CTA が出現する（スクロールをブロックしない）
+And 形成完了後もスクロールインジケーターは表示されない（`scrollRevealed` ガードにより抑制）
+```
+
 ## Hero 深度通過（#100）
 
 ```gherkin
@@ -131,7 +138,7 @@ Then 進捗ドットが対応セクションに追従する
 | Redis フォールバック | `tests/contact/rate-limit-service.test.ts` |
 | E2E（お問い合わせ） | `e2e/contact.spec.ts`（Playwright） |
 | E2E（ファビコン） | `e2e/favicon.spec.ts` |
-| E2E（トップ Hero） | `e2e/home.spec.ts`（粒子 Canvas 描画・形成後ロゴの hero ステージ内センター整合: `expectHeroBrandLogoAfterFormation`、スクロールインジケータ `bottom` の `safe-area-inset-bottom` 補正式の存在確認（#165）） |
+| E2E（トップ Hero） | `e2e/home.spec.ts`（粒子 Canvas 描画・形成後ロゴの hero ステージ内センター整合: `expectHeroBrandLogoAfterFormation`、スクロールインジケータ `bottom` の `safe-area-inset-bottom` 補正式の存在確認（#165）、粒子形成中スクロール時インジケーター非表示（#135）: `does not show scroll indicator when user scrolls before particle formation completes`） |
 | E2E（下層ページ見出し） | `e2e/page-headers.spec.ts`（`PageHeader` 中央配置・h1・リード文・divider/email/starBackground のページ別断言、safe-area-inset-top 補正式の存在確認（#167）） |
 | 粒子ロゴ PNG サンプリング | `tests/hero/sample-logo-target-points.test.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts`（375/390px ハンバーガー → `/services`・`/works` SPA 遷移後の `expectPainted` 含む） |
