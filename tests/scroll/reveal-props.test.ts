@@ -46,7 +46,7 @@ describe('getScrollRevealProps', () => {
     expect(props.viewport).toEqual({
       once: true,
       margin: '-80px',
-      amount: 0.2,
+      amount: 'some',
     });
   });
 });
