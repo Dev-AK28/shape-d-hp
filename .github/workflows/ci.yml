@@ -39,6 +39,12 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Remove broken Microsoft apt repos
+        run: |
+          sudo find /etc/apt/sources.list.d/ \( -name "*.list" -o -name "*.sources" \) \
+            -exec grep -l "packages.microsoft.com" {} \; \
+            | xargs sudo rm -f 2>/dev/null || true
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
@@ -63,6 +69,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Remove broken Microsoft apt repos
+        run: |
+          sudo find /etc/apt/sources.list.d/ \( -name "*.list" -o -name "*.sources" \) \
+            -exec grep -l "packages.microsoft.com" {} \; \
+            | xargs sudo rm -f 2>/dev/null || true
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
