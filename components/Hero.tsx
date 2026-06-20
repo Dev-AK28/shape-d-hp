@@ -101,15 +101,16 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       return;
     }
 
-    const revealTargets = [copyRef.current, ctaRef.current];
-    gsap.set(revealTargets, { opacity: 0, y: 30, pointerEvents: 'none' });
-    gsap.set(logoRef.current, { opacity: 1, scale: 1, y: 0 });
+    gsap.set([copyRef.current, ctaRef.current], { opacity: 0, y: 36, scale: 0.97, pointerEvents: 'none' });
+    gsap.set(logoRef.current, { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' });
 
     if (particleBandRef.current) {
       gsap.set(particleBandRef.current, {
         opacity: HERO_DEPTH_PASSAGE.particleBand.initialOpacity,
         scale: 1,
         y: 0,
+        rotation: 0,
+        filter: 'blur(0px)',
       });
     }
 
@@ -146,44 +147,45 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     const revealDuration = timelineDuration - revealTimelineStart * timelineDuration;
 
     if (particleBandRef.current) {
+      // Approach: particle band closes in with slight rotation for 3-D depth
       timeline.fromTo(
         particleBandRef.current,
-        {
-          opacity: particleBand.initialOpacity,
-          scale: 1,
-          y: 0,
-        },
+        { opacity: particleBand.initialOpacity, scale: 1, y: 0, rotation: 0 },
         {
           opacity: particleBand.initialOpacity,
           scale: particleBand.approachScale,
           y: particleBand.approachY,
+          rotation: -2.5,
           duration: approachDuration,
-          ease: ANIMATION_EASE.base,
+          ease: 'power1.inOut',
         },
         0,
       );
 
+      // Pass-through: expands + blurs as camera flies through
       timeline.to(
         particleBandRef.current,
         {
           opacity: 0,
           scale: particleBand.passScale,
           y: particleBand.passY,
+          filter: `blur(${particleBand.passBlurPx}px)`,
           duration: passDuration,
-          ease: ANIMATION_EASE.base,
+          ease: 'power2.in',
         },
         approachDuration,
       );
     }
 
+    // Logo approach: zooms in with vertical drift
     timeline.fromTo(
       logoRef.current,
-      { scale: 1, opacity: 1, y: 0 },
+      { scale: 1, opacity: 1, y: 0, filter: 'blur(0px)' },
       {
         scale: logo.approachScale,
         y: logo.approachY,
         duration: approachDuration,
-        ease: ANIMATION_EASE.base,
+        ease: 'power1.inOut',
       },
       0,
     );
@@ -194,28 +196,32 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
       logoOpacityHideAt * timelineDuration,
     );
 
+    // Logo pass-through: shrinks + blurs (depth-of-field exit)
     timeline.to(
       logoRef.current,
       {
         scale: logo.passScale,
         y: logo.passY,
+        filter: `blur(${logo.passBlurPx}px)`,
         duration: passDuration,
-        ease: ANIMATION_EASE.base,
+        ease: 'power2.in',
       },
       approachDuration,
     );
 
+    // Copy and CTA reveal with slight stagger and scale
     timeline.fromTo(
-      revealTargets,
-      { opacity: 0, y: 30, pointerEvents: 'none' },
-      {
-        opacity: 1,
-        y: 0,
-        duration: revealDuration,
-        ease: ANIMATION_EASE.base,
-        pointerEvents: 'auto',
-      },
+      copyRef.current,
+      { opacity: 0, y: 36, scale: 0.97, pointerEvents: 'none' },
+      { opacity: 1, y: 0, scale: 1, duration: revealDuration, ease: 'power3.out', pointerEvents: 'auto' },
       revealTimelineStart * timelineDuration,
+    );
+
+    timeline.fromTo(
+      ctaRef.current,
+      { opacity: 0, y: 36, scale: 0.97, pointerEvents: 'none' },
+      { opacity: 1, y: 0, scale: 1, duration: revealDuration * 0.9, ease: 'power3.out', pointerEvents: 'auto' },
+      revealTimelineStart * timelineDuration + 0.07,
     );
 
     syncScrollRevealed();
