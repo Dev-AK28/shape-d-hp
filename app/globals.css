@@ -72,7 +72,9 @@ body {
   background: var(--background);
   font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
   /* Prevent horizontal overflow from velocity-driven skewY animation.
-     Lenis uses window (not body) as scroll target, so this is safe. */
+     Lenis uses window (not body) as scroll target, so this is safe.
+     Note: overflow: hidden on body creates a new scroll container in some browsers,
+     which can break position: sticky. Verify sticky elements if any are added in future. */
   overflow-x: hidden;
 }
 
