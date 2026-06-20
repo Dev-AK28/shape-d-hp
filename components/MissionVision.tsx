@@ -57,7 +57,12 @@ export default function MissionVision() {
     <section
       className="relative py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
     >
-      {/* Clip decorative background text without affecting heading compositing (#150) */}
+      {/*
+        Clip decorative background text without affecting heading compositing (#150).
+        pointer-events-none on this div is intentional and non-redundant with visualWordClass:
+        absolute inset-0 covers the full section, so without it the empty areas outside <p>
+        would block click/tap events on content beneath (#158).
+      */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <p className={visualWordClass}>
           SELF-CONGRUENCE
