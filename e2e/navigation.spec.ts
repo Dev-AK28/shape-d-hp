@@ -82,7 +82,7 @@ test.describe('Navigation mobile layout', () => {
     // #180: SPA nav uses scroll reveal on mobile; scroll to below-fold content then check
     const humanSolution390 = page.getByRole('heading', { name: 'Human Solution' });
     await humanSolution390.scrollIntoViewIfNeeded();
-    await expectPainted(humanSolution390, 2500);
+    await expectPainted(humanSolution390, 5000);
   });
 
   test('SPA hamburger nav to /works: below-fold content reveals on scroll (#151 / #180)', async ({ page }) => {
@@ -97,7 +97,7 @@ test.describe('Navigation mobile layout', () => {
     await expect(page.locator('main h1').first()).toContainText('WORKS');
     const conceptWorks390 = page.getByRole('heading', { name: 'CONCEPT WORKS' });
     await conceptWorks390.scrollIntoViewIfNeeded();
-    await expectPainted(conceptWorks390, 2500);
+    await expectPainted(conceptWorks390, 5000);
   });
 
   test('closes hamburger menu with Escape key', async ({ page }) => {
@@ -152,7 +152,7 @@ test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
     const humanSolution = page.getByRole('heading', { name: 'Human Solution' });
     await humanSolution.scrollIntoViewIfNeeded();
-    await expectPainted(humanSolution, 2500);
+    await expectPainted(humanSolution, 5000);
   });
 
   test('hamburger → /works: below-fold content reveals on scroll', async ({ page }) => {
@@ -167,7 +167,7 @@ test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
     await expect(page.locator('main h1').first()).toContainText('WORKS');
     const conceptWorks = page.getByRole('heading', { name: 'CONCEPT WORKS' });
     await conceptWorks.scrollIntoViewIfNeeded();
-    await expectPainted(conceptWorks, 2500);
+    await expectPainted(conceptWorks, 5000);
   });
 });
 

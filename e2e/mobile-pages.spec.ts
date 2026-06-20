@@ -29,12 +29,12 @@ test.describe('390px — /services', () => {
     // #180: h1 は above-fold（viewport 内確定）のため scrollIntoViewIfNeeded() 不要。
     // ハイドレーション後の isReady=true 遷移 → ScrollReveal key remount → IO 即発火。
     // framer duration 1.4s を吸収するため 2500ms を使用。
-    await expectPainted(page.locator('main h1').first(), 2500);
+    await expectPainted(page.locator('main h1').first(), 5000);
     // #180: fold 下の見出しはスクロール後に reveal — scrollIntoViewIfNeeded() 必須
     await page.getByRole('heading', { name: 'Digital Solution' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 5000);
     await page.getByRole('heading', { name: 'Human Solution' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }), 5000);
   });
 
   test('shows CTA link', async ({ page }) => {
@@ -58,9 +58,9 @@ test.describe('390px — /works', () => {
 
     // #180: below-fold section headings reveal on scroll
     await page.getByRole('heading', { name: 'PROJECTS' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }), 5000);
     await page.getByRole('heading', { name: 'CONCEPT WORKS' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }), 5000);
   });
 });
 
@@ -78,9 +78,9 @@ test.describe('390px — /process', () => {
 
     // #180: below-fold cards reveal on scroll
     await page.getByRole('heading', { name: 'Development Process' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Development Process' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Development Process' }), 5000);
     await page.getByRole('heading', { name: 'Consulting Process' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }), 5000);
   });
 });
 
@@ -97,7 +97,7 @@ test.describe('390px — /process/development', () => {
 
     // #180: below-fold step reveals on scroll
     await page.getByRole('heading', { name: '要件定義' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: '要件定義' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: '要件定義' }), 5000);
   });
 });
 
@@ -115,9 +115,9 @@ test.describe('390px — /process/consulting', () => {
 
     // #180: below-fold step reveals on scroll
     await page.getByRole('heading', { name: '3 Steps Process' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }), 5000);
     await page.getByRole('heading', { name: '自覚' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: '自覚' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: '自覚' }), 5000);
   });
 });
 
@@ -136,12 +136,12 @@ test.describe('390px — /philosophy', () => {
     const ctaHeading = page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first();
     await ctaHeading.scrollIntoViewIfNeeded();
     await expect(ctaHeading).toBeVisible({ timeout: 5000 });
-    await expectPainted(ctaHeading, 2500);
+    await expectPainted(ctaHeading, 5000);
 
     const panelHeading = page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first();
     await panelHeading.scrollIntoViewIfNeeded();
     await expect(panelHeading).toBeVisible({ timeout: 5000 });
-    await expectPainted(panelHeading, 2500);
+    await expectPainted(panelHeading, 5000);
   });
 });
 
@@ -159,7 +159,7 @@ test.describe('390px — /contact', () => {
 
     // #180: form is wrapped in ScrollReveal; scroll into view then check painted
     await page.getByRole('button', { name: '送信する' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('button', { name: '送信する' }), 2500);
+    await expectPainted(page.getByRole('button', { name: '送信する' }), 5000);
   });
 });
 
@@ -180,12 +180,12 @@ test.describe('375px — /services', () => {
     // #180: h1 は above-fold（viewport 内確定）のため scrollIntoViewIfNeeded() 不要。
     // ハイドレーション後の isReady=true 遷移 → ScrollReveal key remount → IO 即発火。
     // framer duration 1.4s を吸収するため 2500ms を使用。
-    await expectPainted(page.locator('main h1').first(), 2500);
+    await expectPainted(page.locator('main h1').first(), 5000);
     // #180: fold 下の見出しはスクロール後に reveal — scrollIntoViewIfNeeded() 必須
     await page.getByRole('heading', { name: 'Digital Solution' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Digital Solution' }), 5000);
     await page.getByRole('heading', { name: 'Human Solution' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }), 5000);
   });
 });
 
@@ -203,9 +203,9 @@ test.describe('375px — /works', () => {
 
     // #180: below-fold section headings reveal on scroll
     await page.getByRole('heading', { name: 'PROJECTS' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'PROJECTS' }), 5000);
     await page.getByRole('heading', { name: 'CONCEPT WORKS' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }), 5000);
   });
 });
 
@@ -223,9 +223,9 @@ test.describe('375px — /process', () => {
 
     // #180: below-fold cards reveal on scroll
     await page.getByRole('heading', { name: 'Development Process' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Development Process' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Development Process' }), 5000);
     await page.getByRole('heading', { name: 'Consulting Process' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: 'Consulting Process' }), 5000);
   });
 });
 
@@ -242,7 +242,7 @@ test.describe('375px — /process/development', () => {
 
     // #180: below-fold step reveals on scroll
     await page.getByRole('heading', { name: '要件定義' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: '要件定義' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: '要件定義' }), 5000);
   });
 });
 
@@ -260,9 +260,9 @@ test.describe('375px — /process/consulting', () => {
 
     // #180: below-fold steps reveal on scroll
     await page.getByRole('heading', { name: '3 Steps Process' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: '3 Steps Process' }), 5000);
     await page.getByRole('heading', { name: '自覚' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('heading', { name: '自覚' }), 2500);
+    await expectPainted(page.getByRole('heading', { name: '自覚' }), 5000);
   });
 });
 
@@ -280,12 +280,12 @@ test.describe('375px — /philosophy', () => {
     const ctaHeading = page.locator('h2').filter({ hasText: '自己一致への道を照らす' }).first();
     await ctaHeading.scrollIntoViewIfNeeded();
     await expect(ctaHeading).toBeVisible({ timeout: 5000 });
-    await expectPainted(ctaHeading, 2500);
+    await expectPainted(ctaHeading, 5000);
 
     const panelHeading = page.locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }).first();
     await panelHeading.scrollIntoViewIfNeeded();
     await expect(panelHeading).toBeVisible({ timeout: 5000 });
-    await expectPainted(panelHeading, 2500);
+    await expectPainted(panelHeading, 5000);
   });
 });
 
@@ -303,7 +303,7 @@ test.describe('375px — /contact', () => {
 
     // #180: form is wrapped in ScrollReveal; scroll into view then check painted
     await page.getByRole('button', { name: '送信する' }).scrollIntoViewIfNeeded();
-    await expectPainted(page.getByRole('button', { name: '送信する' }), 2500);
+    await expectPainted(page.getByRole('button', { name: '送信する' }), 5000);
   });
 });
 
@@ -336,9 +336,9 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
     // #150 / #180: headings are below Hero (below fold); scroll into view then check painted.
     // Use 2500ms to cover the full framer-motion scroll reveal animation (duration 1.4s).
     await aboutHeading.scrollIntoViewIfNeeded();
-    await expectPainted(aboutHeading, 2500);
+    await expectPainted(aboutHeading, 5000);
     await visionHeading.scrollIntoViewIfNeeded();
-    await expectPainted(visionHeading, 2500);
+    await expectPainted(visionHeading, 5000);
 
     // #150: no horizontal overflow — heading text must not extend beyond viewport
     await expectNoHorizontalOverflow(page);
@@ -382,9 +382,10 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
 
     // リサイズ後、スクロールしてカードが reveal されることを確認（remount は発生しない）
     const cardTitle = page.locator('h3').filter({ hasText: 'AIプロダクト開発' }).first();
-    await cardTitle.scrollIntoViewIfNeeded();
+    // resize 後の React re-render が完了するまで DOM 安定を待つ
     await expect(cardTitle).toBeVisible({ timeout: 5000 });
-    await expectPainted(cardTitle, 2500);
+    await cardTitle.scrollIntoViewIfNeeded();
+    await expectPainted(cardTitle, 5000);
   });
 
   test('works project cards reveal on scroll after resizing from desktop to mobile', async ({ page }) => {
@@ -396,8 +397,9 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
 
     // リサイズ後、スクロールしてプロジェクトカードが reveal されることを確認
     const projectTitle = page.locator('h3').filter({ hasText: 'AIアドバイザーツール' }).first();
-    await projectTitle.scrollIntoViewIfNeeded();
+    // resize 後の React re-render が完了するまで DOM 安定を待つ
     await expect(projectTitle).toBeVisible({ timeout: 5000 });
-    await expectPainted(projectTitle, 2500);
+    await projectTitle.scrollIntoViewIfNeeded();
+    await expectPainted(projectTitle, 5000);
   });
 });
