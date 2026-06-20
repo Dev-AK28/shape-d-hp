@@ -173,7 +173,7 @@ iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION
 | `components/Hero.tsx` | mobileStaticHero パスで `pt-[calc(var(--space-8)_+_env(safe-area-inset-top,_0px))]` |
 | `app/globals.css` | `@media (pointer:coarse) and (prefers-reduced-motion:reduce)` ブロックで同等の `padding-top` |
 | `components/PhilosophyProgressDots.tsx` | 右端の `safe-area-inset-right` を適用済み |
-| `components/ui/PageHeader.tsx` | `pt-[calc(120px+env(safe-area-inset-top,0px))]` でノッチ端末でもナビ直下余白を維持（Issue #167） |
+| `components/ui/PageHeader.tsx` | `pt-[calc(var(--space-section)+env(safe-area-inset-top,0px))]` でノッチ端末でもナビ直下余白を維持（Issue #167） |
 
 ### 設計根拠：Navigation と Hero の padding 計算
 
@@ -205,15 +205,15 @@ Navigation fix 適用後も Hero 側の変更は不要。
 `pt-[120px]` 固定では、ノッチ端末で Navigation 高さが増加した分だけナビ直下余白が縮小する。
 
 ```
-PageHeader pt (修正前) = 120px (固定)
+PageHeader pt (修正前) = 120px (固定) ← --space-section と同値だが直書き
 Navigation height (S=59px) ≈ S + 48px = 107px
 ナビ直下余白 = 120 - 107 = 13px  ← 視覚的に狭い
 
-PageHeader pt (修正後) = 120px + S = 179px
+PageHeader pt (修正後) = var(--space-section) + S = 120px + 59px = 179px
 ナビ直下余白 = 179 - 107 = 72px  ← ノッチなし端末と同等以上
 ```
 
-ノッチなし端末（S=0）では `120px + 0 = 120px` で変化なし。
+ノッチなし端末（S=0）では `120px + 0 = 120px` で変化なし。`--space-section` トークンを参照するため、将来の spacing 変更に自動追従する。
 
 ### 未対応項目（別 Issue 管理）
 
