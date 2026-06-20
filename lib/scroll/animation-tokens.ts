@@ -88,6 +88,8 @@ export const HERO_DEPTH_PASSAGE = {
   approachPhaseEnd: 0.55,
   /** Fraction of timelineDuration where copy/CTA reveal begins. */
   revealTimelineStart: 0.35,
+  /** CTA reveal start offset (seconds) after copy reveal — creates a subtle entrance stagger. */
+  ctaStaggerOffset: 0.07,
   /** Logo opacity hides at copy reveal so cosmic mix-blend-mode composites against nebula only (#101). */
   logoOpacityHideAt: 0.35,
   particleBand: {
@@ -96,15 +98,50 @@ export const HERO_DEPTH_PASSAGE = {
     approachY: 32,
     passScale: 2.05,
     passY: 96,
+    /** CSS blur (px) applied at end of pass-through phase (camera fly-through effect). */
+    passBlurPx: 36,
   },
   logo: {
     approachScale: 1.14,
     approachY: 12,
     passScale: 0.32,
     passY: -72,
+    /** CSS blur (px) applied during pass-through phase (depth-of-field exit). */
+    passBlurPx: 18,
   },
   cosmic: {
     perspectiveScale: 1.2,
     transformOrigin: '50% 45%',
   },
+} as const;
+
+/**
+ * Scroll-velocity–driven skewY applied to `[data-velocity-content]`.
+ * Lenis velocity → gsap.quickTo → CSS skewY.
+ */
+export const VELOCITY_SKEW = {
+  maxDegrees: 1.8,
+  velocityFactor: 0.028,
+  quickToDuration: 0.85,
+  quickToEase: 'power3',
+} as const;
+
+/**
+ * Philosophy page horizontal scroll (desktop-only).
+ * Panels are pinned and translated on the X axis via GSAP ScrollTrigger.
+ *
+ * `panDuration` is the GSAP timeline duration in seconds. Letter tweens are
+ * positioned as `(i / sections.length) * panDuration` to keep positions
+ * proportional and prevent the pan from completing before the full scroll ends.
+ * `letterFadeDuration` must be short enough that letter tweens do not extend
+ * the total timeline significantly beyond `panDuration`.
+ */
+export const PHILOSOPHY_HORIZONTAL = {
+  scrub: 1.8,
+  /** GSAP timeline length in seconds; pan and letter tweens are anchored to this. */
+  panDuration: 1,
+  /** Per-panel letter opacity fade in/out duration (seconds). */
+  letterFadeDuration: 0.08,
+  letterOpacityPeak: 0.11,
+  letterOpacityBase: 0.03,
 } as const;

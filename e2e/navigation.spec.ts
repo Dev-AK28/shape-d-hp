@@ -79,11 +79,13 @@ test.describe('Navigation mobile layout', () => {
     await nav.getByRole('link', { name: '商品・サービス' }).click();
     await expect(page).toHaveURL(/\/services$/);
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
-    // #151: SPA client nav must not remount content at opacity 0 (mobile Lenis)
-    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
+    // #180: SPA nav uses scroll reveal on mobile; scroll to below-fold content then check
+    const humanSolution390 = page.getByRole('heading', { name: 'Human Solution' });
+    await humanSolution390.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expectPainted(humanSolution390, 5000);
   });
 
-  test('SPA hamburger nav to /works paints below-fold content (#151)', async ({ page }) => {
+  test('SPA hamburger nav to /works: below-fold content reveals on scroll (#151 / #180)', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
@@ -93,7 +95,9 @@ test.describe('Navigation mobile layout', () => {
 
     await expect(page).toHaveURL(/\/works$/);
     await expect(page.locator('main h1').first()).toContainText('WORKS');
-    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
+    const conceptWorks390 = page.getByRole('heading', { name: 'CONCEPT WORKS' });
+    await conceptWorks390.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expectPainted(conceptWorks390, 5000);
   });
 
   test('closes hamburger menu with Escape key', async ({ page }) => {
@@ -131,10 +135,12 @@ test.describe('Navigation mobile layout', () => {
   });
 });
 
-test.describe('375px SPA client nav — expectPainted (#151)', () => {
+// #180: SPA nav on mobile uses scroll reveal (staticReveal=false after isReady).
+// Below-fold content reveals when scrolled; verify scroll-driven reveal works after SPA nav.
+test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
-  test('hamburger → /services paints below-fold content', async ({ page }) => {
+  test('hamburger → /services: below-fold content reveals on scroll', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
@@ -144,10 +150,12 @@ test.describe('375px SPA client nav — expectPainted (#151)', () => {
 
     await expect(page).toHaveURL(/\/services$/);
     await expect(page.locator('main h1').first()).toContainText('SERVICES');
-    await expectPainted(page.getByRole('heading', { name: 'Human Solution' }));
+    const humanSolution = page.getByRole('heading', { name: 'Human Solution' });
+    await humanSolution.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expectPainted(humanSolution, 5000);
   });
 
-  test('hamburger → /works paints below-fold content', async ({ page }) => {
+  test('hamburger → /works: below-fold content reveals on scroll', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
@@ -157,7 +165,9 @@ test.describe('375px SPA client nav — expectPainted (#151)', () => {
 
     await expect(page).toHaveURL(/\/works$/);
     await expect(page.locator('main h1').first()).toContainText('WORKS');
-    await expectPainted(page.getByRole('heading', { name: 'CONCEPT WORKS' }));
+    const conceptWorks = page.getByRole('heading', { name: 'CONCEPT WORKS' });
+    await conceptWorks.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expectPainted(conceptWorks, 5000);
   });
 });
 

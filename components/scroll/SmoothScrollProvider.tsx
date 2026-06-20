@@ -10,6 +10,7 @@ import {
   refreshScrollTrigger,
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
+import { VELOCITY_SKEW } from '@/lib/scroll/animation-tokens';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;
@@ -35,6 +36,11 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     let tickerCallback: ((time: number) => void) | undefined;
     const defaultLagSmoothing = 500;
 
+    // Declared outside the IIFE so the cleanup function can null them on unmount,
+    // releasing the quickTo instance and detached DOM reference for GC.
+    let skewSetter: ((v: number) => void) | null = null;
+    let skewTarget: Element | null = null;
+
     void (async () => {
       const { default: Lenis } = await import('lenis');
       await import('lenis/dist/lenis.css');
@@ -48,7 +54,29 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         smoothWheel: true,
       });
 
-      lenis.on('scroll', ScrollTrigger.update);
+      // Velocity-driven skewY: queries DOM fresh on each call to handle SPA route changes.
+      const getSkewSetter = () => {
+        const el = document.querySelector('[data-velocity-content]');
+        if (el !== skewTarget) {
+          skewTarget = el;
+          skewSetter = el
+            ? gsap.quickTo(el, 'skewY', {
+                duration: VELOCITY_SKEW.quickToDuration,
+                ease: VELOCITY_SKEW.quickToEase,
+              })
+            : null;
+        }
+        return skewSetter;
+      };
+
+      lenis.on('scroll', (lenisInstance) => {
+        ScrollTrigger.update();
+        const setter = getSkewSetter();
+        if (setter) {
+          const { maxDegrees, velocityFactor } = VELOCITY_SKEW;
+          setter(Math.max(-maxDegrees, Math.min(maxDegrees, lenisInstance.velocity * velocityFactor)));
+        }
+      });
 
       tickerCallback = (time: number) => {
         lenis?.raf(time * 1000);
@@ -66,6 +94,9 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       }
       gsap.ticker.lagSmoothing(defaultLagSmoothing);
       lenis?.destroy();
+      // Release quickTo instance and DOM reference to allow GC.
+      skewSetter = null;
+      skewTarget = null;
     };
   }, [isReady, profile]);
 

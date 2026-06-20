@@ -28,8 +28,15 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 `lib/scroll/gsap-config.ts`:
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
-- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
+- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ...)` で `ScrollTrigger.update` + velocity skewY を同時処理
 - `shouldDisableGsapAnimation(profile)` — Lenis と同条件（`prefers-reduced-motion` のみ）で GSAP pin 無効。モバイル・coarse pointer でも GSAP は有効
+
+**Velocity skewY（`VELOCITY_SKEW` トークン）**:
+
+- `SmoothScrollProvider` が Lenis `scroll` イベントから `lenis.velocity` を読み取り、`gsap.quickTo` で `[data-velocity-content]` に `skewY` を適用（最大 `±1.8deg`、`quickTo` duration `0.85s`）
+- `[data-velocity-content]` は `app/template.tsx` の `PageTransition` 内 div に付与（Navigation / Footer は対象外）
+- SPA ルート変更に対応するため DOM 再クエリ方式（`quickTo` インスタンスをターゲット変化時に再生成）
+- `overflow-x: clip` で skewY による横溢れを防止（スクロールコンテナを作らない）
 
 `lib/scroll/easing.ts`（framer-motion）:
 
@@ -54,18 +61,17 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 ```
 
 - **理由**: `staticReveal` を渡さない場合、`getScrollRevealProps` は `initial: opacity 0`（hidden）でマウントし、表示は IntersectionObserver（framer-motion `whileInView`）の発火に完全依存する。`!isReady`（SSR / ハイドレーション初回）でも `opacity: 0` で描画されるため、モバイルで Lenis スムーズスクロール有効化（#138）後、ビューポート上部で `whileInView` が発火せずコンテンツがフッター手前まで非表示になる不具合が発生した（#151：`/services`・`/works` ほか）。
-- `shouldUseStaticReveal` は `!isReady`（SSR / ハイドレーション初回）または **`profile.isMobile`**（モバイル実機・SPA クライアント遷移を含む）で `true` を返す。いずれも `initial: false`（即時表示）でマウントされ IO 発火非依存。`prefers-reduced-motion` 時も `true`。
-- **設計判断（デスクトップ挙動のトレードオフ・#151 / #153）**:
-  - **初回フルロード（SSR / 直接 URL / リロード）**: クライアント初回レンダリングは `isReady=false`（`useDeviceProfile` の `getServerSnapshot`）→ `staticReveal=true` → `initial: false` で確定し plain text / `animate:{opacity:1}` でマウント。**ハイドレーション完了後（isReady=true）に `staticReveal` が `false`（デスクトップ）へ変化すると、`ScrollReveal` の key 変化（`'static'→'reveal'`）で remount が発生し framer `initial` が再評価される（#153）。`TextReveal` も同タイミングで `whileInView` per-character reveal へ切替わる（#153）。**
-  - **デスクトップ SPA クライアント遷移**（`isReady=true` かつ `isMobile=false`）: コンポーネントが `staticReveal=false` で初回マウントされるため `whileInView`（IO）が即座に有効（既存挙動・変更なし）。
-  - **モバイル（`profile.isMobile`）**: フルロード・SPA いずれも `staticReveal=true`（#151）。`PageTransition` もモバイルでは fade をスキップ。
-  - 意図: 劇的なモーションは GSAP（pin / snap / About タイムライン）が担い、framer は信頼性・LCP・#151 受け入れ基準を優先しつつ、デスクトップではハイドレーション後に scroll reveal を復活（#153）。
+- `shouldUseStaticReveal` は `!isReady`（SSR / ハイドレーション初回）または `prefers-reduced-motion` 時に `true` を返す。`profile.isMobile` はデスクトップ・モバイル双方でスクロールリビールを有効にするため条件から除外（#180）。
+- **設計判断（#151 / #153 / #180）**:
+  - **初回フルロード（SSR / 直接 URL / リロード）**: クライアント初回レンダリングは `isReady=false` → `staticReveal=true` → `initial: false` で確定し plain text / `animate:{opacity:1}` でマウント。**ハイドレーション完了後（isReady=true）に `staticReveal` が `false` へ変化すると、`ScrollReveal` の key 変化（`'static'→'reveal'`）で remount が発生し framer `initial` が再評価される（#153）。デスクトップ・モバイル双方でスクロールリビールが復活（#180）。**
+  - **SPA クライアント遷移**（`isReady=true`）: コンポーネントが `staticReveal=false` で初回マウントされるため `whileInView`（IO）が即座に有効。デスクトップ・モバイル共通。
+  - **`PageTransition`**: モバイルでは 0.6s fade をスキップ（`profile.isMobile` による制御を維持）。
+  - 意図: デスクトップ・モバイルともに framer scroll reveal 演出（opacity 0→1 fadeUp）を有効とし、GSAP（pin / snap / About タイムライン）と framer-motion が協調する。`!isReady` ガードが SSR hydration 安全性を保証。
 - 適用済みコンポーネント: `About` / `MissionVision` / `ServicesContent` / `WorksContent` / `ConsultingContent` / `DevelopmentContent` / `ProcessNavigation` / `PhilosophyContent` / `TextReveal` / `ScrollReveal`（→ `PageHeader`・`/contact` フォーム）。いずれも `useStaticReveal()` 経由に統一。
-- **`TextReveal` の hydration 安全性（#151 / #153）**: `TextReveal` は条件分岐で plain text と `motion.span`（`opacity: 0` + `whileInView`）を切り替える。`staticReveal` は `!isReady` 中は常に `true`（`shouldUseStaticReveal` による保証）であるため、サーバー HTML と初回クライアントレンダリングは必ず一致し hydration ミスマッチは発生しない。ハイドレーション完了後（`isReady=true`）は live `staticReveal` を直接参照するため、デスクトップでは `whileInView` reveal へ切替わる（#153）。モバイル / `prefers-reduced-motion` は `staticReveal=true` のまま変化しない（#151 回帰なし）。`profile.isMobile` への変化（viewport リサイズ）も live `staticReveal` で正しく追従する。`ServicesContent` / `WorksContent` / `ConsultingContent` / `DevelopmentContent` / `ProcessNavigation` のトップレベル section `motion.div` にも `key={staticReveal ? 'static-*' : 'reveal-*'}` を付与し、`isReady` 遷移でのデスクトップ scroll reveal を復活（#153）。
-- **map 内カード `motion.div` の remount（#155）**: デスクトップ幅で SPA 遷移後に 768px 未満へリサイズすると `staticReveal` が `false`→`true` に変化するが、`map()` 内の `motion.div` の `key` が単純な数値 ID のみの場合は framer の `initial` が再評価されず非表示が再発する edge case（#151 同型）。**対応**: `ServicesContent`（`digitalServices`・`humanServices` カード、CTA）/ `WorksContent`（`projects`・`conceptWorks` カード）/ `PhilosophyContent`（パネル内 `motion.div/p`、クロージング `motion.h2/a`）の全 `getScrollRevealProps` 直接 spread 要素に `key={staticReveal ? 'static-<uid>' : 'reveal-<uid>'}` を付与（#155）。親 remount に連動しなかった内部要素を個別に管理し、リサイズ後も opacity ≈ 1 で描画されることを保証。E2E 回帰: `e2e/mobile-pages.spec.ts`（desktop→mobile resize シナリオ）。
-- **`staticReveal` 時の IO 省略**: `getScrollRevealProps({ staticReveal: true })` は `animate`（即時 visible）のみ返し、`whileInView` / `viewport` を付与しない（モバイル subpage の IntersectionObserver 登録コスト削減）。contract テスト: `tests/scroll/reveal-props.test.ts`（animate / whileInView 排他）、`tests/scroll/static-reveal.test.ts` + `tests/scroll/use-static-reveal.test.ts`（`shouldUseStaticReveal` 行列のみ — animate contract は reveal-props に集約）。
-- **`ScrollReveal` の `key={staticReveal ? 'static' : 'reveal'}`（#151 / #153）**: `staticReveal` 変化（モバイル/デスクトップ境界リサイズ、またはデスクトップ `isReady=true` への遷移）で framer `initial` を再評価するため remount。旧 `key={profile.isMobile ? 'mobile' : 'desktop'}` より正確に staticReveal の変化に追従する。フォーカス喪失等の副作用は #175 で follow-up。
-- 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が **375px / 390px の両方** で対象 7 ルート（`/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact`）について、ページ読み込み直後（スクロールなし）の累積 opacity ≈ 1 を検証する（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。
+- **`TextReveal` の hydration 安全性（#151 / #153）**: `staticReveal` は `!isReady` 中は常に `true`（`shouldUseStaticReveal` による保証）であるため、サーバー HTML と初回クライアントレンダリングは必ず一致し hydration ミスマッチは発生しない。ハイドレーション完了後（`isReady=true`）は live `staticReveal` を参照するため、デスクトップ・モバイル双方で `whileInView` reveal へ切替わる（#153 / #180）。`ServicesContent` 等のトップレベル section `motion.div` にも `key={staticReveal ? 'static-*' : 'reveal-*'}` を付与。
+- **`staticReveal` 時の IO 省略**: `getScrollRevealProps({ staticReveal: true })` は `animate`（即時 visible）のみ返し、`whileInView` / `viewport` を付与しない。contract テスト: `tests/scroll/reveal-props.test.ts`（animate / whileInView 排他）、`tests/scroll/static-reveal.test.ts` + `tests/scroll/use-static-reveal.test.ts`（`shouldUseStaticReveal` 行列のみ — animate contract は reveal-props に集約）。
+- **`ScrollReveal` の `key={staticReveal ? 'static' : 'reveal'}`（#151 / #153）**: `staticReveal` 変化（`isReady=true` への遷移）で framer `initial` を再評価するため remount。フォーカス喪失等の副作用は `useFocusRestore`（#175）で対応済み。
+- 回帰防止: `e2e/mobile-pages.spec.ts` の `expectPainted()` が **375px / 390px の両方** で対象 7 ルートについて、スクロールリビールが正常に動作することを検証する。#180 以降は `scrollIntoViewIfNeeded()` 後に `expectPainted(el, 2500)` パターンを使用（Playwright `toBeVisible()` は opacity を無視するため別途検証が必須）。
 
 ## 適用ページ
 
@@ -74,7 +80,7 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 | `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**スクロール領域全体で fixed `CosmicScene` のビジュアル背景が継続**（スタック順は Footer が前面、下記「スタック順」参照） |
 | `/services` | PageHeader + ServicesContent スタガー + TextReveal（Hero なし・StarBackground なし） |
 | `/works` | PageHeader + WorksContent 同上 |
-| `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
+| `/philosophy` | PhilosophyContent — **デスクトップ: 水平スクロール（6パネルを横並び pin、GSAP scrub 1.8）/ モバイル: 垂直 snap** + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
 | `/process` | ProcessNavigation — PageHeader + ナビカード |
 | `/process/development` | PageHeader（`DEVELOPMENT`）+ DevelopmentContent スタガー |
 | `/process/consulting` | PageHeader（`CONSULTING`）+ ConsultingContent スタガー |
@@ -83,7 +89,7 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 ### トップ Hero 背景・ロゴ（補足）
 
 - 背景: `HomePageShell` + `CosmicScene`（fixed `z-0`、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。`isReady` 後に `CosmicScene` をマウントしモバイル初回ハイドレーションの背景誤読込を防止。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub。**Warm gold grade（#102）**: nebula 上に `.cosmic-warm-grade-overlay`（常時）+ デスクトップのみ nebula filter — 詳細は [`design-system.md`](./design-system.md) の Warm Gold Grade 節
-- **Hero 深度通過（#100）**: Hero pin 中に `CosmicScene` の `perspectiveDepthRef` を `HERO_DEPTH_PASSAGE.cosmic.perspectiveScale` まで scale（`transformOrigin` は Shell から prop 注入、SSOT は tokens）。`Hero.tsx` では粒子バンド → ロゴの 2 フェーズ（approach / pass-through）で `scale` / `y` / `opacity` を scrub — 各 tween は `timelineDuration`（1s）の分数から明示 `duration` を算出しフェーズ重複を防止。**Typography blend（#101）**: copy reveal 開始（`revealTimelineStart` = `logoOpacityHideAt` = 0.35）で `timeline.set` によりロゴ opacity を即時 0 にし、`type-blend-cosmic` が nebula のみを backdrop に合成。Shell 連携: `data-testid="hero-pin-section"`（`HERO_PIN_SELECTOR`）
+- **Hero 深度通過（#100）**: Hero pin 中に `CosmicScene` の `perspectiveDepthRef` を `HERO_DEPTH_PASSAGE.cosmic.perspectiveScale` まで scale（`transformOrigin` は Shell から prop 注入、SSOT は tokens）。`Hero.tsx` では粒子バンド → ロゴの 2 フェーズ（approach / pass-through）で `scale` / `y` / `opacity` / `rotation` / `filter: blur()` を scrub — 各 tween は `timelineDuration`（1s）の分数から明示 `duration` を算出しフェーズ重複を防止。**被写界深度効果**: pass-through フェーズで `particleBand` に `blur(36px)`、`logo` に `blur(18px)` を付与しカメラフライスルーを演出（`HERO_DEPTH_PASSAGE.particleBand.passBlurPx` / `logo.passBlurPx`）。コピー/CTA はそれぞれ `scale: 0.97→1` + `0.07s` stagger で個別に出現し、イージングは `power3.out` に精密化。**Typography blend（#101）**: copy reveal 開始（`revealTimelineStart` = `logoOpacityHideAt` = 0.35）で `timeline.set` によりロゴ opacity を即時 0 にし、`type-blend-cosmic` が nebula のみを backdrop に合成。Shell 連携: `data-testid="hero-pin-section"`（`HERO_PIN_SELECTOR`）
 - スタック順: `CosmicScene`（`z-0`）< `main`（`z-10`）< `Footer`（`relative z-20`、`app/layout.tsx`）。fixed 背景がフッター上に重ならない
 - ロゴ: `LogoParticleFormation`（Canvas 粒子 → `shape-d-logo-transparent.png` のアルファシルエット形成）→ 完了後 `BrandLogo`（同一 PNG・同一 hero ステージ寸法で crossfade）。`prefers-reduced-motion` 時は粒子スキップ（モバイルでは粒子形成を実行）
 - 粒子サンプリング: PNG を最長辺 `768px`（`LOGO_SAMPLE_MAX_DIMENSION`）にダウンサンプルして `getImageData` メモリを抑制。画像ロード失敗時は粒子をスキップし `BrandLogo` を表示（`onComplete` フォールバック）
