@@ -20,7 +20,7 @@ const consultingCardClass =
 
 export default function ProcessNavigation() {
   const { reduceMotion, staticReveal } = useStaticReveal();
-  const focusGuardRef = useFocusRestore(staticReveal);
+  const focusGuardRef = useFocusRestore<HTMLDivElement>(staticReveal);
 
   return (
     <PageHeader
