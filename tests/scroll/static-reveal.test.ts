@@ -7,14 +7,14 @@ import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
  * 拡張行列（large tablet 等）は use-static-reveal.test.ts。animate contract は reveal-props.test.ts。
  */
 describe('shouldUseStaticReveal', () => {
-  it('returns true for mobile profile (IO-unreliable on Lenis — #151, incl. SPA client nav)', () => {
+  it('returns false for mobile profile after isReady (scroll reveal enabled on mobile — #180)', () => {
     expect(
       shouldUseStaticReveal(
         { ...DEFAULT_DEVICE_PROFILE, isMobile: true },
         false,
         true,
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('returns true when reduced motion is enabled', () => {

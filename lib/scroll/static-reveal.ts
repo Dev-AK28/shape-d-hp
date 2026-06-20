@@ -9,7 +9,6 @@ export function shouldUseStaticReveal(
 ): boolean {
   return (
     !isReady ||
-    profile.isMobile ||
     shouldDisableGsapAnimation(profile) ||
     reduceMotion === true
   );

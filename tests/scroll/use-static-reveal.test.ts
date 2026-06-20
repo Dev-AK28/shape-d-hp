@@ -10,17 +10,17 @@ import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
  * Hook-level `renderHook` coverage: #154 (@testing-library/react).
  */
 describe('useStaticReveal contract (shouldUseStaticReveal matrix)', () => {
-  it('returns true on mobile SPA after isReady (profile.isMobile — #151)', () => {
+  it('returns false on mobile SPA after isReady — scroll reveal enabled on mobile (#180)', () => {
     expect(
       shouldUseStaticReveal(
         { ...DEFAULT_DEVICE_PROFILE, isMobile: true },
         false,
         true,
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it('returns false on desktop SPA client nav (isReady=true, isMobile=false — #153 scope)', () => {
+  it('returns false on desktop SPA client nav (isReady=true, isMobile=false)', () => {
     expect(
       shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, false, true),
     ).toBe(false);
@@ -47,30 +47,26 @@ describe('useStaticReveal contract (shouldUseStaticReveal matrix)', () => {
     ).toBe(false);
   });
 
-  // #153: Desktop full-load recovery — staticReveal transitions true→false after hydration.
-  // ScrollReveal key='static'→'reveal' remount and TextReveal showImmediately=false
-  // are both driven by this value change.
-  // Note: the isReady=false case (→true) is already covered by
-  // "returns true on desktop first full load" above.
+  // #153 / #180: Full-load recovery — staticReveal transitions true→false after hydration
+  // on both desktop and mobile. ScrollReveal key='static'→'reveal' remount and TextReveal
+  // showImmediately=false are both driven by this value change.
+  // Note: the isReady=false case (→true) is covered by "returns true on desktop first full load".
   //
-  // reduceMotion=null here mirrors useReducedMotion()'s unresolved state (framer returns
-  // boolean|null). shouldUseStaticReveal treats null identically to false (only === true
-  // triggers static). Both null and false yield the same result; null is used below to
-  // represent the realistic hook output before the OS preference is known.
+  // reduceMotion=null mirrors useReducedMotion()'s unresolved state (framer returns boolean|null).
+  // shouldUseStaticReveal treats null identically to false (only === true triggers static).
   it('returns false after isReady on desktop — enables whileInView scroll reveal (#153)', () => {
-    // This state change (true→false) triggers ScrollReveal remount and TextReveal IO mode.
     expect(
       shouldUseStaticReveal(DEFAULT_DEVICE_PROFILE, null, true),
     ).toBe(false);
   });
 
-  it('returns true after isReady on mobile — no regression from #151', () => {
+  it('returns false after isReady on mobile — whileInView scroll reveal enabled (#180)', () => {
     expect(
       shouldUseStaticReveal(
         { ...DEFAULT_DEVICE_PROFILE, isMobile: true },
         null,
         true,
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 });
