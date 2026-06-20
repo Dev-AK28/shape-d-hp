@@ -11,7 +11,11 @@ export const loopEase = 'easeInOut' as const;
 export const scrollViewport = {
   once: true,
   margin: '-80px' as const,
-  amount: 0.2 as const,
+  // `'some'` (any intersection) is required here: large section wrappers (e.g. ServicesContent
+  // Digital Solution, WorksContent PROJECTS) can exceed 1785px on mobile, making `amount: 0.2`
+  // (20% must be in view) impossible to satisfy when the heading is scrolled to center.
+  // `-80px` root margin still ensures the element is 80px inside the viewport before triggering.
+  amount: 'some' as const,
 };
 
 export const scrollTransition = {
