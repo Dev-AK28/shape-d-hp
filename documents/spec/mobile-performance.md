@@ -174,6 +174,7 @@ iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION
 | `app/globals.css` | `@media (pointer:coarse) and (prefers-reduced-motion:reduce)` ブロックで同等の `padding-top` |
 | `components/PhilosophyProgressDots.tsx` | 右端の `safe-area-inset-right` を適用済み |
 | `components/ui/PageHeader.tsx` | `pt-[calc(var(--space-section)+env(safe-area-inset-top,0px))]` でノッチ端末でもナビ直下余白を維持（Issue #167） |
+| `components/Hero.tsx`（GSAP パス） | スクロールインジケータ `bottom` を `max(var(--space-3),env(safe-area-inset-bottom,0px))` へ変更し、home indicator との重複を防止（Issue #165） |
 
 ### 設計根拠：Navigation と Hero の padding 計算
 
@@ -217,7 +218,6 @@ PageHeader pt (修正後) = var(--space-section) + S = 120px + 59px = 179px
 
 ### 未対応項目（別 Issue 管理）
 
-- GSAP Hero スクロールインジケータの `safe-area-inset-bottom`（装飾要素、重大度: 低）→ Issue #165
 - E2E テストでの safe-area 値シミュレーション（Playwright 通常 viewport では inset = 0）→ Issue #166
 
 ## Hero CLS 修正：coarse pointer + reduced-motion（Issue #149）
