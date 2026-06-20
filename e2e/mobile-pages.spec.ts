@@ -346,22 +346,27 @@ test.describe('desktop → mobile resize — /services reveal remount (#155)', (
     // Resize to mobile — staticReveal should switch to true, triggering remount
     await page.setViewportSize({ width: 390, height: 844 });
 
-    // After resize, content components must re-render with staticReveal=true.
-    // The "Digital Solution" heading is the first visible framer element.
-    const digitalHeading = page.locator('h3').filter({ hasText: 'Digital Solution' }).first();
-    await expect(digitalHeading).toBeVisible({ timeout: 5000 });
-    await expectPainted(digitalHeading);
+    // Check an individual service card title — this is the actually-fixed element
+    // (was key={service.id} before #155, now key={staticReveal ? 'static-service-N' : 'reveal-service-N'}).
+    // The card wraps in a motion.div that must remount and animate to opacity:1.
+    const cardTitle = page.locator('h3').filter({ hasText: 'AIプロダクト開発' }).first();
+    await expect(cardTitle).toBeVisible({ timeout: 5000 });
+    await expectPainted(cardTitle);
   });
 
   test('works project cards are painted after resizing from desktop to mobile without reload', async ({ page }) => {
+    // Start at desktop width where staticReveal=false (scroll-driven reveal)
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/works');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
+    // Resize to mobile — staticReveal should switch to true, triggering remount
     await page.setViewportSize({ width: 390, height: 844 });
 
-    const projectsHeading = page.locator('h3').filter({ hasText: 'PROJECTS' }).first();
-    await expect(projectsHeading).toBeVisible({ timeout: 5000 });
-    await expectPainted(projectsHeading);
+    // Check an individual project card title — actually-fixed element
+    // (was key={work.id} before #155, now key={staticReveal ? 'static-project-N' : 'reveal-project-N'}).
+    const projectTitle = page.locator('h3').filter({ hasText: 'AIアドバイザーツール' }).first();
+    await expect(projectTitle).toBeVisible({ timeout: 5000 });
+    await expectPainted(projectTitle);
   });
 });
