@@ -129,6 +129,7 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 | `hero-nebula-layer.png` | パララックス前景（`mix-blend-mode: screen`） |
 | `hero-particle-band.webp` | ロゴ背後の粒子帯（immersive のみ） |
 | `shape-d-logo-transparent.png` | 正規タイトルロゴ（透過 PNG、Nav / Hero / Footer 共通）。Hero 粒子形成（`LogoParticleFormation`）も同一 PNG のアルファからターゲット点をサンプリング |
+| `philosophy-dust-texture.webp` | Philosophy パネル背景の warm-gold 宇宙塵テクスチャ（透過 WebP、108KB、`mix-blend-mode: screen`）。デスクトップ限定（`hidden md:block`）。詳細は [`philosophy-page.md`](./philosophy-page.md) |
 
 寸法 SSOT: `lib/design/brand-logo-constants.ts`（1536×1024、hero 最大幅 `min(88vw, 560px)`）
 
