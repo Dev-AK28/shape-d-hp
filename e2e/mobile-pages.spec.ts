@@ -292,6 +292,10 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
 
   test('ABOUT and VISION headings are fully visible without horizontal overflow', async ({ page }) => {
     await page.goto('/');
+    // Wait for the page-loader to disappear before checking opacity: while the loader
+    // is on screen, framer-motion may hold ancestor elements at opacity:0 and the
+    // 200ms expectPainted window would fire too early and report a false failure.
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 10_000 });
 
     // Wait for hydration – heading must be visible without scrolling
     const aboutHeading = page.locator('h2').filter({ hasText: /^ABOUT$/ }).first();

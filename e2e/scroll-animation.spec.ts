@@ -70,10 +70,13 @@ test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', ()
     // The contact form is wrapped in <ScrollReveal delay={0.15}> below the
     // PageHeader section (min-h-[60vh]), so it starts below the fold.
     const nameInput = page.getByLabel('お名前');
-    await nameInput.scrollIntoViewIfNeeded();
+    // Use block:'center' so the element lands in the middle of the viewport,
+    // ensuring it is ≥80px inside every edge (scrollViewport.margin='-80px')
+    // and the IntersectionObserver threshold fires reliably on slow CI machines.
+    await nameInput.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
 
-    // Allow for framer transition: duration 1.4s + delay 0.15s ≈ 1.6s total.
-    await expectPainted(nameInput, 2500);
+    // Allow for framer transition (1.4s) + delay (0.15s) + CI headroom → 5s.
+    await expectPainted(nameInput, 5000);
   });
 
   // Content component regression: ServicesContent top-level section motion.div
@@ -85,9 +88,12 @@ test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', ()
 
     // "Digital Solution" is an h3 inside ServicesContent — below the PageHeader fold.
     const heading = page.getByRole('heading', { name: 'Digital Solution' });
-    await heading.scrollIntoViewIfNeeded();
+    // Use block:'center' so the element lands in the middle of the viewport,
+    // ensuring it is ≥80px inside every edge (scrollViewport.margin='-80px')
+    // and the IntersectionObserver threshold fires reliably on slow CI machines.
+    await heading.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
 
-    // Allow for framer transition: duration 1.4s + delay 0s ≈ 1.4s total.
-    await expectPainted(heading, 2500);
+    // Allow for framer transition (1.4s) + CI headroom → 5s.
+    await expectPainted(heading, 5000);
   });
 });
