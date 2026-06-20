@@ -62,6 +62,12 @@ Then framer-motion リビール要素が staticReveal=true で remount され op
 ```
 
 ```gherkin
+Given デスクトップ幅（1280px）で /services・/works・/philosophy・/process ページを開き、フォーカス可能なリンクにキーボードフォーカスがある（#175）
+When 768px 未満にリサイズして staticReveal が false→true に変化する
+Then motion.div が remount されても、フォーカスが document.body にリセットされず、等価なリンク要素にフォーカスが復元される
+```
+
+```gherkin
 Given ユーザーが prefers-reduced-motion を有効にしている
 When ページを閲覧する
 Then アニメーションは無効化または最小限に抑えられる
@@ -132,6 +138,7 @@ Then 進捗ドットが対応セクションに追従する
 | E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
 | E2E（モバイル初期表示・#151） | `e2e/mobile-pages.spec.ts`（375px / 390px でページ読み込み直後の累積 opacity ≈ 1 を `expectPainted()` で検証） |
 | E2E（desktop→mobile resize リビール remount・#155） | `e2e/mobile-pages.spec.ts`（1280px で `/services` / `/works` へ遷移後、390px へリサイズして `expectPainted()` 検証。framer `key` の staticReveal-aware remount 保証） |
+| フォーカス復元（remount 後・#175） | `tests/a11y/focus-restore.test.ts`（`buildFocusSelector` 純粋関数の単体テスト）。DOM 統合テスト（jsdom + @testing-library/react）は後続 issue で対応 |
 | E2E（Philosophy） | `e2e/philosophy.spec.ts` |
 | Philosophy 構造 / パネル追従 | `tests/philosophy/content.test.ts` |
 | スクロールリビール props（animate / whileInView 排他） | `tests/scroll/reveal-props.test.ts` |

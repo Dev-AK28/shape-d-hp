@@ -11,6 +11,10 @@ test.describe('Contact page', () => {
     });
 
     await page.goto('/contact');
+    // Wait for React hydration + ScrollReveal remount to settle before interacting.
+    // Without this, the #name input can be detached mid-scroll when ScrollReveal
+    // remounts as staticReveal flips false on desktop after isReady=true.
+    await page.waitForLoadState('networkidle');
 
     const nameField = page.locator('#name');
     await nameField.scrollIntoViewIfNeeded();
@@ -31,6 +35,7 @@ test.describe('Contact page', () => {
 
   test('shows browser validation for empty required fields', async ({ page }) => {
     await page.goto('/contact');
+    await page.waitForLoadState('networkidle');
 
     const nameField = page.locator('#name');
     await nameField.scrollIntoViewIfNeeded();
@@ -63,6 +68,7 @@ test.describe('Contact page', () => {
     });
 
     await page.goto('/contact');
+    await page.waitForLoadState('networkidle');
 
     const nameField = page.locator('#name');
     await nameField.scrollIntoViewIfNeeded();

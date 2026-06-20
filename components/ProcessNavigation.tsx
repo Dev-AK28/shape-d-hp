@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
+import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import Link from 'next/link';
 
@@ -19,6 +20,7 @@ const consultingCardClass =
 
 export default function ProcessNavigation() {
   const { reduceMotion, staticReveal } = useStaticReveal();
+  const focusGuardRef = useFocusRestore<HTMLDivElement>(staticReveal);
 
   return (
     <PageHeader
@@ -28,6 +30,7 @@ export default function ProcessNavigation() {
       className="pb-32"
     >
       <div
+        ref={focusGuardRef}
         className="mx-auto mt-[120px] grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(400px,100%),1fr))] gap-16"
       >
         <motion.div

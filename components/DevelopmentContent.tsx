@@ -3,11 +3,13 @@
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
+import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function DevelopmentContent() {
   const { reduceMotion, staticReveal } = useStaticReveal();
+  const focusGuardRef = useFocusRestore(staticReveal);
   const steps = [
     {
       id: 1,
@@ -58,6 +60,7 @@ export default function DevelopmentContent() {
       />
 
       <section
+        ref={focusGuardRef}
         style={{
           position: 'relative',
           padding: '0 24px 160px',

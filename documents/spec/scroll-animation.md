@@ -15,6 +15,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 | `ScrollReveal` | セクション単位のフェードリビール |
 | `TextReveal` | 見出しのグラフェム/ワード単位リビール |
 | `ParallaxSection` | スクロール連動パララックス（`prefers-reduced-motion` 時無効） |
+| `useFocusRestore` | `staticReveal` 変化によるリマウント後のキーボードフォーカス復元（#175）。`href` / `data-focus-id` を持つ要素のみ対象。`ServicesContent` / `WorksContent` / `PhilosophyContent` / `ProcessNavigation` / `DevelopmentContent` / `ConsultingContent` の各セクション最上位要素に `ref` として適用 |
 
 ## 共通設定（SSOT）
 

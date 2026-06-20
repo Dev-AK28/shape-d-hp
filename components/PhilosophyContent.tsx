@@ -6,6 +6,7 @@ import PhilosophyProgressDots from '@/components/PhilosophyProgressDots';
 import TextReveal from '@/components/scroll/TextReveal';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
+import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { usePanelActiveIndex } from '@/lib/hooks/usePanelActiveIndex';
 import {
   ANIMATION_DURATION,
@@ -73,6 +74,7 @@ const sectionLetters = sections.map((section) => section.letter);
 
 export default function PhilosophyContent() {
   const { profile, reduceMotion, staticReveal } = useStaticReveal();
+  const focusGuardRef = useFocusRestore(staticReveal);
   const panelsRef = useRef<HTMLDivElement>(null);
   const activeIndex = usePanelActiveIndex(panelsRef);
   const enableSnap = !profile.isMobile && !profile.prefersCoarsePointer;
@@ -123,7 +125,7 @@ export default function PhilosophyContent() {
   }, [enableSnap]);
 
   return (
-    <section className="relative bg-[var(--background)]">
+    <section ref={focusGuardRef} className="relative bg-[var(--background)]">
       <PhilosophyProgressDots letters={sectionLetters} activeIndex={activeIndex} />
 
       <div ref={panelsRef}>
