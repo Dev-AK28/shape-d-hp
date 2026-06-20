@@ -58,13 +58,14 @@ export default function MissionVision() {
       className="relative py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
     >
       {/* overflow-hidden: clips the absolutely positioned <p> to section boundaries,
-          preventing it from disrupting compositing layers of adjacent elements (#150). */}
+          preventing it from disrupting compositing layers of elements within this section (#150). */}
       {/* pointer-events-none is intentional and non-redundant with the
           pointer-events-none inside visualWordClass (on the child <p>):
           absolute inset-0 covers the full section, so without it the empty areas outside <p>
-          would block click/tap events on interactive content in this section.
-          Also required for aria-hidden="true" correctness: a hidden element that still
-          receives pointer events would intercept input in an a11y-unexpected way (#158). */}
+          would block click/tap events on section content.
+          Keeping pointer-events-none also aligns with aria-hidden="true" best practice:
+          an element hidden from the accessibility tree should not intercept mouse/touch
+          input from sighted users (#158). */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <p className={visualWordClass}>
           SELF-CONGRUENCE
