@@ -58,7 +58,7 @@ export default function ScrollReveal({
       // Remount when staticReveal changes so framer `initial` re-evaluates.
       // Handles both mobile/desktop breakpoint resize (#151) and the isReady→true
       // hydration transition on desktop (#153: restores whileInView scroll reveal).
-      // Focus loss side-effects are tracked in #155.
+      // Focus loss from remount is mitigated by useFocusRestore in parent sections (#175).
       key={staticReveal ? 'static' : 'reveal'}
       initial={initial}
       transition={revealProps.transition}

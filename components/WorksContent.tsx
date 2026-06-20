@@ -4,11 +4,13 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
+import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function WorksContent() {
   const { reduceMotion, staticReveal } = useStaticReveal();
+  const focusGuardRef = useFocusRestore(staticReveal);
   const projects = [
     {
       id: 1,
@@ -75,6 +77,7 @@ export default function WorksContent() {
 
   return (
     <section
+      ref={focusGuardRef}
       style={{
         position: 'relative',
         padding: `${spacing.xxl}px var(--space-3) ${spacing.section}px`,

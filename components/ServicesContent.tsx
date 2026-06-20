@@ -3,10 +3,12 @@
 import { motion } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
+import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 export default function ServicesContent() {
   const { reduceMotion, staticReveal } = useStaticReveal();
+  const focusGuardRef = useFocusRestore(staticReveal);
   const digitalServices = [
     {
       id: 1,
@@ -93,6 +95,7 @@ export default function ServicesContent() {
 
   return (
     <section
+      ref={focusGuardRef}
       style={{
         position: 'relative',
         padding: `${spacing.xxl}px var(--space-3) ${spacing.section}px`,
