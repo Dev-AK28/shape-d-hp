@@ -6,4 +6,5 @@ export const backgroundAssets = {
   heroNebulaLayer: '/hero-nebula-layer.png',
   heroParticleBand: '/hero-particle-band.webp',
   brandLogoTransparent: '/shape-d-logo-transparent.png',
+  philosophyDustTexture: '/philosophy-dust-texture.webp',
 } as const;
