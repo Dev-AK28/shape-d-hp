@@ -61,21 +61,17 @@ export default function DevelopmentContent() {
 
       <section
         ref={focusGuardRef}
-        style={{
-          position: 'relative',
-          padding: '0 24px 160px',
-          background: 'radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%)',
-        }}
+        className="relative px-6 pb-[160px] bg-[radial-gradient(ellipse_at_center,#0a0a1a_0%,#000000_100%)]"
       >
-        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-          <div style={{ marginBottom: '120px' }}>
+        <div className="max-w-[1200px] mx-auto relative z-10">
+          <div className="mb-[var(--space-section)]">
           {steps.map((step, index) => (
             <motion.div
               key={staticReveal ? `static-step-${step.id}` : `reveal-step-${step.id}`}
               {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card' })}
-              style={{ marginBottom: index < steps.length - 1 ? '100px' : '0' }}
+              className={index < steps.length - 1 ? 'mb-[100px]' : ''}
             >
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '64px', alignItems: 'start' }}>
+              <div className="grid gap-16 items-start grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))]">
                 {/* Step Number */}
                 <motion.div
                   {...getScrollRevealProps(reduceMotion, {
@@ -85,73 +81,45 @@ export default function DevelopmentContent() {
                     staggerStep: 'card',
                     delay: 0.1,
                   })}
-                  style={{
-                    position: 'relative',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
+                  className="relative flex flex-col items-center justify-center"
                 >
-                  <div style={{
-                    width: '120px',
-                    height: '120px',
-                    borderRadius: '50%',
-                    border: '2px solid rgba(96, 165, 250, 0.4)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '48px',
-                    fontWeight: 300,
-                    color: '#60a5fa',
-                    fontFamily: 'serif',
-                    background: 'rgba(96, 165, 250, 0.1)',
-                    backdropFilter: 'blur(10px)'
-                  }}>
+                  <div className="w-[120px] h-[120px] rounded-full border-2 border-blue-400/40 flex items-center justify-center text-[48px] font-light text-[color:var(--section-blue)] type-font-serif bg-blue-400/10 backdrop-blur-[10px]">
                     {step.id}
                   </div>
                   {index < steps.length - 1 && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '120px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '2px',
-                      height: '100px',
-                      background: 'linear-gradient(to bottom, rgba(96, 165, 250, 0.4), transparent)'
-                    }} />
+                    <div className="absolute top-[120px] left-1/2 -translate-x-1/2 w-[2px] h-[100px] bg-[linear-gradient(to_bottom,rgba(96,165,250,0.4),transparent)]" />
                   )}
                 </motion.div>
 
                 {/* Step Content */}
                 <div>
-                  <div style={{ marginBottom: '24px' }}>
-                    <h4 style={{ fontSize: '14px', color: '#60a5fa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  <div className="mb-[var(--space-3)]">
+                    <h4 className="text-sm text-[color:var(--section-blue)] tracking-[0.15em] uppercase mb-[var(--space-1)]">
                       {step.subtitle}
                     </h4>
-                    <h3 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif', lineHeight: 1.3 }}>
+                    <h3 className="text-[clamp(24px,3vw,32px)] font-light text-white mb-[var(--space-2)] type-font-serif leading-[1.3]">
                       {step.title}
                     </h3>
                   </div>
 
-                  <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+                  <p className="text-gray-300 text-base leading-[2] mb-[var(--space-3)] type-font-serif tracking-[0.02em]">
                     {step.description}
                   </p>
 
-                  <div style={{ padding: '32px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)', marginBottom: '24px' }}>
-                    <p style={{ color: '#9ca3af', lineHeight: 2, fontSize: '15px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+                  <div className="p-8 border border-blue-400/20 rounded-lg bg-blue-400/5 backdrop-blur-[10px] mb-[var(--space-3)]">
+                    <p className="text-[color:var(--muted)] leading-[2] text-[15px] type-font-serif tracking-[0.02em]">
                       {step.detail}
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '32px', fontSize: '14px', flexWrap: 'wrap' }}>
+                  <div className="flex gap-8 text-sm flex-wrap">
                     <div>
-                      <span style={{ color: '#60a5fa', letterSpacing: '0.1em', textTransform: 'uppercase' }}>所要時間: </span>
-                      <span style={{ color: '#d1d5db', marginLeft: '8px' }}>{step.duration}</span>
+                      <span className="text-[color:var(--section-blue)] tracking-[0.1em] uppercase">所要時間: </span>
+                      <span className="text-gray-300 ml-[var(--space-1)]">{step.duration}</span>
                     </div>
                     <div>
-                      <span style={{ color: '#60a5fa', letterSpacing: '0.1em', textTransform: 'uppercase' }}>成果物: </span>
-                      <span style={{ color: '#d1d5db', marginLeft: '8px' }}>{step.output}</span>
+                      <span className="text-[color:var(--section-blue)] tracking-[0.1em] uppercase">成果物: </span>
+                      <span className="text-gray-300 ml-[var(--space-1)]">{step.output}</span>
                     </div>
                   </div>
                 </div>
@@ -163,19 +131,19 @@ export default function DevelopmentContent() {
         <motion.div
           key={staticReveal ? 'static-cta' : 'reveal-cta'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
-          style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.2))', backdropFilter: 'blur(10px)' }}
+          className="text-center p-16 border border-white/10 rounded-lg bg-[linear-gradient(to_right,rgba(96,165,250,0.1),rgba(96,165,250,0.2))] backdrop-blur-[10px]"
         >
-          <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
+          <h3 className="text-[28px] font-light text-white mb-[var(--space-3)] type-font-serif">
             「早い＝雑」ではありません
           </h3>
-          <p style={{ color: '#d1d5db', fontSize: '16px', maxWidth: '48rem', margin: '0 auto', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+          <p className="text-gray-300 text-base max-w-[48rem] mx-auto leading-[2] mb-[var(--space-4)] type-font-serif tracking-[0.02em]">
             GoDDの手法は、AIを効果的に活用しつつ、厳格な品質管理とコードレビューを行います。スピードと品質の両立を可能にする、論理的で丁寧な開発プロセスです。
           </p>
           <motion.a
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
+            className="inline-flex items-center gap-2 px-12 py-4 border border-[color:var(--section-blue)] rounded-full text-[#93c5fd] bg-transparent cursor-pointer text-base type-font-serif no-underline"
           >
             <BrandLogo height={16} className="max-w-4" />
             爆速でプロトタイプを試す（初回相談）
