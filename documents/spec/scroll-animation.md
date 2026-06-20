@@ -28,8 +28,15 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 `lib/scroll/gsap-config.ts`:
 
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
-- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ScrollTrigger.update)`
+- Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ...)` で `ScrollTrigger.update` + velocity skewY を同時処理
 - `shouldDisableGsapAnimation(profile)` — Lenis と同条件（`prefers-reduced-motion` のみ）で GSAP pin 無効。モバイル・coarse pointer でも GSAP は有効
+
+**Velocity skewY（`VELOCITY_SKEW` トークン）**:
+
+- `SmoothScrollProvider` が Lenis `scroll` イベントから `lenis.velocity` を読み取り、`gsap.quickTo` で `[data-velocity-content]` に `skewY` を適用（最大 `±1.8deg`、`quickTo` duration `0.85s`）
+- `[data-velocity-content]` は `app/template.tsx` の `PageTransition` 内 div に付与（Navigation / Footer は対象外）
+- SPA ルート変更に対応するため DOM 再クエリ方式（`quickTo` インスタンスをターゲット変化時に再生成）
+- `overflow-x: clip` で skewY による横溢れを防止（スクロールコンテナを作らない）
 
 `lib/scroll/easing.ts`（framer-motion）:
 
@@ -73,7 +80,7 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 | `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**スクロール領域全体で fixed `CosmicScene` のビジュアル背景が継続**（スタック順は Footer が前面、下記「スタック順」参照） |
 | `/services` | PageHeader + ServicesContent スタガー + TextReveal（Hero なし・StarBackground なし） |
 | `/works` | PageHeader + WorksContent 同上 |
-| `/philosophy` | PhilosophyContent — full-screen SHAPE-D パネル + GSAP snap + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
+| `/philosophy` | PhilosophyContent — **デスクトップ: 水平スクロール（6パネルを横並び pin、GSAP scrub 1.8）/ モバイル: 垂直 snap** + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
 | `/process` | ProcessNavigation — PageHeader + ナビカード |
 | `/process/development` | PageHeader（`DEVELOPMENT`）+ DevelopmentContent スタガー |
 | `/process/consulting` | PageHeader（`CONSULTING`）+ ConsultingContent スタガー |
@@ -82,7 +89,7 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 ### トップ Hero 背景・ロゴ（補足）
 
 - 背景: `HomePageShell` + `CosmicScene`（fixed `z-0`、`public/hero-cosmic-bg*.webp` + `hero-nebula-layer.png`）。`isReady` 後に `CosmicScene` をマウントしモバイル初回ハイドレーションの背景誤読込を防止。ページスクロール全体で `scale` / ネビュラ `y`+`opacity` を GSAP scrub。**Warm gold grade（#102）**: nebula 上に `.cosmic-warm-grade-overlay`（常時）+ デスクトップのみ nebula filter — 詳細は [`design-system.md`](./design-system.md) の Warm Gold Grade 節
-- **Hero 深度通過（#100）**: Hero pin 中に `CosmicScene` の `perspectiveDepthRef` を `HERO_DEPTH_PASSAGE.cosmic.perspectiveScale` まで scale（`transformOrigin` は Shell から prop 注入、SSOT は tokens）。`Hero.tsx` では粒子バンド → ロゴの 2 フェーズ（approach / pass-through）で `scale` / `y` / `opacity` を scrub — 各 tween は `timelineDuration`（1s）の分数から明示 `duration` を算出しフェーズ重複を防止。**Typography blend（#101）**: copy reveal 開始（`revealTimelineStart` = `logoOpacityHideAt` = 0.35）で `timeline.set` によりロゴ opacity を即時 0 にし、`type-blend-cosmic` が nebula のみを backdrop に合成。Shell 連携: `data-testid="hero-pin-section"`（`HERO_PIN_SELECTOR`）
+- **Hero 深度通過（#100）**: Hero pin 中に `CosmicScene` の `perspectiveDepthRef` を `HERO_DEPTH_PASSAGE.cosmic.perspectiveScale` まで scale（`transformOrigin` は Shell から prop 注入、SSOT は tokens）。`Hero.tsx` では粒子バンド → ロゴの 2 フェーズ（approach / pass-through）で `scale` / `y` / `opacity` / `rotation` / `filter: blur()` を scrub — 各 tween は `timelineDuration`（1s）の分数から明示 `duration` を算出しフェーズ重複を防止。**被写界深度効果**: pass-through フェーズで `particleBand` に `blur(36px)`、`logo` に `blur(18px)` を付与しカメラフライスルーを演出（`HERO_DEPTH_PASSAGE.particleBand.passBlurPx` / `logo.passBlurPx`）。コピー/CTA はそれぞれ `scale: 0.97→1` + `0.07s` stagger で個別に出現し、イージングは `power3.out` に精密化。**Typography blend（#101）**: copy reveal 開始（`revealTimelineStart` = `logoOpacityHideAt` = 0.35）で `timeline.set` によりロゴ opacity を即時 0 にし、`type-blend-cosmic` が nebula のみを backdrop に合成。Shell 連携: `data-testid="hero-pin-section"`（`HERO_PIN_SELECTOR`）
 - スタック順: `CosmicScene`（`z-0`）< `main`（`z-10`）< `Footer`（`relative z-20`、`app/layout.tsx`）。fixed 背景がフッター上に重ならない
 - ロゴ: `LogoParticleFormation`（Canvas 粒子 → `shape-d-logo-transparent.png` のアルファシルエット形成）→ 完了後 `BrandLogo`（同一 PNG・同一 hero ステージ寸法で crossfade）。`prefers-reduced-motion` 時は粒子スキップ（モバイルでは粒子形成を実行）
 - 粒子サンプリング: PNG を最長辺 `768px`（`LOGO_SAMPLE_MAX_DIMENSION`）にダウンサンプルして `getImageData` メモリを抑制。画像ロード失敗時は粒子をスキップし `BrandLogo` を表示（`onComplete` フォールバック）
