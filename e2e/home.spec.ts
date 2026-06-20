@@ -84,6 +84,22 @@ test.describe('Home page desktop', () => {
     await expect(indicator).toHaveCSS('opacity', '0', { timeout: 5000 });
   });
 
+  test('scroll indicator bottom class includes safe-area-inset-bottom formula (#165)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const indicator = page.getByTestId('hero-scroll-indicator');
+    // Verify env(safe-area-inset-bottom) formula is present in class attribute.
+    const className = await indicator.getAttribute('class') ?? '';
+    expect(className).toContain('safe-area-inset-bottom');
+
+    // On standard Playwright viewport (safe-area = 0), bottom == var(--space-3) (24px).
+    const bottomPx = await indicator.evaluate(
+      (el) => parseFloat(getComputedStyle(el).bottom),
+    );
+    expect(bottomPx).toBeGreaterThanOrEqual(24);
+  });
+
   test('does not show scroll indicator when user scrolls before particle formation completes', async ({ page }) => {
     // Regression test for the early-scroll race condition fixed in PR #139.
     // scrollRevealed guard prevents the fade-in tween from starting when the user
