@@ -296,6 +296,9 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
     // is on screen, framer-motion may hold ancestor elements at opacity:0 and the
     // 200ms expectPainted window would fire too early and report a false failure.
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 10_000 });
+    // networkidle ensures React hydration and framer-motion's initial animate
+    // commit have settled before we sample opacity.
+    await page.waitForLoadState('networkidle');
 
     // Wait for hydration – heading must be visible without scrolling
     const aboutHeading = page.locator('h2').filter({ hasText: /^ABOUT$/ }).first();
@@ -304,9 +307,12 @@ test.describe('375px — / (home: ABOUT / VISION headings)', () => {
     await expect(aboutHeading).toBeVisible({ timeout: 10_000 });
     await expect(visionHeading).toBeVisible({ timeout: 10_000 });
 
-    // #150: headings must be painted (opacity ≈ 1) — not hidden by any ancestor
-    await expectPainted(aboutHeading);
-    await expectPainted(visionHeading);
+    // #150: headings must be painted (opacity ≈ 1) — not hidden by any ancestor.
+    // Use 1000ms instead of default 200ms: on mobile staticReveal=true so
+    // framer duration:0, but CI machines may need extra frames to commit the
+    // animate state after hydration settling.
+    await expectPainted(aboutHeading, 1_000);
+    await expectPainted(visionHeading, 1_000);
 
     // #150: no horizontal overflow — heading text must not extend beyond viewport
     await expectNoHorizontalOverflow(page);

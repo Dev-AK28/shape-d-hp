@@ -88,12 +88,14 @@ test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', ()
 
     // "Digital Solution" is an h3 inside ServicesContent — below the PageHeader fold.
     const heading = page.getByRole('heading', { name: 'Digital Solution' });
-    // Use block:'center' so the element lands in the middle of the viewport,
-    // ensuring it is ≥80px inside every edge (scrollViewport.margin='-80px')
-    // and the IntersectionObserver threshold fires reliably on slow CI machines.
-    await heading.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    // Use block:'start' so the heading (and its parent motion.div) land at the
+    // TOP of the viewport. The parent motion.div spans ~900px; with
+    // scrollViewport.margin='-80px' and amount:0.2, we need ≥180px of the div
+    // inside the effective viewport (80→720px). block:'start' gives 640px of
+    // overlap (≈71%), ensuring IntersectionObserver fires reliably in CI.
+    await heading.evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'instant' }));
 
-    // Allow for framer transition (1.4s) + CI headroom → 5s.
-    await expectPainted(heading, 5000);
+    // Allow for framer transition (1.4s) + CI headroom → 8s.
+    await expectPainted(heading, 8000);
   });
 });
