@@ -109,6 +109,33 @@ test.describe('Subpage headers', () => {
     }
   });
 
+  /**
+   * Regression test for Issue #167 — PageHeader safe-area-inset-top compensation.
+   *
+   * Two assertions:
+   * 1. The class attribute contains `safe-area-inset-top` — detects accidental removal
+   *    of the env() formula even when safe-area resolves to 0 in Playwright viewports.
+   * 2. Computed padding-top >= 120px — verifies no-notch baseline is unaffected.
+   *
+   * Actual notch-device behaviour (safe-area > 0) cannot be simulated in Playwright;
+   * see Issue #166 for that E2E coverage.
+   */
+  test('PageHeader padding-top includes safe-area-inset-top formula (#167)', async ({ page }) => {
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    const header = page.getByTestId('page-header');
+
+    // Verify env(safe-area-inset-top) formula is present in class attribute.
+    const className = await header.getAttribute('class') ?? '';
+    expect(className).toContain('safe-area-inset-top');
+
+    // On standard Playwright viewport (safe-area = 0), padding-top == --space-section (120px).
+    const paddingTop = await header.evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(paddingTop).toBeGreaterThanOrEqual(120);
+  });
+
   test('page headers apply dividerVariant gradient classes', async ({ page }) => {
     const dividerCases = [
       { path: '/services', className: 'page-header-divider-blue' },
