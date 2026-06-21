@@ -123,13 +123,13 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 
 `lib/design/background-assets.ts` / `public/`:
 
-| ファイル | 用途 |
-|---------|------|
-| `hero-cosmic-bg.webp` | デスクトップ宇宙背景 |
-| `hero-cosmic-bg-mobile.webp` | モバイル宇宙背景 |
-| `hero-nebula-layer.png` | パララックス前景（`mix-blend-mode: screen`） |
-| `hero-particle-band.webp` | ロゴ背後の粒子帯（immersive のみ） |
-| `shape-d-logo-transparent.png` | 正規タイトルロゴ（透過 PNG、Nav / Hero / Footer 共通）。Hero 粒子形成（`LogoParticleFormation`）も同一 PNG のアルファからターゲット点をサンプリング |
+| ファイル | 用途 | サイズ（WebP q85） |
+|---------|------|-----------------|
+| `hero-cosmic-bg.webp` | デスクトップ宇宙背景 | 107 KB |
+| `hero-cosmic-bg-mobile.webp` | モバイル宇宙背景 | 72 KB |
+| `hero-nebula-layer.webp` | パララックス前景（`mix-blend-mode: screen`、透過 WebP） | 375 KB |
+| `hero-particle-band.webp` | ロゴ背後の粒子帯（immersive のみ） | 498 KB |
+| `shape-d-logo-transparent.png` | 正規タイトルロゴ（透過 PNG、Nav / Hero / Footer 共通）。Hero 粒子形成（`LogoParticleFormation`）も同一 PNG のアルファからターゲット点をサンプリング | — |
 寸法 SSOT: `lib/design/brand-logo-constants.ts`（1536×1024、hero 最大幅 `min(88vw, 560px)`）
 
 レンダリング: `components/background/CosmicScene.tsx` + `components/BrandLogo.tsx`。
