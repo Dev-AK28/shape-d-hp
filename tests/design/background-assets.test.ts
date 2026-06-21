@@ -8,6 +8,5 @@ describe('background assets', () => {
     expect(backgroundAssets.heroNebulaLayer).toBe('/hero-nebula-layer.png');
     expect(backgroundAssets.heroParticleBand).toBe('/hero-particle-band.webp');
     expect(backgroundAssets.brandLogoTransparent).toBe('/shape-d-logo-transparent.png');
-    expect(backgroundAssets.philosophyDustTexture).toBe('/philosophy-dust-texture.webp');
   });
 });

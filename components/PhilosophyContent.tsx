@@ -17,8 +17,6 @@ import {
 } from '@/lib/scroll/gsap-config';
 import { PHILOSOPHY_HORIZONTAL } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { backgroundAssets } from '@/lib/design/background-assets';
-
 const sections = [
   {
     letter: 'S',
@@ -214,17 +212,6 @@ export default function PhilosophyContent() {
               background: `linear-gradient(180deg, var(--background) 0%, ${item.bgTint} 50%, var(--background) 100%)`,
             }}
           >
-            {/* Dust texture: conditional-rendered (not just hidden) so the URL is
-                absent from the DOM on mobile/SSR — guarantees no image fetch.
-                Also suppressed for reduced-motion as a decorative-only asset. */}
-            {isReady && enableHorizontal && reduceMotion !== true && (
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.55] mix-blend-screen"
-                style={{ backgroundImage: `url(${backgroundAssets.philosophyDustTexture})` }}
-              />
-            )}
-
             <span
               data-overlay-letter
               aria-hidden="true"

@@ -4,7 +4,7 @@ Issue: #81
 
 ## 概要
 
-`/philosophy` を SHAPE∞D の各文字（S/H/A/P/E/D）を軸にした full-screen スクロール体験へ再構築する。動画・WebGL は使用しない。背景画像はデスクトップ限定の subtle なダストテクスチャ（`philosophy-dust-texture.webp`、108KB）1 枚のみ。モバイルは Issue #81 / #51 のパフォーマンス方針に従い画像なしを維持する。
+`/philosophy` を SHAPE∞D の各文字（S/H/A/P/E/D）を軸にした full-screen スクロール体験へ再構築する。動画・WebGL は使用しない。追加の背景画像は使用せず、各パネルは `bgTint` のグラデーション差分のみで温度感を表現する（Issue #202 でダストテクスチャを撤去）。モバイルは Issue #81 / #51 のパフォーマンス方針に従い画像なしを維持する。
 
 ## ページ構成
 
@@ -20,8 +20,7 @@ Issue: #81
 
 - **オーバーレイ文字**: 各セクション中央に `S`〜`D` を巨大表示。opacity `0.04`〜`0.08`（移動アニメーションなし）
 - **前景テキスト**: 見出し（`h2`）+ サブタイトル + 説明 + 詳細
-- **背景温度**: セクションごとに `bgTint` でグラデーション差分のみ変更
-- **ダストテクスチャ**: 各パネルに warm-gold の宇宙塵テクスチャ（`backgroundAssets.philosophyDustTexture`）を `mix-blend-mode: screen` / `opacity: 0.55` でオーバーレイ。`isReady && enableHorizontal && reduceMotion !== true` の条件を満たす場合のみ DOM に追加し、モバイル・coarse pointer デバイス・SSR 時は要素自体が存在しないため画像取得が発生しない。`aria-hidden` 装飾要素で可読性に影響しない。`prefers-reduced-motion` 時も非表示。
+- **背景温度**: セクションごとに `bgTint` でグラデーション差分のみ変更（追加の背景画像は使用しない）
 
 ## アニメーション（GSAP + framer-motion）
 
