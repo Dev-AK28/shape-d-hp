@@ -177,7 +177,7 @@ button:not(.nav-menu-button):hover {
 
 .cosmic-nebula-layer {
   mix-blend-mode: screen;
-  opacity: 0.26;
+  opacity: 0.42;
 }
 
 /* Subtle premium warmth on Hero cosmic background — overlay always; filter desktop-only */
