@@ -5,12 +5,8 @@ import {
   useReducedMotion,
   useScroll,
   useTransform,
-  type HTMLMotionProps,
 } from 'framer-motion';
 import { useRef, type HTMLAttributes, type ReactNode } from 'react';
-import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
-import { REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
-import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 type ParallaxSectionProps = HTMLAttributes<HTMLDivElement> & {
   offset?: number;
@@ -41,49 +37,6 @@ export default function ParallaxSection({
 
   return (
     <motion.div ref={ref} className={className} style={{ ...style, y }}>
-      {children}
-    </motion.div>
-  );
-}
-
-type StaggerItemProps = HTMLMotionProps<'div'> & {
-  index: number;
-  baseDelay?: number;
-  staggerStep?: number;
-};
-
-/** @deprecated Unused export — if adopted, pass `useStaticReveal().staticReveal` to `getScrollRevealProps` (#151). */
-export function StaggerItem({
-  children,
-  index,
-  baseDelay = 0,
-  staggerStep = REVEAL_OFFSET.stagger,
-  ...props
-}: StaggerItemProps) {
-  const { reduceMotion, staticReveal, profile } = useStaticReveal();
-  const revealProps = getScrollRevealProps(reduceMotion, {
-    staticReveal,
-    delay: baseDelay,
-    staggerIndex: index,
-    staggerStep,
-    variant: 'fadeLeft',
-  });
-
-  const motionRevealProps = revealProps.animate
-    ? { animate: revealProps.animate }
-    : {
-        whileInView: revealProps.whileInView,
-        viewport: revealProps.viewport,
-      };
-
-  return (
-    <motion.div
-      key={profile.isMobile ? 'mobile' : 'desktop'}
-      initial={revealProps.initial}
-      transition={revealProps.transition}
-      {...motionRevealProps}
-      {...props}
-    >
       {children}
     </motion.div>
   );
