@@ -264,7 +264,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   // but not isMobile, so they need the same flow layout to avoid absolute-positioned CTA being
   // hidden under virtual keyboards or browser chrome. See Issue #136.
   const mobileStaticHero = isImmersive && staticFallback && isTouchInputDevice(profile);
-  const lowPowerFormation = isTouchInputDevice(profile);
+  const isLowPower = isTouchInputDevice(profile);
   const showParticleFormation =
     logoVisible && !skipFormation && !canvasRetired;
 
@@ -309,7 +309,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
         {isImmersive ? (
           <LogoParticleFormation
             active={showParticleFormation}
-            lowPower={lowPowerFormation}
+            lowPower={isLowPower}
             logoBoxRef={logoStageRef}
             onComplete={() => setFormationComplete(true)}
           />

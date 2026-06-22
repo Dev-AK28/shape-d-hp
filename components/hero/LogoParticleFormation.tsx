@@ -66,6 +66,7 @@ type Texture = { img: HTMLImageElement; ready: boolean };
 
 const { bigBangMs, driftMs, gatherMs, revealMs, revealLeadFraction, burstScale, quality } =
   HERO_BIGBANG;
+// Perspective projection focal length (px): depthMul = FOCAL / (FOCAL − z).
 const FOCAL = 520;
 
 function easeOutCubic(p: number) {
@@ -134,37 +135,36 @@ function loadLogoImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function sampleTargetPointsFromLogo(
+async function sampleTargetPointsFromLogo(
   src: string,
   step: number,
   maxParticles: number,
 ): Promise<{ points: LogoSamplePoint[]; width: number; height: number }> {
-  return loadLogoImage(src).then((image) => {
-    const { width, height } = fitSampleDimensions(image.naturalWidth, image.naturalHeight);
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return { points: [], width, height };
-    }
-    ctx.drawImage(image, 0, 0, width, height);
-    const { data } = ctx.getImageData(0, 0, width, height);
+  const image = await loadLogoImage(src);
+  const { width, height } = fitSampleDimensions(image.naturalWidth, image.naturalHeight);
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return { points: [], width, height };
+  }
+  ctx.drawImage(image, 0, 0, width, height);
+  const { data } = ctx.getImageData(0, 0, width, height);
 
-    const points: LogoSamplePoint[] = [];
-    for (let y = 0; y < height; y += step) {
-      for (let x = 0; x < width; x += step) {
-        if (data[(y * width + x) * 4 + 3] > LOGO_ALPHA_THRESHOLD) {
-          points.push({ x: x - width / 2, y: y - height / 2 });
-        }
+  const points: LogoSamplePoint[] = [];
+  for (let y = 0; y < height; y += step) {
+    for (let x = 0; x < width; x += step) {
+      if (data[(y * width + x) * 4 + 3] > LOGO_ALPHA_THRESHOLD) {
+        points.push({ x: x - width / 2, y: y - height / 2 });
       }
     }
-    if (points.length <= maxParticles) {
-      return { points, width, height };
-    }
-    const stride = Math.ceil(points.length / maxParticles);
-    return { points: points.filter((_, i) => i % stride === 0), width, height };
-  });
+  }
+  if (points.length <= maxParticles) {
+    return { points, width, height };
+  }
+  const stride = Math.ceil(points.length / maxParticles);
+  return { points: points.filter((_, i) => i % stride === 0), width, height };
 }
 
 function buildParticles(targets: LogoSamplePoint[]): Particle[] {
@@ -302,7 +302,7 @@ export default function LogoParticleFormation({
       const img = new Image();
       const tex: Texture = { img, ready: false };
       img.onload = () => {
-        tex.ready = true;
+        if (!cancelled) tex.ready = true;
       };
       img.src = texSrc[key];
       textures[key] = tex;
@@ -697,7 +697,10 @@ export default function LogoParticleFormation({
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [active, lowPower, logoBoxRef]);
+  // logoBoxRef is a stable RefObject — its identity never changes, so it is intentionally
+  // omitted from deps. We read .current inside the rAF loop to always get the latest rect.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, lowPower]);
 
   if (!active) {
     return null;
