@@ -49,6 +49,7 @@ html {
     var(--warm-grade-overlay-end) 100%
   );
   --warm-grade-nebula-filter: saturate(1.05) brightness(1.04);
+  --nebula-screen-opacity: 0.42; /* mirrors warmGrade.nebulaScreenOpacity; screen blend prevents white blowout (#201) */
 
   /* Typography blend — Issue #101 (mirrors lib/design/tokens.ts typographyBlend) */
   --type-blend-cosmic: screen;
@@ -177,7 +178,7 @@ button:not(.nav-menu-button):hover {
 
 .cosmic-nebula-layer {
   mix-blend-mode: screen;
-  opacity: 0.42;
+  opacity: var(--nebula-screen-opacity);
 }
 
 /* Subtle premium cosmic grade on Hero background (cool deep-space tone) — overlay always; filter desktop-only */
