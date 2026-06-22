@@ -193,8 +193,20 @@ export const ABOUT_PIN_SCROLL = {
  * Mission/Vision section (Act 4) multi-layer parallax — desktop full offsets,
  * mobile reduced via `mobileScale` to prioritize readability on small screens.
  *
- * Layer depth order (front→back): text (quotes) → midground (heading/lead) → bg (decorative word).
- * Each `ParallaxSection` receives the computed offset: `*OffsetDesktop × (isTouchDevice ? mobileScale : 1)`.
+ * **Parallax convention — intentional counter-parallax (cosmic flythrough effect)**:
+ * In `ParallaxSection`, `y = useTransform([0→1], [+offset, -offset])`.
+ * A larger `offset` means the element travels more additional distance in the scroll direction,
+ * so it appears to rise through the viewport faster. This is the *opposite* of classical
+ * parallax (where the background lags behind).
+ *
+ * The decorative SELF-CONGRUENCE background has the largest offset (60 px) so it overtakes
+ * the content text as the section scrolls — producing a "cosmic flythrough" illusion where
+ * the decorative layer sweeps past while content remains relatively stable.
+ * `overflow-hidden` on the wrapper clips the excess movement so the text exits frame first.
+ *
+ * Layer z-order (back → front):  bg (decorative) → midground (heading/lead) → text (quotes).
+ * Layer parallax speed (slow → fast): text=12 → midground=30 → bg=60.
+ * Each layer offset: `*OffsetDesktop × (isTouchDevice ? mobileScale : 1)`.
  * `prefers-reduced-motion`: `ParallaxSection` falls back to a plain div automatically.
  *
  * Quote reveal uses GSAP stagger (same pattern as original [data-vision-quote] ScrollTrigger).

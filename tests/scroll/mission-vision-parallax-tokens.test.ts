@@ -67,10 +67,9 @@ describe('MISSION_VISION_PARALLAX tokens', () => {
       join(process.cwd(), 'components/MissionVision.tsx'),
       'utf8',
     );
-    // Three ParallaxSection usages
+    // regex matches all occurrences: 1 import + 3 opening tags + 3 closing tags = 7
     const parallaxCount = (source.match(/ParallaxSection/g) ?? []).length;
-    // 1 import + 3 JSX usages = 4 occurrences minimum (or 3 if counted only by offset prop usage)
-    expect(parallaxCount).toBeGreaterThanOrEqual(4);
+    expect(parallaxCount).toBeGreaterThanOrEqual(7);
     expect(source).toContain('bgOffset');
     expect(source).toContain('midOffset');
     expect(source).toContain('textOffset');
