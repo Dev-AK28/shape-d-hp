@@ -34,7 +34,7 @@ Issue: #214 / Part of #210
 
 Hero 背景アセット予算: ≤ 1,200 KB → 現在 1,010 KB ✅
 
-> `hero-cosmic-bg` / `hero-cosmic-bg-mobile` / `hero-particle-band` / `hero-nebula-layer` はビッグバン演出に合わせた白銀（モノクロ）トーンへ再生成（#224）。粒子帯は純黒背景で生成し輝度→アルファ変換で透過 WebP 化（`object-contain` でブレンド指定がないため透過必須）。ネビュラ層は `mix-blend-mode: screen` のため暗部を純黒に締めて（linear black-point）軽量な不透明 WebP 化。あわせて CSS グレードを暖色→クール宇宙トーンへ変更（`warmGrade`）。
+> `hero-cosmic-bg` / `hero-cosmic-bg-mobile` / `hero-particle-band` / `hero-nebula-layer` はビッグバン演出に合わせた白銀（モノクロ）トーンへ再生成（#224）。粒子帯は純黒背景で生成し輝度→アルファ変換で透過 WebP 化（`object-contain` でブレンド指定がないため透過必須）。ネビュラ層は `mix-blend-mode: screen` のため暗部を純黒に締めて（linear black-point）軽量な不透明 WebP 化。あわせて CSS グレードを暖色→クール宇宙トーンへ変更（`cosmicGrade`、#227 でリネーム済み）。
 >
 > **Hi-DPI シャープネス（#224）**: `CosmicScene` は `next/image fill` + `sizes="100vw"` + GSAP 深度スケールでフルブリード描画されるため、旧 1672×941 では 1440 ビューポート@2x（約 2880px 必要）に対し解像度不足で甘くなっていた。`next/image` は intrinsic 幅を超えてアップスケールしないため、ソースを Lanczos3 + 軽量シャープで desktop 3344×1882（2×）・mobile 1536×2304（1.5×）へ引き上げ、最大 deviceSize（3840）要求時にも近接ピクセルで配信できるようにした（白銀トーンは維持）。
 

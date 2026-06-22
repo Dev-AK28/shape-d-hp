@@ -38,18 +38,18 @@ html {
   --content-standard: 880px;
   --content-wide: 1040px;
 
-  /* Cosmic grade — Issue #102 / #224 (mirrors lib/design/tokens.ts warmGrade; cool deep-space tone, desktop MQ = MOBILE_BREAKPOINT_PX) */
-  --warm-grade-overlay-start: rgba(150, 170, 210, 0.08);
-  --warm-grade-overlay-mid: rgba(150, 170, 210, 0.12);
-  --warm-grade-overlay-end: rgba(150, 170, 210, 0.15);
-  --warm-grade-overlay: linear-gradient(
+  /* Cosmic grade — Issue #102 / #224 / #227 (mirrors lib/design/tokens.ts cosmicGrade; cool deep-space tone, desktop MQ = MOBILE_BREAKPOINT_PX) */
+  --cosmic-grade-overlay-start: rgba(150, 170, 210, 0.08);
+  --cosmic-grade-overlay-mid: rgba(150, 170, 210, 0.12);
+  --cosmic-grade-overlay-end: rgba(150, 170, 210, 0.15);
+  --cosmic-grade-overlay: linear-gradient(
     180deg,
-    var(--warm-grade-overlay-start) 0%,
-    var(--warm-grade-overlay-mid) 45%, /* mirrors warmGrade.overlayMidStop */
-    var(--warm-grade-overlay-end) 100%
+    var(--cosmic-grade-overlay-start) 0%,
+    var(--cosmic-grade-overlay-mid) 45%, /* mirrors cosmicGrade.overlayMidStop */
+    var(--cosmic-grade-overlay-end) 100%
   );
-  --warm-grade-nebula-filter: saturate(1.05) brightness(1.04);
-  --warm-grade-nebula-screen-opacity: 0.42; /* mirrors warmGrade.nebulaScreenOpacity; screen blend prevents white blowout (#201) */
+  --cosmic-grade-nebula-filter: saturate(1.05) brightness(1.04);
+  --cosmic-grade-nebula-screen-opacity: 0.42; /* mirrors cosmicGrade.nebulaScreenOpacity; screen blend prevents white blowout (#201) */
 
   /* Typography blend — Issue #101 (mirrors lib/design/tokens.ts typographyBlend) */
   --type-blend-cosmic: screen;
@@ -178,19 +178,19 @@ button:not(.nav-menu-button):hover {
 
 .cosmic-nebula-layer {
   mix-blend-mode: screen;
-  opacity: var(--warm-grade-nebula-screen-opacity);
+  opacity: var(--cosmic-grade-nebula-screen-opacity);
 }
 
 /* Subtle premium cosmic grade on Hero background (cool deep-space tone) — overlay always; filter desktop-only */
-.cosmic-warm-grade-overlay {
-  background: var(--warm-grade-overlay);
+.cosmic-grade-overlay {
+  background: var(--cosmic-grade-overlay);
   mix-blend-mode: soft-light;
   pointer-events: none;
 }
 
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-  .cosmic-nebula-layer--warm-grade {
-    filter: var(--warm-grade-nebula-filter);
+  .cosmic-nebula-layer--cosmic-grade {
+    filter: var(--cosmic-grade-nebula-filter);
   }
 }
 

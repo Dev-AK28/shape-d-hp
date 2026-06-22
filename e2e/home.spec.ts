@@ -8,10 +8,10 @@ test.describe('Home page', () => {
     await waitForHomePageReady(page);
   });
 
-  test('applies warm gold grade overlay on cosmic background', async ({ page }) => {
+  test('applies cosmic grade overlay on cosmic background', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);
-    await expect(page.getByTestId('cosmic-warm-grade-overlay')).toBeAttached();
+    await expect(page.getByTestId('cosmic-grade-overlay')).toBeAttached();
   });
 
   test('applies cosmic typography blend to hero heading', async ({ page }) => {
