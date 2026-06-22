@@ -190,6 +190,43 @@ export const ABOUT_PIN_SCROLL = {
 } as const;
 
 /**
+ * Mission/Vision section (Act 4) multi-layer parallax — desktop full offsets,
+ * mobile reduced via `mobileScale` to prioritize readability on small screens.
+ *
+ * **Parallax convention — intentional counter-parallax (cosmic flythrough effect)**:
+ * In `ParallaxSection`, `y = useTransform([0→1], [+offset, -offset])`.
+ * A larger `offset` means the element travels more additional distance in the scroll direction,
+ * so it appears to rise through the viewport faster. This is the *opposite* of classical
+ * parallax (where the background lags behind).
+ *
+ * The decorative SELF-CONGRUENCE background has the largest offset (60 px) so it overtakes
+ * the content text as the section scrolls — producing a "cosmic flythrough" illusion where
+ * the decorative layer sweeps past while content remains relatively stable.
+ * `overflow-hidden` on the wrapper clips the excess movement so the text exits frame first.
+ *
+ * Layer z-order (back → front):  bg (decorative) → midground (heading/lead) → text (quotes).
+ * Layer parallax speed (slow → fast): text=12 → midground=30 → bg=60.
+ * Each layer offset: `*OffsetDesktop × (isTouchDevice ? mobileScale : 1)`.
+ * `prefers-reduced-motion`: `ParallaxSection` falls back to a plain div automatically.
+ *
+ * Quote reveal uses GSAP stagger (same pattern as original [data-vision-quote] ScrollTrigger).
+ */
+export const MISSION_VISION_PARALLAX = {
+  /** Background layer (SELF-CONGRUENCE decorative text) offset (px) — desktop. */
+  bgOffsetDesktop: 60,
+  /** Midground layer (VISION heading + lead text) offset (px) — desktop. */
+  midOffsetDesktop: 30,
+  /** Foreground/text layer (vision quotes) offset (px) — desktop. */
+  textOffsetDesktop: 12,
+  /** Scale applied to all offsets on touch-input devices (weaker parallax for readability). */
+  mobileScale: 0.35,
+  /** ScrollTrigger start position for quote stagger reveal. */
+  quoteStart: 'top 70%',
+  /** Duration (s) for each quote fade-in tween. */
+  quoteDuration: 1.4,
+} as const;
+
+/**
  * Scroll-velocity–driven skewY applied to `[data-velocity-content]`.
  * Lenis velocity → gsap.quickTo → CSS skewY.
  */

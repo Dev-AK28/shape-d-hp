@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
+import ParallaxSection from '@/components/scroll/ParallaxSection';
 import TextReveal from '@/components/scroll/TextReveal';
 import {
   sectionAccentDividerClass,
@@ -11,9 +12,14 @@ import {
   visionLeadClass,
   visionQuoteClass,
 } from '@/lib/design/section-typography-classes';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
-import { ANIMATION_EASE, REVEAL_OFFSET } from '@/lib/scroll/animation-tokens';
+import {
+  ANIMATION_EASE,
+  MISSION_VISION_PARALLAX,
+  REVEAL_OFFSET,
+} from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 const visionQuotes = [
@@ -24,8 +30,14 @@ const visionQuotes = [
 ];
 
 export default function MissionVision() {
-  const { reduceMotion, staticReveal } = useStaticReveal();
+  const { profile, reduceMotion, staticReveal } = useStaticReveal();
   const quotesRef = useRef<HTMLDivElement>(null);
+
+  const isTouchDevice = isTouchInputDevice(profile);
+  const offsetScale = isTouchDevice ? MISSION_VISION_PARALLAX.mobileScale : 1;
+  const bgOffset = MISSION_VISION_PARALLAX.bgOffsetDesktop * offsetScale;
+  const midOffset = MISSION_VISION_PARALLAX.midOffsetDesktop * offsetScale;
+  const textOffset = MISSION_VISION_PARALLAX.textOffsetDesktop * offsetScale;
 
   useGsapContext(() => {
     if (!quotesRef.current) {
@@ -41,12 +53,12 @@ export default function MissionVision() {
       {
         opacity: 1,
         y: 0,
-        duration: 1.4,
+        duration: MISSION_VISION_PARALLAX.quoteDuration,
         ease: ANIMATION_EASE.base,
         stagger: REVEAL_OFFSET.stagger,
         scrollTrigger: {
           trigger: quotesRef.current,
-          start: 'top 70%',
+          start: MISSION_VISION_PARALLAX.quoteStart,
           toggleActions: 'play none none reverse',
         },
       },
@@ -55,52 +67,55 @@ export default function MissionVision() {
 
   return (
     <section
+      data-testid="mission-vision-section"
       className="relative py-[var(--space-section)] px-[var(--space-3)] bg-[rgba(10,10,10,0.72)] backdrop-blur-[2px]"
     >
-      {/* overflow-hidden: clips the absolutely positioned <p> to section boundaries,
-          preventing it from disrupting compositing layers of elements within this section (#150). */}
-      {/* pointer-events-none is intentional and non-redundant with the
-          pointer-events-none inside visualWordClass (on the child <p>):
-          absolute inset-0 covers the full section, so without it the empty areas outside <p>
-          would block click/tap events on section content.
-          Keeping pointer-events-none also complements aria-hidden="true" for a purely
-          decorative overlay: a hidden element should not intercept mouse/touch
-          input from sighted users (#158). */}
+      {/* Layer 1 (background): SELF-CONGRUENCE decorative word — largest parallax offset for depth.
+          overflow-hidden clips to section boundaries (#150).
+          pointer-events-none is intentional: absolute inset-0 would otherwise block clicks (#158). */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <p className={visualWordClass}>
-          SELF-CONGRUENCE
-        </p>
+        <ParallaxSection offset={bgOffset}>
+          <p className={visualWordClass}>
+            SELF-CONGRUENCE
+          </p>
+        </ParallaxSection>
       </div>
 
       <div className="relative z-[1] mx-auto max-w-[var(--content-standard)]">
-        <motion.div
-          {...getScrollRevealProps(reduceMotion, { staticReveal })}
-          className="mb-[var(--space-8)]"
-        >
-          <h2 className={sectionHeadingClass}>
-            <TextReveal as="span" text="VISION" />
-          </h2>
-          <div className={sectionAccentDividerClass} />
-        </motion.div>
+        {/* Layer 2 (midground): VISION heading + lead text — medium parallax offset */}
+        <ParallaxSection offset={midOffset}>
+          <motion.div
+            {...getScrollRevealProps(reduceMotion, { staticReveal })}
+            className="mb-[var(--space-8)]"
+          >
+            <h2 className={sectionHeadingClass}>
+              <TextReveal as="span" text="VISION" />
+            </h2>
+            <div className={sectionAccentDividerClass} />
+          </motion.div>
 
-        <motion.p
-          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
-          className={visionLeadClass}
-        >
-          自己一致（SELF-CONGRUENCE）への道
-        </motion.p>
+          <motion.p
+            {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
+            className={visionLeadClass}
+          >
+            自己一致（SELF-CONGRUENCE）への道
+          </motion.p>
+        </ParallaxSection>
 
-        <div ref={quotesRef}>
-          {visionQuotes.map((quote) => (
-            <blockquote
-              key={quote}
-              data-vision-quote
-              className={`${visionQuoteClass} ${staticReveal ? 'opacity-100' : 'opacity-0'}`}
-            >
-              {quote}
-            </blockquote>
-          ))}
-        </div>
+        {/* Layer 3 (text/foreground): vision quotes — smallest offset, GSAP stagger reveal */}
+        <ParallaxSection offset={textOffset}>
+          <div ref={quotesRef}>
+            {visionQuotes.map((quote) => (
+              <blockquote
+                key={quote}
+                data-vision-quote
+                className={`${visionQuoteClass} ${staticReveal ? 'opacity-100' : 'opacity-0'}`}
+              >
+                {quote}
+              </blockquote>
+            ))}
+          </div>
+        </ParallaxSection>
       </div>
     </section>
   );

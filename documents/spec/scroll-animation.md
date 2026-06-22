@@ -100,12 +100,28 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 - E2E 連続性: 形成中 Canvas（`hero-bigbang-canvas`）に非透明ピクセルが描画され、完了後 `BrandLogo` が `hero-logo-stage` 中心と整合することを `expectHeroBrandLogoAfterFormation` で検証
 - StarBackground はトップでは使用しない
 
-### トップ About / MissionVision（Issue #80 / #212）
+### トップ About / MissionVision（Issue #80 / #212 / #213）
 
 | セクション | コンポーネント | アニメーション | 備考 |
 |-----------|--------------|--------------|------|
 | ABOUT | `About.tsx` | **デスクトップ**: ScrollTrigger ピン留め + スクラブ タイムライン（#212） / **モバイル**: 単純スタガーリビール（ピンなし） | `data-testid="about-section"`。パラメータ SSOT: `ABOUT_PIN_SCROLL` |
-| VISION | `MissionVision.tsx` | `[data-vision-quote]` を GSAP stagger | 背景に `SELF-CONGRUENCE` visual word（`aria-hidden`） |
+| VISION | `MissionVision.tsx` | **多層パララックス** + GSAP stagger リビール（#213） | `data-testid="mission-vision-section"`。パラメータ SSOT: `MISSION_VISION_PARALLAX` |
+
+#### MissionVision 多層パララックス（Issue #213）
+
+`ParallaxSection`（framer-motion `useScroll` / `useTransform`）を3レイヤーに適用し、スクロールに応じた奥行き表現を実現。
+
+- **パラメータ SSOT（`MISSION_VISION_PARALLAX` — `lib/scroll/animation-tokens.ts`）**:
+
+  | レイヤー | 要素 | デスクトップ offset (px) | モバイル offset |
+  |---------|------|----------------------|----------------|
+  | Layer 1（背景） | `SELF-CONGRUENCE` 装飾テキスト | `bgOffsetDesktop: 60` | `× mobileScale (0.35)` |
+  | Layer 2（中景） | VISION 見出し + リード文 | `midOffsetDesktop: 30` | `× mobileScale (0.35)` |
+  | Layer 3（前景） | vision quotes | `textOffsetDesktop: 12` | `× mobileScale (0.35)` |
+
+- **モバイル**: `isTouchInputDevice(profile)` = true 時に `offsetScale = MISSION_VISION_PARALLAX.mobileScale`（0.35）を全レイヤーに乗算し、パララックスを弱化（可読性優先）
+- **reduced-motion**: `ParallaxSection` が内部で `useReducedMotion()` を参照し、`prefers-reduced-motion: reduce` 時は自動的に静的 `<div>` にフォールバック
+- **quotes リビール**: GSAP `fromTo` stagger（`data-vision-quote`）— `start: MISSION_VISION_PARALLAX.quoteStart`（`'top 70%'`）/ `duration: MISSION_VISION_PARALLAX.quoteDuration`（`1.4s`）/ `stagger: REVEAL_OFFSET.stagger`（`0.15s`）
 
 #### About ピン+スクラブ（デスクトップ・Issue #212）
 
