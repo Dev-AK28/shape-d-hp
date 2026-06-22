@@ -81,6 +81,9 @@ export default function PhilosophyContent() {
   const sectionWrapperRef = useRef<HTMLDivElement>(null);
   const panelsRef = useRef<HTMLDivElement>(null);
 
+  // Timeline ref for refreshInit invalidation (resize handling — Issue #186).
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
   // GSAP-driven active index for horizontal scroll on desktop.
   const [gsapActiveIndex, setGsapActiveIndex] = useState(0);
   const setGsapActiveIndexRef = useRef(setGsapActiveIndex);
@@ -93,6 +96,15 @@ export default function PhilosophyContent() {
 
   const enableHorizontal = !profile.isMobile && !profile.prefersCoarsePointer;
   const activeIndex = isReady && enableHorizontal ? gsapActiveIndex : ioActiveIndex;
+
+  // Re-evaluate function-based x values whenever ScrollTrigger refreshes (e.g. on resize).
+  // tl.invalidate() causes GSAP to re-run all function-based tween values in the timeline.
+  useEffect(() => {
+    if (!enableHorizontal) return;
+    const onRefreshInit = () => { tlRef.current?.invalidate(); };
+    ScrollTrigger.addEventListener('refreshInit', onRefreshInit);
+    return () => { ScrollTrigger.removeEventListener('refreshInit', onRefreshInit); };
+  }, [enableHorizontal]);
 
   useGsapContext(() => {
     if (!panelsRef.current) {
@@ -114,7 +126,9 @@ export default function PhilosophyContent() {
       });
       gsap.set(panels, { width: '100vw', minHeight: '100svh', flexShrink: 0 });
 
-      const scrollDistance = (sections.length - 1) * window.innerWidth;
+      // Function-based distance so ScrollTrigger.refresh() (fired on resize)
+      // re-evaluates end and x against the current viewport width (#186).
+      const getScrollDistance = () => (sections.length - 1) * window.innerWidth;
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -122,7 +136,7 @@ export default function PhilosophyContent() {
           pin: true,
           pinSpacing: true,
           start: 'top top',
-          end: `+=${scrollDistance}`,
+          end: () => `+=${getScrollDistance()}`,
           scrub: PHILOSOPHY_HORIZONTAL.scrub,
           onUpdate: (self) => {
             const index = Math.min(
@@ -137,7 +151,10 @@ export default function PhilosophyContent() {
       // Horizontal pan animation — duration must be explicit so letter tweens
       // (positioned as fractions of panDuration) don't extend the timeline and
       // cause the pan to complete before all scroll distance is consumed.
-      tl.to(panelsRef.current, { x: -scrollDistance, ease: 'none', duration: PHILOSOPHY_HORIZONTAL.panDuration });
+      // x is function-based so tl.invalidate() (called on refreshInit) re-evaluates it.
+      tl.to(panelsRef.current, { x: () => -getScrollDistance(), ease: 'none', duration: PHILOSOPHY_HORIZONTAL.panDuration });
+
+      tlRef.current = tl;
 
       // Per-panel letter opacity: fades in at panel entry, peaks at center, fades out
       panels.forEach((panel, i) => {
