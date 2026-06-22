@@ -55,9 +55,9 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 ```tsx
 // lib/hooks/useStaticReveal.ts に集約（shouldUseStaticReveal の 3 行重複を解消）
 const { reduceMotion, staticReveal, profile } = useStaticReveal();
-// isMobile は isTouchInputDevice で判定（#190）
-const isMobile = isTouchInputDevice(profile);
-// 各呼び出しに { staticReveal, isMobile, ... } を渡す
+// isTouchDevice は isTouchInputDevice で判定（#190）
+const isTouchDevice = isTouchInputDevice(profile);
+// 各呼び出しに { staticReveal, isMobile: isTouchDevice, ... } を渡す
 ```
 
 - **理由**: `staticReveal` を渡さない場合、`getScrollRevealProps` は `initial: opacity 0`（hidden）でマウントし、表示は IntersectionObserver（framer-motion `whileInView`）の発火に完全依存する。`!isReady`（SSR / ハイドレーション初回）でも `opacity: 0` で描画されるため、モバイルで Lenis スムーズスクロール有効化（#138）後、ビューポート上部で `whileInView` が発火せずコンテンツがフッター手前まで非表示になる不具合が発生した（#151：`/services`・`/works` ほか）。

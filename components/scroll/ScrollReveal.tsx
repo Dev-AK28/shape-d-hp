@@ -30,6 +30,7 @@ export default function ScrollReveal({
   ...props
 }: ScrollRevealProps) {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
+  const isTouchDevice = isTouchInputDevice(profile);
   const resolvedVariant =
     y !== undefined && variant === 'fadeUp'
       ? ('fadeUpLarge' as const)
@@ -40,7 +41,7 @@ export default function ScrollReveal({
     duration,
     variant: resolvedVariant,
     staticReveal,
-    isMobile: isTouchInputDevice(profile),
+    isMobile: isTouchDevice,
   });
 
   const initial =
