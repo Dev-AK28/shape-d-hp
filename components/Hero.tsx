@@ -22,6 +22,7 @@ import {
 } from '@/lib/scroll/gsap-config';
 import {
   ANIMATION_DURATION,
+  HERO_BIGBANG,
   HERO_DEPTH_PASSAGE,
   HERO_PIN_SCROLL,
   HERO_PIN_TEST_ID,
@@ -41,6 +42,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
+  const logoStageRef = useRef<HTMLDivElement>(null);
   const particleBandRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -50,6 +52,7 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   const staticFallback = !isReady || shouldDisableGsapAnimation(profile);
   const skipFormation = staticFallback || reduceMotion === true;
   const [formationComplete, setFormationComplete] = useState(false);
+  const [canvasRetired, setCanvasRetired] = useState(false);
   const [scrollRevealed, setScrollRevealed] = useState(false);
   const [logoScrollHidden, setLogoScrollHidden] = useState(false);
   const setScrollRevealedRef = useRef(setScrollRevealed);
@@ -77,6 +80,17 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
     });
     return () => { tween.kill(); };
   }, [formationComplete, gsapControlled, scrollRevealed]);
+
+  // Retire the big-bang canvas after the crisp logo cross-fade completes so the
+  // formed grains hand off to BrandLogo with no pop, then unmount to free the GPU.
+  useEffect(() => {
+    if (!formationComplete) return;
+    const timer = window.setTimeout(
+      () => setCanvasRetired(true),
+      HERO_BIGBANG.revealMs + 500,
+    );
+    return () => { window.clearTimeout(timer); };
+  }, [formationComplete]);
 
   // Fade-out scroll indicator once the scroll reveal has triggered.
   useEffect(() => {
@@ -250,8 +264,9 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
   // but not isMobile, so they need the same flow layout to avoid absolute-positioned CTA being
   // hidden under virtual keyboards or browser chrome. See Issue #136.
   const mobileStaticHero = isImmersive && staticFallback && isTouchInputDevice(profile);
+  const lowPowerFormation = isTouchInputDevice(profile);
   const showParticleFormation =
-    logoVisible && !logoRevealed && !skipFormation;
+    logoVisible && !skipFormation && !canvasRetired;
 
   return (
     <section
@@ -291,16 +306,21 @@ export default function Hero({ children, variant = 'immersive' }: HeroProps) {
           </div>
         ) : null}
 
+        {isImmersive ? (
+          <LogoParticleFormation
+            active={showParticleFormation}
+            lowPower={lowPowerFormation}
+            logoBoxRef={logoStageRef}
+            onComplete={() => setFormationComplete(true)}
+          />
+        ) : null}
+
         <div
+          ref={logoStageRef}
           data-testid="hero-logo-stage"
           className={`relative ${BRAND_LOGO_HERO_CLASS}`}
           style={{ aspectRatio: brandLogoHeroAspectRatio }}
         >
-          <LogoParticleFormation
-            active={showParticleFormation}
-            onComplete={() => setFormationComplete(true)}
-          />
-
           <div
             aria-hidden={logoVisible && !logoRevealed}
             className="absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.0)]"
