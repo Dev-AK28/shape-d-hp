@@ -8,15 +8,20 @@ export const pageTransitionEase = [0.16, 1, 0.3, 1] as const;
 /** Decorative loop animations (pulse, chevron bounce) — not scroll-reveal easing. */
 export const loopEase = 'easeInOut' as const;
 
+// Desktop uses 20% threshold; mobile large sections (e.g. ServicesContent ~1785px) cannot
+// satisfy 0.2 physically, so 'some' (any intersection) is used instead (#190).
 export const scrollViewport = {
-  once: true,
-  margin: '-80px' as const,
-  // `'some'` (any intersection) is required here: large section wrappers (e.g. ServicesContent
-  // Digital Solution, WorksContent PROJECTS) can exceed 1785px on mobile, making `amount: 0.2`
-  // (20% must be in view) impossible to satisfy when the heading is scrolled to center.
-  // `-80px` root margin still ensures the element is 80px inside the viewport before triggering.
-  amount: 'some' as const,
-};
+  desktop: {
+    once: true,
+    margin: '-80px' as const,
+    amount: 0.2,
+  },
+  mobile: {
+    once: true,
+    margin: '-80px' as const,
+    amount: 'some' as const,
+  },
+} as const;
 
 export const scrollTransition = {
   duration: ANIMATION_DURATION.base,

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, type HTMLMotionProps } from 'framer-motion';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import type { ScrollVariant } from '@/lib/scroll/easing';
@@ -28,7 +29,8 @@ export default function ScrollReveal({
   y,
   ...props
 }: ScrollRevealProps) {
-  const { reduceMotion, staticReveal } = useStaticReveal();
+  const { reduceMotion, staticReveal, profile } = useStaticReveal();
+  const isTouchDevice = isTouchInputDevice(profile);
   const resolvedVariant =
     y !== undefined && variant === 'fadeUp'
       ? ('fadeUpLarge' as const)
@@ -39,6 +41,7 @@ export default function ScrollReveal({
     duration,
     variant: resolvedVariant,
     staticReveal,
+    isMobile: isTouchDevice,
   });
 
   const initial =

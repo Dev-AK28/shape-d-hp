@@ -16,6 +16,8 @@ type ScrollRevealOptions = {
   staggerStep?: keyof typeof scrollStagger | number;
   /** Skip scroll-driven reveal (reduced-motion profile or explicit override). */
   staticReveal?: boolean;
+  /** Use mobile viewport settings (amount:'some') for large sections (#190). */
+  isMobile?: boolean;
 };
 
 /** Props for immediate reveal (staticReveal / reduced-motion): animate at mount, no IO. */
@@ -70,6 +72,7 @@ export function getScrollRevealProps(
     staggerIndex,
     staggerStep,
     staticReveal = false,
+    isMobile = false,
   } = options;
 
   const staggerDelay = resolveStaggerDelay(staggerIndex, staggerStep);
@@ -104,6 +107,6 @@ export function getScrollRevealProps(
     initial: scrollVariants[variant].hidden,
     whileInView: visible,
     transition,
-    viewport: scrollViewport,
+    viewport: isMobile ? scrollViewport.mobile : scrollViewport.desktop,
   };
 }
