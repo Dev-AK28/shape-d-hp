@@ -11,7 +11,8 @@ const HERO_HEADING = /AIで効率化し、.*本来の創造に集中する環境
 export async function expectHeroBrandLogoAfterFormation(page: Page): Promise<void> {
   const heroSection = page.locator('main section').first();
   const logoStage = heroSection.getByTestId('hero-logo-stage');
-  const canvas = logoStage.locator('canvas');
+  // Big-bang canvas is a full-section overlay sibling of the logo stage (Issue #211).
+  const canvas = heroSection.getByTestId('hero-bigbang-canvas');
   const heroBrandLogo = heroSection.getByRole('img', { name: LOGO_ALT });
 
   await expect(logoStage).toBeVisible({ timeout: 15_000 });
@@ -19,7 +20,7 @@ export async function expectHeroBrandLogoAfterFormation(page: Page): Promise<voi
 
   await expect(async () => {
     const hasParticlePixels = await page.evaluate(() => {
-      const target = document.querySelector('[data-testid="hero-logo-stage"] canvas');
+      const target = document.querySelector('[data-testid="hero-bigbang-canvas"]');
       if (!(target instanceof HTMLCanvasElement)) {
         return false;
       }
