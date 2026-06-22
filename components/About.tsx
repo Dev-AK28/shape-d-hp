@@ -54,7 +54,7 @@ export default function About() {
       : [];
     // Caption is included as the first element so it leads the stagger sequence.
     const allHistoryTargets = [historyCaptionRef.current, ...historyItems].filter(
-      (el): el is HTMLElement => el !== null,
+      (el): el is NonNullable<typeof el> => el !== null,
     );
 
     if (isTouchDevice) {
