@@ -36,15 +36,16 @@ Hero 背景アセット予算: ≤ 1,200 KB → 現在 1,060 KB ✅
 
 ### Works / Services 画像（参考値）
 
-| ファイル | WebP 変換後 |
-|---------|-------------|
-| `image_2.png`（元） | — KB |
-| `image_4.webp` | 52 KB |
-| `image_6.webp` | 24 KB |
-| `image_8.webp` | 28 KB |
-| `image_10.webp` | 68 KB |
+| ファイル | WebP 変換後 | 備考 |
+|---------|-------------|------|
+| `image_4.webp` | 52 KB | ✅ 変換済 |
+| `image_6.webp` | 24 KB | ✅ 変換済 |
+| `image_8.webp` | 28 KB | ✅ 変換済 |
+| `image_10.webp` | 68 KB | ✅ 変換済 |
+| `image_2.png` | 1,500 KB（PNG のまま） | ⚠️ 未変換 |
+| `image_13.png` | 1,500 KB（PNG のまま） | ⚠️ 未変換 |
 
-> 画像最適化スクリプト: `npm run optimize:images`（`lib/performance/image-assets.ts` 参照リストを対象）
+> 未変換 PNG 2ファイルは `npm run optimize:images` で WebP 化すること（`lib/performance/image-assets.ts` 参照リストを更新してから実行）。
 
 ---
 

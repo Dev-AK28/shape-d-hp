@@ -114,11 +114,13 @@ describe('shouldDisableGsapAnimation policy', () => {
     expect(s).not.toContain('isMobile');
   });
 
-  it('shouldDisableSmoothScroll only checks prefersReducedMotion', () => {
+  it('device-profile.ts contains prefersReducedMotion (shouldDisableSmoothScroll basis)', () => {
     const s = src('lib/performance/device-profile.ts');
-    // shouldDisableSmoothScroll returns prefersReducedMotion
     expect(s).toContain('prefersReducedMotion');
-    // isTouchInputDevice is separate utility for mobile-specific branches
+  });
+
+  it('isTouchInputDevice is defined in device-profile.ts (separate from shouldDisableSmoothScroll)', () => {
+    const s = src('lib/performance/device-profile.ts');
     expect(s).toContain('isTouchInputDevice');
   });
 });
