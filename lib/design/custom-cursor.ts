@@ -1,3 +1,4 @@
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import type { DeviceProfile } from '@/lib/performance/device-profile';
 
 export const CUSTOM_CURSOR_ATTR = 'data-custom-cursor';
@@ -15,8 +16,7 @@ export function shouldEnableCustomCursor(
   return (
     isReady &&
     !profile.prefersReducedMotion &&
-    !profile.isMobile &&
-    !profile.prefersCoarsePointer &&
+    !isTouchInputDevice(profile) &&
     !profile.prefersHoverNone
   );
 }
