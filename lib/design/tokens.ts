@@ -140,6 +140,8 @@ export const warmGrade = {
   overlayGradient: `linear-gradient(180deg, ${warmGradeOverlayStart} 0%, ${warmGradeOverlayMid} ${warmGradeOverlayMidStop}, ${warmGradeOverlayEnd} 100%)`,
   /** Desktop-only nebula filter (no warm tint) — disabled on mobile / reduced-motion via CSS */
   nebulaFilter: 'saturate(1.05) brightness(1.04)',
+  /** screen blend opacity for hero-nebula-layer; prevents white blowout at high luminance (#201) */
+  nebulaScreenOpacity: 0.42,
   testId: 'cosmic-warm-grade-overlay',
 } as const;
 

@@ -50,6 +50,12 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--warm-grade-overlay-mid: ${warmGrade.overlayMid}`);
     expect(globalsCss).toContain(`--warm-grade-overlay-end: ${warmGrade.overlayEnd}`);
     expect(globalsCss).toContain(`--warm-grade-nebula-filter: ${warmGrade.nebulaFilter}`);
+    expect(globalsCss).toContain(`--warm-grade-nebula-screen-opacity: ${warmGrade.nebulaScreenOpacity}`);
+  });
+
+  it('uses CSS variable for .cosmic-nebula-layer opacity (#201)', () => {
+    expect(globalsCss).toMatch(/\.cosmic-nebula-layer\s*\{[^}]*opacity:\s*var\(--warm-grade-nebula-screen-opacity\)/);
+    expect(globalsCss).not.toMatch(/\.cosmic-nebula-layer\s*\{[^}]*opacity:\s*[\d.]+[^}]*\}/);
   });
 
   it('mirrors warm grade overlay gradient structure in CSS', () => {
