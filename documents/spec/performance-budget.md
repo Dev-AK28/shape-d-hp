@@ -26,13 +26,15 @@ Issue: #214 / Part of #210
 
 | ファイル | サイズ |
 |---------|--------|
-| `hero-cosmic-bg.webp` | 108 KB |
-| `hero-cosmic-bg-mobile.webp` | 76 KB |
-| `hero-nebula-layer.webp` | 376 KB |
-| `hero-particle-band.webp` | 500 KB |
-| **Hero WebP 小計** | **1,060 KB** |
+| `hero-cosmic-bg.webp` | 110 KB |
+| `hero-cosmic-bg-mobile.webp` | 105 KB |
+| `hero-nebula-layer.webp` | 134 KB |
+| `hero-particle-band.webp` | 471 KB |
+| **Hero WebP 小計** | **820 KB** |
 
-Hero 背景アセット予算: ≤ 1,200 KB → 現在 1,060 KB ✅
+Hero 背景アセット予算: ≤ 1,200 KB → 現在 820 KB ✅
+
+> `hero-cosmic-bg` / `hero-cosmic-bg-mobile` / `hero-particle-band` / `hero-nebula-layer` はビッグバン演出に合わせた白銀（モノクロ）トーンへ再生成（#224）。粒子帯は純黒背景で生成し輝度→アルファ変換で透過 WebP 化（`object-contain` でブレンド指定がないため透過必須）。ネビュラ層は `mix-blend-mode: screen` のため暗部を純黒に締めて（linear black-point）軽量な不透明 WebP 化。あわせて CSS グレードを暖色→クール宇宙トーンへ変更（`warmGrade`）。
 
 ### Works / Services 画像（参考値）
 

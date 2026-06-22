@@ -121,10 +121,15 @@ export const cursor = {
   followerLerp: 0.12,
 } as const;
 
-/** Warm gold grade overlay for Hero cosmic background — Issue #102 */
-const warmGradeOverlayStart = 'rgba(196, 181, 160, 0.08)';
-const warmGradeOverlayMid = 'rgba(196, 181, 160, 0.12)';
-const warmGradeOverlayEnd = 'rgba(196, 181, 160, 0.15)';
+/**
+ * Cosmic grade overlay for Hero cosmic background — Issue #102.
+ * Originally a warm-gold grade; retuned to a cool deep-space (silver/blue) palette
+ * to match the big-bang intro's white-silver tone (#224). Identifiers keep the
+ * `warmGrade` name to avoid a wide rename blast radius across CSS/tests/E2E.
+ */
+const warmGradeOverlayStart = 'rgba(150, 170, 210, 0.08)';
+const warmGradeOverlayMid = 'rgba(150, 170, 210, 0.12)';
+const warmGradeOverlayEnd = 'rgba(150, 170, 210, 0.15)';
 const warmGradeOverlayMidStop = '45%';
 
 export const warmGrade = {
@@ -133,8 +138,8 @@ export const warmGrade = {
   overlayEnd: warmGradeOverlayEnd,
   overlayMidStop: warmGradeOverlayMidStop,
   overlayGradient: `linear-gradient(180deg, ${warmGradeOverlayStart} 0%, ${warmGradeOverlayMid} ${warmGradeOverlayMidStop}, ${warmGradeOverlayEnd} 100%)`,
-  /** Desktop-only nebula filter — disabled on mobile / reduced-motion via CSS */
-  nebulaFilter: 'sepia(0.08) saturate(1.05) hue-rotate(-5deg)',
+  /** Desktop-only nebula filter (no warm tint) — disabled on mobile / reduced-motion via CSS */
+  nebulaFilter: 'saturate(1.05) brightness(1.04)',
   testId: 'cosmic-warm-grade-overlay',
 } as const;
 
