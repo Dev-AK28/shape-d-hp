@@ -125,10 +125,10 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 
 | ファイル | 用途 | サイズ（WebP q85） |
 |---------|------|-----------------|
-| `hero-cosmic-bg.webp` | デスクトップ宇宙背景 | 107 KB |
-| `hero-cosmic-bg-mobile.webp` | モバイル宇宙背景 | 72 KB |
+| `hero-cosmic-bg.webp` | デスクトップ宇宙背景（3344×1882・白銀トーン／#224） | 206 KB |
+| `hero-cosmic-bg-mobile.webp` | モバイル宇宙背景（1536×2304・白銀トーン／#224） | 199 KB |
 | `hero-nebula-layer.webp` | パララックス前景（`mix-blend-mode: screen`、純黒締め WebP・シルバー宇宙ガス／#224） | 134 KB |
-| `hero-particle-band.webp` | ロゴ背後の粒子帯（immersive のみ） | 498 KB |
+| `hero-particle-band.webp` | ロゴ背後の粒子帯（immersive のみ） | 471 KB |
 | `bigbang-core.webp` | ビッグバン導入：中心プラズマ核（加算合成・黒背景） | 74 KB |
 | `bigbang-rays.webp` | ビッグバン導入：神の光条（god-rays・加算合成） | 36 KB |
 | `bigbang-nebula.webp` | ビッグバン導入：星雲ガス層（3層パララックス・加算合成） | 34 KB |
