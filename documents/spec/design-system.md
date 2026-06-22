@@ -129,7 +129,12 @@ CSS 変数: `--content-prose` / `--content-standard` / `--content-wide`（`app/g
 | `hero-cosmic-bg-mobile.webp` | モバイル宇宙背景 | 72 KB |
 | `hero-nebula-layer.webp` | パララックス前景（`mix-blend-mode: screen`、透過 WebP） | 375 KB |
 | `hero-particle-band.webp` | ロゴ背後の粒子帯（immersive のみ） | 498 KB |
+| `bigbang-core.webp` | ビッグバン導入：中心プラズマ核（加算合成・黒背景） | 74 KB |
+| `bigbang-rays.webp` | ビッグバン導入：神の光条（god-rays・加算合成） | 36 KB |
+| `bigbang-nebula.webp` | ビッグバン導入：星雲ガス層（3層パララックス・加算合成） | 34 KB |
 | `shape-d-logo-transparent.png` | 正規タイトルロゴ（透過 PNG、Nav / Hero / Footer 共通）。Hero 粒子形成（`LogoParticleFormation`）も同一 PNG のアルファからターゲット点をサンプリング | — |
+
+ビッグバン光テクスチャ（`bigbang-*.webp`、計 144 KB）は `prefers-reduced-motion` 時は読み込まれず、低性能端末（`isTouchInputDevice`）では `core` / `rays` のみ使用（星雲層を省略）。
 寸法 SSOT: `lib/design/brand-logo-constants.ts`（1536×1024、hero 最大幅 `min(88vw, 560px)`）
 
 レンダリング: `components/background/CosmicScene.tsx` + `components/BrandLogo.tsx`。
