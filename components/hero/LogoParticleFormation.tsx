@@ -238,6 +238,28 @@ export default function LogoParticleFormation({
 
           ctx.clearRect(0, 0, w, h);
 
+          // Dark "cosmic void" backdrop: the explosion ignites from black so the
+          // silver CosmicScene behind the canvas stays hidden during BIG BANG/DRIFT,
+          // then recedes through GATHER to seamlessly reveal the silver background +
+          // particle band as the logo settles (#224 — match the silver hero backdrop).
+          // source-over is explicit: clearRect above leaves compositeOperation unchanged
+          // from a previous frame; 'lighter' (set below for particles) would be
+          // mathematically equivalent on a cleared canvas, but we make intent explicit.
+          {
+            const voidFadeStart = bigBangMs + driftMs;
+            const voidFadeSpan = Math.max(1, total - voidFadeStart);
+            const voidA =
+              ms < voidFadeStart
+                ? HERO_BIGBANG.voidBackdropPeakAlpha
+                : HERO_BIGBANG.voidBackdropPeakAlpha *
+                  (1 - easeInOutCubic(Math.min(1, (ms - voidFadeStart) / voidFadeSpan)));
+            if (voidA > 0.004) {
+              ctx.globalCompositeOperation = 'source-over';
+              ctx.fillStyle = `rgba(${HERO_BIGBANG.voidBackdropRgb}, ${voidA})`;
+              ctx.fillRect(0, 0, w, h);
+            }
+          }
+
           let phase: 'BIG BANG' | 'DRIFT' | 'GATHER' | 'LOGO';
           let p: number;
           if (ms < bigBangMs) {

@@ -9,11 +9,11 @@ const cosmicSceneSource = readFileSync(
   'utf8',
 );
 
-describe('warmGrade tokens (Issue #102)', () => {
-  it('uses accent-aligned rgba stops within 0.08–0.15 range', () => {
-    expect(warmGrade.overlayStart).toBe('rgba(196, 181, 160, 0.08)');
-    expect(warmGrade.overlayMid).toBe('rgba(196, 181, 160, 0.12)');
-    expect(warmGrade.overlayEnd).toBe('rgba(196, 181, 160, 0.15)');
+describe('warmGrade tokens (Issue #102 / #224 — cosmic cool grade)', () => {
+  it('uses cool deep-space rgba stops within 0.08–0.15 range', () => {
+    expect(warmGrade.overlayStart).toBe('rgba(150, 170, 210, 0.08)');
+    expect(warmGrade.overlayMid).toBe('rgba(150, 170, 210, 0.12)');
+    expect(warmGrade.overlayEnd).toBe('rgba(150, 170, 210, 0.15)');
   });
 
   it('derives overlayGradient from overlay stops and mid-stop', () => {
@@ -22,10 +22,10 @@ describe('warmGrade tokens (Issue #102)', () => {
     );
   });
 
-  it('defines a lightweight desktop nebula filter', () => {
-    expect(warmGrade.nebulaFilter).toMatch(/sepia\(/);
+  it('defines a lightweight desktop nebula filter without warm tint', () => {
+    expect(warmGrade.nebulaFilter).not.toMatch(/sepia\(/);
     expect(warmGrade.nebulaFilter).toMatch(/saturate\(/);
-    expect(warmGrade.nebulaFilter).toMatch(/hue-rotate\(/);
+    expect(warmGrade.nebulaFilter).toMatch(/brightness\(/);
   });
 
   it('declares warm grade CSS hooks in globals.css', () => {

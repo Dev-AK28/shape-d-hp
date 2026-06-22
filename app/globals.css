@@ -38,17 +38,17 @@ html {
   --content-standard: 880px;
   --content-wide: 1040px;
 
-  /* Warm gold grade — Issue #102 (mirrors lib/design/tokens.ts warmGrade; desktop MQ = MOBILE_BREAKPOINT_PX) */
-  --warm-grade-overlay-start: rgba(196, 181, 160, 0.08);
-  --warm-grade-overlay-mid: rgba(196, 181, 160, 0.12);
-  --warm-grade-overlay-end: rgba(196, 181, 160, 0.15);
+  /* Cosmic grade — Issue #102 / #224 (mirrors lib/design/tokens.ts warmGrade; cool deep-space tone, desktop MQ = MOBILE_BREAKPOINT_PX) */
+  --warm-grade-overlay-start: rgba(150, 170, 210, 0.08);
+  --warm-grade-overlay-mid: rgba(150, 170, 210, 0.12);
+  --warm-grade-overlay-end: rgba(150, 170, 210, 0.15);
   --warm-grade-overlay: linear-gradient(
     180deg,
     var(--warm-grade-overlay-start) 0%,
     var(--warm-grade-overlay-mid) 45%, /* mirrors warmGrade.overlayMidStop */
     var(--warm-grade-overlay-end) 100%
   );
-  --warm-grade-nebula-filter: sepia(0.08) saturate(1.05) hue-rotate(-5deg);
+  --warm-grade-nebula-filter: saturate(1.05) brightness(1.04);
 
   /* Typography blend — Issue #101 (mirrors lib/design/tokens.ts typographyBlend) */
   --type-blend-cosmic: screen;
@@ -180,7 +180,7 @@ button:not(.nav-menu-button):hover {
   opacity: 0.42;
 }
 
-/* Subtle premium warmth on Hero cosmic background — overlay always; filter desktop-only */
+/* Subtle premium cosmic grade on Hero background (cool deep-space tone) — overlay always; filter desktop-only */
 .cosmic-warm-grade-overlay {
   background: var(--warm-grade-overlay);
   mix-blend-mode: soft-light;
