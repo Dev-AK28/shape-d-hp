@@ -1,3 +1,5 @@
+import { HERO_BIGBANG_FORMATION_MS } from '@/lib/scroll/animation-tokens';
+
 export type LogoSamplePoint = { x: number; y: number };
 
 export const LOGO_SAMPLE_STEP = 6;
@@ -13,8 +15,12 @@ export const LOGO_SAMPLE_MAX_DIMENSION = 768;
  */
 export const LOGO_PARTICLE_RENDER_SCALE = 0.98;
 
-/** Hero particle formation animation duration (ms). SSOT for component + E2E waits. */
-export const LOGO_PARTICLE_FORMATION_MS = 2400;
+/**
+ * Hero particle formation duration (ms): the big-bang grains reach the logo
+ * silhouette at this point. SSOT for the component + E2E waits. Derived from
+ * `HERO_BIGBANG` phase timings (bigBang + drift + gather) in animation-tokens.
+ */
+export const LOGO_PARTICLE_FORMATION_MS = HERO_BIGBANG_FORMATION_MS;
 
 export function fitSampleDimensions(
   width: number,

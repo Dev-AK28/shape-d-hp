@@ -63,7 +63,8 @@ test.describe('Home page desktop', () => {
 
     // Playwright considers opacity:0 elements as "visible" — use toHaveCSS to check GSAP opacity.
     // Indicator animates 0→1 after REVEAL_DELAY.heroScrollIndicator (delay 1.2s + duration 0.6s).
-    // 4 000ms gives ~2 200ms of CI buffer after formation completes.
+    // expectHeroBrandLogoAfterFormation already consumes the full big-bang formation window,
+    // so 4 000ms here leaves ample CI buffer for the indicator fade-in.
     const indicator = page.getByTestId('hero-scroll-indicator');
     await expect(indicator).toHaveCSS('opacity', '1', { timeout: 4000 });
 
@@ -109,8 +110,8 @@ test.describe('Home page desktop', () => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
-    // Scroll immediately after page load. Formation takes HERO_PARTICLE_FORMATION_MS (2400ms)
-    // after image-load completion; the GSAP scrub (scrub: 1.6 = ANIMATION_DURATION.hero) sets
+    // Scroll immediately after page load. Formation takes HERO_PARTICLE_FORMATION_MS (big-bang
+    // bigBang+drift+gather) after image-load completion; the GSAP scrub (scrub: 1.6 = ANIMATION_DURATION.hero) sets
     // scrollRevealed within ~1s (exponential catch-up to 93% of trigger range), leaving
     // significant margin before formation finishes.
     await page.mouse.wheel(0, 900);

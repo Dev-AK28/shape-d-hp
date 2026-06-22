@@ -116,6 +116,55 @@ export const HERO_DEPTH_PASSAGE = {
 } as const;
 
 /**
+ * Hero big-bang intro (Act 1, Issue #211): particles burst from a central flash,
+ * drift, then converge into the SHAPE∞D logo silhouette. Rendered on a Canvas2D
+ * overlay covering the full hero section; on completion the crisp `BrandLogo`
+ * cross-fades in and the existing `HERO_DEPTH_PASSAGE` (Act 2) takes over on scroll.
+ *
+ * Phase durations (ms) are sequential: bigBang → drift → gather. `revealMs` extends
+ * the logo cross-fade tail past the gather arrival point. `formationMs` (= bigBang +
+ * drift + gather) is re-exported as `LOGO_PARTICLE_FORMATION_MS` (SSOT for the
+ * component + E2E waits).
+ *
+ * `quality.*` counts are selected per device: `high` (desktop / fine pointer) vs
+ * `low` (mobile / coarse pointer). Low power drops ambient dust + nebula motes and
+ * caps devicePixelRatio to protect fill-rate-bound mobile GPUs.
+ */
+export const HERO_BIGBANG = {
+  bigBangMs: 1100,
+  driftMs: 1200,
+  gatherMs: 1800,
+  /** Logo cross-fade tail (ms) after the grains arrive (overlaps gather end). */
+  revealMs: 700,
+  /** Fraction of gather before arrival where the crisp-logo cross-fade begins. */
+  revealLeadFraction: 0.12,
+  /** Burst displacement multiplier applied to each grain's initial velocity. */
+  burstScale: 28,
+  quality: {
+    high: {
+      particleCount: 3500,
+      sampleStep: 3,
+      dustCount: 1800,
+      moteCount: 500,
+      dprCap: 2,
+      textures: ['core', 'rays', 'nebula'] as const,
+    },
+    low: {
+      particleCount: 1200,
+      sampleStep: 5,
+      dustCount: 0,
+      moteCount: 0,
+      dprCap: 1.5,
+      textures: ['core', 'rays'] as const,
+    },
+  },
+} as const;
+
+/** Sequential arrival point (ms) where grains finish forming the logo silhouette. */
+export const HERO_BIGBANG_FORMATION_MS =
+  HERO_BIGBANG.bigBangMs + HERO_BIGBANG.driftMs + HERO_BIGBANG.gatherMs;
+
+/**
  * Scroll-velocity–driven skewY applied to `[data-velocity-content]`.
  * Lenis velocity → gsap.quickTo → CSS skewY.
  */
