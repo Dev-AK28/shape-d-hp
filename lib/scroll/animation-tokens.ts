@@ -169,8 +169,8 @@ export const HERO_BIGBANG_FORMATION_MS =
  * Mobile (`isTouchInputDevice`) uses simple stagger reveals without pinning.
  *
  * Timeline positions are absolute seconds within the GSAP timeline.
- * The last history item lands at `historyRevealAt + maxItems*historyStagger +
- * historyItemDuration ≈ 0.97`, filling the timeline end cleanly.
+ * The last history item lands at `historyRevealAt + (maxItems)*historyStagger +
+ * historyItemDuration = 1.00` (caption + 6 items = 7 targets, 6 intervals).
  */
 export const ABOUT_PIN_SCROLL = {
   start: 'top top',
