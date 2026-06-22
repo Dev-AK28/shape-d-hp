@@ -6,13 +6,13 @@ Issue: #51 / 全幕統一方針: #214
 
 #210 シリーズ（第1〜第4幕）の演出追加に伴い、端末別の出し分け方針を全幕で統一した。
 
-### 判定関数（SSOT: `lib/performance/device-profile.ts`）
+### 判定関数
 
-| 関数 | 条件 | 用途 |
-|------|------|------|
-| `shouldDisableGsapAnimation(profile)` | `prefersReducedMotion` のみ | GSAP 全体を無効化（ピン・スクラブ・stagger） |
-| `isTouchInputDevice(profile)` | `isMobile \|\| prefersCoarsePointer` | ピン廃止・パララックス縮小など演出の軽量化 |
-| `shouldDisableSmoothScroll(profile)` | `prefersReducedMotion` のみ | Lenis を無効化 |
+| 関数 | 定義ファイル | 条件 | 用途 |
+|------|------------|------|------|
+| `shouldDisableGsapAnimation(profile)` | `lib/scroll/gsap-config.ts` | `prefersReducedMotion` のみ | GSAP 全体を無効化（ピン・スクラブ・stagger） |
+| `isTouchInputDevice(profile)` | `lib/performance/device-profile.ts` | `isMobile \|\| prefersCoarsePointer` | ピン廃止・パララックス縮小など演出の軽量化 |
+| `shouldDisableSmoothScroll(profile)` | `lib/performance/device-profile.ts` | `prefersReducedMotion` のみ | Lenis を無効化 |
 
 > **重要**: GSAP は `prefers-reduced-motion` 時のみ無効。モバイル（タッチ端末）では GSAP 有効のまま、演出の重さを `isTouchInputDevice` で段階調整する。
 
