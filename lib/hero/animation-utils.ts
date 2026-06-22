@@ -1,6 +1,6 @@
-import type { LogoSamplePoint } from '@/lib/hero/sample-logo-target-points';
-
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type Point = { x: number; y: number };
 
 export type Particle = {
   vx: number;
@@ -97,7 +97,7 @@ export function splineParam(
 
 // ─── Particle builders ────────────────────────────────────────────────────────
 
-export function buildParticles(targets: LogoSamplePoint[]): Particle[] {
+export function buildParticles(targets: Point[]): Particle[] {
   return targets.map((t) => {
     const angle = Math.random() * Math.PI * 2;
     const speed = 5 + Math.random() * 22;
@@ -116,7 +116,7 @@ export function buildParticles(targets: LogoSamplePoint[]): Particle[] {
       size: (0.32 + Math.random() * 0.7) * (1.15 - depthLayer * 0.45),
       opacity: 0.26 + Math.random() * 0.46,
       cool: Math.random() < 0.5,
-      twPhase: Math.random() * 6.28,
+      twPhase: Math.random() * 2 * Math.PI,
       twSpeed: 0.6 + Math.random() * 1.6,
       bright: Math.random() < 0.012,
     };
@@ -138,7 +138,7 @@ export function buildDust(n: number): Dust[] {
       size: 0.22 + Math.random() * 0.55,
       opacity: 0.1 + Math.random() * 0.26,
       cool: Math.random() < 0.55,
-      twPhase: Math.random() * 6.28,
+      twPhase: Math.random() * 2 * Math.PI,
       twSpeed: 0.5 + Math.random() * 2.0,
     });
   }
@@ -156,9 +156,9 @@ export function buildMotes(n: number): Mote[] {
       size: (0.3 + Math.random() * 0.7) * (1.25 - depth * 0.5),
       opacity: 0.16 + Math.random() * 0.32,
       cool: Math.random() < 0.5,
-      twPhase: Math.random() * 6.28,
+      twPhase: Math.random() * 2 * Math.PI,
       twSpeed: 0.5 + Math.random() * 2.2,
-      driftPhase: Math.random() * 6.28,
+      driftPhase: Math.random() * 2 * Math.PI,
       driftSpeed: 0.0003 + Math.random() * 0.0006,
     });
   }

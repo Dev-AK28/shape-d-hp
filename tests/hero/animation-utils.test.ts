@@ -44,6 +44,13 @@ describe('easeOutQuint', () => {
     expect(easeOutQuint(0.5)).toBeGreaterThan(easeOutCubic(0.5));
   });
 
+  it('is monotonically increasing on [0,1]', () => {
+    const steps = [0, 0.25, 0.5, 0.75, 1].map(easeOutQuint);
+    for (let i = 1; i < steps.length; i++) {
+      expect(steps[i]).toBeGreaterThan(steps[i - 1]);
+    }
+  });
+
   it('stays in [0,1] for inputs in [0,1]', () => {
     [0, 0.1, 0.5, 0.9, 1].forEach((p) => {
       expect(easeOutQuint(p)).toBeGreaterThanOrEqual(0);
@@ -77,6 +84,13 @@ describe('easeInOutSine', () => {
 
   it('passes through (0.5, 0.5)', () => {
     expect(easeInOutSine(0.5)).toBeCloseTo(0.5, 10);
+  });
+
+  it('is monotonically increasing on [0,1]', () => {
+    const steps = [0, 0.25, 0.5, 0.75, 1].map(easeInOutSine);
+    for (let i = 1; i < steps.length; i++) {
+      expect(steps[i]).toBeGreaterThan(steps[i - 1]);
+    }
   });
 
   it('stays in [0,1] for inputs in [0,1]', () => {
@@ -185,11 +199,11 @@ describe('buildParticles', () => {
     }
   });
 
-  it('produces positive size below 2', () => {
+  it('produces positive size below 1.2', () => {
     const particles = buildParticles(Array.from({ length: 200 }, (_, i) => ({ x: i, y: i })));
     for (const p of particles) {
       expect(p.size).toBeGreaterThan(0);
-      expect(p.size).toBeLessThan(2);
+      expect(p.size).toBeLessThan(1.2);
     }
   });
 
