@@ -37,6 +37,7 @@ export default function About() {
   const pillar1Ref = useRef<HTMLDivElement>(null);
   const pillar2Ref = useRef<HTMLDivElement>(null);
   const historyRef = useRef<HTMLDivElement>(null);
+  const historyCaptionRef = useRef<HTMLParagraphElement>(null);
 
   const isTouchDevice = isTouchInputDevice(profile);
 
@@ -51,6 +52,10 @@ export default function About() {
           historyRef.current.querySelectorAll<HTMLElement>('[data-timeline-item]'),
         ).slice(0, REVEAL_OFFSET.maxStaggerItems)
       : [];
+    // Caption is included as the first element so it leads the stagger sequence.
+    const allHistoryTargets = [historyCaptionRef.current, ...historyItems].filter(
+      (el): el is HTMLElement => el !== null,
+    );
 
     if (isTouchDevice) {
       // Mobile: simple stagger scroll-trigger reveals (no pin)
@@ -66,7 +71,7 @@ export default function About() {
             y: 0,
             duration: ANIMATION_DURATION.base,
             ease: ANIMATION_EASE.base,
-            stagger: 0.18,
+            stagger: REVEAL_OFFSET.stagger,
             scrollTrigger: {
               trigger: sectionRef.current,
               start: 'top 75%',
@@ -75,14 +80,14 @@ export default function About() {
           },
         );
       }
-      if (historyItems.length > 0) {
+      if (allHistoryTargets.length > 0) {
         gsap.fromTo(
-          historyItems,
+          allHistoryTargets,
           { opacity: 0, y: REVEAL_OFFSET.y },
           {
             opacity: 1,
             y: 0,
-            duration: 1.2,
+            duration: ANIMATION_DURATION.heroChild,
             ease: ANIMATION_EASE.base,
             stagger: REVEAL_OFFSET.stagger,
             scrollTrigger: {
@@ -143,9 +148,9 @@ export default function About() {
         pillar2RevealAt,
       );
     }
-    if (historyItems.length > 0) {
+    if (allHistoryTargets.length > 0) {
       tl.fromTo(
-        historyItems,
+        allHistoryTargets,
         { opacity: 0, y: 16 },
         {
           opacity: 1,
@@ -209,7 +214,13 @@ export default function About() {
         </div>
 
         <div ref={historyRef} className="mb-[var(--space-4)]">
-          <p className={sectionHistoryCaptionClass}>経歴</p>
+          <p
+            ref={historyCaptionRef}
+            className={sectionHistoryCaptionClass}
+            style={{ opacity: initialOpacity }}
+          >
+            経歴
+          </p>
           <ul className="m-0 list-none border-l border-[var(--border)] py-0 pl-[var(--space-4)]">
             {career.map((item, index) => (
               <li

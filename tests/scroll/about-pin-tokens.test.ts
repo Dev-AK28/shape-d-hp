@@ -18,17 +18,13 @@ describe('ABOUT_PIN_SCROLL tokens', () => {
     expect(pillar2RevealAt).toBeLessThan(historyRevealAt);
   });
 
-  it('fills the timeline: last history item lands before timelineDuration', () => {
-    const {
-      historyRevealAt,
-      historyItemDuration,
-      historyStagger,
-      timelineDuration,
-    } = ABOUT_PIN_SCROLL;
-    const maxItems = REVEAL_OFFSET.maxStaggerItems;
+  it('fills the timeline: last history item (incl. caption) lands within 1s', () => {
+    const { historyRevealAt, historyItemDuration, historyStagger } = ABOUT_PIN_SCROLL;
+    // caption is prepended as index-0 in allHistoryTargets; maxStaggerItems covers career items
+    const totalTargets = REVEAL_OFFSET.maxStaggerItems + 1; // +1 for caption
     const lastItemEnd =
-      historyRevealAt + (maxItems - 1) * historyStagger + historyItemDuration;
-    expect(lastItemEnd).toBeLessThanOrEqual(timelineDuration);
+      historyRevealAt + (totalTargets - 1) * historyStagger + historyItemDuration;
+    expect(lastItemEnd).toBeLessThanOrEqual(1);
   });
 
   it('has positive durations for each reveal phase', () => {
