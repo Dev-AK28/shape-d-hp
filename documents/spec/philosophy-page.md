@@ -26,13 +26,21 @@ Issue: #81
 
 | 挙動 | 設定 | reduced-motion 時 |
 |------|------|-------------------|
-| セクション snap | `ScrollTrigger.snap` — duration `1.8` / ease `power3.inOut` | 無効（`useGsapContext` スキップ） |
-| モバイル snap | `isMobile` または `prefersCoarsePointer` 時は snap 無効 | 同上 |
-| 文字 opacity scrub | `0.04` → `0.08` | 静的 `0.04` |
+| デスクトップ水平スクロール | `gsap.timeline` + `ScrollTrigger` pin — scrub `1.8`、`end` は関数形式（`#186` リサイズ対応） | 無効（`useGsapContext` スキップ） |
+| モバイル垂直 snap | `isMobile` または `prefersCoarsePointer` 時は縦スクロール + `ScrollTrigger.snap` | 同上 |
+| 文字 opacity scrub | `0.04` → `0.08`（デスクトップ: per-panel fade-in / モバイル: scrub） | 静的 `0.04` |
 | テキストリビール | `getScrollRevealProps` + `TextReveal`（`useStaticReveal` / hydration ラッチ — #151） | `staticReveal` 経由で即時表示 |
 | 進捗ドット | `usePanelActiveIndex`（IntersectionObserver） | **有効**（GSAP 非依存） |
 
-`snap` は `panelsRef`（6 パネルのみ）に適用。CTA ブロックは snap 計算から除外する。
+モバイル `snap` は `panelsRef`（6 パネルのみ）に適用。CTA ブロックは snap 計算から除外する。
+
+### リサイズ対応（#186）
+
+デスクトップ水平スクロールの `scrollDistance`（= `(sections.length - 1) × window.innerWidth`）は以下で常に最新の `innerWidth` を参照する:
+
+- `end: () => \`+=${getScrollDistance()}\`` — `ScrollTrigger.refresh()` 時に自動再計算
+- `x: () => -getScrollDistance()` — 関数形式で `tl.invalidate()` 後に再評価
+- `ScrollTrigger.addEventListener('refreshInit', () => tlRef.current?.invalidate())` — リサイズ起因の refresh 前に timeline を invalidate してから `x` を再評価させる
 
 ## 受け入れ基準（Given-When-Then）
 
@@ -52,6 +60,12 @@ Then 右端の進捗ドットが対応する文字位置に追従する
 Given ユーザーが prefers-reduced-motion を有効にしている
 When Philosophy ページを閲覧する
 Then GSAP snap/文字 scrub は無効だが、全セクションとドット追従は利用可能である
+```
+
+```gherkin
+Given ユーザーがデスクトップブラウザで Philosophy ページを表示している
+When ブラウザウィンドウの幅を変更する
+Then スクロール完了時に最終パネル（D: Development）がビューポート中央に正確に収まっている
 ```
 
 ## 検証
