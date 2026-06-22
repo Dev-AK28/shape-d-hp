@@ -1,6 +1,53 @@
 # モバイルパフォーマンス最適化
 
-Issue: #51
+Issue: #51 / 全幕統一方針: #214
+
+## 全幕モバイル簡略版・reduced-motion 統一方針（Issue #214）
+
+#210 シリーズ（第1〜第4幕）の演出追加に伴い、端末別の出し分け方針を全幕で統一した。
+
+### 判定関数
+
+| 関数 | 定義ファイル | 条件 | 用途 |
+|------|------------|------|------|
+| `shouldDisableGsapAnimation(profile)` | `lib/scroll/gsap-config.ts` | `prefersReducedMotion` のみ | GSAP 全体を無効化（ピン・スクラブ・stagger） |
+| `isTouchInputDevice(profile)` | `lib/performance/device-profile.ts` | `isMobile \|\| prefersCoarsePointer` | ピン廃止・パララックス縮小など演出の軽量化 |
+| `shouldDisableSmoothScroll(profile)` | `lib/performance/device-profile.ts` | `prefersReducedMotion` のみ | Lenis を無効化 |
+
+> **重要**: GSAP は `prefers-reduced-motion` 時のみ無効。モバイル（タッチ端末）では GSAP 有効のまま、演出の重さを `isTouchInputDevice` で段階調整する。
+
+### 幕ごとの実装パターン
+
+| 幕 | コンポーネント | モバイル対応 | reduced-motion 対応 |
+|----|--------------|------------|-------------------|
+| 第1幕 | `Hero.tsx`（ビッグバン） | `isTouchInputDevice` → lowPower プロファイル（粒子数削減） | `shouldDisableGsapAnimation` → skipFormation |
+| 第2幕 | `Hero.tsx`（深度通過） | GSAP scrub はモバイルでも動作 | `shouldDisableGsapAnimation` → 静的フォールバック |
+| 第3幕 | `About.tsx`（ピン+スクラブ） | `isTouchInputDevice` → ピンなし単純スタガーに切替 | `useGsapContext` が auto-skip |
+| 第4幕 | `MissionVision.tsx`（多層パララックス） | `isTouchInputDevice` → `mobileScale: 0.35` で全 offset 縮小 | `ParallaxSection` が `useReducedMotion()` で静的 div にフォールバック |
+| Philosophy | `PhilosophyContent.tsx`（水平スクロール） | `!isMobile && !prefersCoarsePointer` でのみ水平ピン有効 | `useGsapContext` が auto-skip |
+| 下層ページ | `ServicesContent` / `WorksContent` 等 | `useStaticReveal()` → `staticReveal` で即時表示 | `getScrollRevealProps` + `staticReveal=true` |
+
+### `useGsapContext` による reduced-motion 自動スキップ
+
+```ts
+// lib/hooks/useGsapContext.ts
+const disableAnimation = shouldDisableGsapAnimation(profile) || reduceMotion === true;
+useLayoutEffect(() => {
+  if (!isReady || disableAnimation) return; // ← 全 GSAP セットアップをスキップ
+  ...
+}, [isReady, disableAnimation, ...deps]);
+```
+
+GSAP を使う全コンポーネントが `useGsapContext` を通じているため、`prefers-reduced-motion` 時の静的フォールバックは一箇所で保証される。
+
+### パフォーマンス予算
+
+詳細は [`performance-budget.md`](./performance-budget.md) を参照。
+- 追加アセット合計 ≤ 1 MB（現在: bigbang 3ファイル計 148 KB）
+- アニメーション系 JS ≤ 80 KB（gzip）
+- LCP モバイル ≤ 3.5 s / CLS ≤ 0.1
+
+---
 
 ## 目的
 
