@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import {
   scrollEase,
@@ -47,7 +48,8 @@ export default function TextReveal({
   immediate = false,
   blend = 'solid',
 }: TextRevealProps) {
-  const { staticReveal } = useStaticReveal();
+  const { staticReveal, profile } = useStaticReveal();
+  const viewport = isTouchInputDevice(profile) ? scrollViewport.mobile : scrollViewport.desktop;
   const segments = segmentText(text);
   // `staticReveal` is already hydration-safe:
   //   - SSR / first client render (!isReady): always true → renders plain text (matches server) (#151)
@@ -76,7 +78,7 @@ export default function TextReveal({
             delay: delay + index * textRevealStagger,
             ease: scrollEase,
           }}
-          viewport={scrollViewport}
+          viewport={viewport}
           className="inline-block"
         >
           {segment}

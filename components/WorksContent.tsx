@@ -3,14 +3,16 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function WorksContent() {
-  const { reduceMotion, staticReveal } = useStaticReveal();
+  const { reduceMotion, staticReveal, profile } = useStaticReveal();
   const focusGuardRef = useFocusRestore(staticReveal);
+  const isMobile = isTouchInputDevice(profile);
   const projects = [
     {
       id: 1,
@@ -88,7 +90,7 @@ export default function WorksContent() {
         {/* PROJECTS Section */}
         <motion.div
           key={staticReveal ? 'static-projects' : 'reveal-projects'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile })}
           style={{ marginBottom: '160px' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
@@ -97,7 +99,7 @@ export default function WorksContent() {
           {projects.map((work, index) => (
             <motion.div
               key={staticReveal ? `static-project-${work.id}` : `reveal-project-${work.id}`}
-              {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 0.2 })}
+              {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 0.2, isMobile })}
               style={{ marginBottom: index < projects.length - 1 ? '160px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '64px', alignItems: 'center' }}>
@@ -109,6 +111,7 @@ export default function WorksContent() {
                     staggerIndex: index,
                     staggerStep: 0.2,
                     delay: 0.2,
+                    isMobile,
                   })}
                   style={{
                     aspectRatio: '16/10',
@@ -181,7 +184,7 @@ export default function WorksContent() {
         {/* CONCEPT WORKS Section */}
         <motion.div
           key={staticReveal ? 'static-concept' : 'reveal-concept'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4, isMobile })}
           style={{ marginBottom: '120px' }}
         >
           <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
@@ -196,6 +199,7 @@ export default function WorksContent() {
                   delay: 0.5,
                   staggerIndex: index,
                   staggerStep: 'card',
+                  isMobile,
                 })}
                 style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
               >
@@ -268,7 +272,7 @@ export default function WorksContent() {
         {/* GoDD Footer */}
         <motion.div
           key={staticReveal ? 'static-footer' : 'reveal-footer'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile })}
           style={{ textAlign: 'center', paddingTop: '64px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
         >
           <p style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em', fontFamily: 'serif' }}>

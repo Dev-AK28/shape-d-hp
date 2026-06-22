@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
@@ -10,8 +11,9 @@ import BrandLogo from '@/components/BrandLogo';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
 export default function ConsultingContent() {
-  const { reduceMotion, staticReveal } = useStaticReveal();
+  const { reduceMotion, staticReveal, profile } = useStaticReveal();
   const focusGuardRef = useFocusRestore(staticReveal);
+  const isMobile = isTouchInputDevice(profile);
   const steps = [
     {
       id: 1,
@@ -65,7 +67,7 @@ export default function ConsultingContent() {
         {/* Introduction */}
         <motion.div
           key={staticReveal ? 'static-intro' : 'reveal-intro'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
         >
           {/* Background Image */}
@@ -104,7 +106,7 @@ export default function ConsultingContent() {
         {/* 3 Steps */}
         <motion.div
           key={staticReveal ? 'static-steps' : 'reveal-steps'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2, isMobile })}
           style={{ marginBottom: '160px' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -119,6 +121,7 @@ export default function ConsultingContent() {
                   delay: 0.3,
                   staggerIndex: index,
                   staggerStep: 'card',
+                  isMobile,
                 })}
                 style={{ padding: '48px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
@@ -176,7 +179,7 @@ export default function ConsultingContent() {
         {/* 8 Perspectives Narrative */}
         <motion.div
           key={staticReveal ? 'static-perspective' : 'reveal-perspective'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.6 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.6, isMobile })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '48px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
@@ -212,7 +215,7 @@ export default function ConsultingContent() {
 
         <motion.div
           key={staticReveal ? 'static-cta' : 'reveal-cta'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8 })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(167, 139, 250, 0.1), rgba(167, 139, 250, 0.2))', backdropFilter: 'blur(10px)' }}
         >
           <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>

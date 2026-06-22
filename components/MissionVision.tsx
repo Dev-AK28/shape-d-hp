@@ -85,7 +85,7 @@ export default function MissionVision() {
         {/* Layer 2 (midground): VISION heading + lead text — medium parallax offset */}
         <ParallaxSection offset={midOffset}>
           <motion.div
-            {...getScrollRevealProps(reduceMotion, { staticReveal })}
+            {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
             className="mb-[var(--space-8)]"
           >
             <h2 className={sectionHeadingClass}>
@@ -95,7 +95,7 @@ export default function MissionVision() {
           </motion.div>
 
           <motion.p
-            {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15 })}
+            {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.15, isMobile: isTouchDevice })}
             className={visionLeadClass}
           >
             自己一致（SELF-CONGRUENCE）への道
