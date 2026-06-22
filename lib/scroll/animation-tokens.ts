@@ -140,6 +140,14 @@ export const HERO_BIGBANG = {
   revealLeadFraction: 0.12,
   /** Burst displacement multiplier applied to each grain's initial velocity. */
   burstScale: 28,
+  /**
+   * Cosmic void backdrop drawn on Canvas before particles (#224 — seamless reveal).
+   * `rgb` is applied as `rgba(${voidBackdropRgb}, alpha)` so the near-black hides
+   * the silver CosmicScene during BIG BANG/DRIFT, then fades through GATHER.
+   */
+  voidBackdropRgb: '3, 2, 9' as const,
+  /** Peak alpha of the void backdrop (BIG BANG / DRIFT phases). */
+  voidBackdropPeakAlpha: 0.94,
   quality: {
     high: {
       particleCount: 3500,
