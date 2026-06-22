@@ -11,7 +11,7 @@ import BrandLogo from '@/components/BrandLogo';
 export default function DevelopmentContent() {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
   const focusGuardRef = useFocusRestore(staticReveal);
-  const isMobile = isTouchInputDevice(profile);
+  const isTouchDevice = isTouchInputDevice(profile);
   const steps = [
     {
       id: 1,
@@ -70,7 +70,7 @@ export default function DevelopmentContent() {
           {steps.map((step, index) => (
             <motion.div
               key={staticReveal ? `static-step-${step.id}` : `reveal-step-${step.id}`}
-              {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card', isMobile })}
+              {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card', isMobile: isTouchDevice })}
               className={index < steps.length - 1 ? 'mb-[100px]' : ''}
             >
               <div className="grid gap-16 items-start grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))]">
@@ -82,7 +82,7 @@ export default function DevelopmentContent() {
                     staggerIndex: index,
                     staggerStep: 'card',
                     delay: 0.1,
-                    isMobile,
+                    isMobile: isTouchDevice,
                   })}
                   className="relative flex flex-col items-center justify-center"
                 >
@@ -133,7 +133,7 @@ export default function DevelopmentContent() {
 
         <motion.div
           key={staticReveal ? 'static-cta' : 'reveal-cta'}
-          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile })}
+          {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           className="text-center p-16 border border-white/10 rounded-lg bg-[linear-gradient(to_right,rgba(96,165,250,0.1),rgba(96,165,250,0.2))] backdrop-blur-[10px]"
         >
           <h3 className="text-[28px] font-light text-white mb-[var(--space-3)] type-font-serif">
