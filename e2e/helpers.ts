@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { LOGO_PARTICLE_FORMATION_MS } from '../lib/hero/sample-logo-target-points';
+import { HERO_BIGBANG } from '../lib/scroll/animation-tokens';
 
 export const LOGO_ALT = 'SHAPE∞D Logo';
 
@@ -63,6 +64,36 @@ export async function expectHeroBrandLogoAfterFormation(page: Page): Promise<voi
     expect(logoBox.width).toBeGreaterThan(100);
     expect(logoBox.width).toBeGreaterThan(stageBox.width * 0.5);
   }).toPass({ timeout: 5000 });
+}
+
+/**
+ * Verifies the big-bang Canvas unmounts after formation and BrandLogo stays visible.
+ *
+ * Timeline from formationComplete:
+ *   revealMs (700ms) + 500ms retire delay → canvasRetired=true → canvas unmounts.
+ * Call after page-loader is gone. Assumes reduced-motion is NOT active (canvas must render).
+ */
+export async function expectBigbangCanvasRetiredWithLogoVisible(page: Page): Promise<void> {
+  const heroSection = page.locator('main section').first();
+  const canvas = heroSection.getByTestId('hero-bigbang-canvas');
+  const heroBrandLogo = heroSection.getByRole('img', { name: LOGO_ALT });
+
+  // Wait for canvas to appear first — guards against reduced-motion environments
+  // where the canvas is never created (test will fail here rather than with a
+  // misleading "canvas already gone" pass).
+  await expect(canvas).toBeVisible({ timeout: 15_000 });
+
+  // Wait for formationComplete sentinel, then for canvas retire.
+  // retire timeout = revealMs + 500ms (Hero.tsx) + 1500ms CI buffer.
+  const retireTimeoutMs = HERO_BIGBANG.revealMs + 500 + 1500;
+  await page.getByTestId('hero-formation-complete').waitFor({
+    state: 'attached',
+    timeout: LOGO_PARTICLE_FORMATION_MS + 5000,
+  });
+  await expect(canvas).not.toBeAttached({ timeout: retireTimeoutMs });
+
+  // BrandLogo must remain visible after the canvas exits — no pop or blank flash.
+  await expect(heroBrandLogo).toBeVisible();
 }
 
 export async function waitForHomePageReady(page: Page): Promise<void> {

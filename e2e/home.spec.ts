@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectFooterVisibleAboveCosmicBackground, expectHeroBrandLogoAfterFormation, LOGO_ALT, waitForHomePageReady } from './helpers';
+import { expectBigbangCanvasRetiredWithLogoVisible, expectFooterVisibleAboveCosmicBackground, expectHeroBrandLogoAfterFormation, LOGO_ALT, waitForHomePageReady } from './helpers';
 import { ANIMATION_DURATION, REVEAL_DELAY } from '../lib/scroll/animation-tokens';
 
 test.describe('Home page', () => {
@@ -142,6 +142,17 @@ test.describe('Home page desktop', () => {
     // waitForTimeout above already consumed the full reveal window; 1000ms is enough here.
     const indicator = page.getByTestId('hero-scroll-indicator');
     await expect(indicator).toHaveCSS('opacity', '0', { timeout: 1000 });
+  });
+
+  test('retires bigbang canvas and keeps BrandLogo visible after formation (#218)', async ({ page }) => {
+    // Explicitly opt-out of reduced-motion so the big-bang canvas is rendered.
+    // In reduced-motion mode skipFormation=true and the canvas is never created,
+    // which would cause expectBigbangCanvasRetiredWithLogoVisible to fail early
+    // at the "canvas must appear" guard — the intended failure signal.
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectBigbangCanvasRetiredWithLogoVisible(page);
   });
 
   test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
