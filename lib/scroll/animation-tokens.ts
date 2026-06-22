@@ -190,6 +190,31 @@ export const ABOUT_PIN_SCROLL = {
 } as const;
 
 /**
+ * Mission/Vision section (Act 4) multi-layer parallax — desktop full offsets,
+ * mobile reduced via `mobileScale` to prioritize readability on small screens.
+ *
+ * Layer depth order (front→back): text (quotes) → midground (heading/lead) → bg (decorative word).
+ * Each `ParallaxSection` receives the computed offset: `*OffsetDesktop × (isTouchDevice ? mobileScale : 1)`.
+ * `prefers-reduced-motion`: `ParallaxSection` falls back to a plain div automatically.
+ *
+ * Quote reveal uses GSAP stagger (same pattern as original [data-vision-quote] ScrollTrigger).
+ */
+export const MISSION_VISION_PARALLAX = {
+  /** Background layer (SELF-CONGRUENCE decorative text) offset (px) — desktop. */
+  bgOffsetDesktop: 60,
+  /** Midground layer (VISION heading + lead text) offset (px) — desktop. */
+  midOffsetDesktop: 30,
+  /** Foreground/text layer (vision quotes) offset (px) — desktop. */
+  textOffsetDesktop: 12,
+  /** Scale applied to all offsets on touch-input devices (weaker parallax for readability). */
+  mobileScale: 0.35,
+  /** ScrollTrigger start position for quote stagger reveal. */
+  quoteStart: 'top 70%',
+  /** Duration (s) for each quote fade-in tween. */
+  quoteDuration: 1.4,
+} as const;
+
+/**
  * Scroll-velocity–driven skewY applied to `[data-velocity-content]`.
  * Lenis velocity → gsap.quickTo → CSS skewY.
  */
