@@ -69,6 +69,13 @@ describe('easeInOutCubic', () => {
     expect(easeInOutCubic(0.5)).toBeCloseTo(0.5, 10);
   });
 
+  it('is monotonically increasing on [0,1]', () => {
+    const steps = [0, 0.25, 0.5, 0.75, 1].map(easeInOutCubic);
+    for (let i = 1; i < steps.length; i++) {
+      expect(steps[i]).toBeGreaterThan(steps[i - 1]);
+    }
+  });
+
   it('is symmetric: f(x) = 1 - f(1-x)', () => {
     [0.1, 0.25, 0.4].forEach((x) => {
       expect(easeInOutCubic(x)).toBeCloseTo(1 - easeInOutCubic(1 - x), 10);
