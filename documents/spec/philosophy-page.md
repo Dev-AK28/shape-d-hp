@@ -62,6 +62,12 @@ When Philosophy ページを閲覧する
 Then GSAP snap/文字 scrub は無効だが、全セクションとドット追従は利用可能である
 ```
 
+```gherkin
+Given ユーザーがデスクトップブラウザで Philosophy ページを表示している
+When ブラウザウィンドウの幅を変更する
+Then スクロール完了時に最終パネル（D: Development）がビューポート中央に正確に収まっている
+```
+
 ## 検証
 
 ```bash

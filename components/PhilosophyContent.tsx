@@ -98,7 +98,7 @@ export default function PhilosophyContent() {
   const activeIndex = isReady && enableHorizontal ? gsapActiveIndex : ioActiveIndex;
 
   // Re-evaluate function-based x values whenever ScrollTrigger refreshes (e.g. on resize).
-  // tl.invalidate() causes GSAP to re-run all function-based tween values in the timeline.
+  // tl.invalidate() clears recorded start values so GSAP re-reads function-based tween sources on the next render.
   useEffect(() => {
     if (!enableHorizontal) return;
     const onRefreshInit = () => { tlRef.current?.invalidate(); };
