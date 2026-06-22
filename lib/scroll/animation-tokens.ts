@@ -165,6 +165,33 @@ export const HERO_BIGBANG_FORMATION_MS =
   HERO_BIGBANG.bigBangMs + HERO_BIGBANG.driftMs + HERO_BIGBANG.gatherMs;
 
 /**
+ * About section (Act 3) pin + scrub ScrollTrigger — desktop only.
+ * Mobile (`isTouchInputDevice`) uses simple stagger reveals without pinning.
+ *
+ * Timeline positions are fractions of `timelineDuration` (seconds). Each
+ * `*RevealAt` value is the timeline offset where that element begins appearing.
+ * The last history item lands at `historyRevealAt + (maxItems-1)*historyStagger +
+ * historyItemDuration ≈ 0.97`, filling the timeline end cleanly.
+ */
+export const ABOUT_PIN_SCROLL = {
+  start: 'top top',
+  /** Pin for 1.6× viewport height — ample scroll room for each reveal phase. */
+  end: '+=160%',
+  scrub: 1.4,
+  anticipatePin: 1,
+  /** Total GSAP timeline length (seconds); all offsets are relative to this. */
+  timelineDuration: 1,
+  headingRevealAt: 0,
+  headingRevealDuration: 0.13,
+  pillar1RevealAt: 0.14,
+  pillarRevealDuration: 0.13,
+  pillar2RevealAt: 0.28,
+  historyRevealAt: 0.42,
+  historyItemDuration: 0.10,
+  historyStagger: 0.09,
+} as const;
+
+/**
  * Scroll-velocity–driven skewY applied to `[data-velocity-content]`.
  * Lenis velocity → gsap.quickTo → CSS skewY.
  */
