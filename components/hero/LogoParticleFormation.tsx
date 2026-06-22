@@ -238,6 +238,23 @@ export default function LogoParticleFormation({
 
           ctx.clearRect(0, 0, w, h);
 
+          // Dark "cosmic void" backdrop: the explosion ignites from black so the
+          // silver CosmicScene behind the canvas stays hidden during BIG BANG/DRIFT,
+          // then recedes through GATHER to seamlessly reveal the silver background +
+          // particle band as the logo settles (#224 — match the silver hero backdrop).
+          {
+            const voidFadeStart = bigBangMs + driftMs;
+            const voidFadeSpan = Math.max(1, total - voidFadeStart);
+            const voidA =
+              ms < voidFadeStart
+                ? 0.94
+                : 0.94 * (1 - easeInOutCubic(Math.min(1, (ms - voidFadeStart) / voidFadeSpan)));
+            if (voidA > 0.004) {
+              ctx.fillStyle = `rgba(3, 2, 9, ${voidA})`;
+              ctx.fillRect(0, 0, w, h);
+            }
+          }
+
           let phase: 'BIG BANG' | 'DRIFT' | 'GATHER' | 'LOGO';
           let p: number;
           if (ms < bigBangMs) {
