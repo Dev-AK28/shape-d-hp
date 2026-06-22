@@ -1,5 +1,4 @@
-import { isTouchInputDevice } from '@/lib/performance/device-profile';
-import type { DeviceProfile } from '@/lib/performance/device-profile';
+import { isTouchInputDevice, type DeviceProfile } from '@/lib/performance/device-profile';
 
 export const CUSTOM_CURSOR_ATTR = 'data-custom-cursor';
 
