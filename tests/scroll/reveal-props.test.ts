@@ -39,8 +39,19 @@ describe('getScrollRevealProps', () => {
     expect(props.transition.delay).toBeCloseTo(0.7);
   });
 
-  it('uses shared viewport settings for scroll-driven reveal', () => {
+  it('uses desktop viewport (amount:0.2) when isMobile is false (default)', () => {
     const props = getScrollRevealProps(false);
+
+    expect(props.animate).toBeUndefined();
+    expect(props.viewport).toEqual({
+      once: true,
+      margin: '-80px',
+      amount: 0.2,
+    });
+  });
+
+  it('uses mobile viewport (amount:"some") when isMobile is true (#190)', () => {
+    const props = getScrollRevealProps(false, { isMobile: true });
 
     expect(props.animate).toBeUndefined();
     expect(props.viewport).toEqual({

@@ -70,8 +70,8 @@ describe('PhilosophyContent — mobile/reduced-motion policy', () => {
   it('gates horizontal pin-scroll with enableHorizontal (no pin on mobile/coarse-pointer)', () => {
     const s = src('components/PhilosophyContent.tsx');
     expect(s).toContain('enableHorizontal');
-    expect(s).toContain('isMobile');
-    expect(s).toContain('prefersCoarsePointer');
+    // isTouchInputDevice encapsulates both isMobile and prefersCoarsePointer (#190)
+    expect(s).toContain('isTouchInputDevice');
     // Pin only inside enableHorizontal branch
     expect(s).toContain('pin: true');
   });
