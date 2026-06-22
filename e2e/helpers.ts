@@ -81,7 +81,7 @@ export async function expectBigbangCanvasRetiredWithLogoVisible(page: Page): Pro
   // Wait for canvas to appear first — guards against reduced-motion environments
   // where the canvas is never created (test will fail here rather than with a
   // misleading "canvas already gone" pass).
-  await expect(canvas).toBeAttached({ timeout: 15_000 });
+  await expect(canvas).toBeVisible({ timeout: 15_000 });
 
   // Wait for formationComplete sentinel, then for canvas retire.
   // retire timeout = revealMs + 500ms (Hero.tsx) + 1500ms CI buffer.
@@ -90,7 +90,7 @@ export async function expectBigbangCanvasRetiredWithLogoVisible(page: Page): Pro
     state: 'attached',
     timeout: LOGO_PARTICLE_FORMATION_MS + 5000,
   });
-  await expect(canvas).toHaveCount(0, { timeout: retireTimeoutMs });
+  await expect(canvas).not.toBeAttached({ timeout: retireTimeoutMs });
 
   // BrandLogo must remain visible after the canvas exits — no pop or blank flash.
   await expect(heroBrandLogo).toBeVisible();
