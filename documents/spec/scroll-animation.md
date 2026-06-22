@@ -80,7 +80,7 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 | `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**スクロール領域全体で fixed `CosmicScene` のビジュアル背景が継続**（スタック順は Footer が前面、下記「スタック順」参照） |
 | `/services` | PageHeader + ServicesContent スタガー + TextReveal（Hero なし・StarBackground なし） |
 | `/works` | PageHeader + WorksContent 同上 |
-| `/philosophy` | PhilosophyContent — **デスクトップ: 水平スクロール（6パネルを横並び pin、GSAP scrub 1.8）/ モバイル: 垂直 snap** + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
+| `/philosophy` | PhilosophyContent — **デスクトップ: 水平スクロール（6パネルを横並び pin、GSAP scrub 1.8。`end` / `x` を関数形式にし `refreshInit` で `tl.invalidate()` — #186 リサイズ対応）/ モバイル: 垂直 snap** + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
 | `/process` | ProcessNavigation — PageHeader + ナビカード |
 | `/process/development` | PageHeader（`DEVELOPMENT`）+ DevelopmentContent スタガー |
 | `/process/consulting` | PageHeader（`CONSULTING`）+ ConsultingContent スタガー |
