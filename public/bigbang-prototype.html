@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SHAPE∞D — Big Bang → Logo Prototype</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #060608; overflow: hidden; font-family: -apple-system, "Hiragino Sans", system-ui, sans-serif; }
+  #stage {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(120% 90% at 50% 45%, rgba(26,26,32,0.5) 0%, rgba(8,8,11,0.94) 60%, #040406 100%),
+      url("/hero-cosmic-bg.webp") center/cover no-repeat, #040406;
+  }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #logoImg {
+    position: absolute; inset: 0; margin: auto;
+    width: min(82vw, 920px); height: auto; object-fit: contain;
+    opacity: 0;
+    filter: drop-shadow(0 0 34px rgba(222,228,238,0.35)); pointer-events: none;
+  }
+
+  #phaseTag {
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    color: rgba(239,231,218,0.85); font-size: 13px; letter-spacing: 0.24em; z-index: 10;
+    text-shadow: 0 0 12px rgba(0,0,0,0.6);
+  }
+  #dock {
+    position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+    width: min(92vw, 760px); z-index: 10;
+    background: rgba(10,10,10,0.55); backdrop-filter: blur(10px);
+    border: 1px solid rgba(196,181,160,0.25); border-radius: 16px;
+    padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .row { display: flex; align-items: center; gap: 12px; }
+  button {
+    appearance: none; border: 1px solid rgba(196,181,160,0.45); background: rgba(255,255,255,0.04);
+    color: #c4b5a0; padding: 8px 16px; border-radius: 999px; font-size: 13px; letter-spacing: 0.06em;
+    cursor: pointer; transition: background 0.2s, color 0.2s; white-space: nowrap;
+  }
+  button:hover { background: rgba(196,181,160,0.15); color: #efe7da; }
+  button.active { background: rgba(196,181,160,0.25); color: #fff; }
+  .scrub-wrap { position: relative; flex: 1; }
+  input[type=range] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 999px;
+    background: linear-gradient(90deg,
+      #ff8a5c 0%, #ff8a5c 18%, #8a7bd8 18%, #8a7bd8 40%,
+      #6fb0e8 40%, #6fb0e8 80%, #c4b5a0 80%, #c4b5a0 100%);
+    outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 2px solid #c4b5a0; box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  }
+  .ticks { display: flex; justify-content: space-between; margin-top: 4px; }
+  .ticks span { font-size: 10px; letter-spacing: 0.08em; color: rgba(196,181,160,0.55); }
+  .label { color: rgba(196,181,160,0.7); font-size: 12px; letter-spacing: 0.06em; min-width: 78px; text-align: center; }
+  .hint { color: rgba(196,181,160,0.45); font-size: 11px; text-align: center; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c"></canvas>
+  <img id="logoImg" src="/shape-d-logo-transparent.png" alt="" />
+  <div id="phaseTag">PROTOTYPE</div>
+
+  <div id="dock">
+    <div class="row">
+      <button id="playPause">⏸ 一時停止</button>
+      <button id="loop" class="active">⟳ ループ</button>
+      <button id="texCore" class="active">✦ 核</button>
+      <button id="texRays" class="active">✦ 光条</button>
+      <button id="texNeb" class="active">✦ 星雲</button>
+      <button id="motes" class="active">✦ 塵</button>
+      <div class="scrub-wrap">
+        <input id="scrub" type="range" min="0" max="1000" value="0" step="1" />
+        <div class="ticks">
+          <span>BIG BANG</span><span>DRIFT</span><span>GATHER</span><span>LOGO</span>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="justify-content:center;">
+      <button id="slow">－ 遅く</button>
+      <div class="label" id="speedLabel">速度 0.75x</div>
+      <button id="fast">＋ 速く</button>
+      <div class="hint">スライダーをドラッグすると手動で全フェーズを確認できます</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- Sampling params (finer = more, smaller particles for realistic dust) ----
+const LOGO_SAMPLE_STEP = 2, LOGO_MAX_PARTICLES = 7000, LOGO_ALPHA_THRESHOLD = 130;
+const LOGO_SAMPLE_MAX_DIMENSION = 1000, LOGO_PARTICLE_RENDER_SCALE = 0.98;
+const AMBIENT_DUST_COUNT = 4200; // fine debris that never forms the logo (atmosphere)
+const NEBULA_MOTE_COUNT = 850;   // fine motes drifting within the nebula gas (parallax)
+
+// ---- Phase timing (ms) ----
+const T = { bigBang: 1400, drift: 1500, gather: 2200, reveal: 800 };
+const TOTAL = T.bigBang + T.drift + T.gather + T.reveal;
+let SPEED = 0.75, playing = true, looping = true, elapsed = 0;
+
+const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
+const logoImg = document.getElementById('logoImg');
+const phaseTag = document.getElementById('phaseTag');
+const scrub = document.getElementById('scrub');
+
+// ---- Pre-rendered soft glow sprites (the key quality lift) ----
+function makeGlow(stops, dim = 96) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = dim;
+  const g = cv.getContext('2d');
+  const r = dim / 2;
+  const grad = g.createRadialGradient(r, r, 0, r, r, r);
+  stops.forEach(([o, c]) => grad.addColorStop(o, c));
+  g.fillStyle = grad; g.beginPath(); g.arc(r, r, r, 0, Math.PI * 2); g.fill();
+  return cv;
+}
+// Palette sampled from the "Big bang" reel: core ≈ RGB(188,160,186) =
+// pink/magenta-tinted white (NO violet), over a near-black void RGB(2,2,8).
+const glowWarm = makeGlow([ // pure white grains (silver-white, no color)
+  [0, 'rgba(255,255,255,1)'], [0.2, 'rgba(252,251,249,0.95)'],
+  [0.5, 'rgba(232,230,226,0.3)'], [1, 'rgba(200,198,194,0)'],
+]);
+const glowCool = makeGlow([ // cool silver-white grains (subtle variety)
+  [0, 'rgba(255,255,255,1)'], [0.22, 'rgba(248,250,252,0.92)'],
+  [0.55, 'rgba(220,226,232,0.3)'], [1, 'rgba(186,194,204,0)'],
+]);
+const coreFlash = makeGlow([
+  [0, 'rgba(255,255,255,1)'], [0.12, 'rgba(252,252,250,0.96)'],
+  [0.32, 'rgba(238,238,236,0.55)'], [0.6, 'rgba(210,212,214,0.18)'], [1, 'rgba(180,184,190,0)'],
+], 512);
+
+// ChatGPT-generated photoreal light layers (black bg → additive compositing)
+function loadTex(src) {
+  const o = { img: new Image(), ready: false, on: true };
+  o.img.onload = () => { o.ready = true; };
+  o.img.src = src;
+  return o;
+}
+const texCore = loadTex('/bigbang-core.png');
+const texRays = loadTex('/bigbang-rays.png');
+const texNebula = loadTex('/bigbang-nebula.png');
+
+function fitSampleDimensions(w, h, maxDim = LOGO_SAMPLE_MAX_DIMENSION) {
+  const longest = Math.max(w, h);
+  if (longest <= maxDim) return { width: w, height: h };
+  const s = maxDim / longest;
+  return { width: Math.round(w * s), height: Math.round(h * s) };
+}
+function sampleTargets(img) {
+  const { width, height } = fitSampleDimensions(img.naturalWidth, img.naturalHeight);
+  const off = document.createElement('canvas'); off.width = width; off.height = height;
+  const octx = off.getContext('2d'); octx.drawImage(img, 0, 0, width, height);
+  const { data } = octx.getImageData(0, 0, width, height);
+  const pts = [];
+  for (let y = 0; y < height; y += LOGO_SAMPLE_STEP)
+    for (let x = 0; x < width; x += LOGO_SAMPLE_STEP)
+      if (data[(y * width + x) * 4 + 3] > LOGO_ALPHA_THRESHOLD)
+        pts.push({ x: x - width / 2, y: y - height / 2 });
+  let result = pts;
+  if (pts.length > LOGO_MAX_PARTICLES) {
+    const stride = Math.ceil(pts.length / LOGO_MAX_PARTICLES);
+    result = pts.filter((_, i) => i % stride === 0);
+  }
+  return { points: result, width, height };
+}
+
+let particles = [], dust = [], motes = [], motesOn = true, sampleSize = { width: 1, height: 1 };
+function buildParticles(targets) {
+  return targets.map((t) => {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 5 + Math.random() * 22;
+    const driftAngle = Math.random() * Math.PI * 2;
+    const driftRadius = 120 + Math.random() * 400;
+    const depthLayer = Math.pow(Math.random(), 0.7); // 0 near .. 1 far
+    return {
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+      dx: Math.cos(driftAngle) * driftRadius, dy: Math.sin(driftAngle) * driftRadius,
+      tx: t.x, ty: t.y, tz: (Math.random() - 0.5) * 24, z: (Math.random() - 0.5) * 60,
+      // ultra-fine grains; near particles only slightly larger
+      size: (0.32 + Math.random() * 0.7) * (1.15 - depthLayer * 0.45),
+      opacity: 0.26 + Math.random() * 0.46,
+      depth: depthLayer,
+      cool: Math.random() < 0.5,
+      twPhase: Math.random() * 6.28, twSpeed: 0.6 + Math.random() * 1.6,
+      bright: Math.random() < 0.012, // rare hero sparks
+    };
+  });
+}
+
+// Fine atmospheric debris: bursts from the core, drifts, then dims away
+// before GATHER so the formed logo stays crisp.
+function buildDust(n) {
+  const arr = [];
+  for (let i = 0; i < n; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 4 + Math.random() * 30;
+    const driftAngle = Math.random() * Math.PI * 2;
+    const driftRadius = 80 + Math.random() * 620;
+    arr.push({
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+      dx: Math.cos(driftAngle) * driftRadius, dy: Math.sin(driftAngle) * driftRadius,
+      size: 0.22 + Math.random() * 0.55,
+      opacity: 0.1 + Math.random() * 0.26,
+      cool: Math.random() < 0.55,
+      twPhase: Math.random() * 6.28, twSpeed: 0.5 + Math.random() * 2.0,
+    });
+  }
+  return arr;
+}
+
+// Fine motes that live inside the nebula gas: parallax depth, slow swirl + drift,
+// twinkle. Positions are normalized (× dmax at draw) so they scale to any canvas.
+function buildMotes(n) {
+  const arr = [];
+  for (let i = 0; i < n; i++) {
+    const depth = Math.pow(Math.random(), 0.7); // 0 near .. 1 far
+    arr.push({
+      angle: Math.random() * Math.PI * 2,
+      rad: 0.04 + Math.pow(Math.random(), 0.85) * 0.72, // normalized radius from center
+      depth,
+      size: (0.3 + Math.random() * 0.7) * (1.25 - depth * 0.5),
+      opacity: 0.16 + Math.random() * 0.32,
+      cool: Math.random() < 0.5,
+      twPhase: Math.random() * 6.28, twSpeed: 0.5 + Math.random() * 2.2,
+      driftPhase: Math.random() * 6.28, driftSpeed: 0.0003 + Math.random() * 0.0006,
+    });
+  }
+  return arr;
+}
+
+function easeOutCubic(p) { return 1 - Math.pow(1 - p, 3); }
+function easeOutQuint(p) { return 1 - Math.pow(1 - p, 5); }
+function easeInOutCubic(p) { return p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2; }
+function easeInOutSine(p) { return -(Math.cos(Math.PI * p) - 1) / 2; }
+// Catmull-Rom: smooth (C1-continuous) interpolation through control points.
+function catmull(p0, p1, p2, p3, t) {
+  const t2 = t * t, t3 = t2 * t;
+  return 0.5 * ((2 * p1) + (-p0 + p2) * t +
+    (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+    (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+}
+// Maps the global clock to a single spline parameter u in [0,3]:
+// segment 0 = center→burst (explosive), 1 = burst→drift (slow float), 2 = drift→logo (gather).
+function splineParam(ms, T, total) {
+  if (ms < T.bigBang) return easeOutQuint(ms / T.bigBang);
+  if (ms < T.bigBang + T.drift) return 1 + easeInOutSine((ms - T.bigBang) / T.drift);
+  if (ms < total) return 2 + easeInOutCubic((ms - T.bigBang - T.drift) / T.gather);
+  return 3;
+}
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.floor(canvas.clientWidth * dpr);
+  canvas.height = Math.floor(canvas.clientHeight * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function blob(sprite, x, y, r, a) {
+  if (a <= 0.003 || r <= 0.2) return;
+  ctx.globalAlpha = Math.min(1, a);
+  ctx.drawImage(sprite, x - r, y - r, r * 2, r * 2);
+}
+
+function drawFrame(ms) {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  const cx = w / 2, cy = h / 2, focal = 520;
+  const scale = Math.min(w / sampleSize.width, h / sampleSize.height) * LOGO_PARTICLE_RENDER_SCALE;
+  const total = T.bigBang + T.drift + T.gather;
+
+  ctx.clearRect(0, 0, w, h);
+
+  let phase, p;
+  if (ms < T.bigBang) { phase = 'BIG BANG'; p = ms / T.bigBang; }
+  else if (ms < T.bigBang + T.drift) { phase = 'DRIFT'; p = (ms - T.bigBang) / T.drift; }
+  else if (ms < total) { phase = 'GATHER'; p = (ms - T.bigBang - T.drift) / T.gather; }
+  else { phase = 'LOGO'; p = 1; }
+  phaseTag.textContent = phase;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  // ---- Photoreal light layers (ChatGPT-generated, black bg → additive) ----
+  const dmin = Math.min(w, h), dmax = Math.max(w, h);
+  function drawLayer(t, size, alpha, rot) {
+    if (!t.on || !t.ready || alpha <= 0.004) return;
+    const ar = t.img.naturalHeight / t.img.naturalWidth || 1;
+    const lw = size, lh = size * ar;
+    ctx.save();
+    ctx.translate(cx, cy);
+    if (rot) ctx.rotate(rot);
+    ctx.globalAlpha = Math.min(1, alpha);
+    ctx.drawImage(t.img, -lw / 2, -lh / 2, lw, lh);
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // organic flicker for "living" plasma (sum of incommensurate sines)
+  const flick = 0.86 + 0.1 * Math.sin(ms * 0.031) + 0.06 * Math.sin(ms * 0.073 + 1.3)
+              + 0.04 * Math.sin(ms * 0.151 + 2.7);
+  // how much raw burst energy is in the air right now (drives exposure + light kick)
+  const energy = Math.min(1, easeOutQuint(Math.min(1, ms / 90))) * Math.pow(1 - Math.min(1, ms / (T.bigBang * 0.85)), 1.8);
+
+  // (1) Exposure white-out: the camera is momentarily overwhelmed by the flash.
+  if (energy > 0.002) {
+    ctx.globalAlpha = energy * 0.9;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = 1;
+  }
+
+  // (2) god-rays: fastest flash-in, widest expansion, counter-rotation (parallax depth)
+  {
+    const life = Math.min(1, ms / (T.bigBang * 0.95));
+    if (life < 1) {
+      const grow = 0.5 + easeOutCubic(life) * 1.35;
+      const a = Math.min(1, ms / 90) * Math.pow(1 - life, 1.6) * flick;
+      drawLayer(texRays, dmax * 1.9 * grow, a * 0.95, -ms * 0.00006);
+      drawLayer(texRays, dmax * 1.4 * grow, a * 0.5, ms * 0.00009); // crossed second pass
+    }
+  }
+  // (3) plasma core: hot inner core + soft HDR bloom halo, pulsing, slow decay
+  {
+    const life = Math.min(1, ms / (T.bigBang + T.drift * 0.45));
+    if (life < 1) {
+      const grow = 0.35 + easeOutCubic(life) * 0.95;
+      const pulse = 1 + Math.sin(ms * 0.012) * 0.03;
+      const a = Math.min(1, easeOutQuint(Math.min(1, ms / 180))) * Math.pow(1 - life, 1.3) * flick;
+      drawLayer(texCore, dmin * 2.5 * grow * pulse, a * 0.4, ms * 0.00003);  // soft bloom halo
+      drawLayer(texCore, dmin * 1.6 * grow * pulse, a, ms * 0.00004);        // main core
+      drawLayer(texCore, dmin * 0.7 * grow, a * 0.9 * flick, -ms * 0.00007); // hot inner kernel
+    }
+  }
+  // (3b) screen-space light scattering haze — soft glow that lingers after the flash
+  {
+    const hl = Math.min(1, ms / (T.bigBang + T.drift));
+    const ha = Math.pow(1 - hl, 2.0) * 0.5 + energy * 0.4;
+    if (ha > 0.01) {
+      const hr = dmin * (0.4 + easeOutCubic(Math.min(1, ms / T.bigBang)) * 0.7);
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, hr);
+      g.addColorStop(0, `rgba(255,255,255,${ha})`);
+      g.addColorStop(0.4, `rgba(244,246,250,${ha * 0.4})`);
+      g.addColorStop(1, 'rgba(230,236,245,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    }
+  }
+  // nebula: volumetric parallax gas — 3 depth layers drift at different rates,
+  // billow (breathing scale), slowly rotate and pulse brightness; mirrored/offset
+  // so it never reads as one repeated image. Emerges, drifts, then dissipates.
+  {
+    const driftStart = T.bigBang * 0.4;
+    const fadeStart = T.bigBang + T.drift;
+    const fadeEnd = total + T.gather * 0.3;
+    let na = ms > driftStart ? Math.min(1, (ms - driftStart) / 700) : 0;
+    if (ms > fadeStart) na *= Math.max(0, 1 - (ms - fadeStart) / (fadeEnd - fadeStart));
+    if (na > 0.004 && texNebula.on && texNebula.ready) {
+      const ar = texNebula.img.naturalHeight / texNebula.img.naturalWidth || 1;
+      const grow = 1 + (ms / total) * 0.35;
+      // [scaleBase, alpha, rotSpeed, driftAmp, driftSpeed, flipX, breathAmt, rotPhase]
+      const layers = [
+        [2.3, 0.26, 0.0000110, 0.045, 0.00034,  1, 0.06, 0.0],
+        [1.6, 0.38, -0.0000210, 0.075, 0.00052, -1, 0.09, 0.6],
+        [1.05, 0.30, 0.0000300, 0.115, 0.00072,  1, 0.13, 1.7],
+      ];
+      for (let i = 0; i < layers.length; i++) {
+        const L = layers[i];
+        const breathe = 1 + Math.sin(ms * L[4] * 1.7 + i * 2.1) * L[6];
+        const size = dmax * L[0] * grow * breathe;
+        const ox = Math.sin(ms * L[4] + i * 1.7) * dmax * L[3];
+        const oy = Math.cos(ms * L[4] * 0.8 + i * 2.3) * dmax * L[3] * 0.7;
+        const bright = 0.82 + 0.18 * Math.sin(ms * 0.0009 + i * 1.4); // slow luminosity drift
+        ctx.save();
+        ctx.translate(cx + ox, cy + oy);
+        ctx.rotate(ms * L[2] + L[7]);
+        ctx.scale(L[5], 1);
+        ctx.globalAlpha = Math.min(1, na * L[1] * bright);
+        ctx.drawImage(texNebula.img, -size / 2, -size * ar / 2, size, size * ar);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // fine drifting motes inside the gas (parallax dust) — share the nebula envelope
+    if (na > 0.004 && motesOn) {
+      for (const m of motes) {
+        const ang = m.angle + ms * 0.00002 * (1 - m.depth * 0.5); // slow swirl, nearer swirls more
+        const rad = m.rad * dmax * (0.92 + 0.16 * Math.sin(ms * m.driftSpeed + m.driftPhase));
+        const x = cx + Math.cos(ang) * rad
+                + Math.sin(ms * m.driftSpeed * 1.3 + m.driftPhase) * dmax * 0.014 * (1 + m.depth);
+        const y = cy + Math.sin(ang) * rad
+                + Math.cos(ms * m.driftSpeed * 1.1 + m.driftPhase) * dmax * 0.011 * (1 + m.depth);
+        const tw = Math.sin(ms * 0.001 * m.twSpeed + m.twPhase) * 0.4 + 0.6;
+        blob(m.cool ? glowCool : glowWarm, x, y, m.size * 1.3,
+             na * m.opacity * (0.4 + m.depth * 0.6) * tw);
+      }
+    }
+  }
+
+  // ---- Procedural shockwave + lens streak (complements the textured light) ----
+  const flashLife = Math.min(1, ms / (T.bigBang * 1.05));
+  if (flashLife < 1) {
+    const texOn = texCore.on && texCore.ready;
+    // big radial flash only as fallback when the texture core is off
+    if (!texOn) blob(coreFlash, cx, cy, 90 + easeOutQuint(flashLife) * Math.max(w, h) * 0.55, Math.pow(1 - flashLife, 1.5));
+    // lingering hot white core
+    blob(coreFlash, cx, cy, 60 + flashLife * 40, Math.pow(1 - flashLife, 0.6) * (texOn ? 0.6 : 0.95));
+    // anamorphic lens-flare streak (horizontal)
+    const streakA = Math.pow(1 - flashLife, 1.8) * 0.7;
+    if (streakA > 0.01) {
+      const sw = Math.max(w, h) * (0.5 + (1 - flashLife) * 0.7);
+      const grad = ctx.createLinearGradient(cx - sw, cy, cx + sw, cy);
+      grad.addColorStop(0, 'rgba(240,242,245,0)');
+      grad.addColorStop(0.5, `rgba(255,255,255,${streakA})`);
+      grad.addColorStop(1, 'rgba(240,242,245,0)');
+      ctx.fillStyle = grad;
+      const sh = 2 + (1 - flashLife) * 6;
+      ctx.fillRect(cx - sw, cy - sh / 2, sw * 2, sh);
+    }
+    // shockwave rings
+    ctx.globalAlpha = 1;
+    for (let k = 0; k < 2; k++) {
+      const rp = Math.min(1, flashLife * (1 + k * 0.35));
+      const rr = easeOutQuint(rp) * Math.max(w, h) * 0.6;
+      const ra = Math.pow(1 - rp, 2.2) * 0.5;
+      if (ra > 0.01) {
+        ctx.strokeStyle = `rgba(248,250,252,${ra})`;
+        ctx.lineWidth = 2.2 - rp * 1.6;
+        ctx.beginPath(); ctx.arc(cx, cy, rr, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+  }
+
+  // ---- Fine atmospheric dust (drawn first, behind the structured grains) ----
+  // Density peaks during the burst, fades out before GATHER so the logo is clean.
+  let dustVis = 0;
+  if (phase === 'BIG BANG') dustVis = easeOutQuint(p);
+  else if (phase === 'DRIFT') dustVis = 1 - p * 0.85;
+  else if (phase === 'GATHER') dustVis = Math.max(0, 0.15 - p * 0.15);
+  if (dustVis > 0.01) {
+    for (const d of dust) {
+      let x, y;
+      if (phase === 'BIG BANG') {
+        const e = easeOutQuint(p);
+        x = cx + d.vx * e * 30; y = cy + d.vy * e * 30;
+      } else {
+        const e = phase === 'DRIFT' ? easeInOutCubic(p) : 1;
+        const bx = d.vx * 30, by = d.vy * 30;
+        const sway = Math.sin(ms * 0.0015 + d.twPhase) * 10;
+        x = cx + bx + (d.dx - bx) * e + sway;
+        y = cy + by + (d.dy - by) * e + Math.cos(ms * 0.0013 + d.twPhase) * 9;
+      }
+      const tw = Math.sin(ms * 0.001 * d.twSpeed + d.twPhase) * 0.3 + 0.7;
+      blob(d.cool ? glowCool : glowWarm, x, y, d.size * 1.4, d.opacity * dustVis * tw);
+    }
+  }
+
+  // ---- Structured grains: ONE continuous flight (center→burst→drift→logo) ----
+  // A Catmull-Rom spline through 4 waypoints, sampled by a single eased clock,
+  // so there are no hard phase cuts — the whole motion reads as one gesture.
+  const u = splineParam(ms, T, total);          // 0..3
+  const seg = Math.min(2, Math.floor(u));        // which spline segment
+  const lt = u - seg;                            // local t within segment
+  const gp = u / 3;                              // global progress 0..1
+  // sway bell: peaks during the mid "drift" (u≈1.5), zero at burst and at logo
+  const swayWin = Math.exp(-Math.pow(u - 1.5, 2) / 0.5);
+  const BURST = 28;
+  // the burst flash momentarily over-illuminates the grains (light + matter coupling)
+  const lightKick = 1 + energy * 0.8;
+
+  for (const part of particles) {
+    // waypoints in center-relative px
+    const x0 = 0, y0 = 0;
+    const x1 = part.vx * BURST, y1 = part.vy * BURST;
+    const x2 = part.dx, y2 = part.dy;
+    const x3 = part.tx * scale, y3 = part.ty * scale;
+    const xs = [x0, x1, x2, x3], ys = [y0, y1, y2, y3];
+    const zs = [0, part.z, part.z, part.tz];
+    const i0 = Math.max(0, seg - 1), i1 = seg, i2 = Math.min(3, seg + 1), i3 = Math.min(3, seg + 2);
+
+    let x = catmull(xs[i0], xs[i1], xs[i2], xs[i3], lt);
+    let y = catmull(ys[i0], ys[i1], ys[i2], ys[i3], lt);
+    const z = catmull(zs[i0], zs[i1], zs[i2], zs[i3], lt);
+
+    // organic floating sway, strongest in the middle, vanishes by the logo
+    x += Math.sin(ms * 0.0016 + part.twPhase) * 13 * swayWin;
+    y += Math.cos(ms * 0.0014 + part.twPhase) * 11 * swayWin;
+
+    const depthMul = focal / (focal - z);
+    const sx = cx + x * depthMul;
+    const sy = cy + y * depthMul;
+
+    let drawSize = part.size * (1.5 - gp * 0.6) * depthMul; // larger during burst, settles
+    const tw = Math.sin(ms * 0.001 * part.twSpeed + part.twPhase) * 0.16 + 0.84;
+    let alpha = part.opacity * (0.45 + gp * 0.55) * tw * lightKick;
+
+    // motion trail only during the explosive opening
+    if (u < 1 && part.size > 0.9) {
+      const sp = part.cool ? glowCool : glowWarm;
+      const tl = (1 - u) * 24;
+      blob(sp, sx - part.vx * tl * 0.18, sy - part.vy * tl * 0.18, drawSize * 2.4, alpha * 0.2);
+    }
+
+    const sprite = part.cool ? glowCool : glowWarm;
+    if (part.bright || drawSize > 1.0) {
+      blob(sprite, sx, sy, drawSize * (part.bright ? 5.0 : 3.0), alpha * 0.45);
+    }
+    blob(sprite, sx, sy, drawSize * 1.45, alpha);
+    if (part.bright) {
+      ctx.globalAlpha = Math.min(1, alpha * 0.7);
+      ctx.strokeStyle = 'rgba(255,250,240,0.5)'; ctx.lineWidth = 0.8;
+      const rl = drawSize * 6;
+      ctx.beginPath(); ctx.moveTo(sx - rl, sy); ctx.lineTo(sx + rl, sy);
+      ctx.moveTo(sx, sy - rl); ctx.lineTo(sx, sy + rl); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  // ---- Logo bloom (behind crisp logo) as the grains settle ----
+  if (gp > 0.82) {
+    const lb = (gp - 0.82) / 0.18;
+    blob(glowWarm, cx, cy, Math.min(w, h) * 0.4, lb * 0.2);
+  }
+  ctx.restore();
+
+  // ---- Vignette + grade (source-over) — deep navy void like the reel ----
+  const vg = ctx.createRadialGradient(cx, cy * 0.95, Math.min(w, h) * 0.25, cx, cy, Math.max(w, h) * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(3,2,9,0.62)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, w, h);
+
+  // ---- Logo reveal: crossfade exactly aligned to the particle cluster ----
+  // Match the crisp logo's on-screen size to the sampled cluster (width = sampleW*scale)
+  // so the grains dissolve into the logo with no size/position pop.
+  logoImg.style.width = (sampleSize.width * scale) + 'px';
+  // Start blending slightly before the grains fully arrive for a seamless handoff.
+  const revealStart = total - T.gather * 0.12;
+  if (ms >= revealStart) {
+    const fade = Math.min(1, (ms - revealStart) / (T.reveal + T.gather * 0.12));
+    logoImg.style.opacity = String(easeInOutCubic(fade));
+    canvas.style.opacity = String(1 - easeInOutCubic(fade) * 0.82);
+  } else {
+    logoImg.style.opacity = '0';
+    canvas.style.opacity = '1';
+  }
+}
+
+let lastTs = null;
+function loop(ts) {
+  if (lastTs === null) lastTs = ts;
+  const dt = ts - lastTs; lastTs = ts;
+  if (playing) {
+    elapsed += dt * SPEED;
+    if (elapsed >= TOTAL) {
+      if (looping) elapsed = 0;
+      else { elapsed = TOTAL; playing = false; updatePlayBtn(); }
+    }
+    scrub.value = String(Math.round((elapsed / TOTAL) * 1000));
+  }
+  drawFrame(elapsed);
+  requestAnimationFrame(loop);
+}
+
+const playPauseBtn = document.getElementById('playPause');
+function updatePlayBtn() { playPauseBtn.textContent = playing ? '⏸ 一時停止' : '▶ 再生'; }
+playPauseBtn.addEventListener('click', () => {
+  if (!playing && elapsed >= TOTAL) elapsed = 0;
+  playing = !playing; updatePlayBtn();
+});
+const loopBtn = document.getElementById('loop');
+loopBtn.addEventListener('click', () => { looping = !looping; loopBtn.classList.toggle('active', looping); });
+function bindTexToggle(id, t) {
+  const b = document.getElementById(id);
+  b.addEventListener('click', () => { t.on = !t.on; b.classList.toggle('active', t.on); });
+}
+bindTexToggle('texCore', texCore);
+bindTexToggle('texRays', texRays);
+bindTexToggle('texNeb', texNebula);
+const motesBtn = document.getElementById('motes');
+motesBtn.addEventListener('click', () => { motesOn = !motesOn; motesBtn.classList.toggle('active', motesOn); });
+scrub.addEventListener('input', () => {
+  playing = false; updatePlayBtn();
+  elapsed = (Number(scrub.value) / 1000) * TOTAL;
+});
+function setSpeed(v) {
+  SPEED = Math.max(0.25, Math.min(2.5, v));
+  document.getElementById('speedLabel').textContent = '速度 ' + SPEED.toFixed(2) + 'x';
+}
+document.getElementById('slow').addEventListener('click', () => setSpeed(SPEED - 0.25));
+document.getElementById('fast').addEventListener('click', () => setSpeed(SPEED + 0.25));
+window.addEventListener('resize', resize);
+
+const img = new Image();
+img.onload = () => {
+  resize();
+  const sampled = sampleTargets(img);
+  sampleSize = { width: sampled.width, height: sampled.height };
+  particles = buildParticles(sampled.points);
+  dust = buildDust(AMBIENT_DUST_COUNT);
+  motes = buildMotes(NEBULA_MOTE_COUNT);
+  requestAnimationFrame(loop);
+};
+img.onerror = () => { phaseTag.textContent = 'ロゴ画像の読み込みに失敗しました'; };
+img.src = '/shape-d-logo-transparent.png';
+</script>
+</body>
+</html>
