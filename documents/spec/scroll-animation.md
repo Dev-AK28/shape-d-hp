@@ -100,17 +100,43 @@ const { profile, reduceMotion, staticReveal } = useStaticReveal();
 - E2E 連続性: 形成中 Canvas（`hero-bigbang-canvas`）に非透明ピクセルが描画され、完了後 `BrandLogo` が `hero-logo-stage` 中心と整合することを `expectHeroBrandLogoAfterFormation` で検証
 - StarBackground はトップでは使用しない
 
-### トップ About / MissionVision（Issue #80）
+### トップ About / MissionVision（Issue #80 / #212）
 
 | セクション | コンポーネント | アニメーション | 備考 |
 |-----------|--------------|--------------|------|
-| ABOUT | `About.tsx` | 経歴 `[data-timeline-item]` を GSAP stagger（最大 `REVEAL_OFFSET.maxStaggerItems`） | 心理学 / エンジニアリングは左右分割グリッド + framer-motion リビール |
+| ABOUT | `About.tsx` | **デスクトップ**: ScrollTrigger ピン留め + スクラブ タイムライン（#212） / **モバイル**: 単純スタガーリビール（ピンなし） | `data-testid="about-section"`。パラメータ SSOT: `ABOUT_PIN_SCROLL` |
 | VISION | `MissionVision.tsx` | `[data-vision-quote]` を GSAP stagger | 背景に `SELF-CONGRUENCE` visual word（`aria-hidden`） |
 
-共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `stagger: 0.15` / `ease: ANIMATION_EASE.base`
+#### About ピン+スクラブ（デスクトップ・Issue #212）
 
-- `prefers-reduced-motion` 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)` + framer-motion `useReducedMotion`）。`shouldUseStaticReveal(profile, reduceMotion, isReady)` により `!isReady` 時も含め `getScrollRevealProps({ staticReveal: true })` と `TextReveal` の即時表示を適用。`globals.css` の `[data-timeline-item]` / `[data-vision-quote]` メディアクエリ（`prefers-reduced-motion: reduce`）で `opacity: 1` を保証
-- モバイル（`prefers-reduced-motion` なし）時: GSAP・Lenis は有効。**GSAP** の `[data-timeline-item]` / `[data-vision-quote]`（About / MissionVision）は初期 `opacity: 0` から ScrollTrigger で reveal される。**framer-motion** リビール（下層ページ）は `useStaticReveal()` により `profile.isMobile` または `!isReady` で即時表示（IO 非依存）。`TextReveal` は live `staticReveal` を直接参照し（ラッチなし・#153）、`profile.isMobile=true` の間は常に即時表示を維持（#151 回帰なし）。`profile.isMobile` 変化（viewport リサイズ）も正しく追従する。直接 `motion.div` spread の remount は #155 で対応済み（`ServicesContent` / `WorksContent` / `PhilosophyContent` の map 内カードと CTA へ `staticReveal`-aware key を追加）。
+Apple 風「ピン留め + スクロールスクラブ + 段階リビール」。`isTouchInputDevice(profile)` = false の環境でのみ pin が有効になる。
+
+- **ピン設定（`ABOUT_PIN_SCROLL` — `lib/scroll/animation-tokens.ts`）**:
+  - `start: 'top top'` / `end: '+=160%'`（1.6× ビューポート高のスクロール幅）
+  - `scrub: 1.4` / `anticipatePin: 1`
+- **タイムライン進捗（`timelineDuration: 1` を基準）**:
+
+  | 位置 | 要素 | 開始 | 長さ |
+  |------|------|------|------|
+  | `headingRevealAt=0` | ABOUT 見出し + divider | 0 | 0.13 |
+  | `pillar1RevealAt=0.14` | 心理学 ピラー | 0.14 | 0.13 |
+  | `pillar2RevealAt=0.28` | エンジニアリング ピラー | 0.28 | 0.13 |
+  | `historyRevealAt=0.42` | 経歴 items スタガー | 0.42 | `0.10 × n + 0.09 × (n-1)` |
+
+- **逆再生**: `scrub` によりスクロールバック時に自動逆再生（状態破綻なし）
+- **初期非表示**: 各ターゲット要素は `style={{ opacity: 0 }}` でマウント。GSAP `fromTo` が `opacity` / `y` を制御
+
+#### About モバイルリビール（`isTouchInputDevice` = true）
+
+ピンなし。以下の単純 ScrollTrigger reveal を使用:
+- 見出し・ピラー 1/2: `start: 'top 75%'` / `toggleActions: 'play none none reverse'` / stagger `0.18s`
+- 経歴 items: `start: 'top 80%'` / stagger `REVEAL_OFFSET.stagger`
+
+共通 GSAP 設定: `y: REVEAL_OFFSET.y` → `0` / `opacity: 0` → `1` / `duration: 1.4` / `ease: ANIMATION_EASE.base`
+
+- `prefers-reduced-motion` 時: `useGsapContext` が GSAP をスキップ（`shouldDisableGsapAnimation(profile)`）。`staticReveal = true` → 全要素 `style={{ opacity: 1 }}` で即時表示
+- `TextReveal` は `immediate` prop で文字単位アニメーションを無効化し、親 div の GSAP 制御に委譲（競合防止）
+- モバイル（`prefers-reduced-motion` なし）時: GSAP・Lenis は有効。**framer-motion** リビール（下層ページ）は `useStaticReveal()` により `profile.isMobile` または `!isReady` で即時表示（IO 非依存）。`TextReveal` は live `staticReveal` を直接参照し（ラッチなし・#153）、`profile.isMobile=true` の間は常に即時表示を維持（#151 回帰なし）。`profile.isMobile` 変化（viewport リサイズ）も正しく追従する。直接 `motion.div` spread の remount は #155 で対応済み（`ServicesContent` / `WorksContent` / `PhilosophyContent` の map 内カードと CTA へ `staticReveal`-aware key を追加）。
 
 ## アクセシビリティ
 
