@@ -41,7 +41,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 `lib/scroll/easing.ts`（framer-motion）:
 
 - `scrollEase`: `[0.22, 1, 0.36, 1]`
-- `scrollViewport`: `{ once: true, margin: '-80px', amount: 0.2 }`
+- `scrollViewport`: `{ desktop: { once:true, margin:'-80px', amount: 0.2 }, mobile: { once:true, margin:'-80px', amount:'some' } }` — デスクトップは 20% 閾値、モバイルは大セクション（~1785px）で物理的に達成不可のため `'some'` を使用（#190）
 - `scrollTransition.duration`: `1.4`
 - `scrollVariants`: `fadeUp`, `fadeUpLarge`, `fadeLeft`, `scale`（y offset: 20px）
 - `scrollStagger`: `item: 0.15`, `card: 0.15`
@@ -50,14 +50,14 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 ### staticReveal ガード（MUST・Issue #151）
 
-`getScrollRevealProps()` / `ScrollReveal` を使う **すべての** framer-motion リビール消費コンポーネントは、共有フック `useStaticReveal()` から `staticReveal` を取得し、各呼び出しに渡さなければならない。
+`getScrollRevealProps()` / `ScrollReveal` を使う **すべての** framer-motion リビール消費コンポーネントは、共有フック `useStaticReveal()` から `staticReveal` と `profile` を取得し、各呼び出しに渡さなければならない。
 
 ```tsx
 // lib/hooks/useStaticReveal.ts に集約（shouldUseStaticReveal の 3 行重複を解消）
-const { reduceMotion, staticReveal } = useStaticReveal();
-// profile が別途必要な場合（例: PhilosophyContent の snap 判定）:
-const { profile, reduceMotion, staticReveal } = useStaticReveal();
-// 各呼び出しに { staticReveal, ... } を渡す
+const { reduceMotion, staticReveal, profile } = useStaticReveal();
+// isMobile は isTouchInputDevice で判定（#190）
+const isMobile = isTouchInputDevice(profile);
+// 各呼び出しに { staticReveal, isMobile, ... } を渡す
 ```
 
 - **理由**: `staticReveal` を渡さない場合、`getScrollRevealProps` は `initial: opacity 0`（hidden）でマウントし、表示は IntersectionObserver（framer-motion `whileInView`）の発火に完全依存する。`!isReady`（SSR / ハイドレーション初回）でも `opacity: 0` で描画されるため、モバイルで Lenis スムーズスクロール有効化（#138）後、ビューポート上部で `whileInView` が発火せずコンテンツがフッター手前まで非表示になる不具合が発生した（#151：`/services`・`/works` ほか）。
