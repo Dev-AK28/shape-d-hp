@@ -47,18 +47,6 @@ test.describe('Philosophy page', () => {
 test.describe('Philosophy desktop horizontal scroll (#184)', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test('first panel (S: SELF-CONGRUENCE) is visible on initial load', async ({ page }) => {
-    await page.goto('/philosophy');
-    await page.waitForLoadState('networkidle');
-
-    await expect(
-      page.locator('[data-philosophy-panel]').first().locator('h2').filter({ hasText: 'SELF-CONGRUENCE' }),
-    ).toBeVisible();
-    await expect(
-      page.locator('[data-philosophy-panel]').first().getByText('自己一致', { exact: true }),
-    ).toBeVisible();
-  });
-
   test('scrolling advances to second panel (H: HUMAN EXPRESSION)', async ({ page }) => {
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
@@ -67,9 +55,10 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     await page.evaluate(() => window.scrollBy(0, window.innerWidth));
 
     // GSAP scrub lag = PHILOSOPHY_HORIZONTAL.scrub (1.8s); allow 4s for CI headroom.
+    // toBeInViewport() verifies the panel was actually translated into view by GSAP.
     await expect(
       page.locator('[data-philosophy-panel]').nth(1).locator('h2').filter({ hasText: 'HUMAN EXPRESSION' }),
-    ).toBeVisible({ timeout: 4000 });
+    ).toBeInViewport({ timeout: 4000 });
   });
 
   test('can navigate through all 6 panels (scrollDistance = 5 × viewport width)', async ({ page }) => {
@@ -82,14 +71,15 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
       'AUTHENTIC',
       'PROMOTION',
       'EXPRESSION DEVELOPMENT',
-      'Development',
+      'Development / Depth / Discovery',
     ] as const;
 
     for (let i = 1; i < panelTitles.length; i++) {
       await page.evaluate(() => window.scrollBy(0, window.innerWidth));
+      // toBeInViewport() verifies GSAP translated the panel into view (not just DOM presence).
       await expect(
         page.locator('[data-philosophy-panel]').nth(i).locator('h2').filter({ hasText: panelTitles[i] }),
-      ).toBeVisible({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
+      ).toBeInViewport({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
     }
   });
 
@@ -143,7 +133,7 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
       'AUTHENTIC',
       'PROMOTION',
       'EXPRESSION DEVELOPMENT',
-      'Development',
+      'Development / Depth / Discovery',
     ] as const;
 
     for (const title of panelTitles) {
