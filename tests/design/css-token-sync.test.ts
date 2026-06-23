@@ -110,7 +110,7 @@ describe('design tokens ↔ globals.css sync', () => {
     }
   });
 
-  it('mirrors desktop breakpoint in warm grade nebula filter media query', () => {
+  it('mirrors desktop breakpoint in cosmic grade nebula filter media query', () => {
     expect(desktopMinWidthMediaQuery()).toBe(`(min-width: ${MOBILE_BREAKPOINT_PX}px)`);
     expect(globalsCss).toContain(
       `@media (min-width: ${MOBILE_BREAKPOINT_PX}px) and (prefers-reduced-motion: no-preference)`,

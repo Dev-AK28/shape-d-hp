@@ -90,12 +90,12 @@ And ブランドのダーク・ミニマルなトーンを維持している
 And reduced-motion / 低性能デバイスでは静的または簡略化フォールバックになる
 ```
 
-## Warm Gold Grade（#102）
+## Cosmic Grade（#102 / #227）
 
 ```gherkin
 Given トップページ Hero を表示
-When 温かいグレード overlay が適用されている
-Then 宇宙/nebula 背景に subtle な warmth が加わり高級感が向上する
+When クール宇宙トーン（Cosmic Grade）overlay が適用されている
+Then 宇宙/nebula 背景に subtle な深宇宙の depth が加わり高級感が向上する
 And 背景の暗さ・ミニマルさは維持される
 And モバイル・reduced-motion では overlay のみ（nebula filter 省略）
 ```
