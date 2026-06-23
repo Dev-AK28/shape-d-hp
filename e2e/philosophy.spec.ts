@@ -2,6 +2,15 @@ import { test, expect } from '@playwright/test';
 import { expectPainted } from './helpers';
 import { PHILOSOPHY_HORIZONTAL } from '../lib/scroll/animation-tokens';
 
+const PANEL_TITLES = [
+  'SELF-CONGRUENCE',
+  'HUMAN EXPRESSION',
+  'AUTHENTIC',
+  'PROMOTION',
+  'EXPRESSION DEVELOPMENT',
+  'Development / Depth / Discovery',
+] as const;
+
 test.describe('Philosophy page', () => {
   test('renders full-screen SHAPE-D panels with overlay letters', async ({ page }) => {
     await page.goto('/philosophy');
@@ -42,7 +51,7 @@ test.describe('Philosophy page', () => {
 
 // ── Desktop horizontal scroll (#184) ────────────────────────────────────────
 // Regression guard for PR #181's GSAP pin+scrub horizontal layout.
-// PHILOSOPHY_HORIZONTAL.scrub = 1.8s → each assertion allows 4–6s for GSAP catch-up.
+// timeout = Math.ceil(scrub * 1000) + 2500ms CI headroom per assertion.
 
 test.describe('Philosophy desktop horizontal scroll (#184)', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
@@ -54,31 +63,23 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     // Scroll by one viewport width — GSAP pin translates panels horizontally.
     await page.evaluate(() => window.scrollBy(0, window.innerWidth));
 
-    // GSAP scrub lag = PHILOSOPHY_HORIZONTAL.scrub (1.8s); allow 4s for CI headroom.
+    // GSAP scrub lag = PHILOSOPHY_HORIZONTAL.scrub (1.8s); timeout = scrub*1000 + 2500ms CI headroom.
     // toBeInViewport() verifies the panel was actually translated into view by GSAP.
     await expect(
       page.locator('[data-philosophy-panel]').nth(1).locator('h2').filter({ hasText: 'HUMAN EXPRESSION' }),
-    ).toBeInViewport({ timeout: 4000 });
+    ).toBeInViewport({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
   });
 
   test('can navigate through all 6 panels (scrollDistance = 5 × viewport width)', async ({ page }) => {
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
 
-    const panelTitles = [
-      'SELF-CONGRUENCE',
-      'HUMAN EXPRESSION',
-      'AUTHENTIC',
-      'PROMOTION',
-      'EXPRESSION DEVELOPMENT',
-      'Development / Depth / Discovery',
-    ] as const;
-
-    for (let i = 1; i < panelTitles.length; i++) {
+    // Panel 0 is already visible on load — start from i = 1.
+    for (let i = 1; i < PANEL_TITLES.length; i++) {
       await page.evaluate(() => window.scrollBy(0, window.innerWidth));
       // toBeInViewport() verifies GSAP translated the panel into view (not just DOM presence).
       await expect(
-        page.locator('[data-philosophy-panel]').nth(i).locator('h2').filter({ hasText: panelTitles[i] }),
+        page.locator('[data-philosophy-panel]').nth(i).locator('h2').filter({ hasText: PANEL_TITLES[i] }),
       ).toBeInViewport({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
     }
   });
@@ -87,7 +88,7 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
 
-    const dots = page.locator('[data-testid="philosophy-progress-dots"] span');
+    const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
     await expect(dots).toHaveCount(6);
 
     // Initially first dot is active.
@@ -127,16 +128,7 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
 
-    const panelTitles = [
-      'SELF-CONGRUENCE',
-      'HUMAN EXPRESSION',
-      'AUTHENTIC',
-      'PROMOTION',
-      'EXPRESSION DEVELOPMENT',
-      'Development / Depth / Discovery',
-    ] as const;
-
-    for (const title of panelTitles) {
+    for (const title of PANEL_TITLES) {
       const heading = page.locator('[data-philosophy-panel] h2').filter({ hasText: title }).first();
       await heading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
       await expect(heading).toBeVisible({ timeout: 5000 });
