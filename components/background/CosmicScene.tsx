@@ -4,7 +4,7 @@ import Image from 'next/image';
 import type { RefObject } from 'react';
 import WebGLHeroDepth from '@/components/background/WebGLHeroDepth';
 import { backgroundAssets } from '@/lib/design/background-assets';
-import { warmGrade } from '@/lib/design/tokens';
+import { cosmicGrade } from '@/lib/design/tokens';
 
 type CosmicSceneProps = {
   isMobile: boolean;
@@ -66,7 +66,7 @@ export default function CosmicScene({
       {showNebula ? (
         <div
           ref={nebulaRef}
-          className="cosmic-nebula-layer cosmic-nebula-layer--warm-grade absolute inset-0 will-change-transform"
+          className="cosmic-nebula-layer cosmic-nebula-layer--cosmic-grade absolute inset-0 will-change-transform"
         >
           <Image
             src={backgroundAssets.heroNebulaLayer}
@@ -79,8 +79,8 @@ export default function CosmicScene({
       ) : null}
 
       <div
-        className="cosmic-warm-grade-overlay absolute inset-0"
-        data-testid={warmGrade.testId}
+        className="cosmic-grade-overlay absolute inset-0"
+        data-testid={cosmicGrade.testId}
       />
 
       {enableWebGL && <WebGLHeroDepth />}

@@ -90,12 +90,12 @@ And ブランドのダーク・ミニマルなトーンを維持している
 And reduced-motion / 低性能デバイスでは静的または簡略化フォールバックになる
 ```
 
-## Warm Gold Grade（#102）
+## Cosmic Grade（#102 / #227）
 
 ```gherkin
 Given トップページ Hero を表示
-When 温かいグレード overlay が適用されている
-Then 宇宙/nebula 背景に subtle な warmth が加わり高級感が向上する
+When クール宇宙トーン（Cosmic Grade）overlay が適用されている
+Then 宇宙/nebula 背景に subtle な深宇宙の depth が加わり高級感が向上する
 And 背景の暗さ・ミニマルさは維持される
 And モバイル・reduced-motion では overlay のみ（nebula filter 省略）
 ```
@@ -154,7 +154,7 @@ Then 進捗ドットが対応セクションに追従する
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
 | Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
 | Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |
-| Warm gold grade overlay | `tests/design/warm-grade.test.ts`, `e2e/home.spec.ts`（`cosmic-warm-grade-overlay`） |
+| Cosmic grade overlay | `tests/design/cosmic-grade.test.ts`, `e2e/home.spec.ts`（`cosmic-grade-overlay`） |
 | Typography cosmic blend | `tests/design/typography-blend.test.ts`, `e2e/home.spec.ts`（load + scroll 後 `mix-blend-mode: screen`）, `e2e/page-headers.spec.ts`（starBackground + `/services` / `/works` solid） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
