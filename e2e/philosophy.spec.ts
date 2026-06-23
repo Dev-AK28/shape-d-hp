@@ -102,7 +102,7 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     await expect(async () => {
       await expect(dots.nth(1)).toHaveAttribute('data-active', 'true');
       await expect(dots.first()).toHaveAttribute('data-active', 'false');
-    }).toPass({ timeout: 4000 });
+    }).toPass({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
   });
 
   test('closing CTA section appears after scrolling through all panels', async ({ page }) => {
