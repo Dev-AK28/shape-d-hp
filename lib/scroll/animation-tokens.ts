@@ -246,6 +246,17 @@ export const VELOCITY_SKEW = {
 } as const;
 
 /**
+ * Showcase section horizontal scroll (Act 5, Issue #215): service cards pinned
+ * and translated on the X axis. Same scrub cadence as Philosophy to keep the
+ * experience tonally consistent across horizontal-scroll sections.
+ */
+export const SHOWCASE_HORIZONTAL = {
+  scrub: 1.8,
+  /** GSAP timeline length in seconds; pan tween is anchored to this. */
+  panDuration: 1,
+} as const;
+
+/**
  * Philosophy page horizontal scroll (desktop-only).
  * Panels are pinned and translated on the X axis via GSAP ScrollTrigger.
  *

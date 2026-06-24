@@ -2,6 +2,7 @@ import Hero from '@/components/Hero';
 import About from '@/components/About';
 import MissionVision from '@/components/MissionVision';
 import HomePageShell from '@/components/home/HomePageShell';
+import ShowcaseSection from '@/components/home/ShowcaseSection';
 import { typographyBlend } from '@/lib/design/tokens';
 
 const heroH1ClassName = [
@@ -27,6 +28,7 @@ export default function Home() {
       </Hero>
       <About />
       <MissionVision />
+      <ShowcaseSection />
     </HomePageShell>
   );
 }
