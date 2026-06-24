@@ -113,6 +113,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       gsap.ticker.lagSmoothing(defaultLagSmoothing);
       lenis?.destroy();
       skewObserver?.disconnect();
+      skewObserver = undefined;
       // Release quickTo instance and DOM reference to allow GC.
       skewSetter = null;
       skewTarget = null;
