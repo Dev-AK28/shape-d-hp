@@ -20,7 +20,7 @@ Issue: #1
 - **非利用（トップ Hero）**: `CosmicScene` 画像背景を使用（`design-system.md` 参照）
 - **非利用（Issue #93）**: ServicesContent / WorksContent — StarBackground Hero を廃止し単色背景 + ページ見出しに統一
 - **非利用（Issue #80）**: About / MissionVision — scroll storytelling 化に伴い StarBackground を外し、デザイントークン背景に統一
-- **非利用（Issue #81）**: `/philosophy` — CSS/GSAP ベースの alphabet-driven ビジュアル。デスクトップ（水平スクロールモード）限定で `philosophy-dust-texture.webp`（108KB）を装飾オーバーレイとして使用するが、StarBackground は非使用。詳細は [`philosophy-page.md`](./philosophy-page.md)
+- **非利用（Issue #81）**: `/philosophy` — CSS/GSAP ベースの alphabet-driven ビジュアル。追加の背景画像は使用せず、各パネルは `bgTint` グラデーション差分のみで温度感を表現する（Issue #202 でダストテクスチャ撤去済み）。詳細は [`philosophy-page.md`](./philosophy-page.md)
 
 ## 受け入れ基準（Given-When-Then）
 
