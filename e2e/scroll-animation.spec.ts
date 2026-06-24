@@ -59,6 +59,38 @@ test.describe('Scroll animations', () => {
  * key pattern on their top-level motion.div elements in this PR (#153).
  * E2E coverage for content components is also added in this suite below.
  */
+/**
+ * velocity skew ターゲット更新の回帰テスト — Issue #185
+ *
+ * SPA ルート遷移後も [data-velocity-content] が DOM に存在することを確認する。
+ * この属性の存在は、SmoothScrollProvider の MutationObserver がターゲットを
+ * 再検出できる前提条件である（属性が存在しなければ MutationObserver が
+ * skewSetter を再生成できず velocity skew が停止する）。
+ * MutationObserver の内部動作そのものは E2E では検証せず、ユニットテストの対象とする。
+ */
+test.describe('velocity skew target — SPA route transition (#185)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('[data-velocity-content] が初期ロード後に存在する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('[data-velocity-content]')).toHaveCount(1);
+  });
+
+  test('[data-velocity-content] がルート遷移後も存在する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.goto('/services');
+    await page.waitForLoadState('networkidle');
+
+    // Explicit timeout guards against slow CI where template.tsx remount
+    // may lag behind networkidle (React Suspense async boundary).
+    await expect(page.locator('[data-velocity-content]')).toHaveCount(1, { timeout: 8000 });
+  });
+});
+
 test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 

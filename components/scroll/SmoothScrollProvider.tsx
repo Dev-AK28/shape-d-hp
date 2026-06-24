@@ -36,10 +36,10 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     let tickerCallback: ((time: number) => void) | undefined;
     const defaultLagSmoothing = 500;
 
-    // Declared outside the IIFE so the cleanup function can null them on unmount,
-    // releasing the quickTo instance and detached DOM reference for GC.
+    // Declared outside the IIFE so the cleanup function can release them and disconnect observer on unmount.
     let skewSetter: ((v: number) => void) | null = null;
     let skewTarget: Element | null = null;
+    let skewObserver: MutationObserver | undefined;
 
     void (async () => {
       const { default: Lenis } = await import('lenis');
@@ -54,27 +54,43 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         smoothWheel: true,
       });
 
-      // Velocity-driven skewY: queries DOM fresh on each call to handle SPA route changes.
-      const getSkewSetter = () => {
+      const makeSkewSetter = (el: Element | null) =>
+        el
+          ? gsap.quickTo(el, 'skewY', {
+              duration: VELOCITY_SKEW.quickToDuration,
+              ease: VELOCITY_SKEW.quickToEase,
+            })
+          : null;
+
+      // Initial query for the velocity-skew target.
+      skewTarget = document.querySelector('[data-velocity-content]');
+      skewSetter = makeSkewSetter(skewTarget);
+
+      // SPA route changes swap the [data-velocity-content] element (template.tsx remounts).
+      // MutationObserver updates the cached target outside the 60fps scroll handler.
+      // Skip mutations that don't involve [data-velocity-content] to avoid redundant querySelector calls.
+      skewObserver = new MutationObserver((records) => {
+        const touched = records.some((r) =>
+          [...r.addedNodes, ...r.removedNodes].some(
+            (n) =>
+              n instanceof Element &&
+              (n.hasAttribute('data-velocity-content') || n.querySelector('[data-velocity-content]')),
+          ),
+        );
+        if (!touched) return;
         const el = document.querySelector('[data-velocity-content]');
         if (el !== skewTarget) {
           skewTarget = el;
-          skewSetter = el
-            ? gsap.quickTo(el, 'skewY', {
-                duration: VELOCITY_SKEW.quickToDuration,
-                ease: VELOCITY_SKEW.quickToEase,
-              })
-            : null;
+          skewSetter = makeSkewSetter(el);
         }
-        return skewSetter;
-      };
+      });
+      skewObserver.observe(document.body, { childList: true, subtree: true });
 
       lenis.on('scroll', (lenisInstance) => {
         ScrollTrigger.update();
-        const setter = getSkewSetter();
-        if (setter) {
+        if (skewSetter) {
           const { maxDegrees, velocityFactor } = VELOCITY_SKEW;
-          setter(Math.max(-maxDegrees, Math.min(maxDegrees, lenisInstance.velocity * velocityFactor)));
+          skewSetter(Math.max(-maxDegrees, Math.min(maxDegrees, lenisInstance.velocity * velocityFactor)));
         }
       });
 
@@ -94,6 +110,8 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       }
       gsap.ticker.lagSmoothing(defaultLagSmoothing);
       lenis?.destroy();
+      skewObserver?.disconnect();
+      skewObserver = undefined;
       // Release quickTo instance and DOM reference to allow GC.
       skewSetter = null;
       skewTarget = null;

@@ -35,7 +35,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 - `SmoothScrollProvider` が Lenis `scroll` イベントから `lenis.velocity` を読み取り、`gsap.quickTo` で `[data-velocity-content]` に `skewY` を適用（最大 `±1.8deg`、`quickTo` duration `0.85s`）
 - `[data-velocity-content]` は `app/template.tsx` の `PageTransition` 内 div に付与（Navigation / Footer は対象外）
-- SPA ルート変更に対応するため DOM 再クエリ方式（`quickTo` インスタンスをターゲット変化時に再生成）
+- SPA ルート変更対応: `MutationObserver` が `document.body` の子孫変化を監視し、`[data-velocity-content]` の追加/削除を検出したときのみ `skewTarget` と `quickTo` インスタンスを再生成（#185）。scroll イベントハンドラ内で `document.querySelector` は実行しない
 - `overflow-x: clip` で skewY による横溢れを防止（スクロールコンテナを作らない）
 
 `lib/scroll/easing.ts`（framer-motion）:
