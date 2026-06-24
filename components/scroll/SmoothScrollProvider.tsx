@@ -54,14 +54,17 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         smoothWheel: true,
       });
 
+      const makeSkewSetter = (el: Element | null) =>
+        el
+          ? gsap.quickTo(el, 'skewY', {
+              duration: VELOCITY_SKEW.quickToDuration,
+              ease: VELOCITY_SKEW.quickToEase,
+            })
+          : null;
+
       // Initial query for the velocity-skew target.
       skewTarget = document.querySelector('[data-velocity-content]');
-      skewSetter = skewTarget
-        ? gsap.quickTo(skewTarget, 'skewY', {
-            duration: VELOCITY_SKEW.quickToDuration,
-            ease: VELOCITY_SKEW.quickToEase,
-          })
-        : null;
+      skewSetter = makeSkewSetter(skewTarget);
 
       // SPA route changes swap the [data-velocity-content] element (template.tsx remounts).
       // MutationObserver updates the cached target outside the 60fps scroll handler.
@@ -78,12 +81,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
         const el = document.querySelector('[data-velocity-content]');
         if (el !== skewTarget) {
           skewTarget = el;
-          skewSetter = el
-            ? gsap.quickTo(el, 'skewY', {
-                duration: VELOCITY_SKEW.quickToDuration,
-                ease: VELOCITY_SKEW.quickToEase,
-              })
-            : null;
+          skewSetter = makeSkewSetter(el);
         }
       });
       skewObserver.observe(document.body, { childList: true, subtree: true });

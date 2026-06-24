@@ -85,7 +85,9 @@ test.describe('velocity skew target — SPA route transition (#185)', () => {
     await page.goto('/services');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.locator('[data-velocity-content]')).toHaveCount(1);
+    // Explicit timeout guards against slow CI where template.tsx remount
+    // may lag behind networkidle (React Suspense async boundary).
+    await expect(page.locator('[data-velocity-content]')).toHaveCount(1, { timeout: 8000 });
   });
 });
 
