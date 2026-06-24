@@ -65,8 +65,10 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
 
     // GSAP scrub lag = PHILOSOPHY_HORIZONTAL.scrub (1.8s); timeout = scrub*1000 + 2500ms CI headroom.
     // toBeInViewport() verifies the panel was actually translated into view by GSAP.
+    // NOTE: TextReveal splits text into per-character motion.span elements with U+00A0 between
+    // words (Intl.Segmenter path), so hasText matching on h2 is unreliable; check the panel instead.
     await expect(
-      page.locator('[data-philosophy-panel]').nth(1).locator('h2').filter({ hasText: 'HUMAN EXPRESSION' }),
+      page.locator('[data-philosophy-panel]').nth(1),
     ).toBeInViewport({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
   });
 
@@ -78,8 +80,9 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     for (let i = 1; i < PANEL_TITLES.length; i++) {
       await page.evaluate(() => window.scrollBy(0, window.innerWidth));
       // toBeInViewport() verifies GSAP translated the panel into view (not just DOM presence).
+      // Use panel element directly — TextReveal U+00A0 fragmentation prevents reliable hasText matching.
       await expect(
-        page.locator('[data-philosophy-panel]').nth(i).locator('h2').filter({ hasText: PANEL_TITLES[i] }),
+        page.locator('[data-philosophy-panel]').nth(i),
       ).toBeInViewport({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
     }
   });
@@ -113,7 +116,8 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 
     await expect(page.getByText('心理学とエンジニアリングの融合が')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByRole('link', { name: 'お問い合わせ' })).toBeVisible({ timeout: 5000 });
+    // Scope to main — the nav and footer also contain links named 'お問い合わせ'.
+    await expect(page.getByRole('main').getByRole('link', { name: 'お問い合わせ' })).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -128,8 +132,11 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
 
-    for (const title of PANEL_TITLES) {
-      const heading = page.locator('[data-philosophy-panel] h2').filter({ hasText: title }).first();
+    // Iterate by index — hasText filtering on h2 is unreliable when TextReveal renders
+    // per-character motion.span elements with U+00A0 between words (Intl.Segmenter path).
+    for (let i = 0; i < PANEL_TITLES.length; i++) {
+      const panel = page.locator('[data-philosophy-panel]').nth(i);
+      const heading = panel.locator('h2');
       await heading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
       await expect(heading).toBeVisible({ timeout: 5000 });
       await expectPainted(heading, 5000);
