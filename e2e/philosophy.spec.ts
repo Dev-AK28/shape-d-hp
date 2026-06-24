@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test';
 import { expectPainted } from './helpers';
 import { PHILOSOPHY_HORIZONTAL } from '../lib/scroll/animation-tokens';
 
+// String values are no longer used in test assertions — TextReveal's Intl.Segmenter path
+// inserts U+00A0 (non-breaking space) between per-character spans, breaking Playwright
+// hasText filters in headless Chromium. Only .length is referenced; panels are targeted
+// by nth(i) instead of hasText matching.
 const PANEL_TITLES = [
   'SELF-CONGRUENCE',
   'HUMAN EXPRESSION',

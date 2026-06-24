@@ -63,8 +63,10 @@ test.describe('Scroll animations', () => {
  * velocity skew ターゲット更新の回帰テスト — Issue #185
  *
  * SPA ルート遷移後も [data-velocity-content] が DOM に存在することを確認する。
- * MutationObserver が新しい要素を正しく検出できていれば、
- * 遷移後のページでも velocity skew が適用される前提条件が満たされる。
+ * この属性の存在は、SmoothScrollProvider の MutationObserver がターゲットを
+ * 再検出できる前提条件である（属性が存在しなければ MutationObserver が
+ * skewSetter を再生成できず velocity skew が停止する）。
+ * MutationObserver の内部動作そのものは E2E では検証せず、ユニットテストの対象とする。
  */
 test.describe('velocity skew target — SPA route transition (#185)', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
