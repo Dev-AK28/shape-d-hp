@@ -77,7 +77,7 @@ const isTouchDevice = isTouchInputDevice(profile);
 
 | パス | 適用内容 |
 |------|---------|
-| `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision / ShowcaseSection scroll storytelling（下記）。**スクロール領域全体で fixed `CosmicScene` のビジュアル背景が継続**（スタック順は Footer が前面、下記「スタック順」参照） |
+| `/` | Hero `immersive` variant: scroll-driven pin（GSAP）+ Server `h1`（LCP）+ About / MissionVision scroll storytelling（下記）。**スクロール領域全体で fixed `CosmicScene` のビジュアル背景が継続**（スタック順は Footer が前面、下記「スタック順」参照） |
 | `/services` | PageHeader + ServicesContent スタガー + TextReveal（Hero なし・StarBackground なし） |
 | `/works` | PageHeader + WorksContent 同上 |
 | `/philosophy` | PhilosophyContent — **デスクトップ: 水平スクロール（6パネルを横並び pin、GSAP scrub 1.8。`end` / `x` を関数形式にし `refreshInit` で `tl.invalidate()` — #186 リサイズ対応）/ モバイル: 垂直 snap** + オーバーレイ文字（Hero なし。詳細: [`philosophy-page.md`](./philosophy-page.md)） |
@@ -106,7 +106,6 @@ const isTouchDevice = isTouchInputDevice(profile);
 |-----------|--------------|--------------|------|
 | ABOUT | `About.tsx` | **デスクトップ**: ScrollTrigger ピン留め + スクラブ タイムライン（#212） / **モバイル**: 単純スタガーリビール（ピンなし） | `data-testid="about-section"`。パラメータ SSOT: `ABOUT_PIN_SCROLL` |
 | VISION | `MissionVision.tsx` | **多層パララックス** + GSAP stagger リビール（#213） | `data-testid="mission-vision-section"`。パラメータ SSOT: `MISSION_VISION_PARALLAX` |
-| SHOWCASE | `components/home/ShowcaseSection.tsx` | **デスクトップ**: ScrollTrigger ピン留め + X方向スクラブ（4カード横並び、#215） / **モバイル**: 縦積み `getScrollRevealProps` フェードリビール | `aria-label="サービス紹介"`。パラメータ SSOT: `SHOWCASE_HORIZONTAL`（`scrub: 1.8`、`panDuration: 1`）。コンテンツは Services ページと共通（AIプロダクト開発 / 業務自動化・DX / Webアプリ開発 / 自己表現コーチング）。`reduced-motion` / タッチデバイスは GSAP ピンなしで縦積み静的表示 |
 
 #### MissionVision 多層パララックス（Issue #213）
 
