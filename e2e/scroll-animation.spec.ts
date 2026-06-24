@@ -59,6 +59,34 @@ test.describe('Scroll animations', () => {
  * key pattern on their top-level motion.div elements in this PR (#153).
  * E2E coverage for content components is also added in this suite below.
  */
+/**
+ * velocity skew ターゲット更新の回帰テスト — Issue #185
+ *
+ * SPA ルート遷移後も [data-velocity-content] が DOM に存在することを確認する。
+ * MutationObserver が新しい要素を正しく検出できていれば、
+ * 遷移後のページでも velocity skew が適用される前提条件が満たされる。
+ */
+test.describe('velocity skew target — SPA route transition (#185)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('[data-velocity-content] が初期ロード後に存在する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('[data-velocity-content]')).toHaveCount(1);
+  });
+
+  test('[data-velocity-content] がルート遷移後も存在する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.click('a[href="/services"]');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('[data-velocity-content]')).toHaveCount(1);
+  });
+});
+
 test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
