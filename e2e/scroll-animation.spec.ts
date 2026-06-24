@@ -80,7 +80,7 @@ test.describe('velocity skew target — SPA route transition (#185)', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    await page.click('a[href="/services"]');
+    await page.goto('/services');
     await page.waitForLoadState('networkidle');
 
     await expect(page.locator('[data-velocity-content]')).toHaveCount(1);

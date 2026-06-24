@@ -36,7 +36,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     let tickerCallback: ((time: number) => void) | undefined;
     const defaultLagSmoothing = 500;
 
-    // Declared outside the IIFE so the cleanup function can release them on unmount.
+    // Declared outside the IIFE so the cleanup function can release them and disconnect observer on unmount.
     let skewSetter: ((v: number) => void) | null = null;
     let skewTarget: Element | null = null;
     let skewObserver: MutationObserver | undefined;
@@ -65,7 +65,16 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
 
       // SPA route changes swap the [data-velocity-content] element (template.tsx remounts).
       // MutationObserver updates the cached target outside the 60fps scroll handler.
-      skewObserver = new MutationObserver(() => {
+      // Skip mutations that don't involve [data-velocity-content] to avoid redundant querySelector calls.
+      skewObserver = new MutationObserver((records) => {
+        const touched = records.some((r) =>
+          [...r.addedNodes, ...r.removedNodes].some(
+            (n) =>
+              n instanceof Element &&
+              (n.hasAttribute('data-velocity-content') || n.querySelector('[data-velocity-content]')),
+          ),
+        );
+        if (!touched) return;
         const el = document.querySelector('[data-velocity-content]');
         if (el !== skewTarget) {
           skewTarget = el;
