@@ -77,11 +77,11 @@ export default function ShowcaseSection() {
   useGsapContext(() => {
     if (!panelsRef.current) return;
 
-    const panels = Array.from(
-      panelsRef.current.querySelectorAll<HTMLElement>('[data-showcase-card]'),
-    );
-
     if (enableHorizontal && sectionWrapperRef.current) {
+      const panels = Array.from(
+        panelsRef.current.querySelectorAll<HTMLElement>('[data-showcase-card]'),
+      );
+
       gsap.set(sectionWrapperRef.current, { overflow: 'hidden' });
       gsap.set(panelsRef.current, {
         display: 'flex',
