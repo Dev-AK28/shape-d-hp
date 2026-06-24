@@ -11,49 +11,13 @@ import { gsap, ScrollTrigger } from '@/lib/scroll/gsap-config';
 import { SHOWCASE_HORIZONTAL } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { colors } from '@/lib/design/tokens';
+import { SERVICE_LIST } from '@/lib/data/services';
 
-const services = [
-  {
-    id: 'ai-product',
-    index: '01',
-    category: 'Digital Solution',
-    title: 'AIプロダクト開発',
-    description:
-      '着想を、鮮度を保ったまま形にする。最新のAIスタックを指揮し、事業の核を最短距離でプロダクトへと昇華させます。',
-    tagline: '着想の鮮度を保ち、市場投入のリードタイムを短縮',
-    categoryColor: colors.blue,
-  },
-  {
-    id: 'dx',
-    index: '02',
-    category: 'Digital Solution',
-    title: '業務自動化・DX支援',
-    description:
-      '思考のノイズを削ぎ落とし、本来の創造性に没頭できる環境を構築。ルーティンをAIに委ね、淀みのないワークフローを実現します。',
-    tagline: '創造的業務への集中時間を最大化',
-    categoryColor: colors.blue,
-  },
-  {
-    id: 'web-app',
-    index: '03',
-    category: 'Digital Solution',
-    title: 'Webアプリ・モバイルアプリ開発',
-    description:
-      '最新のAI活用手法による圧倒的な納期短縮。モダンな技術スタックを使用したWebアプリおよびモバイルアプリの開発。',
-    tagline: 'ユーザー体験の最適化とスケーラビリティの確保',
-    categoryColor: colors.blue,
-  },
-  {
-    id: 'coaching',
-    index: '04',
-    category: 'Human Solution',
-    title: '自己表現コーチング',
-    description:
-      'AI時代に代替不可能な『個』の価値を最大化。心理学士の視点から、自覚・言語化・表現の3スキルを習得し、自己一致した生き方を支援します。',
-    tagline: '個の資本化と自己一致した生き方の実現',
-    categoryColor: colors.accent,
-  },
-] as const;
+const services = SERVICE_LIST.map((s, i) => ({
+  ...s,
+  index: String(i + 1).padStart(2, '0'),
+  categoryColor: s.category === 'Digital Solution' ? colors.blue : colors.accent,
+}));
 
 export default function ShowcaseSection() {
   const { profile, reduceMotion, isReady, staticReveal } = useStaticReveal();
