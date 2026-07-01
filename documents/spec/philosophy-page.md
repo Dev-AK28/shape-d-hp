@@ -30,9 +30,15 @@ Issue: #81
 | モバイル垂直 snap | `isMobile` または `prefersCoarsePointer` 時は縦スクロール + `ScrollTrigger.snap` | 同上 |
 | 文字 opacity scrub | `0.04` → `0.08`（デスクトップ: per-panel fade-in / モバイル: scrub） | 静的 `0.04` |
 | テキストリビール | `getScrollRevealProps` + `TextReveal`（`useStaticReveal` / hydration ラッチ — #151） | `staticReveal` 経由で即時表示 |
-| 進捗ドット | `usePanelActiveIndex`（IntersectionObserver） | **有効**（GSAP 非依存） |
+| 進捗ドット | `usePanelActiveIndex`（IntersectionObserver、`enabled: !enableHorizontal` でデスクトップは IO 自体を生成しない — #187） | **有効**（GSAP 非依存） |
 
 モバイル `snap` は `panelsRef`（6 パネルのみ）に適用。CTA ブロックは snap 計算から除外する。
+
+### 進捗ドットの IO コスト削減（#187）
+
+デスクトップ（`enableHorizontal = true`）では進捗ドットの `activeIndex` は GSAP の `onUpdate` から得られる `gsapActiveIndex` のみを使用し、`usePanelActiveIndex` が返す IO ベースの値は使用されない。従来は `usePanelActiveIndex` が常に全パネルへ `IntersectionObserver` を設定していたため、デスクトップでも不要な監視コストが発生していた。
+
+`usePanelActiveIndex(containerRef, { enabled?: boolean })` に `enabled` オプション（デフォルト `true`）を追加し、`PhilosophyContent` からは `usePanelActiveIndex(panelsRef, { enabled: !enableHorizontal })` として呼び出す。`enabled` が `false` の場合、`useEffect` は `IntersectionObserver` を生成せずに即座に return する（フック自体は React のルール上、条件分岐せず常に呼び出す）。
 
 ### リサイズ対応（#186）
 
