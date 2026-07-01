@@ -186,6 +186,17 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
     await expect(dots).toHaveCount(6);
     await expect(dots.first()).toHaveAttribute('data-active', 'true');
 
+    // Middle panel (#250 review round 2 nit): first/last alone can't catch an
+    // off-by-one in bestRatio's "first-wins-ties" logic for a non-edge panel.
+    const middleHeading = page.locator('[data-philosophy-panel]').nth(2).locator('h2');
+    await middleHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+
+    await expect(async () => {
+      await expect(dots.nth(2)).toHaveAttribute('data-active', 'true');
+      await expect(dots.first()).toHaveAttribute('data-active', 'false');
+      await expect(dots.nth(5)).toHaveAttribute('data-active', 'false');
+    }).toPass({ timeout: 5000 });
+
     const lastHeading = page.locator('[data-philosophy-panel]').nth(5).locator('h2');
     await lastHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
 
