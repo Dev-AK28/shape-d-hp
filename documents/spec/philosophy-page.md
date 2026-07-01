@@ -42,10 +42,13 @@ Issue: #81
 
 `enableHorizontal`（≒ `enabled` の否定）は `useDeviceProfile` が `resize`/`matchMedia` の変化を監視しているため実行中にも変わり得る。フックの戻り値は `return enabled ? activeIndex : 0` としてゲートしており、`enabled` が `true→false` に変わった直後でも、以前観測された非ゼロ値が漏れ出さず常に `0` を返すことを保証する（PR #250 レビュー対応）。
 
+さらに逆方向（`false→true`）にも同様の保証がある。`enabled` を直前レンダーの値と `useState` で比較し、`false→true` に変わったレンダー中に同期的に `setActiveIndex(0)` する（React の「前回レンダーの情報を保持する」パターン。`useRef` での比較・更新は `react-hooks/refs` に抵触するため `useState` を用いる）。これにより、新しい `IntersectionObserver` の初回コールバックが発火するまでの間、`enabled` が有効化される前に観測された古い非ゼロ値が 1 フレームも露出しない（PR #250 レビュー Round 2 対応）。
+
 ### 検証範囲の補足（PR #250 レビュー対応）
 
-- E2E: `e2e/philosophy.spec.ts` の「Philosophy mobile vertical snap」に、モバイルの進捗ドットが `IntersectionObserver` 経由でスクロール位置に追従することを検証するケースを追加。デスクトップ側の `gsapActiveIndex` 連動テストのみでは `usePanelActiveIndex` の `enabled` 経路（モバイル）が検証されていなかったための補完
-- リサイズ時のブレークポイント境界（768px 付近）で `enabled` が細かくトグルし `IntersectionObserver` の生成/破棄が連続し得る懸念は、`useDeviceProfile` の `resize` リスナー自体の debounce/hysteresis 導入が必要な、より広い影響範囲の課題のため本 PR の対象外とし、別 Issue で追跡する
+- E2E: `e2e/philosophy.spec.ts` の「Philosophy mobile vertical snap」に、モバイルの進捗ドットが `IntersectionObserver` 経由でスクロール位置に追従することを検証するケースを追加。デスクトップ側の `gsapActiveIndex` 連動テストのみでは `usePanelActiveIndex` の `enabled` 経路（モバイル）が検証されていなかったための補完。Round 2 で中間パネル（3枚目）へのスクロールも追加し、`bestRatio` の先勝ちロジックを先頭/末尾以外でも検証
+- リサイズ時のブレークポイント境界（768px 付近）で `enabled` が細かくトグルし `IntersectionObserver` の生成/破棄が連続し得る懸念は、`useDeviceProfile` の `resize` リスナー自体の debounce/hysteresis 導入が必要な、より広い影響範囲の課題のため本 PR の対象外とし、[#251](https://github.com/Dev-AK28/shape-d-hp/issues/251) で追跡する
+- Round 2 レビューで指摘された `false→true` 遷移時の stale 値ギャップは上記の `useState` ベースのレンダー中リセットで解消。ユニットテストは `tests/philosophy/content.test.ts` の文字列マッチング方式のまま維持しつつ、`indexOf` が `-1`（未検出）を返した場合に `slice` が黙って広い範囲を返してしまう脆弱性を解消するため、境界マーカーの発見を明示的に assert するよう修正した
 
 ### リサイズ対応（#186）
 
