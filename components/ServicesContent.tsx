@@ -6,6 +6,7 @@ import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { getServiceById } from '@/lib/data/services';
 
 export default function ServicesContent() {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
@@ -13,86 +14,66 @@ export default function ServicesContent() {
   const isTouchDevice = isTouchInputDevice(profile);
   const digitalServices = [
     {
-      id: 1,
-      title: "AIプロダクト開発",
-      category: "Digital Solution",
-      description: "着想を、鮮度を保ったまま形にする。最新のAIスタックを指揮し、事業の核を最短距離でプロダクトへと昇華させます。",
-      benefit: "着想の鮮度を保ち、市場投入のリードタイムを短縮",
+      ...getServiceById('ai-product'),
       connection: "技術の余白に、創造性を。",
       features: [
         "機械学習モデルの統合",
         "自然言語処理（NLP）",
         "データ分析・可視化",
         "AIチャットボット・RAG",
-        "予測モデル・推薦システム"
+        "予測モデル・推薦システム",
       ],
       tool: "GoDD",
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
       processUrl: "/process/development",
-      isCoaching: false
     },
     {
-      id: 2,
-      title: "業務自動化・DX支援",
-      category: "Digital Solution",
-      description: "思考のノイズを削ぎ落とし、本来の創造性に没頭できる環境を構築。ルーティンをAIに委ね、淀みのないワークフローを実現します。",
-      benefit: "創造的業務への集中時間を最大化",
+      ...getServiceById('dx'),
       connection: "技術の余白に、創造性を。",
       features: [
         "社内業務システムDX",
         "SaaSプラットフォーム開発",
         "API連携・データ連携",
         "ワークフロー自動化",
-        "レガシーモダナイゼーション"
+        "レガシーモダナイゼーション",
       ],
       tool: "GoDD",
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
       processUrl: "/process/development",
-      isCoaching: false
     },
     {
-      id: 3,
-      title: "Webアプリ・モバイルアプリ開発",
-      category: "Digital Solution",
-      description: "最新のAI活用手法による圧倒的な納期短縮。モダンな技術スタックを使用したWebアプリおよびモバイルアプリの開発。",
-      benefit: "ユーザー体験の最適化とスケーラビリティの確保",
+      ...getServiceById('web-app'),
       connection: "技術の余白に、創造性を。",
       features: [
         "React/Next.js開発",
         "モバイルアプリ+API",
         "ECサイト構築",
         "IoTダッシュボード",
-        "ゲーム開発"
+        "ゲーム開発",
       ],
       tool: "GoDD",
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
       processUrl: "/process/development",
-      isCoaching: false
-    }
+    },
   ];
 
   const humanServices = [
     {
-      id: 4,
-      title: "自己表現コーチング",
-      category: "Human Solution",
-      description: "AI時代に代替不可能な『個』の価値を最大化。心理学士の視点から、自覚・言語化・表現の3スキルを習得し、自己一致した生き方を支援します。",
-      benefit: "個の資本化と自己一致した生き方の実現",
+      ...getServiceById('coaching'),
       connection: "内なる価値観と言語化の技術を融合し、本来の創造性を解放する。",
       features: [
         "本音の自覚力の習得",
         "適切な言語化力の構築",
         "相手に伝える表現力の向上",
         "ビジネスコミュニケーション改善",
-        "体系的スキル習得"
+        "体系的スキル習得",
       ],
       price: "初回無料相談",
       processUrl: "/process/consulting",
-      isCoaching: true
-    }
+    },
   ];
 
   return (
@@ -135,7 +116,7 @@ export default function ServicesContent() {
                 </p>
                 <div style={{ marginBottom: '32px', padding: '24px', background: 'rgba(96, 165, 250, 0.08)', borderRadius: '6px', border: '1px solid rgba(96, 165, 250, 0.15)' }}>
                   <p style={{ color: '#60a5fa', lineHeight: 1.6, fontSize: '14px', fontFamily: 'serif', fontWeight: 300, letterSpacing: '0.05em' }}>
-                    {service.benefit}
+                    {service.tagline}
                   </p>
                 </div>
                 <div style={{ marginBottom: '32px' }}>
@@ -222,7 +203,7 @@ export default function ServicesContent() {
                 </p>
                 <div style={{ marginBottom: '32px', padding: '24px', background: 'rgba(167, 139, 250, 0.08)', borderRadius: '6px', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
                   <p style={{ color: '#a78bfa', lineHeight: 1.6, fontSize: '14px', fontFamily: 'serif', fontWeight: 300, letterSpacing: '0.05em' }}>
-                    {service.benefit}
+                    {service.tagline}
                   </p>
                 </div>
                 <div style={{ marginBottom: '32px' }}>

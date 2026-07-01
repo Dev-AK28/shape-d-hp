@@ -46,6 +46,46 @@ test.describe('Scroll animations', () => {
 });
 
 /**
+ * ShowcaseSection smoke tests — Issue #215.
+ *
+ * Verifies section presence and card visibility via reduced-motion (static) path,
+ * avoiding the need to simulate GSAP pin+scrub in E2E.
+ */
+test.describe('ShowcaseSection — smoke (#215)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test('section と最初のカードが reduced-motion で表示される', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const section = page.locator('[aria-label="サービス紹介"]');
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toBeVisible({ timeout: 5000 });
+
+    const firstCard = page.locator('[data-showcase-card]').first();
+    await firstCard.scrollIntoViewIfNeeded();
+    await expect(firstCard).toBeVisible({ timeout: 5000 });
+    // staticReveal must render at opacity:1 — guards against cards stuck at opacity:0.
+    await expect(firstCard).toHaveCSS('opacity', '1', { timeout: 5000 });
+  });
+
+  test('モバイル (375px) で全カードが縦積みで存在する', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('[data-showcase-card]')).toHaveCount(4, { timeout: 8000 });
+
+    // On mobile the vertical stack must reveal each card at opacity:1 (no horizontal pin).
+    const firstCard = page.locator('[data-showcase-card]').first();
+    await firstCard.scrollIntoViewIfNeeded();
+    await expect(firstCard).toHaveCSS('opacity', '1', { timeout: 5000 });
+  });
+});
+
+/**
  * Desktop scroll reveal regression tests — Issue #153.
  *
  * Verifies that `ScrollReveal`-wrapped elements on sub-pages animate in

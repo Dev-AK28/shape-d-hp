@@ -8,6 +8,8 @@ export const colors = {
   accent: '#c4b5a0',
   accentSubtle: 'rgba(196, 181, 160, 0.6)',
   border: 'rgba(240, 240, 240, 0.12)',
+  /** Faint foreground tint for large decorative numerals / background glyphs */
+  foregroundFaint: 'rgba(240, 240, 240, 0.04)',
   /** Section accent palette — mirrors Tailwind blue-400 / violet-400 / blue-300 */
   blue: '#60a5fa',
   blueLight: '#93c5fd',

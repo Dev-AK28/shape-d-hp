@@ -1,0 +1,217 @@
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { isTouchInputDevice } from '@/lib/performance/device-profile';
+import { useGsapContext } from '@/lib/hooks/useGsapContext';
+import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
+import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
+import { gsap, ScrollTrigger, refreshScrollTrigger } from '@/lib/scroll/gsap-config';
+import { SHOWCASE_HORIZONTAL } from '@/lib/scroll/animation-tokens';
+import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { colors } from '@/lib/design/tokens';
+import { SERVICE_LIST } from '@/lib/data/services';
+
+const services = SERVICE_LIST.map((s, i) => ({
+  ...s,
+  index: String(i + 1).padStart(2, '0'),
+  categoryColor: s.category === 'Digital Solution' ? colors.blue : colors.purple,
+}));
+
+export default function ShowcaseSection() {
+  const { profile, reduceMotion, isReady, staticReveal } = useStaticReveal();
+  const focusGuardRef = useFocusRestore(staticReveal);
+
+  const sectionWrapperRef = useRef<HTMLDivElement>(null);
+  const panelsRef = useRef<HTMLDivElement>(null);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
+  const isTouchDevice = isTouchInputDevice(profile);
+  const enableHorizontal = isReady && !isTouchDevice;
+
+  // Re-evaluate function-based x values on resize (same pattern as PhilosophyContent #186).
+  useEffect(() => {
+    if (!enableHorizontal) return;
+    const onRefreshInit = () => { tlRef.current?.invalidate(); };
+    ScrollTrigger.addEventListener('refreshInit', onRefreshInit);
+    return () => { ScrollTrigger.removeEventListener('refreshInit', onRefreshInit); };
+  }, [enableHorizontal]);
+
+  useGsapContext(() => {
+    if (!panelsRef.current) return;
+
+    if (enableHorizontal && sectionWrapperRef.current) {
+      const panels = Array.from(
+        panelsRef.current.querySelectorAll<HTMLElement>('[data-showcase-card]'),
+      );
+
+      gsap.set(sectionWrapperRef.current, { overflow: 'hidden' });
+      gsap.set(panelsRef.current, {
+        display: 'flex',
+        flexDirection: 'row',
+        width: `${services.length * 100}vw`,
+      });
+      gsap.set(panels, { width: '100vw', minHeight: '100svh', flexShrink: 0 });
+
+      const getScrollDistance = () => (services.length - 1) * window.innerWidth;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionWrapperRef.current,
+          pin: true,
+          pinSpacing: true,
+          start: 'top top',
+          end: () => `+=${getScrollDistance()}`,
+          scrub: SHOWCASE_HORIZONTAL.scrub,
+        },
+      });
+
+      tl.to(panelsRef.current, {
+        x: () => -getScrollDistance(),
+        ease: 'none',
+        duration: SHOWCASE_HORIZONTAL.panDuration,
+      });
+
+      tlRef.current = tl;
+
+      // Recalculate pin measurements after layout mutations above (#215).
+      refreshScrollTrigger();
+    }
+  }, [enableHorizontal]);
+
+  return (
+    <section
+      ref={focusGuardRef}
+      aria-label="サービス紹介"
+      style={{ position: 'relative', background: colors.background }}
+    >
+      {/* Desktop: horizontal pin-scroll wrapper */}
+      <div ref={sectionWrapperRef}>
+        {/* panelsRef: flex row on desktop, block on mobile */}
+        <div ref={panelsRef}>
+          {services.map((service, i) => (
+            <motion.div
+              key={staticReveal ? `static-${service.id}` : `reveal-${service.id}`}
+              data-showcase-card
+              {...getScrollRevealProps(reduceMotion, {
+                staticReveal,
+                isMobile: isTouchDevice,
+                // Stagger only in the mobile vertical stack; horizontal pin-scroll
+                // reveals cards one-at-a-time, so a delay would flash empty panels.
+                delay: enableHorizontal ? 0 : i * 0.12,
+              })}
+              style={{
+                minHeight: '100svh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 'clamp(48px, 8vw, 120px) clamp(24px, 6vw, 80px)',
+                borderTop: `1px solid ${colors.border}`,
+                position: 'relative',
+              }}
+            >
+              {/* Service number — large decorative background numeral */}
+              <span
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  top: 'clamp(24px, 4vw, 48px)',
+                  right: 'clamp(24px, 6vw, 80px)',
+                  fontSize: 'clamp(80px, 12vw, 160px)',
+                  fontFamily: 'var(--font-display, serif)',
+                  fontWeight: 700,
+                  color: colors.foregroundFaint,
+                  lineHeight: 1,
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                }}
+              >
+                {service.index}
+              </span>
+
+              <div style={{ maxWidth: '560px', width: '100%', position: 'relative', zIndex: 1 }}>
+                {/* Category label */}
+                <p
+                  style={{
+                    fontSize: '11px',
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    color: service.categoryColor,
+                    marginBottom: '20px',
+                    fontWeight: 500,
+                  }}
+                >
+                  {service.category}
+                </p>
+
+                {/* Title */}
+                <h2
+                  style={{
+                    fontSize: 'clamp(28px, 4vw, 48px)',
+                    fontWeight: 300,
+                    fontFamily: 'var(--font-serif-jp, serif)',
+                    color: colors.foreground,
+                    lineHeight: 1.3,
+                    letterSpacing: '0.02em',
+                    marginBottom: '28px',
+                  }}
+                >
+                  {service.title}
+                </h2>
+
+                {/* Description */}
+                <p
+                  style={{
+                    fontSize: 'clamp(14px, 1.4vw, 16px)',
+                    lineHeight: 1.8,
+                    color: colors.muted,
+                    marginBottom: '24px',
+                  }}
+                >
+                  {service.description}
+                </p>
+
+                {/* Tagline */}
+                <p
+                  style={{
+                    fontSize: '13px',
+                    color: colors.accentSubtle,
+                    fontStyle: 'italic',
+                    letterSpacing: '0.02em',
+                    marginBottom: '40px',
+                    paddingLeft: '12px',
+                    borderLeft: `2px solid ${colors.accentSubtle}`,
+                  }}
+                >
+                  {service.tagline}
+                </p>
+
+                {/* CTA */}
+                <Link
+                  href="/services"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '13px',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: colors.foreground,
+                    textDecoration: 'none',
+                    borderBottom: `1px solid ${colors.border}`,
+                    paddingBottom: '4px',
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  詳しく見る
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

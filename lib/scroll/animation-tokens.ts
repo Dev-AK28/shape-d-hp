@@ -245,6 +245,13 @@ export const VELOCITY_SKEW = {
   quickToEase: 'power3',
 } as const;
 
+/** Showcase horizontal scroll (Act 5, #215). Same scrub cadence as PHILOSOPHY_HORIZONTAL. */
+export const SHOWCASE_HORIZONTAL = {
+  scrub: 1.8,
+  /** GSAP timeline length in seconds; pan tween is anchored to this. */
+  panDuration: 1,
+} as const;
+
 /**
  * Philosophy page horizontal scroll (desktop-only).
  * Panels are pinned and translated on the X axis via GSAP ScrollTrigger.
