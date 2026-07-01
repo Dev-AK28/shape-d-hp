@@ -173,4 +173,25 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
     );
     expect(hasOverflow, 'horizontal scroll must not be introduced on mobile').toBe(false);
   });
+
+  // #250 review: this is the only e2e coverage of the usePanelActiveIndex IO path —
+  // desktop's progress-dots test above exercises gsapActiveIndex only. Guards against
+  // a future regression in the `enabled: !enableHorizontal` wiring (#187) silently
+  // breaking mobile dot tracking, which the source-string unit tests cannot detect.
+  test('progress dots track scroll position via IntersectionObserver on mobile', async ({ page }) => {
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
+    await expect(dots).toHaveCount(6);
+    await expect(dots.first()).toHaveAttribute('data-active', 'true');
+
+    const lastHeading = page.locator('[data-philosophy-panel]').nth(5).locator('h2');
+    await lastHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+
+    await expect(async () => {
+      await expect(dots.nth(5)).toHaveAttribute('data-active', 'true');
+      await expect(dots.first()).toHaveAttribute('data-active', 'false');
+    }).toPass({ timeout: 5000 });
+  });
 });
