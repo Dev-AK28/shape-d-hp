@@ -95,8 +95,11 @@ export default function PhilosophyContent() {
   const isTouchDevice = isTouchInputDevice(profile);
   const enableHorizontal = !isTouchDevice;
 
-  // IO-based index for mobile vertical mode. Disabled on desktop (#187) since
-  // gsapActiveIndex drives activeIndex there and the IO result is discarded.
+  // IO-based index for mobile vertical mode. Disabled once enableHorizontal is
+  // true (#187) — activeIndex below only reads ioActiveIndex during the brief
+  // pre-hydration window (isReady === false), where it deterministically stays
+  // 0 (enabled=false), matching the SSR default. After hydration, gsapActiveIndex
+  // takes over on desktop and this value is discarded entirely (PR #250 review nit).
   const ioActiveIndex = usePanelActiveIndex(panelsRef, { enabled: !enableHorizontal });
 
   const activeIndex = isReady && enableHorizontal ? gsapActiveIndex : ioActiveIndex;

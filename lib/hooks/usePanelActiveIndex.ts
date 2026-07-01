@@ -6,9 +6,11 @@ const PANEL_SELECTOR = '[data-philosophy-panel]';
 
 interface UsePanelActiveIndexOptions {
   /**
-   * When false, skips IntersectionObserver setup entirely and returns 0.
-   * Desktop horizontal mode drives its own GSAP-based index and never reads
-   * this hook's result, so observing every panel there is wasted cost (#187).
+   * When false, skips IntersectionObserver setup entirely and the hook always
+   * returns 0 — even if a nonzero index was observed while `enabled` was
+   * previously `true` (see PR #250 review). Desktop horizontal mode drives its
+   * own GSAP-based index and never reads this hook's result, so observing
+   * every panel there is wasted cost (#187).
    */
   enabled?: boolean;
 }
@@ -69,5 +71,8 @@ export function usePanelActiveIndex(
     return () => observer.disconnect();
   }, [containerRef, enabled]);
 
-  return activeIndex;
+  // Gate on `enabled` here too (not just in the effect): guarantees the public
+  // contract holds even right after `enabled` flips true → false, before the
+  // cleanup above has a chance to matter — no stale nonzero value leaks out.
+  return enabled ? activeIndex : 0;
 }

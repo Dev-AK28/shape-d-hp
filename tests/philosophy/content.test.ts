@@ -27,7 +27,7 @@ describe('usePanelActiveIndex hook', () => {
   it('skips IntersectionObserver setup when enabled is false', () => {
     const effectBody = hookSource.slice(
       hookSource.indexOf('useEffect('),
-      hookSource.indexOf('return activeIndex'),
+      hookSource.indexOf('}, [containerRef, enabled]);'),
     );
     expect(effectBody).toMatch(/if\s*\(\s*!enabled\s*\)\s*{/);
     // The early-return guard must appear before the observer is constructed.
@@ -38,6 +38,14 @@ describe('usePanelActiveIndex hook', () => {
 
   it('includes enabled in the effect dependency array so toggling re-runs setup', () => {
     expect(hookSource).toMatch(/\[containerRef,\s*enabled\]/);
+  });
+
+  // PR #250 review: once `enabled` flips back to false, the hook must not keep
+  // returning a stale nonzero index observed while it was previously enabled —
+  // the public contract ("returns 0 when disabled") must hold at all times, not
+  // just on first mount.
+  it('gates the returned value on enabled so stale observed state is never surfaced', () => {
+    expect(hookSource).toMatch(/return\s+enabled\s*\?\s*activeIndex\s*:\s*0\s*;/);
   });
 });
 
