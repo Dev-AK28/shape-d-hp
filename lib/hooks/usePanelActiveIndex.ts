@@ -4,12 +4,28 @@ import { useEffect, useState, type RefObject } from 'react';
 
 const PANEL_SELECTOR = '[data-philosophy-panel]';
 
+interface UsePanelActiveIndexOptions {
+  /**
+   * When false, skips IntersectionObserver setup entirely and returns 0.
+   * Desktop horizontal mode drives its own GSAP-based index and never reads
+   * this hook's result, so observing every panel there is wasted cost (#187).
+   */
+  enabled?: boolean;
+}
+
 export function usePanelActiveIndex(
   containerRef: RefObject<HTMLElement | null>,
+  { enabled = true }: UsePanelActiveIndexOptions = {},
 ): number {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
+    // Bail out without touching state: the returned value is discarded by
+    // callers whenever `enabled` is false (see #187), so there is nothing to sync.
+    if (!enabled) {
+      return;
+    }
+
     const container = containerRef.current;
     if (!container) {
       return;
@@ -51,7 +67,7 @@ export function usePanelActiveIndex(
     panels.forEach((panel) => observer.observe(panel));
 
     return () => observer.disconnect();
-  }, [containerRef]);
+  }, [containerRef, enabled]);
 
   return activeIndex;
 }

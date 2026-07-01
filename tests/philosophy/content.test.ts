@@ -8,14 +8,36 @@ const philosophySource = readFileSync(
 );
 
 describe('usePanelActiveIndex hook', () => {
-  it('observes philosophy panels via IntersectionObserver', () => {
-    const source = readFileSync(
-      resolve(process.cwd(), 'lib/hooks/usePanelActiveIndex.ts'),
-      'utf8',
-    );
+  const hookSource = readFileSync(
+    resolve(process.cwd(), 'lib/hooks/usePanelActiveIndex.ts'),
+    'utf8',
+  );
 
-    expect(source).toContain('IntersectionObserver');
-    expect(source).toContain('[data-philosophy-panel]');
+  it('observes philosophy panels via IntersectionObserver', () => {
+    expect(hookSource).toContain('IntersectionObserver');
+    expect(hookSource).toContain('[data-philosophy-panel]');
+  });
+
+  // #187: desktop (enableHorizontal) must not pay the IntersectionObserver setup
+  // cost since ioActiveIndex is discarded in favour of gsapActiveIndex there.
+  it('accepts an enabled option defaulting to true', () => {
+    expect(hookSource).toMatch(/enabled\s*=\s*true/);
+  });
+
+  it('skips IntersectionObserver setup when enabled is false', () => {
+    const effectBody = hookSource.slice(
+      hookSource.indexOf('useEffect('),
+      hookSource.indexOf('return activeIndex'),
+    );
+    expect(effectBody).toMatch(/if\s*\(\s*!enabled\s*\)\s*{/);
+    // The early-return guard must appear before the observer is constructed.
+    expect(effectBody.indexOf('!enabled')).toBeLessThan(
+      effectBody.indexOf('new IntersectionObserver'),
+    );
+  });
+
+  it('includes enabled in the effect dependency array so toggling re-runs setup', () => {
+    expect(hookSource).toMatch(/\[containerRef,\s*enabled\]/);
   });
 });
 
@@ -46,5 +68,13 @@ describe('PhilosophyContent — resize handling (#186)', () => {
   it('stores timeline in a ref for refreshInit callback access', () => {
     expect(philosophySource).toContain('tlRef');
     expect(philosophySource).toMatch(/tlRef\.current\s*=\s*tl/);
+  });
+});
+
+describe('PhilosophyContent — skip desktop IO setup (#187)', () => {
+  it('passes enabled: !enableHorizontal so IO only runs on mobile', () => {
+    expect(philosophySource).toMatch(
+      /usePanelActiveIndex\(\s*panelsRef,\s*{\s*enabled:\s*!enableHorizontal\s*}\s*\)/,
+    );
   });
 });
