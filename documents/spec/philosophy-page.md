@@ -40,6 +40,13 @@ Issue: #81
 
 `usePanelActiveIndex(containerRef, { enabled?: boolean })` に `enabled` オプション（デフォルト `true`）を追加し、`PhilosophyContent` からは `usePanelActiveIndex(panelsRef, { enabled: !enableHorizontal })` として呼び出す。`enabled` が `false` の場合、`useEffect` は `IntersectionObserver` を生成せずに即座に return する（フック自体は React のルール上、条件分岐せず常に呼び出す）。
 
+`enableHorizontal`（≒ `enabled` の否定）は `useDeviceProfile` が `resize`/`matchMedia` の変化を監視しているため実行中にも変わり得る。フックの戻り値は `return enabled ? activeIndex : 0` としてゲートしており、`enabled` が `true→false` に変わった直後でも、以前観測された非ゼロ値が漏れ出さず常に `0` を返すことを保証する（PR #250 レビュー対応）。
+
+### 検証範囲の補足（PR #250 レビュー対応）
+
+- E2E: `e2e/philosophy.spec.ts` の「Philosophy mobile vertical snap」に、モバイルの進捗ドットが `IntersectionObserver` 経由でスクロール位置に追従することを検証するケースを追加。デスクトップ側の `gsapActiveIndex` 連動テストのみでは `usePanelActiveIndex` の `enabled` 経路（モバイル）が検証されていなかったための補完
+- リサイズ時のブレークポイント境界（768px 付近）で `enabled` が細かくトグルし `IntersectionObserver` の生成/破棄が連続し得る懸念は、`useDeviceProfile` の `resize` リスナー自体の debounce/hysteresis 導入が必要な、より広い影響範囲の課題のため本 PR の対象外とし、別 Issue で追跡する
+
 ### リサイズ対応（#186）
 
 デスクトップ水平スクロールの `scrollDistance`（= `(sections.length - 1) × window.innerWidth`）は以下で常に最新の `innerWidth` を参照する:
