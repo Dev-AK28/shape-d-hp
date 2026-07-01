@@ -47,6 +47,26 @@ describe('usePanelActiveIndex hook', () => {
   it('gates the returned value on enabled so stale observed state is never surfaced', () => {
     expect(hookSource).toMatch(/return\s+enabled\s*\?\s*activeIndex\s*:\s*0\s*;/);
   });
+
+  // PR #250 review round 2: the true→false gate above still leaves a gap in the
+  // opposite direction — if `enabled` flips false→true again, `activeIndex`
+  // state itself was never reset, so the hook would keep returning the index
+  // observed before it was disabled until the new IntersectionObserver's first
+  // async callback fires. Reset must happen synchronously during render (React's
+  // documented "adjust state when a prop changes" pattern), not inside an
+  // effect, so no stale frame is ever visible.
+  it('resets activeIndex synchronously during render when enabled flips false→true', () => {
+    const fnStart = hookSource.indexOf('export function usePanelActiveIndex');
+    const effectStart = hookSource.indexOf('useEffect(');
+    expect(fnStart).toBeGreaterThan(-1);
+    expect(effectStart).toBeGreaterThan(-1);
+
+    const preEffectBody = hookSource.slice(fnStart, effectStart);
+    // Must use useState (not a ref) to compare against the previous `enabled`
+    // value — mutating ref.current during render trips react-hooks/refs.
+    expect(preEffectBody).toMatch(/useState\(enabled\)/);
+    expect(preEffectBody).toContain('setActiveIndex(0)');
+  });
 });
 
 describe('PhilosophyContent structure', () => {

@@ -21,6 +21,22 @@ export function usePanelActiveIndex(
 ): number {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Adjust state during render — React's documented "storing information
+  // from previous renders" pattern using useState (a ref would trip
+  // react-hooks/refs, which forbids reading/writing ref.current during
+  // render) — rather than in an effect: when `enabled` flips false→true, the
+  // previously-observed index must not be visible even for the single frame
+  // before the new IntersectionObserver's first async callback fires (#250
+  // review round 2 — the true→false direction is already covered by the
+  // gated `return` below, but this closes the reverse gap).
+  const [prevEnabled, setPrevEnabled] = useState(enabled);
+  if (enabled !== prevEnabled) {
+    setPrevEnabled(enabled);
+    if (enabled) {
+      setActiveIndex(0);
+    }
+  }
+
   useEffect(() => {
     // Bail out without touching state: the returned value is discarded by
     // callers whenever `enabled` is false (see #187), so there is nothing to sync.
