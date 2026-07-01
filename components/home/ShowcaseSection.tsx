@@ -7,7 +7,7 @@ import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
-import { gsap, ScrollTrigger } from '@/lib/scroll/gsap-config';
+import { gsap, ScrollTrigger, refreshScrollTrigger } from '@/lib/scroll/gsap-config';
 import { SHOWCASE_HORIZONTAL } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { colors } from '@/lib/design/tokens';
@@ -16,7 +16,7 @@ import { SERVICE_LIST } from '@/lib/data/services';
 const services = SERVICE_LIST.map((s, i) => ({
   ...s,
   index: String(i + 1).padStart(2, '0'),
-  categoryColor: s.category === 'Digital Solution' ? colors.blue : colors.accent,
+  categoryColor: s.category === 'Digital Solution' ? colors.blue : colors.purple,
 }));
 
 export default function ShowcaseSection() {
@@ -74,8 +74,11 @@ export default function ShowcaseSection() {
       });
 
       tlRef.current = tl;
+
+      // Recalculate pin measurements after layout mutations above (#215).
+      refreshScrollTrigger();
     }
-  }, [isReady]);
+  }, [enableHorizontal]);
 
   return (
     <section
@@ -89,9 +92,15 @@ export default function ShowcaseSection() {
         <div ref={panelsRef}>
           {services.map((service, i) => (
             <motion.div
-              key={service.id}
+              key={staticReveal ? `static-${service.id}` : `reveal-${service.id}`}
               data-showcase-card
-              {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice, delay: i * 0.12 })}
+              {...getScrollRevealProps(reduceMotion, {
+                staticReveal,
+                isMobile: isTouchDevice,
+                // Stagger only in the mobile vertical stack; horizontal pin-scroll
+                // reveals cards one-at-a-time, so a delay would flash empty panels.
+                delay: enableHorizontal ? 0 : i * 0.12,
+              })}
               style={{
                 minHeight: '100svh',
                 display: 'flex',
@@ -112,7 +121,7 @@ export default function ShowcaseSection() {
                   fontSize: 'clamp(80px, 12vw, 160px)',
                   fontFamily: 'var(--font-display, serif)',
                   fontWeight: 700,
-                  color: 'rgba(240, 240, 240, 0.04)',
+                  color: colors.foregroundFaint,
                   lineHeight: 1,
                   pointerEvents: 'none',
                   userSelect: 'none',
