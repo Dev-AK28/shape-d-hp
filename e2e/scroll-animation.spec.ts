@@ -66,14 +66,22 @@ test.describe('ShowcaseSection — smoke (#215)', () => {
     const firstCard = page.locator('[data-showcase-card]').first();
     await firstCard.scrollIntoViewIfNeeded();
     await expect(firstCard).toBeVisible({ timeout: 5000 });
+    // staticReveal must render at opacity:1 — guards against cards stuck at opacity:0.
+    await expect(firstCard).toHaveCSS('opacity', '1', { timeout: 5000 });
   });
 
   test('モバイル (375px) で全カードが縦積みで存在する', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
     await expect(page.locator('[data-showcase-card]')).toHaveCount(4, { timeout: 8000 });
+
+    // On mobile the vertical stack must reveal each card at opacity:1 (no horizontal pin).
+    const firstCard = page.locator('[data-showcase-card]').first();
+    await firstCard.scrollIntoViewIfNeeded();
+    await expect(firstCard).toHaveCSS('opacity', '1', { timeout: 5000 });
   });
 });
 
