@@ -27,7 +27,6 @@ export default function ServicesContent() {
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
       processUrl: "/process/development",
-      isCoaching: false as const,
     },
     {
       ...getServiceById('dx'),
@@ -43,7 +42,6 @@ export default function ServicesContent() {
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
       processUrl: "/process/development",
-      isCoaching: false as const,
     },
     {
       ...getServiceById('web-app'),
@@ -59,7 +57,6 @@ export default function ServicesContent() {
       toolUrl: "https://www.getgodd.dev/",
       price: "個別見積もり",
       processUrl: "/process/development",
-      isCoaching: false as const,
     },
   ];
 
@@ -76,7 +73,6 @@ export default function ServicesContent() {
       ],
       price: "初回無料相談",
       processUrl: "/process/consulting",
-      isCoaching: true as const,
     },
   ];
 
