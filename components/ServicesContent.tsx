@@ -6,7 +6,7 @@ import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
-import { SERVICE_LIST } from '@/lib/data/services';
+import { getServiceById } from '@/lib/data/services';
 
 export default function ServicesContent() {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
@@ -14,7 +14,7 @@ export default function ServicesContent() {
   const isTouchDevice = isTouchInputDevice(profile);
   const digitalServices = [
     {
-      ...SERVICE_LIST[0],
+      ...getServiceById('ai-product'),
       connection: "技術の余白に、創造性を。",
       features: [
         "機械学習モデルの統合",
@@ -30,7 +30,7 @@ export default function ServicesContent() {
       isCoaching: false as const,
     },
     {
-      ...SERVICE_LIST[1],
+      ...getServiceById('dx'),
       connection: "技術の余白に、創造性を。",
       features: [
         "社内業務システムDX",
@@ -46,7 +46,7 @@ export default function ServicesContent() {
       isCoaching: false as const,
     },
     {
-      ...SERVICE_LIST[2],
+      ...getServiceById('web-app'),
       connection: "技術の余白に、創造性を。",
       features: [
         "React/Next.js開発",
@@ -65,7 +65,7 @@ export default function ServicesContent() {
 
   const humanServices = [
     {
-      ...SERVICE_LIST[3],
+      ...getServiceById('coaching'),
       connection: "内なる価値観と言語化の技術を融合し、本来の創造性を解放する。",
       features: [
         "本音の自覚力の習得",
