@@ -25,10 +25,17 @@ describe('usePanelActiveIndex hook', () => {
   });
 
   it('skips IntersectionObserver setup when enabled is false', () => {
-    const effectBody = hookSource.slice(
-      hookSource.indexOf('useEffect('),
-      hookSource.indexOf('}, [containerRef, enabled]);'),
-    );
+    const effectStart = hookSource.indexOf('useEffect(');
+    const effectDepsEnd = hookSource.indexOf('}, [containerRef, enabled]);');
+    // PR #250 review round 2: assert both markers were actually found before
+    // slicing. `indexOf` returns -1 on a miss, and `slice(start, -1)` silently
+    // succeeds (near-whole-file) instead of throwing — a future formatting
+    // change to the dependency-array line would otherwise widen effectBody
+    // instead of failing loudly, silently weakening every assertion below.
+    expect(effectStart).toBeGreaterThan(-1);
+    expect(effectDepsEnd).toBeGreaterThan(-1);
+
+    const effectBody = hookSource.slice(effectStart, effectDepsEnd);
     expect(effectBody).toMatch(/if\s*\(\s*!enabled\s*\)\s*{/);
     // The early-return guard must appear before the observer is constructed.
     expect(effectBody.indexOf('!enabled')).toBeLessThan(
