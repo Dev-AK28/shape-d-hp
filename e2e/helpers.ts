@@ -158,6 +158,18 @@ export async function expectFooterVisibleAboveCosmicBackground(page: Page): Prom
  *
  * Limitation: does not detect visibility:hidden, display:none, or off-viewport placement.
  */
+/**
+ * Assert that no horizontal scrollbar has appeared on the page.
+ * Checks document.documentElement.scrollWidth > window.innerWidth — the same
+ * metric browsers use to show/hide the horizontal scrollbar.
+ */
+export async function expectNoHorizontalOverflow(page: Page): Promise<void> {
+  const hasOverflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > window.innerWidth,
+  );
+  expect(hasOverflow, 'horizontal overflow detected').toBe(false);
+}
+
 export async function expectPainted(locator: Locator, timeout = 200) {
   await expect(async () => {
     const opacity = await locator.evaluate((el) => {
