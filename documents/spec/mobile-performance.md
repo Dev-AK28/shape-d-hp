@@ -329,6 +329,15 @@ iPad Pro 等の大画面タッチ端末で `prefers-reduced-motion` が有効な
 - And CTA（お問い合わせ）がビューポート内に表示される（virtual keyboard で隠れない）
 - And `data-hero="immersive"` と `data-hero-cta` 属性が DOM に存在する
 
+**コンポーネント統合テスト（Issue #147）**:
+`tests/components/Hero.staticFallback.test.tsx` で以下をカバー済み:
+- Given `prefersCoarsePointer=true, isMobile=false, prefersReducedMotion=true, isReady=true`
+- When `<Hero variant="immersive" />` をレンダリング
+- Then `[data-testid="hero-pin-section"]` に `flex-col` / `h-auto` が付与される
+- And `[data-testid="hero-cta-wrapper"]` が `relative` クラスを持ち `absolute` を持たない
+- And 対比ケース（desktop）で `h-svh` / `absolute` が付与される
+- And SSR 初回表示（`isReady=false`）でも `mobileStaticHero=true` になる
+
 ## 検証
 
 ```bash
