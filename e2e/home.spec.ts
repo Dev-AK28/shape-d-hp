@@ -216,7 +216,7 @@ test.describe('Home page mobile', () => {
 test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => {
   test.use({ viewport: { width: 1024, height: 1366 } });
 
-  test('CSS layout override makes CTA accessible (pointer:coarse simulated via addStyleTag)', async ({ page }) => {
+  test('CTA position override: addStyleTag simulation of pointer:coarse + reduced-motion (#149)', async ({ page }) => {
     // NOTE: Playwright 1.x cannot reliably emulate `pointer: coarse` via CDP.
     // page.emulateMedia() and page.goto() both internally call Emulation.setEmulatedMedia
     // with a features array that excludes 'pointer', resetting any prior CDP state set via
@@ -225,6 +225,12 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // This test instead: (1) verifies the data attributes are present in the DOM as regression
     // guard, and (2) injects the equivalent CSS via addStyleTag to verify that when the
     // @media rule fires on a real coarse-pointer device, the CTA remains accessible.
+    //
+    // SCENARIO NOTE: This test runs in a pointer:fine environment (Playwright default).
+    // profile.prefersCoarsePointer=false → React applies `absolute bottom-[...] left-1/2 -translate-x-1/2`.
+    // addStyleTag overrides position to `relative`, simulating what the CSS @media rule does on a
+    // real pointer:coarse+reduced-motion device (where React already applies `relative` from the start).
+    // The intent is to verify CSS cascade values directly — not the production SSR convergence scenario.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
 
@@ -244,17 +250,32 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
       ].join('\n'),
     });
 
-    const ctaLink = page.locator('[data-hero="immersive"] [data-hero-cta] .hero-cta');
+    const ctaWrapper = page.locator('[data-hero="immersive"] [data-hero-cta]');
+    const ctaLink = ctaWrapper.locator('.hero-cta');
     await expect(ctaLink).toBeVisible();
 
-    // Off-screen guard: CTA must not be pushed outside the viewport by absolute positioning.
+    // Verify computed styles directly via getComputedStyle — independent of !important cascade boost.
+    // Confirms CSS override values are actually applied, guarding against future regressions where
+    // a style prop or GSAP setup change could silently bypass the intended cascade.
+    const ctaStyles = await ctaWrapper.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { position: cs.position, textAlign: cs.textAlign };
+    });
+    expect(ctaStyles.position, 'CTA wrapper position must be relative after CSS override').toBe('relative');
+    expect(ctaStyles.textAlign, 'CTA wrapper text-align must be center after CSS override').toBe('center');
+
+    // Bi-directional off-screen guard: CTA must remain within the 1024px viewport on both edges.
+    // Replaces the weak unidirectional x > 0 check to catch regressions where absolute positioning
+    // pushes the CTA off the left or right edge. A ±10px viewport-center check is intentionally
+    // omitted: in this pointer:fine E2E environment the CSS override produces a different horizontal
+    // position than the production pointer:coarse scenario (see SCENARIO NOTE above).
     await expect(async () => {
       const box = await ctaLink.boundingBox();
       expect(box).not.toBeNull();
       if (!box) return;
       expect(box.y, 'CTA must be within the viewport height').toBeLessThan(1366);
-      // x > 0: ensures CTA is not hidden off the left edge of the viewport
-      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThan(0);
+      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(1024);
     }).toPass({ timeout: 3_000 });
   });
 });
