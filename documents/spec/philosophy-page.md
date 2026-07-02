@@ -51,6 +51,7 @@ Issue: #81
 - Round 2 レビューで指摘された `false→true` 遷移時の stale 値ギャップは上記の `useState` ベースのレンダー中リセットで解消。ユニットテストは `tests/philosophy/content.test.ts` の文字列マッチング方式のまま維持しつつ、`indexOf` が `-1`（未検出）を返した場合に `slice` が黙って広い範囲を返してしまう脆弱性を解消するため、境界マーカーの発見を明示的に assert するよう修正した
 - Round 3 で指摘された `gsapActiveIndex` 側の stale 値保護の非対称性は、`activeIndex` という同一 UI 出力に対して `ioActiveIndex` のみ保護が強化されている問題。本 PR のスコープ外（`gsapActiveIndex` 管理ロジックは変更されていない）であるため [#254](https://github.com/Dev-AK28/shape-d-hp/issues/254) で追跡する
 - Round 3 で追加した E2E テスト: desktop(1400px)から mobile(375px)へのリサイズを `page.setViewportSize()` でシミュレートし、IO の `enabled false→true` 遷移後にドットが 0 から正しく追従することを確認。タイムアウトをマジックナンバー `5000` から `Math.ceil(ANIMATION_DURATION.section * 1000) + 2500`（= 4300ms、デスクトップ系テストと同じ導出方式）に統一
+- Round 5 (Nit): `PhilosophyContent.tsx` の IO 呼び出しコメントで `(enabled=false)` という括弧書きがデスクトップに限定した説明にもかかわらず対象が明示されていなかった点を修正。デスクトップ（enabled=false）では `usePanelActiveIndex` のゲートにより常に 0 を返し、モバイル（enabled=true）では IO が有効だがページ先頭でパネル 0 が視野に入るため同じく 0 を返す、という両経路を明示した
 
 ### リサイズ対応（#186）
 
