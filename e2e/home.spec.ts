@@ -209,6 +209,18 @@ test.describe('Home page mobile', () => {
     await expectPainted(psyText, 5000);
     await careerText.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(careerText, 5000);
+    await congruenceText.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expectPainted(congruenceText, 5000);
+
+    // #159: bounding box — text must be within viewport (not pushed off-screen)
+    // Checks the same section-padding constraint as the 375px test (x >= 24).
+    await psyText.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expect(async () => {
+      const psyBox = await psyText.boundingBox();
+      expect(psyBox).not.toBeNull();
+      if (!psyBox) return;
+      expect(psyBox.x, '心理学 text left edge must be within section padding').toBeGreaterThanOrEqual(24);
+    }).toPass({ timeout: 3_000 });
 
     // #159: no horizontal overflow at 390px viewport
     await expectNoHorizontalOverflow(page);
