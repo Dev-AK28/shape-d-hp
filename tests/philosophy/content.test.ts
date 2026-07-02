@@ -73,6 +73,13 @@ describe('usePanelActiveIndex hook', () => {
     // value — mutating ref.current during render trips react-hooks/refs.
     expect(preEffectBody).toMatch(/useState\(enabled\)/);
     expect(preEffectBody).toContain('setActiveIndex(0)');
+    // PR #250 review round 4 suggestion: verify setActiveIndex(0) is guarded by
+    // `if (enabled)` — the reset must only fire on the false→true direction, not
+    // unconditionally. Position check: the guard must appear before the reset call.
+    const resetIdx = preEffectBody.indexOf('setActiveIndex(0)');
+    const guardIdx = preEffectBody.lastIndexOf('if (enabled)', resetIdx);
+    expect(guardIdx).toBeGreaterThan(-1);
+    expect(guardIdx).toBeLessThan(resetIdx);
   });
 });
 
