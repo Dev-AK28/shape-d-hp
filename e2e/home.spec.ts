@@ -257,27 +257,40 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // Verify computed styles directly via getComputedStyle — independent of !important cascade boost.
     // Confirms CSS override values are actually applied, guarding against future regressions where
     // a style prop or GSAP setup change could silently bypass the intended cascade.
+    // Also verifies left/transform resets: pointer:fine React applies `left-1/2 -translate-x-1/2`,
+    // and both must be overridden alongside `position` (see Issue #149 fix intent).
     const ctaStyles = await ctaWrapper.evaluate((el) => {
       const cs = getComputedStyle(el);
-      return { position: cs.position, textAlign: cs.textAlign };
+      return {
+        position: cs.position,
+        textAlign: cs.textAlign,
+        left: cs.left,
+        transform: cs.transform,
+      };
     });
     expect(ctaStyles.position, 'CTA wrapper position must be relative after CSS override').toBe('relative');
     expect(ctaStyles.textAlign, 'CTA wrapper text-align must be center after CSS override').toBe('center');
+    // left: auto resolves to 0px for position:relative in Chromium — confirms Tailwind left-1/2 is overridden.
+    expect(ctaStyles.left, 'CTA wrapper left must be reset (Tailwind left-1/2 overridden)').toBe('0px');
+    // transform: none confirms Tailwind -translate-x-1/2 CSS variable chain is disabled.
+    expect(ctaStyles.transform, 'CTA wrapper transform must be none (Tailwind -translate-x-1/2 overridden)').toBe('none');
 
-    // Bi-directional off-screen guard: CTA must remain within the viewport on both edges.
-    // Replaces the weak unidirectional x > 0 check to catch regressions where absolute positioning
-    // pushes the CTA off the left or right edge. A ±10px viewport-center check is intentionally
-    // omitted: in this pointer:fine E2E environment the CSS override produces a different horizontal
-    // position than the production pointer:coarse scenario (see SCENARIO NOTE above).
+    // Bi-directional off-screen guard: CTA must remain within the viewport on all four edges.
+    // Uses page.viewportSize() instead of hardcoded constants so the check stays in sync with
+    // test.use({ viewport }) above. A 0.5px tolerance is applied to right/bottom edges to
+    // absorb sub-pixel floating-point rounding from getBoundingClientRect().
     // addStyleTag injects static styles; browser style recalculation is synchronous, so
     // toPass retry-polling is unnecessary — a single boundingBox snapshot is sufficient.
-    // All bounds are checked against the 1024×1366 viewport defined in test.use() above.
+    const vp = page.viewportSize();
+    const vpW = vp?.width ?? 1024;
+    const vpH = vp?.height ?? 1366;
     const box = await ctaLink.boundingBox();
     expect(box, 'CTA bounding box must be available').not.toBeNull();
     if (box) {
-      expect(box.y, 'CTA must be within the viewport height').toBeLessThan(1366);
+      expect(box.y, 'CTA must not be above the viewport top').toBeGreaterThanOrEqual(0);
+      expect(box.y + box.height, 'CTA must not exceed the viewport bottom').toBeLessThanOrEqual(vpH + 0.5);
       expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(1024);
+      expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(vpW + 0.5);
     }
   });
 });
