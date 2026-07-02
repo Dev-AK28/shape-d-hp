@@ -28,7 +28,8 @@ vi.mock('@/lib/hooks/useDeviceProfile', () => ({
   useDeviceProfile: mockUseDeviceProfile,
 }));
 
-vi.mock('framer-motion', () => ({
+vi.mock('framer-motion', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('framer-motion')>()),
   useReducedMotion: mockUseReducedMotion,
 }));
 
