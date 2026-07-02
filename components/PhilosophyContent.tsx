@@ -94,8 +94,10 @@ export default function PhilosophyContent() {
   useEffect(() => { setGsapActiveIndexRef.current = setGsapActiveIndex; });
 
   const isTouchDevice = isTouchInputDevice(profile);
-  const enableHorizontal = !isTouchDevice;
+  const enableHorizontal = isReady && !isTouchDevice;
 
+  // Defensive: PhilosophyContent panels have no focusable elements today;
+  // useHorizontalFocusSync is a no-op here but prevents regressions if CTAs are added (#247).
   useHorizontalFocusSync(panelsRef, '[data-philosophy-panel]', tlRef, enableHorizontal);
 
   // Symmetric stale-value guard for gsapActiveIndex (#254): mirrors the

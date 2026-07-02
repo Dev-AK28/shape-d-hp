@@ -34,7 +34,10 @@ export function computePanelScrollTarget(
  * ## Solution
  * Listen for `focusin` on the document. When the focused element lives inside
  * a known panel, calculate the scroll offset that would place that panel in
- * the viewport and call `window.scrollTo` to jump there.
+ * the viewport and call `window.scrollTo` (instant, no `behavior` option) to
+ * jump there. Using instant scroll lets Lenis pick up the new position on its
+ * next RAF tick and continue its own smooth interpolation, avoiding competing
+ * animations between Lenis's RAF loop and the browser's native smooth scroll.
  *
  * The calculation: `st.start + panelIndex * window.innerWidth`
  * matches the animation formula used by both `ShowcaseSection` and
@@ -44,6 +47,9 @@ export function computePanelScrollTarget(
  * - If `enabled` is false (touch/mobile), no listener is attached.
  * - If `tlRef.current` is null (GSAP not yet initialised or
  *   `prefers-reduced-motion` caused early return), the handler is a no-op.
+ * - If the viewport is already showing the target panel (`scrollY ≈ targetScroll`),
+ *   the handler returns early to suppress redundant calls when tabbing within
+ *   the same panel.
  *
  * @param panelsRef      Ref to the flex container that holds the panel elements.
  * @param panelSelector  CSS attribute selector matching panel roots
@@ -83,7 +89,12 @@ export function useHorizontalFocusSync(
         st.start,
         window.innerWidth,
       );
-      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      // Skip when the viewport is already positioned at this panel to suppress
+      // redundant calls (e.g. tabbing between elements within the same panel).
+      if (Math.abs(window.scrollY - targetScroll) < 1) return;
+      // Omit `behavior` (instant) so Lenis picks up the new scroll position on
+      // its next RAF tick instead of racing with a browser-native smooth scroll.
+      window.scrollTo({ top: targetScroll });
     };
 
     document.addEventListener('focusin', onFocusIn);
