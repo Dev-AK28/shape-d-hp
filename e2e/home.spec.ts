@@ -417,6 +417,29 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // transform: none confirms Tailwind -translate-x-1/2 CSS variable chain is disabled.
     expect(ctaStyles.transform, 'CTA wrapper transform must be none (Tailwind -translate-x-1/2 overridden)').toBe('none');
 
+    // #268: the assertions above only cover the [data-hero-cta] wrapper. The core of the CLS fix
+    // (Issue #149) is the [data-hero="immersive"] section itself switching to mobile flow layout;
+    // that side of the CSS override was never directly verified via getComputedStyle.
+    const sectionStyles = await page.locator('[data-hero="immersive"]').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        flexDirection: cs.flexDirection,
+        overflow: cs.overflow,
+        minHeight: cs.minHeight,
+      };
+    });
+    expect(sectionStyles.flexDirection, '[data-hero="immersive"] flex-direction must be column after CSS override').toBe('column');
+    expect(sectionStyles.overflow, '[data-hero="immersive"] overflow must be visible after CSS override').toBe('visible');
+    // Issue #268 originally proposed asserting computed `height` is not the fixed viewport height,
+    // to rule out the pre-fix h-svh/absolute layout. That check is unreliable here: this override
+    // also sets `min-height: 100svh`, so when content is shorter than the viewport (as in this test),
+    // `height` legitimately resolves to the viewport height even though `height: auto` is correctly
+    // applied — a false failure, verified by probing the actual computed value before writing this
+    // assertion. `min-height` is asserted instead: it is a real, previously-unverified property from
+    // the same override and, unlike `height`, is not ambiguous with the pre-fix fixed-height case.
+    const viewportForMinHeight = page.viewportSize();
+    expect(sectionStyles.minHeight, '[data-hero="immersive"] min-height must resolve to the viewport height (100svh)').toBe(`${viewportForMinHeight?.height ?? 1366}px`);
+
     // Bi-directional off-screen guard: CTA must remain within the viewport on all four edges.
     // Uses page.viewportSize() instead of hardcoded constants so the check stays in sync with
     // test.use({ viewport }) above.
