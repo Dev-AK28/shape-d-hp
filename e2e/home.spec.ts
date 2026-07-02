@@ -244,7 +244,12 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
 
     // Inject CSS equivalent to the @media (pointer: coarse) and (prefers-reduced-motion: reduce)
     // block in globals.css to verify the CSS property values and CTA accessibility.
-    // --space-8=64px, --space-6=48px (globals.css :root に対応)
+    // --space-8=64px, --space-6=48px (globals.css :root に対応; see Issue #276 for token-drift tracking)
+    //
+    // NOTE: This CSS uses !important to guarantee style application in the pointer:fine E2E environment
+    // where the production @media rule would not fire. Production globals.css does NOT use !important
+    // in the @media block. Therefore, this test cannot detect regressions where a GSAP inline style
+    // or React prop overrides the cascade without !important — see Issue #275 for the broader tracking.
     await page.addStyleTag({
       content: [
         '[data-hero="immersive"]{flex-direction:column!important;height:auto!important;min-height:100svh!important;overflow:visible!important;padding-top:calc(64px + env(safe-area-inset-top,0px))!important;padding-bottom:64px!important;}',
@@ -281,8 +286,13 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
 
     // Bi-directional off-screen guard: CTA must remain within the viewport on all four edges.
     // Uses page.viewportSize() instead of hardcoded constants so the check stays in sync with
-    // test.use({ viewport }) above. A 0.5px tolerance is applied to right/bottom edges to
-    // absorb sub-pixel floating-point rounding from getBoundingClientRect().
+    // test.use({ viewport }) above.
+    //
+    // Tolerance is intentionally asymmetric:
+    //   - left/top:  >= 0 (no tolerance) — a value below 0 means the element is off-screen; no slack needed.
+    //   - right/bottom: +0.5px tolerance — getBoundingClientRect() floating-point arithmetic can make
+    //     box.x + box.width slightly exceed vpW (e.g. 1024.0002) for elements flush with the edge.
+    //
     // addStyleTag injects static styles; browser style recalculation is synchronous, so
     // toPass retry-polling is unnecessary — a single boundingBox snapshot is sufficient.
     const vp = page.viewportSize();
