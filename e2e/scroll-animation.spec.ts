@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { expectPainted, waitForHomePageReady } from './helpers';
 import { SHOWCASE_HORIZONTAL } from '../lib/scroll/animation-tokens';
+import { SERVICE_LIST } from '../lib/data/services';
 
 test.describe('Scroll animations', () => {
   test('reveals about section when scrolled into view', async ({ page }) => {
@@ -196,7 +197,8 @@ test.describe('ShowcaseSection desktop horizontal scroll (#249)', () => {
     return [m.m41, window.innerWidth];
   };
 
-  const CARD_COUNT = 4; // SERVICE_LIST.length
+  const CARD_COUNT = SERVICE_LIST.length; // 4 (ai-product / dx / web-app / coaching)
+  // + 2500 ms CI headroom after scrub settles (mirrors philosophy.spec.ts pattern).
   const scrubTimeout = Math.ceil(SHOWCASE_HORIZONTAL.scrub * 1000) + 2500; // ≈ 4300 ms
 
   test('1スクロールで第2カードへ進む (GSAP pin+scrub が動作している)', async ({ page }) => {
@@ -206,13 +208,15 @@ test.describe('ShowcaseSection desktop horizontal scroll (#249)', () => {
     // Baseline: confirm all cards are rendered.
     await expect(page.locator('[data-showcase-card]')).toHaveCount(CARD_COUNT);
 
-    // Scroll the section's top to the viewport top so ScrollTrigger start:'top top' fires.
+    // Scroll section into GSAP pin zone (block:'start'). globals.css sets scroll-padding-top:88px
+    // on desktop, so the section top lands 88px below the viewport top — not exactly 'top top'.
+    // The 80% threshold absorbs this gap; the pin engages after scrollBy fires.
     const section = page.locator('[aria-label="サービス紹介"]');
     await section.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
 
     await page.evaluate(() => window.scrollBy(0, window.innerWidth));
 
-    // Verify GSAP scrub advanced the panels container by at least 80% of one panel width.
+    // 80%: absorbs scroll-padding-top offset (88px) and one full scrub lag simultaneously.
     await expect(async () => {
       const [tx, iw] = await page.evaluate(readPanelsTx);
       expect(tx).toBeLessThan(-(iw * 0.8));
@@ -228,11 +232,12 @@ test.describe('ShowcaseSection desktop horizontal scroll (#249)', () => {
     // Baseline: confirm card count.
     await expect(page.locator('[data-showcase-card]')).toHaveCount(CARD_COUNT);
 
+    // Same scroll-padding-top reasoning as the single-scroll test above.
     const section = page.locator('[aria-label="サービス紹介"]');
     await section.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
 
     // Scroll one panel at a time and verify cumulative progress after each step.
-    // After i scrolls, panels must have advanced at least 80% of i panel-widths,
+    // 80% per step: absorbs scroll-padding-top offset (88px) + one full scrub lag,
     // catching GSAP freeze or scrub regression at the earliest possible point.
     for (let i = 1; i < CARD_COUNT; i++) {
       await page.evaluate(() => window.scrollBy(0, window.innerWidth));

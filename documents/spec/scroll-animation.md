@@ -277,7 +277,7 @@ PR #244 レビューで指摘された「デスクトップ GSAP `enableHorizont
 
 ```
 Given デスクトップ (1280×800) でホームページ (/) を開く
-When [aria-label="サービス紹介"] の top を viewport top に scrollIntoView（block:'start'）
+When [aria-label="サービス紹介"] を block:'start' で scrollIntoView しピン区間に入る
 And window.scrollBy(0, window.innerWidth) を i 回（1〜3）実行
 Then [data-showcase-card] の parentElement の translateX が -(iw × i × 0.8) 未満になる
 ```
@@ -285,6 +285,9 @@ Then [data-showcase-card] の parentElement の translateX が -(iw × i × 0.8)
 - **ロケーター**: `document.querySelector('[data-showcase-card]')?.parentElement`（`panelsRef`）
   - Philosophy パターンと同じ child→parent トラバーサル（既存属性を再利用、新規 testid 追加なし）
 - **タイムアウト**: `Math.ceil(SHOWCASE_HORIZONTAL.scrub * 1000) + 2500` ≈ 4300 ms / ステップ
+  - `+2500`: scrub 収束後の CI ヘッドルーム（`philosophy.spec.ts` 同パターン）
 - **`test.setTimeout(60_000)`**: 3ステップ累積（3 × 4300 ms + 余裕）でデフォルト 30 s を超える可能性に対応
 - **`[tx, iw]` co-fetch**: `page.evaluate` 内で `m.m41` と `window.innerWidth` を同時取得。スクロールバー出現等による `innerWidth` のスナップショット乖離を防止（PR #285 採用パターン）
-- **ベースライン検証**: 各テストの冒頭で `[data-showcase-card]` が 4件存在することを確認
+- **ベースライン検証**: 各テストの冒頭で `[data-showcase-card]` が `SERVICE_LIST.length`（= 4）件存在することを確認。サービス追加時に自動的にドリフト検出できる
+- **80% 閾値の根拠**: `globals.css` の `scroll-padding-top: 88px`（デスクトップ）が `scrollIntoView({ block: 'start' })` の着地位置を 88px 下にオフセットする。1280px スクロール後の実効プログレスは `(1280-88)/3840 ≈ 31%` → `tx ≈ -1192`、閾値 `-(1280×0.8) = -1024` を満たす。scrub ラグ分（最大 `scrub×1000 = 1800ms`）と合わせて 80% がこれらを同時吸収できる安全な下限
+- **`scroll-padding-top` とスクロール動作**: `scrollIntoView({ block: 'start' })` はセクションをピン区間内に収めるために使用する。ScrollTrigger の `start: 'top top'` が厳密に発火するためには `scroll-padding-top` 分を差し引く必要があるが、`scrollBy` 後の `toPass` リトライとスクロール距離が十分であるためテストは正しく機能する
