@@ -264,19 +264,21 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     expect(ctaStyles.position, 'CTA wrapper position must be relative after CSS override').toBe('relative');
     expect(ctaStyles.textAlign, 'CTA wrapper text-align must be center after CSS override').toBe('center');
 
-    // Bi-directional off-screen guard: CTA must remain within the 1024px viewport on both edges.
+    // Bi-directional off-screen guard: CTA must remain within the viewport on both edges.
     // Replaces the weak unidirectional x > 0 check to catch regressions where absolute positioning
     // pushes the CTA off the left or right edge. A ±10px viewport-center check is intentionally
     // omitted: in this pointer:fine E2E environment the CSS override produces a different horizontal
     // position than the production pointer:coarse scenario (see SCENARIO NOTE above).
-    await expect(async () => {
-      const box = await ctaLink.boundingBox();
-      expect(box).not.toBeNull();
-      if (!box) return;
+    // addStyleTag injects static styles; browser style recalculation is synchronous, so
+    // toPass retry-polling is unnecessary — a single boundingBox snapshot is sufficient.
+    // All bounds are checked against the 1024×1366 viewport defined in test.use() above.
+    const box = await ctaLink.boundingBox();
+    expect(box, 'CTA bounding box must be available').not.toBeNull();
+    if (box) {
       expect(box.y, 'CTA must be within the viewport height').toBeLessThan(1366);
       expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(0);
       expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(1024);
-    }).toPass({ timeout: 3_000 });
+    }
   });
 });
 
