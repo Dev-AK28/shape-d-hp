@@ -48,9 +48,11 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 `lib/scroll/reveal-props.ts` の `getScrollRevealProps()` が各コンテンツコンポーネントから参照される。
 
-### staticReveal ガード（MUST・Issue #151）
+### staticReveal ガード（MUST・Issue #151 / #156）
 
 `getScrollRevealProps()` / `ScrollReveal` を使う **すべての** framer-motion リビール消費コンポーネントは、共有フック `useStaticReveal()` から `staticReveal` と `profile` を取得し、各呼び出しに渡さなければならない。
+
+`ScrollRevealOptions.staticReveal` は **型レベルで必須（`required`）** である（#156）。`getScrollRevealProps(reduceMotion, { ... })` の第2引数オブジェクトに `staticReveal` を省略すると TypeScript コンパイルエラーとなる。将来の consumer 追加時に `useStaticReveal()` 経由であることを強制する。
 
 ```tsx
 // lib/hooks/useStaticReveal.ts に集約（shouldUseStaticReveal の 3 行重複を解消）
