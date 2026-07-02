@@ -96,3 +96,19 @@ npm run test:e2e -- e2e/philosophy.spec.ts
 
 - 単体: `tests/philosophy/content.test.ts`
 - E2E: `e2e/philosophy.spec.ts`
+
+### E2E テスト補足（Issue #239）
+
+`can navigate through all 6 panels` テストに中間パネルの個別検証を追加。
+
+**変更前の構造:** スクロールを 5 回先行実行してから最後に 1 回だけ CSS transform をチェック → 途中パネルで GSAP がフリーズしても検出不可能。
+
+**変更後の構造:** ループ内で 1 スクロールごとに `dots.nth(i).data-active='true'` を `toPass` で確認（案B 採用）。GSAP 進捗のプロキシとして進捗ドットの `data-active` 属性を使用する（`PhilosophyProgressDots active index tracks` テストと同一メカニズム）。最後に CSS transform の回帰ガードも維持。`test.setTimeout(60_000)` を明示設定（最悪ケース 6 × 4300ms = 25.8s が Playwright 30s デフォルトを超えるため）。スクロール前に `toHaveCount(6)` と初期ドット状態を検証するベースラインアサートも追加。最終 transform チェックは `[tx, iw]` 同時取得パターンに統一（ `scrollBy` のライブ読み取りとスナップショットの乖離を防止）。
+
+```gherkin
+Given Philosophy ページ（1280×800 デスクトップ）が読み込まれている
+When viewport 幅ずつスクロールを i=1〜5 ステップ実行する
+Then 各ステップ後に dots.nth(i) が data-active='true' になる（GSAP 中間フリーズを検出）
+And dots.nth(i-1) が data-active='false' になる（複数ドット同時活性化を防止）
+And 全スクロール後の CSS translateX が -(panelCount-2)×innerWidth を下回る
+```

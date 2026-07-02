@@ -84,28 +84,46 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
   });
 
   test('can navigate through all 6 panels (scrollDistance = 5 × viewport width)', async ({ page }) => {
+    // Worst-case: 6 × scrubTimeout (25.8s) + networkidle + Next.js render headroom.
+    // Exceeds the 30s Playwright default; set explicitly to avoid false CI timeouts.
+    test.setTimeout(60_000);
+
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
 
     const panelCount = PANEL_TITLES.length;
-    const innerWidth = await page.evaluate(() => window.innerWidth);
+    const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
+    // timeout = Math.ceil(scrub * 1000) + 2500ms CI headroom (mirrors single-panel test pattern).
+    const scrubTimeout = Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500;
 
-    // Scroll through all remaining panels (panelCount - 1 steps of innerWidth each).
+    // Baseline: verify dot count and initial active state before scrolling.
+    await expect(dots).toHaveCount(panelCount);
+    await expect(dots.first()).toHaveAttribute('data-active', 'true');
+
+    // Scroll one panel at a time and verify GSAP advanced to each intermediate panel (#239).
+    // Uses dots data-active as a lightweight proxy for GSAP progress — identical mechanism to
+    // the 'PhilosophyProgressDots active index tracks' test. Also verifies the previous dot
+    // deactivates, guarding against a stuck multi-active state across panels 1→2 ... 4→5.
     for (let i = 1; i < panelCount; i++) {
       await page.evaluate(() => window.scrollBy(0, window.innerWidth));
+      await expect(async () => {
+        await expect(dots.nth(i)).toHaveAttribute('data-active', 'true');
+        await expect(dots.nth(i - 1)).toHaveAttribute('data-active', 'false');
+      }).toPass({ timeout: scrubTimeout });
     }
 
-    // After (panelCount - 1) × innerWidth total scroll, GSAP should have translated panelsRef
-    // by at least (panelCount - 2) × innerWidth (allowing one panel of scrub lag at the end).
+    // Final CSS transform guard: re-fetch innerWidth inside toPass to avoid stale snapshot
+    // diverging from the live value used by scrollBy (e.g. if a scrollbar appears mid-test).
+    // Mirrors the [tx, iw] co-fetch pattern in 'scrolling advances to second panel'.
     await expect(async () => {
-      const tx = await page.evaluate(() => {
+      const [tx, iw] = await page.evaluate(() => {
         const panel = document.querySelector('[data-philosophy-panel]');
         const panelsRef = panel?.parentElement;
         const m = new DOMMatrix(getComputedStyle(panelsRef ?? document.body).transform);
-        return m.m41;
+        return [m.m41, window.innerWidth] as [number, number];
       });
-      expect(tx).toBeLessThan(-(innerWidth * (panelCount - 2)));
-    }).toPass({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
+      expect(tx).toBeLessThan(-(iw * (panelCount - 2)));
+    }).toPass({ timeout: scrubTimeout });
   });
 
   test('PhilosophyProgressDots active index tracks horizontal scroll progress', async ({ page }) => {
