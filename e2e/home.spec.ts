@@ -336,6 +336,9 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // where the production @media rule would not fire. Production globals.css does NOT use !important
     // in the @media block. Therefore, this test cannot detect regressions where a GSAP inline style
     // or React prop overrides the cascade without !important — see Issue #275 for the broader tracking.
+    // NOTE: env(safe-area-inset-top) resolves to 0 in standard Playwright viewports (#166);
+    // padding-top effectively equals 64px here. Notch-device behaviour is validated separately
+    // in navigation.spec.ts via CSS-injection simulation (see Issue #166).
     await page.addStyleTag({
       content: [
         '[data-hero="immersive"]{flex-direction:column!important;height:auto!important;min-height:100svh!important;overflow:visible!important;padding-top:calc(64px + env(safe-area-inset-top,0px))!important;padding-bottom:64px!important;}',

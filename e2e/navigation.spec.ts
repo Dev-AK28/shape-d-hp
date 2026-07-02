@@ -112,6 +112,71 @@ test.describe('Navigation mobile layout', () => {
     await expect(nav.getByRole('link', { name: '哲学' })).toHaveCount(0);
   });
 
+  /**
+   * Regression test for Issue #166 — Navigation safe-area-inset-top compensation.
+   *
+   * Two assertions:
+   * 1. The inner div class attribute contains `safe-area-inset-top` — detects accidental
+   *    removal of the env() formula even when safe-area resolves to 0 in Playwright viewports.
+   * 2. Computed padding-top >= 12px — verifies no-notch baseline (max(0.75rem, 0) = 12px).
+   *
+   * Actual notch-device behaviour (safe-area > 0) is simulated via CSS injection in the
+   * companion test below. Playwright cannot control env() variables natively (#166).
+   */
+  test('Navigation padding-top includes safe-area-inset-top formula (#166)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    // The inner div carries the pt-[max(0.75rem,env(safe-area-inset-top,0px))] class.
+    const innerDiv = nav.locator('div').first();
+
+    const className = (await innerDiv.getAttribute('class')) ?? '';
+    expect(className).toContain('safe-area-inset-top');
+
+    // On standard Playwright viewport (safe-area = 0), padding-top == 0.75rem == 12px.
+    const paddingTop = await innerDiv.evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(paddingTop).toBeGreaterThanOrEqual(12);
+  });
+
+  /**
+   * CSS-injection simulation for Issue #166 — notch scenario.
+   *
+   * env(safe-area-inset-top) is always 0 in standard Playwright viewports, so we inject
+   * an explicit padding-top (44px — typical iPhone notch/Dynamic Island clearance) via
+   * page.addStyleTag with !important to simulate a notch device. We then verify that the
+   * Navigation height grows beyond the no-notch baseline (<80px), confirming the layout
+   * correctly accommodates safe-area padding when it is non-zero.
+   *
+   * NOTE: Production CSS does NOT use !important. This test cannot detect regressions
+   * where a higher-specificity rule silently overrides the safe-area formula on real devices.
+   * See Issue #166 for tracking.
+   */
+  test('Navigation height grows with simulated safe-area-inset-top of 44px (#166)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    const baselineBox = await nav.boundingBox();
+
+    // Simulate env(safe-area-inset-top) = 44px (iPhone notch / Dynamic Island clearance).
+    // Override the inner div padding to max(0.75rem, 44px) = 44px.
+    // NOTE: <nav> carries role="navigation" implicitly; it does NOT have an explicit role attribute,
+    // so the selector must be `nav > div`, not `nav[role="navigation"] > div`.
+    await page.addStyleTag({
+      content: 'nav > div { padding-top: 44px !important; }',
+    });
+
+    const simulatedBox = await nav.boundingBox();
+
+    // With 44px padding (vs 12px baseline), the nav must be taller than the no-notch threshold.
+    expect(simulatedBox?.height).toBeGreaterThan(80);
+    // Growth must be at least the injected delta (44 - 12 = 32px).
+    expect((simulatedBox?.height ?? 0) - (baselineBox?.height ?? 0)).toBeGreaterThanOrEqual(32);
+  });
+
   test('closes hamburger menu when viewport expands to 768px', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
