@@ -59,4 +59,17 @@ describe('useDeviceProfile — resize debounce (#251)', () => {
     expect(removeResizeLines.length).toBeGreaterThan(0);
     removeResizeLines.forEach((line) => expect(line).not.toContain('onStoreChange'));
   });
+
+  it('keeps matchMedia change listeners immediate (not debounced)', () => {
+    // matchMedia 'change' events fire only at exact breakpoint boundaries
+    // (browser-side), so they must NOT be debounced. Debouncing them would
+    // delay enableHorizontal toggling in PhilosophyContent and break E2E tests
+    // that depend on immediate breakpoint detection.
+    // This test guards against accidentally debouncing all listeners.
+    const mqlChangeLines = source
+      .split('\n')
+      .filter((line) => line.includes("addEventListener('change'"));
+    expect(mqlChangeLines.length).toBeGreaterThan(0);
+    mqlChangeLines.forEach((line) => expect(line).toContain('onStoreChange'));
+  });
 });
