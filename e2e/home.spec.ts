@@ -326,6 +326,10 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // The intent is to verify CSS cascade values directly — not the production SSR convergence scenario.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
+    // Wait for the loader to clear, as other tests in this file do (e.g. L31, L61) —
+    // otherwise addStyleTag / boundingBox / getComputedStyle below could observe a
+    // transient pre-loader layout state (#271).
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
     // data-hero="immersive" must be on the section — required for CSS @media selector (#149)
     await expect(page.locator('[data-hero="immersive"]')).toBeVisible({ timeout: 10_000 });
