@@ -60,11 +60,15 @@ vi.mock('@/lib/hooks/useGsapContext', () => ({
  *
  * prefersReducedMotion はデバイス特性ではなくユーザーのアクセシビリティ設定。
  * Issue #147 のテストシナリオがこの組み合わせを明示的に要求するため名前に含める。
+ *
+ * Note: mockUseReducedMotion.mockReturnValue(true) は skipFormation など
+ * 他の分岐のために設定しているが、mobileStaticHero の計算は
+ * shouldDisableGsapAnimation(profile) = profile.prefersReducedMotion を参照する。
+ * 両者を一致させることでテストの意図と実装ロジックを整合させている。
  */
 const LARGE_TOUCH_TABLET_REDUCED_MOTION: DeviceProfile = {
   ...DEFAULT_DEVICE_PROFILE,
   prefersCoarsePointer: true,
-  prefersHoverNone: true,
   isMobile: false,
   prefersReducedMotion: true,
 };
@@ -132,10 +136,11 @@ describe('Hero mobileStaticHero レイアウト — coarse pointer + staticFallb
       expect(section.className.split(' ')).not.toContain('h-auto');
     });
 
-    it('CTA ラッパーが absolute クラスを持ち、relative ではない', () => {
+    it('CTA ラッパーが absolute + bottom 配置クラスを持ち、relative ではない', () => {
       render(<Hero variant="immersive" />);
       const cta = screen.getByTestId('hero-cta-wrapper');
       expect(cta.className.split(' ')).toContain('absolute');
+      expect(cta.className.split(' ')).toContain('bottom-[var(--space-6)]');
       expect(cta.className.split(' ')).not.toContain('relative');
     });
   });
