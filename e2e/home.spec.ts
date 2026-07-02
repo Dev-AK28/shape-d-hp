@@ -229,7 +229,9 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // SCENARIO NOTE: This test runs in a pointer:fine environment (Playwright default).
     // profile.prefersCoarsePointer=false → React applies `absolute bottom-[...] left-1/2 -translate-x-1/2`.
     // addStyleTag overrides position to `relative`, simulating what the CSS @media rule does on a
-    // real pointer:coarse+reduced-motion device (where React already applies `relative` from the start).
+    // real pointer:coarse+reduced-motion device. On such devices the CSS @media block fires at first
+    // paint (before React hydration completes), and React's mobileStaticHero subsequently converges
+    // to the same layout — closing that convergence gap was the CLS fix in Issue #149.
     // The intent is to verify CSS cascade values directly — not the production SSR convergence scenario.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
@@ -271,6 +273,8 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     expect(ctaStyles.position, 'CTA wrapper position must be relative after CSS override').toBe('relative');
     expect(ctaStyles.textAlign, 'CTA wrapper text-align must be center after CSS override').toBe('center');
     // left: auto resolves to 0px for position:relative in Chromium — confirms Tailwind left-1/2 is overridden.
+    // NOTE: This is Chromium-specific behavior. Firefox/WebKit may return 'auto' instead.
+    // If a non-Chromium Playwright project is added, convert this to a range check (see Issue #273).
     expect(ctaStyles.left, 'CTA wrapper left must be reset (Tailwind left-1/2 overridden)').toBe('0px');
     // transform: none confirms Tailwind -translate-x-1/2 CSS variable chain is disabled.
     expect(ctaStyles.transform, 'CTA wrapper transform must be none (Tailwind -translate-x-1/2 overridden)').toBe('none');
