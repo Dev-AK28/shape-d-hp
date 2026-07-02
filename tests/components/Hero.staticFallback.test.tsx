@@ -54,8 +54,14 @@ vi.mock('@/lib/hooks/useGsapContext', () => ({
 
 // ─── Test profiles ─────────────────────────────────────────────────────────────
 
-/** 大画面タッチ端末 (iPad Pro 等) — prefersCoarsePointer=true, isMobile=false */
-const LARGE_TOUCH_TABLET: DeviceProfile = {
+/**
+ * 大画面タッチ端末 (iPad Pro 等) + prefers-reduced-motion 有効
+ * — prefersCoarsePointer=true, isMobile=false, prefersReducedMotion=true
+ *
+ * prefersReducedMotion はデバイス特性ではなくユーザーのアクセシビリティ設定。
+ * Issue #147 のテストシナリオがこの組み合わせを明示的に要求するため名前に含める。
+ */
+const LARGE_TOUCH_TABLET_REDUCED_MOTION: DeviceProfile = {
   ...DEFAULT_DEVICE_PROFILE,
   prefersCoarsePointer: true,
   prefersHoverNone: true,
@@ -63,7 +69,7 @@ const LARGE_TOUCH_TABLET: DeviceProfile = {
   prefersReducedMotion: true,
 };
 
-/** 通常デスクトップ — coarse/touch なし */
+/** 通常デスクトップ — coarse/touch なし, prefersReducedMotion=false */
 const DESKTOP: DeviceProfile = {
   ...DEFAULT_DEVICE_PROFILE,
   prefersCoarsePointer: false,
@@ -88,28 +94,28 @@ describe('Hero mobileStaticHero レイアウト — coarse pointer + staticFallb
 
   describe('大画面タッチ端末 (prefersCoarsePointer=true, isMobile=false, prefersReducedMotion=true)', () => {
     beforeEach(() => {
-      mockUseDeviceProfile.mockReturnValue({ profile: LARGE_TOUCH_TABLET, isReady: true });
+      mockUseDeviceProfile.mockReturnValue({ profile: LARGE_TOUCH_TABLET_REDUCED_MOTION, isReady: true });
       mockUseReducedMotion.mockReturnValue(true);
     });
 
     it('root <section> に flex-col クラスが付与される', () => {
       render(<Hero variant="immersive" />);
       const section = screen.getByTestId('hero-pin-section');
-      expect(section.className).toContain('flex-col');
+      expect(section.className.split(' ')).toContain('flex-col');
     });
 
     it('root <section> に h-auto クラスが付与される（h-svh ではない）', () => {
       render(<Hero variant="immersive" />);
       const section = screen.getByTestId('hero-pin-section');
-      expect(section.className).toContain('h-auto');
-      expect(section.className).not.toContain('h-svh');
+      expect(section.className.split(' ')).toContain('h-auto');
+      expect(section.className.split(' ')).not.toContain('h-svh');
     });
 
-    it('CTA ラッパーが relative クラスを持ち、absolute bottom ではない', () => {
+    it('CTA ラッパーが relative クラスを持ち、absolute ではない', () => {
       render(<Hero variant="immersive" />);
       const cta = screen.getByTestId('hero-cta-wrapper');
-      expect(cta.className).toContain('relative');
-      expect(cta.className).not.toContain('absolute');
+      expect(cta.className.split(' ')).toContain('relative');
+      expect(cta.className.split(' ')).not.toContain('absolute');
     });
   });
 
@@ -122,30 +128,30 @@ describe('Hero mobileStaticHero レイアウト — coarse pointer + staticFallb
     it('root <section> に h-svh クラスが付与される（h-auto ではない）', () => {
       render(<Hero variant="immersive" />);
       const section = screen.getByTestId('hero-pin-section');
-      expect(section.className).toContain('h-svh');
-      expect(section.className).not.toContain('h-auto');
+      expect(section.className.split(' ')).toContain('h-svh');
+      expect(section.className.split(' ')).not.toContain('h-auto');
     });
 
     it('CTA ラッパーが absolute クラスを持ち、relative ではない', () => {
       render(<Hero variant="immersive" />);
       const cta = screen.getByTestId('hero-cta-wrapper');
-      expect(cta.className).toContain('absolute');
-      expect(cta.className).not.toContain('relative');
+      expect(cta.className.split(' ')).toContain('absolute');
+      expect(cta.className.split(' ')).not.toContain('relative');
     });
   });
 
   describe('isReady=false — SSR 初回表示は staticFallback=true として扱われる', () => {
     it('大画面タッチ端末で isReady=false → mobileStaticHero=true → flex-col', () => {
       mockUseDeviceProfile.mockReturnValue({
-        profile: { ...LARGE_TOUCH_TABLET, prefersReducedMotion: false },
+        profile: { ...LARGE_TOUCH_TABLET_REDUCED_MOTION, prefersReducedMotion: false },
         isReady: false,
       });
       mockUseReducedMotion.mockReturnValue(false);
 
       render(<Hero variant="immersive" />);
       const section = screen.getByTestId('hero-pin-section');
-      expect(section.className).toContain('flex-col');
-      expect(section.className).toContain('h-auto');
+      expect(section.className.split(' ')).toContain('flex-col');
+      expect(section.className.split(' ')).toContain('h-auto');
     });
   });
 });
