@@ -454,7 +454,36 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
-    const ctaRule = await page.evaluate(() => {
+    // Single evaluate() round-trip: extracts both the production @media rule and a representative
+    // Tailwind utility rule (`.absolute`, e.g. `.left-1\/2`) in one pass over document.styleSheets.
+    const { ctaRule, tailwindAbsoluteSelector } = await page.evaluate(() => {
+      let ctaRuleFound: { selectorText: string; cssText: string } | null = null;
+      let tailwindAbsoluteFound: string | null = null;
+
+      const walk = (list: CSSRuleList) => {
+        for (const rule of Array.from(list)) {
+          if (
+            !ctaRuleFound &&
+            rule instanceof CSSMediaRule &&
+            rule.media.mediaText.includes('pointer: coarse') &&
+            rule.media.mediaText.includes('prefers-reduced-motion: reduce')
+          ) {
+            for (const inner of Array.from(rule.cssRules)) {
+              if (inner instanceof CSSStyleRule && inner.selectorText === '[data-hero="immersive"] [data-hero-cta]') {
+                ctaRuleFound = { selectorText: inner.selectorText, cssText: inner.cssText };
+              }
+            }
+          }
+          if (!tailwindAbsoluteFound && rule instanceof CSSStyleRule && /(^|,)\s*\.absolute\s*(,|$)/.test(rule.selectorText)) {
+            tailwindAbsoluteFound = rule.selectorText;
+          }
+          const nested = (rule as unknown as { cssRules?: CSSRuleList }).cssRules;
+          if (nested) {
+            walk(nested);
+          }
+        }
+      };
+
       for (const sheet of Array.from(document.styleSheets)) {
         let rules: CSSRuleList;
         try {
@@ -462,21 +491,15 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
         } catch {
           continue; // cross-origin stylesheet; not relevant here
         }
-        for (const rule of Array.from(rules)) {
-          if (
-            rule instanceof CSSMediaRule &&
-            rule.media.mediaText.includes('pointer: coarse') &&
-            rule.media.mediaText.includes('prefers-reduced-motion: reduce')
-          ) {
-            for (const inner of Array.from(rule.cssRules)) {
-              if (inner instanceof CSSStyleRule && inner.selectorText === '[data-hero="immersive"] [data-hero-cta]') {
-                return { selectorText: inner.selectorText, cssText: inner.cssText };
-              }
-            }
-          }
-        }
+        walk(rules);
       }
-      return null;
+      // Cast explicitly: TS narrows ctaRuleFound/tailwindAbsoluteFound to their initial `null`
+      // literal here because the only reassignments happen inside the `walk` closure, which TS
+      // does not use to widen the outer scope's narrowed type back to the declared union.
+      return {
+        ctaRule: ctaRuleFound as { selectorText: string; cssText: string } | null,
+        tailwindAbsoluteSelector: tailwindAbsoluteFound as string | null,
+      };
     });
 
     expect(ctaRule, 'production @media (pointer: coarse) and (prefers-reduced-motion: reduce) rule for [data-hero-cta] must exist in the loaded stylesheet').not.toBeNull();
@@ -487,40 +510,14 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // Tailwind utility classes (e.g. `.absolute`, `.left-1\/2`) are always single-class selectors —
     // confirmed against the actual generated stylesheet rather than assumed, so this guard also
     // catches a future Tailwind version compiling utilities as compound/nested selectors.
-    const tailwindAbsoluteSpecificity = await page.evaluate(() => {
-      for (const sheet of Array.from(document.styleSheets)) {
-        let rules: CSSRuleList;
-        try {
-          rules = sheet.cssRules;
-        } catch {
-          continue;
-        }
-        const walk = (list: CSSRuleList): string | null => {
-          for (const rule of Array.from(list)) {
-            if (rule instanceof CSSStyleRule && /(^|,)\s*\.absolute\s*(,|$)/.test(rule.selectorText)) {
-              return rule.selectorText;
-            }
-            const nested = (rule as unknown as { cssRules?: CSSRuleList }).cssRules;
-            if (nested) {
-              const found = walk(nested);
-              if (found) return found;
-            }
-          }
-          return null;
-        };
-        const found = walk(rules);
-        if (found) return found;
-      }
-      return null;
-    });
-    expect(tailwindAbsoluteSpecificity, 'Tailwind .absolute utility rule must be present in the loaded stylesheet').not.toBeNull();
-    if (!tailwindAbsoluteSpecificity) return;
+    expect(tailwindAbsoluteSelector, 'Tailwind .absolute utility rule must be present in the loaded stylesheet').not.toBeNull();
+    if (!tailwindAbsoluteSelector) return;
 
     const productionSpecificity = computeSelectorSpecificity(ctaRule.selectorText);
-    const tailwindSpecificity = computeSelectorSpecificity(tailwindAbsoluteSpecificity);
+    const tailwindSpecificity = computeSelectorSpecificity(tailwindAbsoluteSelector);
     expect(
       isHigherSpecificity(productionSpecificity, tailwindSpecificity),
-      `production selector "${ctaRule.selectorText}" (${JSON.stringify(productionSpecificity)}) must have strictly higher specificity than Tailwind "${tailwindAbsoluteSpecificity}" (${JSON.stringify(tailwindSpecificity)}), independent of document order`,
+      `production selector "${ctaRule.selectorText}" (${JSON.stringify(productionSpecificity)}) must have strictly higher specificity than Tailwind "${tailwindAbsoluteSelector}" (${JSON.stringify(tailwindSpecificity)}), independent of document order`,
     ).toBe(true);
   });
 });
