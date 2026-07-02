@@ -98,6 +98,12 @@ const MATRIX: Case[] = [
     reduceMotion: false,
     isReady: true,
   },
+  {
+    label: 'mobile / reduceMotion=null (unresolved) / isReady=true → false (#280)',
+    profile: MOBILE,
+    reduceMotion: null,
+    isReady: true,
+  },
 ];
 
 describe('useStaticReveal renderHook — wiring: useDeviceProfile + useReducedMotion', () => {
@@ -122,4 +128,41 @@ describe('useStaticReveal renderHook — wiring: useDeviceProfile + useReducedMo
       expect(mockUseReducedMotion).toHaveBeenCalledTimes(1);
     });
   }
+
+  // #153 / #180: isReady 遷移テスト — true→false の staticReveal 変化を rerender で検証
+  it('desktop: isReady false→true で staticReveal が true→false に遷移する (#153 full-load recovery)', () => {
+    mockUseDeviceProfile.mockReturnValue({ profile: DEFAULT_DEVICE_PROFILE, isReady: false });
+    mockUseReducedMotion.mockReturnValue(false);
+
+    const { result, rerender } = renderHook(() => useStaticReveal());
+
+    expect(result.current.staticReveal).toBe(true);
+    expect(result.current.isReady).toBe(false);
+
+    mockUseDeviceProfile.mockReturnValue({ profile: DEFAULT_DEVICE_PROFILE, isReady: true });
+    rerender();
+
+    expect(result.current.staticReveal).toBe(false);
+    expect(result.current.isReady).toBe(true);
+    expect(mockUseDeviceProfile).toHaveBeenCalledTimes(2);
+    expect(mockUseReducedMotion).toHaveBeenCalledTimes(2);
+  });
+
+  it('mobile: isReady false→true で staticReveal が true→false に遷移する (#180 full-load recovery)', () => {
+    mockUseDeviceProfile.mockReturnValue({ profile: MOBILE, isReady: false });
+    mockUseReducedMotion.mockReturnValue(false);
+
+    const { result, rerender } = renderHook(() => useStaticReveal());
+
+    expect(result.current.staticReveal).toBe(true);
+    expect(result.current.isReady).toBe(false);
+
+    mockUseDeviceProfile.mockReturnValue({ profile: MOBILE, isReady: true });
+    rerender();
+
+    expect(result.current.staticReveal).toBe(false);
+    expect(result.current.isReady).toBe(true);
+    expect(mockUseDeviceProfile).toHaveBeenCalledTimes(2);
+    expect(mockUseReducedMotion).toHaveBeenCalledTimes(2);
+  });
 });
