@@ -9,6 +9,7 @@ import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { usePanelActiveIndex } from '@/lib/hooks/usePanelActiveIndex';
+import { useHorizontalFocusSync } from '@/lib/hooks/useHorizontalFocusSync';
 import {
   ANIMATION_DURATION,
   ANIMATION_EASE,
@@ -94,6 +95,8 @@ export default function PhilosophyContent() {
 
   const isTouchDevice = isTouchInputDevice(profile);
   const enableHorizontal = !isTouchDevice;
+
+  useHorizontalFocusSync(panelsRef, '[data-philosophy-panel]', tlRef, enableHorizontal);
 
   // Symmetric stale-value guard for gsapActiveIndex (#254): mirrors the
   // prevEnabled pattern in usePanelActiveIndex. When enableHorizontal flips
