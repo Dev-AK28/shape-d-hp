@@ -414,12 +414,14 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
     // fold 上の h1 がデスクトップ幅で paint 済みであることを確認。
-    // framer-motion duration 1.4s + CI IO 発火遅延を吸収するため 2500ms を使用。
+    // framer-motion duration 1.4s + CI IO 発火遅延を吸収するため 5000ms を使用（他の above-fold テストと統一）。
     const h1 = page.locator('main h1').first();
-    await expectPainted(h1, 2500);
+    await expectPainted(h1, 5000);
 
-    // モバイルにリサイズ — viewport 内要素は opacity:1 を維持するべき
+    // モバイルにリサイズ — resize 後の React re-render が完了するまで DOM 安定を待つ (#155 パターン)
     await page.setViewportSize({ width: 390, height: 844 });
+    await expect(h1).toBeVisible({ timeout: 5000 });
+    // viewport 内要素は opacity:1 を維持するべき
     await expectPainted(h1, 1000);
   });
 });
