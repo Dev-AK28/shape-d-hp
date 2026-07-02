@@ -16,7 +16,8 @@ type ScrollRevealOptions = {
   staggerStep?: keyof typeof scrollStagger | number;
   /**
    * Skip scroll-driven reveal (reduced-motion profile or explicit override).
-   * Required — must always be forwarded from `useStaticReveal()`. (#156)
+   * Required — always pass the value from `useStaticReveal()` in production code.
+   * Tests may pass `true` / `false` directly. (#156)
    */
   staticReveal: boolean;
   /** Use mobile viewport settings (amount:'some') for large sections (#190). */
