@@ -49,6 +49,8 @@ Issue: #81
 - E2E: `e2e/philosophy.spec.ts` の「Philosophy mobile vertical snap」に、モバイルの進捗ドットが `IntersectionObserver` 経由でスクロール位置に追従することを検証するケースを追加。デスクトップ側の `gsapActiveIndex` 連動テストのみでは `usePanelActiveIndex` の `enabled` 経路（モバイル）が検証されていなかったための補完。Round 2 で中間パネル（3枚目）へのスクロールも追加し、`bestRatio` の先勝ちロジックを先頭/末尾以外でも検証
 - リサイズ時のブレークポイント境界（768px 付近）で `enabled` が細かくトグルし `IntersectionObserver` の生成/破棄が連続し得る懸念は、`useDeviceProfile` の `resize` リスナー自体の debounce/hysteresis 導入が必要な、より広い影響範囲の課題のため本 PR の対象外とし、[#251](https://github.com/Dev-AK28/shape-d-hp/issues/251) で追跡する
 - Round 2 レビューで指摘された `false→true` 遷移時の stale 値ギャップは上記の `useState` ベースのレンダー中リセットで解消。ユニットテストは `tests/philosophy/content.test.ts` の文字列マッチング方式のまま維持しつつ、`indexOf` が `-1`（未検出）を返した場合に `slice` が黙って広い範囲を返してしまう脆弱性を解消するため、境界マーカーの発見を明示的に assert するよう修正した
+- Round 3 で指摘された `gsapActiveIndex` 側の stale 値保護の非対称性は、`activeIndex` という同一 UI 出力に対して `ioActiveIndex` のみ保護が強化されている問題。本 PR のスコープ外（`gsapActiveIndex` 管理ロジックは変更されていない）であるため [#254](https://github.com/Dev-AK28/shape-d-hp/issues/254) で追跡する
+- Round 3 で追加した E2E テスト: desktop(1400px)から mobile(375px)へのリサイズを `page.setViewportSize()` でシミュレートし、IO の `enabled false→true` 遷移後にドットが 0 から正しく追従することを確認。タイムアウトをマジックナンバー `5000` から `Math.ceil(ANIMATION_DURATION.section * 1000) + 2500`（= 4300ms、デスクトップ系テストと同じ導出方式）に統一
 
 ### リサイズ対応（#186）
 
