@@ -192,7 +192,7 @@ export default function ShowcaseSection() {
 
                 {/* CTA */}
                 <Link
-                  href="/services"
+                  href={`/services#${service.id}`}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',

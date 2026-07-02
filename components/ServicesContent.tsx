@@ -98,6 +98,7 @@ export default function ServicesContent() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {digitalServices.map((service, index) => (
               <motion.div
+                id={service.id}
                 key={staticReveal ? `static-service-${service.id}` : `reveal-service-${service.id}`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card', isMobile: isTouchDevice })}
                 whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
@@ -179,6 +180,7 @@ export default function ServicesContent() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {humanServices.map((service, index) => (
               <motion.div
+                id={service.id}
                 key={staticReveal ? `static-service-${service.id}` : `reveal-service-${service.id}`}
                 {...getScrollRevealProps(reduceMotion, {
                   staticReveal,

@@ -160,3 +160,4 @@ Then 進捗ドットが対応セクションに追従する
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
 | 横スクロール pin キーボードフォーカス追従（#247）| `tests/a11y/use-horizontal-focus-sync.test.ts`（`computePanelScrollTarget` 純粋関数の単体テスト） |
+| ShowcaseSection CTA サービス個別アンカー遷移（#248）| E2E（#263 で追加予定）— Given: ShowcaseSection のカード CTA をクリック / When: `/services` へ遷移 / Then: 対応するサービスセクション（`#<id>`）までスクロール。`ServicesContent` の各カードに `id={service.id}` を付与、CTA href を `/services#${service.id}` に統一 |
