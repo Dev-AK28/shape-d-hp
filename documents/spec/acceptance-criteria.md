@@ -159,3 +159,4 @@ Then 進捗ドットが対応セクションに追従する
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 70 | `npm run lighthouse:check` + CI `lighthouse` job |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
+| 横スクロール pin キーボードフォーカス追従（#247）| `tests/a11y/use-horizontal-focus-sync.test.ts`（`computePanelScrollTarget` 純粋関数の単体テスト） |

@@ -9,6 +9,7 @@ import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { usePanelActiveIndex } from '@/lib/hooks/usePanelActiveIndex';
+import { useHorizontalFocusSync } from '@/lib/hooks/useHorizontalFocusSync';
 import {
   ANIMATION_DURATION,
   ANIMATION_EASE,
@@ -93,13 +94,19 @@ export default function PhilosophyContent() {
   useEffect(() => { setGsapActiveIndexRef.current = setGsapActiveIndex; });
 
   const isTouchDevice = isTouchInputDevice(profile);
-  const enableHorizontal = !isTouchDevice;
+  const enableHorizontal = isReady && !isTouchDevice;
+
+  // Defensive: PhilosophyContent panels have no focusable elements today;
+  // useHorizontalFocusSync is a no-op here but prevents regressions if CTAs are added (#247).
+  useHorizontalFocusSync(panelsRef, '[data-philosophy-panel]', tlRef, enableHorizontal);
 
   // Symmetric stale-value guard for gsapActiveIndex (#254): mirrors the
   // prevEnabled pattern in usePanelActiveIndex. When enableHorizontal flips
-  // false→true (mobile→desktop), reset gsapActiveIndex to 0 synchronously
-  // during render so the stale mobile-session value is never visible even
-  // for a single frame before the new ScrollTrigger's first onUpdate fires.
+  // false→true (mobile→desktop resize, or initial hydration on desktop when
+  // isReady becomes true), reset gsapActiveIndex to 0 synchronously during
+  // render so stale values are never visible even for a single frame before
+  // the new ScrollTrigger's first onUpdate fires. On initial hydration the
+  // reset is a no-op (gsapActiveIndex is already 0).
   // useState (not useRef) is used for the comparison — mutating ref.current
   // during render trips react-hooks/refs.
   const [prevEnableHorizontal, setPrevEnableHorizontal] = useState(enableHorizontal);

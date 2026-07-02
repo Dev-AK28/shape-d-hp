@@ -7,6 +7,7 @@ import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
+import { useHorizontalFocusSync } from '@/lib/hooks/useHorizontalFocusSync';
 import { gsap, ScrollTrigger, refreshScrollTrigger } from '@/lib/scroll/gsap-config';
 import { SHOWCASE_HORIZONTAL } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
@@ -29,6 +30,8 @@ export default function ShowcaseSection() {
 
   const isTouchDevice = isTouchInputDevice(profile);
   const enableHorizontal = isReady && !isTouchDevice;
+
+  useHorizontalFocusSync(panelsRef, '[data-showcase-card]', tlRef, enableHorizontal);
 
   // Re-evaluate function-based x values on resize (same pattern as PhilosophyContent #186).
   useEffect(() => {
