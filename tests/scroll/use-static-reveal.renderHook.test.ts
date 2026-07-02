@@ -17,8 +17,8 @@ import { shouldUseStaticReveal } from '@/lib/scroll/static-reveal';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 
 const { mockUseDeviceProfile, mockUseReducedMotion } = vi.hoisted(() => ({
-  mockUseDeviceProfile: vi.fn(),
-  mockUseReducedMotion: vi.fn(),
+  mockUseDeviceProfile: vi.fn<() => { profile: DeviceProfile; isReady: boolean }>(),
+  mockUseReducedMotion: vi.fn<() => boolean | null>(),
 }));
 
 vi.mock('@/lib/hooks/useDeviceProfile', () => ({
@@ -118,6 +118,8 @@ describe('useStaticReveal renderHook — wiring: useDeviceProfile + useReducedMo
       expect(result.current.profile).toBe(profile);
       expect(result.current.isReady).toBe(isReady);
       expect(result.current.reduceMotion).toBe(reduceMotion);
+      expect(mockUseDeviceProfile).toHaveBeenCalledTimes(1);
+      expect(mockUseReducedMotion).toHaveBeenCalledTimes(1);
     });
   }
 });
