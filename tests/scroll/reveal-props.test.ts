@@ -3,7 +3,7 @@ import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 
 describe('getScrollRevealProps', () => {
   it.each([
-    { label: 'reduced motion', reduceMotion: true as const, options: {} },
+    { label: 'reduced motion', reduceMotion: true as const, options: { staticReveal: false } },
     { label: 'staticReveal option (#151)', reduceMotion: false as const, options: { staticReveal: true } },
   ])('returns animate-only props when $label is enabled', ({ reduceMotion, options }) => {
     const props = getScrollRevealProps(reduceMotion, options);
@@ -19,7 +19,7 @@ describe('getScrollRevealProps', () => {
   });
 
   it('uses whileInView (not animate) for scroll-driven reveal', () => {
-    const props = getScrollRevealProps(false);
+    const props = getScrollRevealProps(false, { staticReveal: false });
 
     expect(props.animate).toBeUndefined();
     expect(props.initial).toEqual({ opacity: 0, y: 20 });
@@ -28,6 +28,7 @@ describe('getScrollRevealProps', () => {
 
   it('supports fadeLeft variant with stagger delay', () => {
     const props = getScrollRevealProps(false, {
+      staticReveal: false,
       variant: 'fadeLeft',
       delay: 0.5,
       staggerIndex: 2,
@@ -40,7 +41,7 @@ describe('getScrollRevealProps', () => {
   });
 
   it('uses desktop viewport (amount:0.2) when isMobile is false (default)', () => {
-    const props = getScrollRevealProps(false);
+    const props = getScrollRevealProps(false, { staticReveal: false });
 
     expect(props.animate).toBeUndefined();
     expect(props.viewport).toEqual({
@@ -51,7 +52,7 @@ describe('getScrollRevealProps', () => {
   });
 
   it('uses mobile viewport (amount:"some") when isMobile is true (#190)', () => {
-    const props = getScrollRevealProps(false, { isMobile: true });
+    const props = getScrollRevealProps(false, { staticReveal: false, isMobile: true });
 
     expect(props.animate).toBeUndefined();
     expect(props.viewport).toEqual({

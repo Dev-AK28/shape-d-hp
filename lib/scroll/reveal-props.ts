@@ -14,8 +14,12 @@ type ScrollRevealOptions = {
   variant?: ScrollVariant;
   staggerIndex?: number;
   staggerStep?: keyof typeof scrollStagger | number;
-  /** Skip scroll-driven reveal (reduced-motion profile or explicit override). */
-  staticReveal?: boolean;
+  /**
+   * Skip scroll-driven reveal (reduced-motion profile or explicit override).
+   * Required — always pass the value from `useStaticReveal()` in production code.
+   * Tests may pass `true` / `false` directly. (#156)
+   */
+  staticReveal: boolean;
   /** Use mobile viewport settings (amount:'some') for large sections (#190). */
   isMobile?: boolean;
 };
@@ -63,7 +67,7 @@ function resolveStaggerDelay(
 
 export function getScrollRevealProps(
   reduceMotion: boolean | null,
-  options: ScrollRevealOptions = {},
+  options: ScrollRevealOptions,
 ): ScrollRevealMotionProps {
   const {
     delay = 0,
@@ -71,7 +75,7 @@ export function getScrollRevealProps(
     variant = 'fadeUpLarge',
     staggerIndex,
     staggerStep,
-    staticReveal = false,
+    staticReveal,
     isMobile = false,
   } = options;
 
