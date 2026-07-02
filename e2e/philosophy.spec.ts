@@ -84,6 +84,10 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
   });
 
   test('can navigate through all 6 panels (scrollDistance = 5 × viewport width)', async ({ page }) => {
+    // Worst-case: 6 × scrubTimeout (25.8s) + networkidle + Next.js render headroom.
+    // Exceeds the 30s Playwright default; set explicitly to avoid false CI timeouts.
+    test.setTimeout(60_000);
+
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
 
@@ -94,13 +98,14 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     const scrubTimeout = Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500;
 
     // Scroll one panel at a time and verify GSAP advanced to each intermediate panel (#239).
-    // Uses dots.nth(i) data-active='true' as a lightweight proxy for GSAP progress —
-    // identical mechanism to the 'PhilosophyProgressDots active index tracks' test.
-    // Guards against GSAP freezing mid-sequence, which the former all-at-once scroll missed.
+    // Uses dots data-active as a lightweight proxy for GSAP progress — identical mechanism to
+    // the 'PhilosophyProgressDots active index tracks' test. Also verifies the previous dot
+    // deactivates, guarding against a stuck multi-active state across panels 1→2 ... 4→5.
     for (let i = 1; i < panelCount; i++) {
       await page.evaluate(() => window.scrollBy(0, window.innerWidth));
       await expect(async () => {
         await expect(dots.nth(i)).toHaveAttribute('data-active', 'true');
+        await expect(dots.nth(i - 1)).toHaveAttribute('data-active', 'false');
       }).toPass({ timeout: scrubTimeout });
     }
 
