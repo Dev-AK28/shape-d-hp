@@ -2,6 +2,16 @@
 
 html {
   color-scheme: dark;
+  /* Offset anchor scroll targets below the sticky nav (#262).
+     Mobile nav: pt(12px) + logo(36px) + pb(12px) = 60px → 64px with margin.
+     Desktop nav uses larger logo (48px) and taller padding → 88px. */
+  scroll-padding-top: 64px;
+}
+
+@media (min-width: 768px) {
+  html {
+    scroll-padding-top: 88px;
+  }
 }
 
 :root {
