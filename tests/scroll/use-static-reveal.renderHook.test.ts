@@ -7,6 +7,9 @@
  *
  * Pure-function contract matrix: tests/scroll/use-static-reveal.test.ts
  * Issue: #154 (@testing-library/react renderHook integration)
+ *
+ * afterEach cleanup: handled globally by vitest.setup.ts (#279).
+ * No per-file afterEach(cleanup) is needed.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
