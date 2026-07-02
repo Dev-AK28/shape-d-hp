@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { expectPainted, waitForHomePageReady } from './helpers';
+import { SHOWCASE_HORIZONTAL } from '../lib/scroll/animation-tokens';
+import { SERVICE_LIST } from '../lib/data/services';
 
 test.describe('Scroll animations', () => {
   test('reveals about section when scrolled into view', async ({ page }) => {
@@ -169,5 +171,80 @@ test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', ()
 
     // Allow for framer transition (1.4s) + CI headroom → 8s.
     await expectPainted(heading, 8000);
+  });
+});
+
+/**
+ * ShowcaseSection desktop horizontal scroll (#249).
+ *
+ * Verifies that the GSAP pin+scrub timeline (`enableHorizontal` path) actually
+ * translates the panels container on desktop. Mirrors the
+ * 'Philosophy desktop horizontal scroll (#184)' pattern in philosophy.spec.ts.
+ *
+ * Intermediate per-step transform checks detect GSAP freezes / scrub regressions
+ * before the final card is reached, consistent with PR #285 (Issue #239).
+ */
+test.describe('ShowcaseSection desktop horizontal scroll (#249)', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  // Shared helper: co-fetch [translateX, innerWidth] from the panels container in a
+  // single evaluate call to avoid stale snapshot divergence (mirrors PR #285 co-fetch pattern).
+  // Defined as an arrow function so Playwright serializes and executes it in the browser context.
+  const readPanelsTx = (): [number, number] => {
+    const card = document.querySelector('[data-showcase-card]');
+    const panelsRef = card?.parentElement;
+    const m = new DOMMatrix(getComputedStyle(panelsRef ?? document.body).transform);
+    return [m.m41, window.innerWidth];
+  };
+
+  const CARD_COUNT = SERVICE_LIST.length; // 4 (ai-product / dx / web-app / coaching)
+  // + 2500 ms CI headroom after scrub settles (mirrors philosophy.spec.ts pattern).
+  const scrubTimeout = Math.ceil(SHOWCASE_HORIZONTAL.scrub * 1000) + 2500; // ≈ 4300 ms
+
+  test('1スクロールで第2カードへ進む (GSAP pin+scrub が動作している)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Baseline: confirm all cards are rendered.
+    await expect(page.locator('[data-showcase-card]')).toHaveCount(CARD_COUNT);
+
+    // Scroll section into GSAP pin zone (block:'start'). globals.css sets scroll-padding-top:88px
+    // on desktop, so the section top lands 88px below the viewport top — not exactly 'top top'.
+    // The 80% threshold absorbs this gap; the pin engages after scrollBy fires.
+    const section = page.locator('[aria-label="サービス紹介"]');
+    await section.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
+
+    await page.evaluate(() => window.scrollBy(0, window.innerWidth));
+
+    // 80%: absorbs scroll-padding-top offset (88px) and one full scrub lag simultaneously.
+    await expect(async () => {
+      const [tx, iw] = await page.evaluate(readPanelsTx);
+      expect(tx).toBeLessThan(-(iw * 0.8));
+    }).toPass({ timeout: scrubTimeout });
+  });
+
+  test('3スクロールで全4カードを巡回できる (scrollDistance = 3 × viewport width)', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Baseline: confirm card count.
+    await expect(page.locator('[data-showcase-card]')).toHaveCount(CARD_COUNT);
+
+    // Same scroll-padding-top reasoning as the single-scroll test above.
+    const section = page.locator('[aria-label="サービス紹介"]');
+    await section.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
+
+    // Scroll one panel at a time and verify cumulative progress after each step.
+    // 80% per step: absorbs scroll-padding-top offset (88px) + one full scrub lag,
+    // catching GSAP freeze or scrub regression at the earliest possible point.
+    for (let i = 1; i < CARD_COUNT; i++) {
+      await page.evaluate(() => window.scrollBy(0, window.innerWidth));
+      await expect(async () => {
+        const [tx, iw] = await page.evaluate(readPanelsTx);
+        expect(tx).toBeLessThan(-(iw * i * 0.8));
+      }).toPass({ timeout: scrubTimeout });
+    }
   });
 });
