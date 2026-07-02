@@ -299,6 +299,31 @@ test.describe('375px Home page mobile', () => {
   });
 });
 
+// Computes (ids, classes-or-attrs-or-pseudoclasses, elements) CSS selector specificity.
+// Not a full CSS grammar parser — sufficient for the simple attribute/class/element selectors
+// used in this codebase (no pseudo-elements, no nested :not()/:has() argument selectors, no
+// selector lists needing per-branch specificity). Used by the #269 cascade specificity guard
+// below to verify statically that production CSS beats Tailwind without relying on !important
+// or addStyleTag simulation (see issue for the addStyleTag verification-gap this closes).
+function computeSelectorSpecificity(selector: string): [ids: number, classes: number, elements: number] {
+  const ids = (selector.match(/#[\w-]+/g) ?? []).length;
+  const classes =
+    (selector.match(/\.[\w-]+/g) ?? []).length +
+    (selector.match(/\[[^\]]+\]/g) ?? []).length +
+    (selector.match(/:(?!:)[\w-]+(\([^)]*\))?/g) ?? []).length;
+  const strippedOfClassesAndAttrs = selector
+    .replace(/\[[^\]]+\]/g, '')
+    .replace(/#[\w-]+/g, '')
+    .replace(/\.[\w-]+/g, '')
+    .replace(/::?[\w-]+(\([^)]*\))?/g, '');
+  const elements = (strippedOfClassesAndAttrs.match(/[a-zA-Z][\w-]*/g) ?? []).length;
+  return [ids, classes, elements];
+}
+
+function isHigherSpecificity(a: [number, number, number], b: [number, number, number]): boolean {
+  return a[0] !== b[0] ? a[0] > b[0] : a[1] !== b[1] ? a[1] > b[1] : a[2] > b[2];
+}
+
 // ── 1024px (iPad Pro) — coarse pointer + reduced-motion CLS prevention (#149) ──────────────
 // Regression guard: Hero must render in mobile flow layout (flex-col) from the first browser
 // paint on touch-primary large screens with prefers-reduced-motion, eliminating the layout
@@ -414,6 +439,89 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
       expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(-0.5);
       expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(vpW + 0.5);
     }
+  });
+
+  // #269: the test above verifies the *result* of cascade by simulating it with `addStyleTag`
+  // (`!important`), which always wins regardless of the production rule's real specificity — it
+  // cannot detect a regression where the production `@media` block loses to Tailwind (e.g. if
+  // Tailwind starts emitting `!important`, or the production selector's specificity is weakened).
+  // This test instead statically inspects the *actual* loaded stylesheet (no addStyleTag, no
+  // pointer/reduced-motion emulation needed) to verify the real cascade mechanism is intact:
+  // the production rule exists, doesn't rely on `!important`, and has strictly higher selector
+  // specificity than a Tailwind utility class — the same invariant documented in
+  // documents/spec/mobile-performance.md (design rationale for Issue #149's CSS fix).
+  test('production @media cascade specificity beats Tailwind without !important (#269)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const ctaRule = await page.evaluate(() => {
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules: CSSRuleList;
+        try {
+          rules = sheet.cssRules;
+        } catch {
+          continue; // cross-origin stylesheet; not relevant here
+        }
+        for (const rule of Array.from(rules)) {
+          if (
+            rule instanceof CSSMediaRule &&
+            rule.media.mediaText.includes('pointer: coarse') &&
+            rule.media.mediaText.includes('prefers-reduced-motion: reduce')
+          ) {
+            for (const inner of Array.from(rule.cssRules)) {
+              if (inner instanceof CSSStyleRule && inner.selectorText === '[data-hero="immersive"] [data-hero-cta]') {
+                return { selectorText: inner.selectorText, cssText: inner.cssText };
+              }
+            }
+          }
+        }
+      }
+      return null;
+    });
+
+    expect(ctaRule, 'production @media (pointer: coarse) and (prefers-reduced-motion: reduce) rule for [data-hero-cta] must exist in the loaded stylesheet').not.toBeNull();
+    if (!ctaRule) return;
+
+    expect(ctaRule.cssText, 'production rule must win via specificity, not !important (see Issue #269)').not.toContain('!important');
+
+    // Tailwind utility classes (e.g. `.absolute`, `.left-1\/2`) are always single-class selectors —
+    // confirmed against the actual generated stylesheet rather than assumed, so this guard also
+    // catches a future Tailwind version compiling utilities as compound/nested selectors.
+    const tailwindAbsoluteSpecificity = await page.evaluate(() => {
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules: CSSRuleList;
+        try {
+          rules = sheet.cssRules;
+        } catch {
+          continue;
+        }
+        const walk = (list: CSSRuleList): string | null => {
+          for (const rule of Array.from(list)) {
+            if (rule instanceof CSSStyleRule && /(^|,)\s*\.absolute\s*(,|$)/.test(rule.selectorText)) {
+              return rule.selectorText;
+            }
+            const nested = (rule as unknown as { cssRules?: CSSRuleList }).cssRules;
+            if (nested) {
+              const found = walk(nested);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        const found = walk(rules);
+        if (found) return found;
+      }
+      return null;
+    });
+    expect(tailwindAbsoluteSpecificity, 'Tailwind .absolute utility rule must be present in the loaded stylesheet').not.toBeNull();
+    if (!tailwindAbsoluteSpecificity) return;
+
+    const productionSpecificity = computeSelectorSpecificity(ctaRule.selectorText);
+    const tailwindSpecificity = computeSelectorSpecificity(tailwindAbsoluteSpecificity);
+    expect(
+      isHigherSpecificity(productionSpecificity, tailwindSpecificity),
+      `production selector "${ctaRule.selectorText}" (${JSON.stringify(productionSpecificity)}) must have strictly higher specificity than Tailwind "${tailwindAbsoluteSpecificity}" (${JSON.stringify(tailwindSpecificity)}), independent of document order`,
+    ).toBe(true);
   });
 });
 
