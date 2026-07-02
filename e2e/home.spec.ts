@@ -383,10 +383,12 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     });
     expect(ctaStyles.position, 'CTA wrapper position must be relative after CSS override').toBe('relative');
     expect(ctaStyles.textAlign, 'CTA wrapper text-align must be center after CSS override').toBe('center');
-    // left: auto resolves to 0px for position:relative in Chromium — confirms Tailwind left-1/2 is overridden.
-    // NOTE: This is Chromium-specific behavior. Firefox/WebKit may return 'auto' instead.
-    // If a non-Chromium Playwright project is added, convert this to a range check (see Issue #273).
-    expect(ctaStyles.left, 'CTA wrapper left must be reset (Tailwind left-1/2 overridden)').toBe('0px');
+    // Tailwind's `left-1/2` sets left:50%; after the CSS override resets left to `auto`,
+    // the resolved value must no longer be 50%. A string inequality check (rather than an exact
+    // literal like '0px', or a numeric parseFloat comparison — which breaks on the string 'auto',
+    // since parseFloat('auto') is NaN and NaN < 50 is false) avoids depending on Chromium's
+    // specific `auto` → '0px' resolution, which Firefox/WebKit may not share (#273).
+    expect(ctaStyles.left, 'CTA wrapper left must be reset (Tailwind left-1/2 overridden)').not.toBe('50%');
     // transform: none confirms Tailwind -translate-x-1/2 CSS variable chain is disabled.
     expect(ctaStyles.transform, 'CTA wrapper transform must be none (Tailwind -translate-x-1/2 overridden)').toBe('none');
 
