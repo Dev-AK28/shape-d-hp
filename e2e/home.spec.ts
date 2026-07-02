@@ -394,10 +394,10 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // Uses page.viewportSize() instead of hardcoded constants so the check stays in sync with
     // test.use({ viewport }) above.
     //
-    // Tolerance is intentionally asymmetric:
-    //   - left/top:  >= 0 (no tolerance) — a value below 0 means the element is off-screen; no slack needed.
-    //   - right/bottom: +0.5px tolerance — getBoundingClientRect() floating-point arithmetic can make
-    //     box.x + box.width slightly exceed vpW (e.g. 1024.0002) for elements flush with the edge.
+    // Tolerance is symmetric (±0.5px) on all four edges: getBoundingClientRect() floating-point
+    // arithmetic can push a value slightly past the boundary in either direction for elements
+    // flush with an edge (e.g. right/bottom: box.x + box.width = 1024.0002; left/top: box.x =
+    // -0.0002) — the same rounding class, not just a right/bottom-only concern (#274).
     //
     // addStyleTag injects static styles; browser style recalculation is synchronous, so
     // toPass retry-polling is unnecessary — a single boundingBox snapshot is sufficient.
@@ -407,9 +407,9 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     const box = await ctaLink.boundingBox();
     expect(box, 'CTA bounding box must be available').not.toBeNull();
     if (box) {
-      expect(box.y, 'CTA must not be above the viewport top').toBeGreaterThanOrEqual(0);
+      expect(box.y, 'CTA must not be above the viewport top').toBeGreaterThanOrEqual(-0.5);
       expect(box.y + box.height, 'CTA must not exceed the viewport bottom').toBeLessThanOrEqual(vpH + 0.5);
-      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(0);
+      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(-0.5);
       expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(vpW + 0.5);
     }
   });
