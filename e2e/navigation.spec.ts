@@ -172,7 +172,7 @@ test.describe('Navigation mobile layout', () => {
     });
 
     // Verify the injection was applied to the correct element (inner div) before measuring height.
-    // This guards against the selector silently missing the target and delta passing by coincidence.
+    // `nav > div:first-child` (CSS) and `nav.locator('> div').first()` (Playwright) target the same element.
     const injectedPaddingTop = await nav.locator('> div').first().evaluate(
       (el) => parseFloat(getComputedStyle(el).paddingTop),
     );

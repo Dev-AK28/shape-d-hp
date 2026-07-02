@@ -119,7 +119,7 @@ test.describe('Subpage headers', () => {
    *
    * Actual notch-device behaviour (safe-area > 0) cannot be simulated in Playwright for PageHeader.
    * Navigation CSS-injection simulation (nav > div:first-child override) is in navigation.spec.ts (#166);
-   * PageHeader lacks an equivalent injection test — tracked in Issue #166.
+   * PageHeader lacks an equivalent injection test — tracked in Issue #289.
    */
   test('PageHeader padding-top includes safe-area-inset-top formula (#167)', async ({ page }) => {
     await page.goto('/services');
