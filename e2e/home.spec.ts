@@ -362,6 +362,10 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     const ctaWrapper = page.locator('[data-hero="immersive"] [data-hero-cta]');
     const ctaLink = ctaWrapper.locator('.hero-cta');
     await expect(ctaLink).toBeVisible();
+    // toBeVisible() alone does not catch opacity:0 (Hero's reactRevealStyle can leave the CTA
+    // transiently transparent during isReady/profile transitions even when laid out correctly).
+    // expectPainted confirms cumulative ancestor opacity, guarding CTA a11y (#270).
+    await expectPainted(ctaLink);
 
     // Verify computed styles directly via getComputedStyle — independent of !important cascade boost.
     // Confirms CSS override values are actually applied, guarding against future regressions where
