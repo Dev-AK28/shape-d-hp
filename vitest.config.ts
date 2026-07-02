@@ -8,6 +8,7 @@ export default defineConfig({
     env: {
       CONTACT_TRUST_PROXY_IP_HEADERS: 'true',
     },
+    setupFiles: ['./vitest.setup.ts'],
   },
   resolve: {
     alias: {

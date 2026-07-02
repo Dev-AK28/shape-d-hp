@@ -12,8 +12,8 @@
  */
 
 import React from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { DEFAULT_DEVICE_PROFILE } from '@/lib/performance/device-profile';
 import type { DeviceProfile } from '@/lib/performance/device-profile';
 
@@ -90,10 +90,6 @@ import Hero from '@/components/Hero';
 describe('Hero mobileStaticHero レイアウト — coarse pointer + staticFallback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    cleanup();
   });
 
   describe('大画面タッチ端末 (prefersCoarsePointer=true, isMobile=false, prefersReducedMotion=true)', () => {
