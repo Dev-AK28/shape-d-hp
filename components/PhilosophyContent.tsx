@@ -92,11 +92,17 @@ export default function PhilosophyContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- ref mirror only; GSAP setup must not re-init on setState identity changes
   useEffect(() => { setGsapActiveIndexRef.current = setGsapActiveIndex; });
 
-  // IO-based index for mobile vertical mode.
-  const ioActiveIndex = usePanelActiveIndex(panelsRef);
-
   const isTouchDevice = isTouchInputDevice(profile);
   const enableHorizontal = !isTouchDevice;
+
+  // IO-based index for mobile vertical mode. Disabled on desktop (#187,
+  // enabled=false) so ioActiveIndex is always 0 there; on mobile (enabled=true)
+  // IO is active but panel 0 is in view at page-top, so both paths return 0 and
+  // match the SSR default during the brief pre-hydration window (isReady === false).
+  // After hydration, gsapActiveIndex takes over on desktop and ioActiveIndex is
+  // discarded entirely (PR #250 review round 5 nit).
+  const ioActiveIndex = usePanelActiveIndex(panelsRef, { enabled: !enableHorizontal });
+
   const activeIndex = isReady && enableHorizontal ? gsapActiveIndex : ioActiveIndex;
 
   // Re-evaluate function-based x values whenever ScrollTrigger refreshes (e.g. on resize).

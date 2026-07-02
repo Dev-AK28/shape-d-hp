@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { expectPainted } from './helpers';
-import { PHILOSOPHY_HORIZONTAL } from '../lib/scroll/animation-tokens';
+import { ANIMATION_DURATION, PHILOSOPHY_HORIZONTAL } from '../lib/scroll/animation-tokens';
 
 // String values are no longer used in test assertions — TextReveal's Intl.Segmenter path
 // inserts U+00A0 (non-breaking space) between per-character spans, breaking Playwright
@@ -172,5 +172,74 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
       () => document.documentElement.scrollWidth > window.innerWidth,
     );
     expect(hasOverflow, 'horizontal scroll must not be introduced on mobile').toBe(false);
+  });
+
+  // #250 review: this is the only e2e coverage of the usePanelActiveIndex IO path —
+  // desktop's progress-dots test above exercises gsapActiveIndex only. Guards against
+  // a future regression in the `enabled: !enableHorizontal` wiring (#187) silently
+  // breaking mobile dot tracking, which the source-string unit tests cannot detect.
+  test('progress dots track scroll position via IntersectionObserver on mobile', async ({ page }) => {
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
+    await expect(dots).toHaveCount(6);
+    await expect(dots.first()).toHaveAttribute('data-active', 'true');
+
+    // Middle panel (#250 review round 2 nit): first/last alone can't catch an
+    // off-by-one in bestRatio's "first-wins-ties" logic for a non-edge panel.
+    const middleHeading = page.locator('[data-philosophy-panel]').nth(2).locator('h2');
+    await middleHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+
+    // timeout = Math.ceil(section * 1000) + 2500ms CI headroom (mirrors desktop test pattern).
+    await expect(async () => {
+      await expect(dots.nth(2)).toHaveAttribute('data-active', 'true');
+      await expect(dots.first()).toHaveAttribute('data-active', 'false');
+      await expect(dots.nth(5)).toHaveAttribute('data-active', 'false');
+    }).toPass({ timeout: Math.ceil(ANIMATION_DURATION.section * 1000) + 2500 });
+
+    const lastHeading = page.locator('[data-philosophy-panel]').nth(5).locator('h2');
+    await lastHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+
+    await expect(async () => {
+      await expect(dots.nth(5)).toHaveAttribute('data-active', 'true');
+      // dot 2 (previously active) must also deactivate (#250 review round 3 nit).
+      await expect(dots.nth(2)).toHaveAttribute('data-active', 'false');
+      await expect(dots.first()).toHaveAttribute('data-active', 'false');
+    }).toPass({ timeout: Math.ceil(ANIMATION_DURATION.section * 1000) + 2500 });
+  });
+
+  // #250 review round 3 suggestion: exercise the enabled false→true transition path
+  // in usePanelActiveIndex by resizing from desktop (IO disabled) to mobile (IO enabled).
+  // Validates that the prevEnabled-based synchronous reset (useState pattern) correctly
+  // initialises the hook to 0 before the first IO callback fires, and that IO then
+  // actively tracks the visible panel.
+  test('progress dots initialise to 0 and track IO after desktop→mobile resize', async ({ page }) => {
+    // Override the describe-level 375px viewport: start at desktop (IO disabled).
+    await page.setViewportSize({ width: 1400, height: 900 });
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
+    await expect(dots).toHaveCount(6);
+
+    // Resize to mobile: enableHorizontal flips true→false, IO becomes enabled (false→true).
+    // The prevEnabled useState guard fires setActiveIndex(0) synchronously during render
+    // so no stale desktop value leaks into the UI before the first IO callback.
+    await page.setViewportSize({ width: 375, height: 812 });
+
+    // After resize the page is at the top — panel 0 is visible — dot 0 must be active.
+    await expect(async () => {
+      await expect(dots.first()).toHaveAttribute('data-active', 'true');
+    }).toPass({ timeout: Math.ceil(ANIMATION_DURATION.section * 1000) + 2500 });
+
+    // Confirm IO is actively tracking by scrolling to middle panel.
+    const middleHeading = page.locator('[data-philosophy-panel]').nth(2).locator('h2');
+    await middleHeading.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+
+    await expect(async () => {
+      await expect(dots.nth(2)).toHaveAttribute('data-active', 'true');
+      await expect(dots.first()).toHaveAttribute('data-active', 'false');
+    }).toPass({ timeout: Math.ceil(ANIMATION_DURATION.section * 1000) + 2500 });
   });
 });

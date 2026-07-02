@@ -30,9 +30,28 @@ Issue: #81
 | モバイル垂直 snap | `isMobile` または `prefersCoarsePointer` 時は縦スクロール + `ScrollTrigger.snap` | 同上 |
 | 文字 opacity scrub | `0.04` → `0.08`（デスクトップ: per-panel fade-in / モバイル: scrub） | 静的 `0.04` |
 | テキストリビール | `getScrollRevealProps` + `TextReveal`（`useStaticReveal` / hydration ラッチ — #151） | `staticReveal` 経由で即時表示 |
-| 進捗ドット | `usePanelActiveIndex`（IntersectionObserver） | **有効**（GSAP 非依存） |
+| 進捗ドット | `usePanelActiveIndex`（IntersectionObserver、`enabled: !enableHorizontal` でデスクトップは IO 自体を生成しない — #187） | **有効**（GSAP 非依存） |
 
 モバイル `snap` は `panelsRef`（6 パネルのみ）に適用。CTA ブロックは snap 計算から除外する。
+
+### 進捗ドットの IO コスト削減（#187）
+
+デスクトップ（`enableHorizontal = true`）では進捗ドットの `activeIndex` は GSAP の `onUpdate` から得られる `gsapActiveIndex` のみを使用し、`usePanelActiveIndex` が返す IO ベースの値は使用されない。従来は `usePanelActiveIndex` が常に全パネルへ `IntersectionObserver` を設定していたため、デスクトップでも不要な監視コストが発生していた。
+
+`usePanelActiveIndex(containerRef, { enabled?: boolean })` に `enabled` オプション（デフォルト `true`）を追加し、`PhilosophyContent` からは `usePanelActiveIndex(panelsRef, { enabled: !enableHorizontal })` として呼び出す。`enabled` が `false` の場合、`useEffect` は `IntersectionObserver` を生成せずに即座に return する（フック自体は React のルール上、条件分岐せず常に呼び出す）。
+
+`enableHorizontal`（≒ `enabled` の否定）は `useDeviceProfile` が `resize`/`matchMedia` の変化を監視しているため実行中にも変わり得る。フックの戻り値は `return enabled ? activeIndex : 0` としてゲートしており、`enabled` が `true→false` に変わった直後でも、以前観測された非ゼロ値が漏れ出さず常に `0` を返すことを保証する（PR #250 レビュー対応）。
+
+さらに逆方向（`false→true`）にも同様の保証がある。`enabled` を直前レンダーの値と `useState` で比較し、`false→true` に変わったレンダー中に同期的に `setActiveIndex(0)` する（React の「前回レンダーの情報を保持する」パターン。`useRef` での比較・更新は `react-hooks/refs` に抵触するため `useState` を用いる）。これにより、新しい `IntersectionObserver` の初回コールバックが発火するまでの間、`enabled` が有効化される前に観測された古い非ゼロ値が 1 フレームも露出しない（PR #250 レビュー Round 2 対応）。
+
+### 検証範囲の補足（PR #250 レビュー対応）
+
+- E2E: `e2e/philosophy.spec.ts` の「Philosophy mobile vertical snap」に、モバイルの進捗ドットが `IntersectionObserver` 経由でスクロール位置に追従することを検証するケースを追加。デスクトップ側の `gsapActiveIndex` 連動テストのみでは `usePanelActiveIndex` の `enabled` 経路（モバイル）が検証されていなかったための補完。Round 2 で中間パネル（3枚目）へのスクロールも追加し、`bestRatio` の先勝ちロジックを先頭/末尾以外でも検証
+- リサイズ時のブレークポイント境界（768px 付近）で `enabled` が細かくトグルし `IntersectionObserver` の生成/破棄が連続し得る懸念は、`useDeviceProfile` の `resize` リスナー自体の debounce/hysteresis 導入が必要な、より広い影響範囲の課題のため本 PR の対象外とし、[#251](https://github.com/Dev-AK28/shape-d-hp/issues/251) で追跡する
+- Round 2 レビューで指摘された `false→true` 遷移時の stale 値ギャップは上記の `useState` ベースのレンダー中リセットで解消。ユニットテストは `tests/philosophy/content.test.ts` の文字列マッチング方式のまま維持しつつ、`indexOf` が `-1`（未検出）を返した場合に `slice` が黙って広い範囲を返してしまう脆弱性を解消するため、境界マーカーの発見を明示的に assert するよう修正した
+- Round 3 で指摘された `gsapActiveIndex` 側の stale 値保護の非対称性は、`activeIndex` という同一 UI 出力に対して `ioActiveIndex` のみ保護が強化されている問題。本 PR のスコープ外（`gsapActiveIndex` 管理ロジックは変更されていない）であるため [#254](https://github.com/Dev-AK28/shape-d-hp/issues/254) で追跡する
+- Round 3 で追加した E2E テスト: desktop(1400px)から mobile(375px)へのリサイズを `page.setViewportSize()` でシミュレートし、IO の `enabled false→true` 遷移後にドットが 0 から正しく追従することを確認。タイムアウトをマジックナンバー `5000` から `Math.ceil(ANIMATION_DURATION.section * 1000) + 2500`（= 4300ms、デスクトップ系テストと同じ導出方式）に統一
+- Round 5 (Nit): `PhilosophyContent.tsx` の IO 呼び出しコメントで `(enabled=false)` という括弧書きがデスクトップに限定した説明にもかかわらず対象が明示されていなかった点を修正。デスクトップ（enabled=false）では `usePanelActiveIndex` のゲートにより常に 0 を返し、モバイル（enabled=true）では IO が有効だがページ先頭でパネル 0 が視野に入るため同じく 0 を返す、という両経路を明示した
 
 ### リサイズ対応（#186）
 

@@ -4,12 +4,46 @@ import { useEffect, useState, type RefObject } from 'react';
 
 const PANEL_SELECTOR = '[data-philosophy-panel]';
 
+interface UsePanelActiveIndexOptions {
+  /**
+   * When false, skips IntersectionObserver setup entirely and the hook always
+   * returns 0 — even if a nonzero index was observed while `enabled` was
+   * previously `true` (see PR #250 review). Desktop horizontal mode drives its
+   * own GSAP-based index and never reads this hook's result, so observing
+   * every panel there is wasted cost (#187).
+   */
+  enabled?: boolean;
+}
+
 export function usePanelActiveIndex(
   containerRef: RefObject<HTMLElement | null>,
+  { enabled = true }: UsePanelActiveIndexOptions = {},
 ): number {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Adjust state during render — React's documented "storing information
+  // from previous renders" pattern using useState (a ref would trip
+  // react-hooks/refs, which forbids reading/writing ref.current during
+  // render) — rather than in an effect: when `enabled` flips false→true, the
+  // previously-observed index must not be visible even for the single frame
+  // before the new IntersectionObserver's first async callback fires (#250
+  // review round 2 — the true→false direction is already covered by the
+  // gated `return` below, but this closes the reverse gap).
+  const [prevEnabled, setPrevEnabled] = useState(enabled);
+  if (enabled !== prevEnabled) {
+    setPrevEnabled(enabled);
+    if (enabled) {
+      setActiveIndex(0);
+    }
+  }
+
   useEffect(() => {
+    // Bail out without touching state: the returned value is discarded by
+    // callers whenever `enabled` is false (see #187), so there is nothing to sync.
+    if (!enabled) {
+      return;
+    }
+
     const container = containerRef.current;
     if (!container) {
       return;
@@ -51,7 +85,10 @@ export function usePanelActiveIndex(
     panels.forEach((panel) => observer.observe(panel));
 
     return () => observer.disconnect();
-  }, [containerRef]);
+  }, [containerRef, enabled]);
 
-  return activeIndex;
+  // Gate on `enabled` here too (not just in the effect): guarantees the public
+  // contract holds even right after `enabled` flips true → false, before the
+  // cleanup above has a chance to matter — no stale nonzero value leaks out.
+  return enabled ? activeIndex : 0;
 }
