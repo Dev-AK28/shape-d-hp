@@ -89,14 +89,23 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
 
     const panelCount = PANEL_TITLES.length;
     const innerWidth = await page.evaluate(() => window.innerWidth);
+    const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
+    // timeout = Math.ceil(scrub * 1000) + 2500ms CI headroom (mirrors single-panel test pattern).
+    const scrubTimeout = Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500;
 
-    // Scroll through all remaining panels (panelCount - 1 steps of innerWidth each).
+    // Scroll one panel at a time and verify GSAP advanced to each intermediate panel (#239).
+    // Uses dots.nth(i) data-active='true' as a lightweight proxy for GSAP progress —
+    // identical mechanism to the 'PhilosophyProgressDots active index tracks' test.
+    // Guards against GSAP freezing mid-sequence, which the former all-at-once scroll missed.
     for (let i = 1; i < panelCount; i++) {
       await page.evaluate(() => window.scrollBy(0, window.innerWidth));
+      await expect(async () => {
+        await expect(dots.nth(i)).toHaveAttribute('data-active', 'true');
+      }).toPass({ timeout: scrubTimeout });
     }
 
-    // After (panelCount - 1) × innerWidth total scroll, GSAP should have translated panelsRef
-    // by at least (panelCount - 2) × innerWidth (allowing one panel of scrub lag at the end).
+    // Final CSS transform guard: after all scrolls GSAP must have translated panelsRef
+    // by at least (panelCount - 2) × innerWidth (one panel of scrub lag allowed at end).
     await expect(async () => {
       const tx = await page.evaluate(() => {
         const panel = document.querySelector('[data-philosophy-panel]');
@@ -105,7 +114,7 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
         return m.m41;
       });
       expect(tx).toBeLessThan(-(innerWidth * (panelCount - 2)));
-    }).toPass({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
+    }).toPass({ timeout: scrubTimeout });
   });
 
   test('PhilosophyProgressDots active index tracks horizontal scroll progress', async ({ page }) => {
