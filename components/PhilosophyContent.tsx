@@ -102,9 +102,11 @@ export default function PhilosophyContent() {
 
   // Symmetric stale-value guard for gsapActiveIndex (#254): mirrors the
   // prevEnabled pattern in usePanelActiveIndex. When enableHorizontal flips
-  // false→true (mobile→desktop), reset gsapActiveIndex to 0 synchronously
-  // during render so the stale mobile-session value is never visible even
-  // for a single frame before the new ScrollTrigger's first onUpdate fires.
+  // false→true (mobile→desktop resize, or initial hydration on desktop when
+  // isReady becomes true), reset gsapActiveIndex to 0 synchronously during
+  // render so stale values are never visible even for a single frame before
+  // the new ScrollTrigger's first onUpdate fires. On initial hydration the
+  // reset is a no-op (gsapActiveIndex is already 0).
   // useState (not useRef) is used for the comparison — mutating ref.current
   // during render trips react-hooks/refs.
   const [prevEnableHorizontal, setPrevEnableHorizontal] = useState(enableHorizontal);
