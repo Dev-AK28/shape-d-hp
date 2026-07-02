@@ -140,6 +140,45 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     // Scope to main — the nav and footer also contain links named 'お問い合わせ'.
     await expect(page.getByRole('main').getByRole('link', { name: 'お問い合わせ' })).toBeVisible({ timeout: 5000 });
   });
+
+  // Issue #254: gsapActiveIndex stale-value guard (symmetric to usePanelActiveIndex #250 round 2).
+  // After advancing to a non-zero panel on desktop, resize to mobile then back to desktop.
+  // The prevEnableHorizontal useState guard must fire setGsapActiveIndex(0) synchronously so
+  // that dot 0 is active immediately on re-entry to desktop mode — before the new
+  // ScrollTrigger's onUpdate has a chance to fire with the scroll position at the top.
+  test('progress dots reset to index 0 after desktop→mobile→desktop resize (#254)', async ({ page }) => {
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
+    await expect(dots).toHaveCount(6);
+
+    // Scroll to advance gsapActiveIndex to at least panel 2 (2 × innerWidth).
+    await page.evaluate(() => window.scrollBy(0, window.innerWidth * 2));
+
+    // Wait for GSAP scrub to settle so gsapActiveIndex is truly non-zero.
+    await expect(async () => {
+      await expect(dots.nth(2)).toHaveAttribute('data-active', 'true');
+    }).toPass({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
+
+    // Scroll back to top so the page position is 0 on resize.
+    await page.evaluate(() => window.scrollTo(0, 0));
+
+    // Resize to mobile — enableHorizontal becomes false; gsapActiveIndex state is
+    // now "abandoned" (ioActiveIndex drives the UI). Its internal value is still 2.
+    await page.setViewportSize({ width: 375, height: 812 });
+
+    // Resize back to desktop — enableHorizontal becomes true again.
+    // The prevEnableHorizontal guard fires setGsapActiveIndex(0) synchronously so
+    // dot 0 must be active immediately without waiting for onUpdate.
+    await page.setViewportSize({ width: 1280, height: 800 });
+
+    // timeout = scrub*1000 + 2500ms CI headroom (mirrors desktop test pattern).
+    await expect(async () => {
+      await expect(dots.first()).toHaveAttribute('data-active', 'true');
+      await expect(dots.nth(2)).toHaveAttribute('data-active', 'false');
+    }).toPass({ timeout: Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500 });
+  });
 });
 
 // ── Mobile vertical snap (#184) ──────────────────────────────────────────────

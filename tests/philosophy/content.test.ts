@@ -120,3 +120,42 @@ describe('PhilosophyContent — skip desktop IO setup (#187)', () => {
     );
   });
 });
+
+// Issue #254: symmetric stale-value guard for gsapActiveIndex.
+// ioActiveIndex already has the prevEnabled pattern (PR #250 round 2).
+// gsapActiveIndex must mirror it so that when enableHorizontal flips
+// false→true (mobile→desktop), index 0 is shown synchronously during
+// render — before the new ScrollTrigger's first onUpdate fires.
+describe('PhilosophyContent — gsapActiveIndex stale reset (#254)', () => {
+  it('resets gsapActiveIndex synchronously during render when enableHorizontal flips false→true', () => {
+    const fnStart = philosophySource.indexOf('export default function PhilosophyContent');
+    expect(fnStart).toBeGreaterThan(-1);
+
+    // The reset must happen before useGsapContext (which sets up the new ScrollTrigger).
+    const gsapContextStart = philosophySource.indexOf('useGsapContext(');
+    expect(gsapContextStart).toBeGreaterThan(-1);
+
+    const preGsapBody = philosophySource.slice(fnStart, gsapContextStart);
+
+    // Must track previous enableHorizontal with useState (not useRef — refs trip react-hooks/refs).
+    expect(preGsapBody).toMatch(/useState\(enableHorizontal\)/);
+
+    // Must call setGsapActiveIndex(0) to reset the stale desktop value.
+    expect(preGsapBody).toContain('setGsapActiveIndex(0)');
+
+    // The reset must be guarded by `if (enableHorizontal)` so it only fires on
+    // the false→true direction, not on the true→false direction.
+    const resetIdx = preGsapBody.indexOf('setGsapActiveIndex(0)');
+    const guardIdx = preGsapBody.lastIndexOf('if (enableHorizontal)', resetIdx);
+    expect(guardIdx).toBeGreaterThan(-1);
+    expect(guardIdx).toBeLessThan(resetIdx);
+
+    // The outer guard `enableHorizontal !== prevEnableHorizontal` must also be
+    // present and must precede the reset call. Without it, setGsapActiveIndex(0)
+    // would fire on every render when enableHorizontal=true, triggering an
+    // infinite re-render loop ("Too many re-renders" — second-pass review, PR #255).
+    const outerGuardIdx = preGsapBody.indexOf('enableHorizontal !== prevEnableHorizontal');
+    expect(outerGuardIdx).toBeGreaterThan(-1);
+    expect(outerGuardIdx).toBeLessThan(resetIdx);
+  });
+});
