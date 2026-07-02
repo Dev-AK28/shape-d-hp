@@ -404,4 +404,22 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
     await projectTitle.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(projectTitle, 5000);
   });
+
+  // #182: viewport 内要素がリサイズ後も opacity:1 を維持することを確認。
+  // #180 以降 staticReveal は isMobile に依存しないため、リサイズで remount は発生せず
+  // IO 発火済み要素の framer アニメーション状態がリセットされないことを保証する。
+  test('above-fold content retains opacity after resize to mobile (#182)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    // fold 上の h1 がデスクトップ幅で paint 済みであることを確認。
+    // framer-motion duration 1.4s + CI IO 発火遅延を吸収するため 2500ms を使用。
+    const h1 = page.locator('main h1').first();
+    await expectPainted(h1, 2500);
+
+    // モバイルにリサイズ — viewport 内要素は opacity:1 を維持するべき
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expectPainted(h1, 1000);
+  });
 });
