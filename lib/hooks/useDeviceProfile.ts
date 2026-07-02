@@ -13,6 +13,9 @@ import {
  * subscribeToDeviceProfile. matchMedia change events fire only at exact
  * breakpoint boundaries (browser-side debounced) so they remain immediate.
  * The resize listener is the only source of sub-breakpoint noise (#251).
+ *
+ * @client Exported from a `'use client'` module. Importing this constant in a
+ * Server Component will cause a Next.js module-boundary error at runtime.
  */
 export const RESIZE_DEBOUNCE_MS = 150;
 

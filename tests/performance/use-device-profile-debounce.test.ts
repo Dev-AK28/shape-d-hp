@@ -40,20 +40,23 @@ describe('useDeviceProfile — resize debounce (#251)', () => {
   it('attaches the debounced wrapper (not raw onStoreChange) to the resize event', () => {
     // Direct: window.addEventListener('resize', onStoreChange)   ← forbidden
     // Correct: window.addEventListener('resize', debouncedStoreChange)
-    const addResizeLine = source
+    // Use filter() to check ALL matching lines — find() would silently pass
+    // if a second addEventListener('resize', onStoreChange) line were added later.
+    const addResizeLines = source
       .split('\n')
-      .find((line) => line.includes("addEventListener('resize'"));
-    expect(addResizeLine).toBeDefined();
-    expect(addResizeLine).not.toContain('onStoreChange');
+      .filter((line) => line.includes("addEventListener('resize'"));
+    expect(addResizeLines.length).toBeGreaterThan(0);
+    addResizeLines.forEach((line) => expect(line).not.toContain('onStoreChange'));
   });
 
   it('removes the same debounced wrapper in cleanup (no listener leak)', () => {
     // removeEventListener must reference the same wrapper reference, otherwise
     // the original handler is never removed.
-    const removeResizeLine = source
+    // Use filter() to check ALL matching lines for the same reason as above.
+    const removeResizeLines = source
       .split('\n')
-      .find((line) => line.includes("removeEventListener('resize'"));
-    expect(removeResizeLine).toBeDefined();
-    expect(removeResizeLine).not.toContain('onStoreChange');
+      .filter((line) => line.includes("removeEventListener('resize'"));
+    expect(removeResizeLines.length).toBeGreaterThan(0);
+    removeResizeLines.forEach((line) => expect(line).not.toContain('onStoreChange'));
   });
 });
