@@ -78,6 +78,29 @@ GSAP を使う全コンポーネントが `useGsapContext` を通じているた
 - `prefersCoarsePointer`: タッチ主体デバイス（`(pointer: coarse)`）
 - `prefersHoverNone`: ホバー非対応デバイス（`(hover: none)`）。カスタムカーソル無効化に使用
 
+### resize リスナーの debounce（Issue #251）
+
+`subscribeToDeviceProfile` 内の `window` resize リスナーには `RESIZE_DEBOUNCE_MS`（150ms）の debounce を適用する。
+
+**理由**: ウィンドウ幅が 768px ブレークポイント付近で連続変化すると `isMobile` が細かく反転し、`usePanelActiveIndex` の `IntersectionObserver` が生成/破棄を繰り返すスラッシングが発生する（#187 の修正が逆効果になる境界条件）。
+
+**設計**:
+- `matchMedia` の `change` イベントはブラウザ側でブレークポイント境界にのみ発火するため即時のまま維持する
+- resize のみ debounce し、ブレークポイント通過後 150ms 静止した時点でストア更新を通知する
+- クリーンアップ（コンポーネントアンマウント）時に未発火タイマーを `clearTimeout` でキャンセルし、stale コールバックを防ぐ
+- 定数 `RESIZE_DEBOUNCE_MS` を named export することで、テストが値を参照できる
+
+```ts
+// lib/hooks/useDeviceProfile.ts（抜粋）
+export const RESIZE_DEBOUNCE_MS = 150;
+
+const debouncedStoreChange = () => {
+  if (resizeTimer !== null) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(onStoreChange, RESIZE_DEBOUNCE_MS);
+};
+window.addEventListener('resize', debouncedStoreChange);
+```
+
 ## 画像アセット
 
 - 最適化スクリプト: `npm run optimize:images`（`image-assets.ts` で参照される PNG のみ対象）
