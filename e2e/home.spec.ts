@@ -70,6 +70,9 @@ test.describe('Home page desktop', () => {
 
     // Scroll to trigger copy/CTA reveal via GSAP scrub. GSAP animates [data-testid="hero-cta-wrapper"]
     // (CSS opacity is not inherited by child elements, so querying the wrapper directly is required).
+    // data-testid is used here (not [data-hero-cta]) because this checks GSAP-driven opacity state,
+    // unrelated to the CSS @media selector — see the "1024px iPad Pro" describe block below for the
+    // [data-hero-cta] regression guard on the CSS selector itself (#272).
     // GSAP scrub (exponential smoothing) may settle at 0.999x rather than exactly 1.0; use
     // waitForFunction with >= 0.99 threshold to confirm scrollRevealed=true, then verify indicator
     // fades out (opacity 1→0, duration 0.4s). page.getByTestId() cannot be used inside
@@ -118,7 +121,9 @@ test.describe('Home page desktop', () => {
 
     // Confirm the scroll was processed by GSAP and scrollRevealed=true fired before formation
     // completes. GSAP animates [data-testid="hero-cta-wrapper"] (CSS opacity is not inherited by
-    // child elements). GSAP scrub may settle at 0.999x; use waitForFunction with >= 0.99 threshold.
+    // child elements). data-testid is intentionally used here rather than [data-hero-cta] — this
+    // checks GSAP opacity state, not the CSS @media selector contract (see #272).
+    // GSAP scrub may settle at 0.999x; use waitForFunction with >= 0.99 threshold.
     // page.getByTestId() cannot be used inside waitForFunction (browser context, no Playwright API).
     await page.waitForFunction(
       () => {
@@ -325,7 +330,11 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // data-hero="immersive" must be on the section — required for CSS @media selector (#149)
     await expect(page.locator('[data-hero="immersive"]')).toBeVisible({ timeout: 10_000 });
 
-    // data-hero-cta must be present on the CTA wrapper — required for CSS position override
+    // data-hero-cta must be present on the CTA wrapper — required for CSS position override.
+    // [data-hero-cta] is used intentionally here instead of [data-testid="hero-cta-wrapper"]:
+    // this is a regression guard confirming the exact CSS attribute selector
+    // `[data-hero="immersive"] [data-hero-cta]` from globals.css still targets this element,
+    // not just any stable test hook (#272).
     await expect(page.locator('[data-hero="immersive"] [data-hero-cta]')).toBeVisible();
 
     // Inject CSS equivalent to the @media (pointer: coarse) and (prefers-reduced-motion: reduce)
