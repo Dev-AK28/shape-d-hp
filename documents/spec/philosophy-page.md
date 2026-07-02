@@ -109,5 +109,6 @@ npm run test:e2e -- e2e/philosophy.spec.ts
 Given Philosophy ページ（1280×800 デスクトップ）が読み込まれている
 When viewport 幅ずつスクロールを i=1〜5 ステップ実行する
 Then 各ステップ後に dots.nth(i) が data-active='true' になる（GSAP 中間フリーズを検出）
+And dots.nth(i-1) が data-active='false' になる（複数ドット同時活性化を防止）
 And 全スクロール後の CSS translateX が -(panelCount-2)×innerWidth を下回る
 ```
