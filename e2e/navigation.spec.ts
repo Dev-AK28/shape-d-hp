@@ -129,7 +129,8 @@ test.describe('Navigation mobile layout', () => {
 
     const nav = page.getByRole('navigation');
     // The inner div carries the pt-[max(0.75rem,env(safe-area-inset-top,0px))] class.
-    const innerDiv = nav.locator('div').first();
+    // Use `> div` (direct child only) to avoid matching nested divs if the nav structure changes.
+    const innerDiv = nav.locator('> div').first();
 
     const className = (await innerDiv.getAttribute('class')) ?? '';
     expect(className).toContain('safe-area-inset-top');
@@ -160,13 +161,14 @@ test.describe('Navigation mobile layout', () => {
 
     const nav = page.getByRole('navigation');
     const baselineBox = await nav.boundingBox();
+    expect(baselineBox, 'baseline nav must be rendered').not.toBeNull();
 
     // Simulate env(safe-area-inset-top) = 44px (iPhone notch / Dynamic Island clearance).
     // Override the inner div padding to max(0.75rem, 44px) = 44px.
     // NOTE: <nav> carries role="navigation" implicitly; it does NOT have an explicit role attribute,
-    // so the selector must be `nav > div`, not `nav[role="navigation"] > div`.
+    // so the selector must be `nav > div:first-child`, not `nav[role="navigation"] > div`.
     await page.addStyleTag({
-      content: 'nav > div { padding-top: 44px !important; }',
+      content: 'nav > div:first-child { padding-top: 44px !important; }',
     });
 
     const simulatedBox = await nav.boundingBox();
