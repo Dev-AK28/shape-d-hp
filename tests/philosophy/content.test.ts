@@ -149,5 +149,13 @@ describe('PhilosophyContent — gsapActiveIndex stale reset (#254)', () => {
     const guardIdx = preGsapBody.lastIndexOf('if (enableHorizontal)', resetIdx);
     expect(guardIdx).toBeGreaterThan(-1);
     expect(guardIdx).toBeLessThan(resetIdx);
+
+    // The outer guard `enableHorizontal !== prevEnableHorizontal` must also be
+    // present and must precede the reset call. Without it, setGsapActiveIndex(0)
+    // would fire on every render when enableHorizontal=true, triggering an
+    // infinite re-render loop ("Too many re-renders" — second-pass review, PR #255).
+    const outerGuardIdx = preGsapBody.indexOf('enableHorizontal !== prevEnableHorizontal');
+    expect(outerGuardIdx).toBeGreaterThan(-1);
+    expect(outerGuardIdx).toBeLessThan(resetIdx);
   });
 });
