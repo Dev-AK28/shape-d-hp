@@ -117,8 +117,9 @@ test.describe('Subpage headers', () => {
    *    of the env() formula even when safe-area resolves to 0 in Playwright viewports.
    * 2. Computed padding-top >= 120px — verifies no-notch baseline is unaffected.
    *
-   * Actual notch-device behaviour (safe-area > 0) cannot be simulated in Playwright;
-   * see Issue #166 for that E2E coverage.
+   * Actual notch-device behaviour (safe-area > 0) cannot be simulated in Playwright for PageHeader.
+   * Navigation CSS-injection simulation (nav > div:first-child override) is in navigation.spec.ts (#166);
+   * PageHeader lacks an equivalent injection test — tracked in Issue #166.
    */
   test('PageHeader padding-top includes safe-area-inset-top formula (#167)', async ({ page }) => {
     await page.goto('/services');

@@ -171,6 +171,13 @@ test.describe('Navigation mobile layout', () => {
       content: 'nav > div:first-child { padding-top: 44px !important; }',
     });
 
+    // Verify the injection was applied to the correct element (inner div) before measuring height.
+    // This guards against the selector silently missing the target and delta passing by coincidence.
+    const injectedPaddingTop = await nav.locator('> div').first().evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(injectedPaddingTop).toBe(44);
+
     const simulatedBox = await nav.boundingBox();
 
     // With 44px padding (vs 12px baseline), the nav must be taller than the no-notch threshold.
