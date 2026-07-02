@@ -92,10 +92,13 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     await page.waitForLoadState('networkidle');
 
     const panelCount = PANEL_TITLES.length;
-    const innerWidth = await page.evaluate(() => window.innerWidth);
     const dots = page.locator('[data-testid="philosophy-progress-dots"] > span');
     // timeout = Math.ceil(scrub * 1000) + 2500ms CI headroom (mirrors single-panel test pattern).
     const scrubTimeout = Math.ceil(PHILOSOPHY_HORIZONTAL.scrub * 1000) + 2500;
+
+    // Baseline: verify dot count and initial active state before scrolling.
+    await expect(dots).toHaveCount(panelCount);
+    await expect(dots.first()).toHaveAttribute('data-active', 'true');
 
     // Scroll one panel at a time and verify GSAP advanced to each intermediate panel (#239).
     // Uses dots data-active as a lightweight proxy for GSAP progress — identical mechanism to
@@ -109,16 +112,17 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
       }).toPass({ timeout: scrubTimeout });
     }
 
-    // Final CSS transform guard: after all scrolls GSAP must have translated panelsRef
-    // by at least (panelCount - 2) × innerWidth (one panel of scrub lag allowed at end).
+    // Final CSS transform guard: re-fetch innerWidth inside toPass to avoid stale snapshot
+    // diverging from the live value used by scrollBy (e.g. if a scrollbar appears mid-test).
+    // Mirrors the [tx, iw] co-fetch pattern in 'scrolling advances to second panel'.
     await expect(async () => {
-      const tx = await page.evaluate(() => {
+      const [tx, iw] = await page.evaluate(() => {
         const panel = document.querySelector('[data-philosophy-panel]');
         const panelsRef = panel?.parentElement;
         const m = new DOMMatrix(getComputedStyle(panelsRef ?? document.body).transform);
-        return m.m41;
+        return [m.m41, window.innerWidth] as [number, number];
       });
-      expect(tx).toBeLessThan(-(innerWidth * (panelCount - 2)));
+      expect(tx).toBeLessThan(-(iw * (panelCount - 2)));
     }).toPass({ timeout: scrubTimeout });
   });
 

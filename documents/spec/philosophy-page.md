@@ -103,7 +103,7 @@ npm run test:e2e -- e2e/philosophy.spec.ts
 
 **変更前の構造:** スクロールを 5 回先行実行してから最後に 1 回だけ CSS transform をチェック → 途中パネルで GSAP がフリーズしても検出不可能。
 
-**変更後の構造:** ループ内で 1 スクロールごとに `dots.nth(i).data-active='true'` を `toPass` で確認（案B 採用）。GSAP 進捗のプロキシとして進捗ドットの `data-active` 属性を使用する（`PhilosophyProgressDots active index tracks` テストと同一メカニズム）。最後に CSS transform の回帰ガードも維持。
+**変更後の構造:** ループ内で 1 スクロールごとに `dots.nth(i).data-active='true'` を `toPass` で確認（案B 採用）。GSAP 進捗のプロキシとして進捗ドットの `data-active` 属性を使用する（`PhilosophyProgressDots active index tracks` テストと同一メカニズム）。最後に CSS transform の回帰ガードも維持。`test.setTimeout(60_000)` を明示設定（最悪ケース 6 × 4300ms = 25.8s が Playwright 30s デフォルトを超えるため）。スクロール前に `toHaveCount(6)` と初期ドット状態を検証するベースラインアサートも追加。最終 transform チェックは `[tx, iw]` 同時取得パターンに統一（ `scrollBy` のライブ読み取りとスナップショットの乖離を防止）。
 
 ```gherkin
 Given Philosophy ページ（1280×800 デスクトップ）が読み込まれている
