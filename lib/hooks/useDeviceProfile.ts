@@ -8,7 +8,22 @@ import {
   type DeviceProfile,
 } from '@/lib/performance/device-profile';
 
+/**
+ * Debounce delay (ms) applied to the window resize listener in
+ * subscribeToDeviceProfile. matchMedia change events fire only at exact
+ * breakpoint boundaries (browser-side debounced) so they remain immediate.
+ * The resize listener is the only source of sub-breakpoint noise (#251).
+ */
+export const RESIZE_DEBOUNCE_MS = 150;
+
 function subscribeToDeviceProfile(onStoreChange: () => void) {
+  let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const debouncedStoreChange = () => {
+    if (resizeTimer !== null) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(onStoreChange, RESIZE_DEBOUNCE_MS);
+  };
+
   const mobileQuery = window.matchMedia(mobileMaxWidthMediaQuery());
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pointerQuery = window.matchMedia('(pointer: coarse)');
@@ -18,14 +33,18 @@ function subscribeToDeviceProfile(onStoreChange: () => void) {
   motionQuery.addEventListener('change', onStoreChange);
   pointerQuery.addEventListener('change', onStoreChange);
   hoverQuery.addEventListener('change', onStoreChange);
-  window.addEventListener('resize', onStoreChange);
+  window.addEventListener('resize', debouncedStoreChange);
 
   return () => {
+    if (resizeTimer !== null) {
+      clearTimeout(resizeTimer);
+      resizeTimer = null;
+    }
     mobileQuery.removeEventListener('change', onStoreChange);
     motionQuery.removeEventListener('change', onStoreChange);
     pointerQuery.removeEventListener('change', onStoreChange);
     hoverQuery.removeEventListener('change', onStoreChange);
-    window.removeEventListener('resize', onStoreChange);
+    window.removeEventListener('resize', debouncedStoreChange);
   };
 }
 
