@@ -95,6 +95,21 @@ export default function PhilosophyContent() {
   const isTouchDevice = isTouchInputDevice(profile);
   const enableHorizontal = !isTouchDevice;
 
+  // Symmetric stale-value guard for gsapActiveIndex (#254): mirrors the
+  // prevEnabled pattern in usePanelActiveIndex. When enableHorizontal flips
+  // false→true (mobile→desktop), reset gsapActiveIndex to 0 synchronously
+  // during render so the stale mobile-session value is never visible even
+  // for a single frame before the new ScrollTrigger's first onUpdate fires.
+  // useState (not useRef) is used for the comparison — mutating ref.current
+  // during render trips react-hooks/refs.
+  const [prevEnableHorizontal, setPrevEnableHorizontal] = useState(enableHorizontal);
+  if (enableHorizontal !== prevEnableHorizontal) {
+    setPrevEnableHorizontal(enableHorizontal);
+    if (enableHorizontal) {
+      setGsapActiveIndex(0);
+    }
+  }
+
   // IO-based index for mobile vertical mode. Disabled on desktop (#187,
   // enabled=false) so ioActiveIndex is always 0 there; on mobile (enabled=true)
   // IO is active but panel 0 is in view at page-top, so both paths return 0 and
