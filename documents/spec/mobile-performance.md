@@ -312,6 +312,10 @@ iPad Pro 等の大画面タッチ端末で `prefers-reduced-motion` が有効な
   cascade 上の後方に位置するため `!important` 不要。特異度は `[data-hero="immersive"]` が
   Tailwind と同じ（0-1-0）で document order で勝ち、`[data-hero="immersive"] [data-hero-cta]`
   は Tailwind より高い（0-2-0）ため特異度でも確実に勝つ
+  （この特異度の主張は `e2e/home.spec.ts` の `production @media cascade specificity beats
+  Tailwind without !important (#269)` テストで、実際に読み込まれたスタイルシートを静的解析
+  することにより自動検証されている。従来の `addStyleTag` による `!important` 注入シミュレーション
+  では「本番 CSS が Tailwind に勝てること」自体は検証できていなかった — 詳細は Issue #269）
 - JS `mobileStaticHero` フラグと CSS ブロックは `pointer: coarse` デバイスの steady state で
   ほぼ同一レイアウトに収束する（CSS は追加で `min-height: 100svh` を設定するが、JS className path
   はこれを省略する。いずれも正しい表示結果を生む）。ただし `isMobile=true + pointer:fine`
