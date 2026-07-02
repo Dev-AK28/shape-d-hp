@@ -216,7 +216,7 @@ test.describe('Home page mobile', () => {
 test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => {
   test.use({ viewport: { width: 1024, height: 1366 } });
 
-  test('CSS layout override makes CTA accessible (pointer:coarse simulated via addStyleTag)', async ({ page }) => {
+  test('CTA position override: addStyleTag simulation of pointer:coarse + reduced-motion (#149)', async ({ page }) => {
     // NOTE: Playwright 1.x cannot reliably emulate `pointer: coarse` via CDP.
     // page.emulateMedia() and page.goto() both internally call Emulation.setEmulatedMedia
     // with a features array that excludes 'pointer', resetting any prior CDP state set via
@@ -225,6 +225,14 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
     // This test instead: (1) verifies the data attributes are present in the DOM as regression
     // guard, and (2) injects the equivalent CSS via addStyleTag to verify that when the
     // @media rule fires on a real coarse-pointer device, the CTA remains accessible.
+    //
+    // SCENARIO NOTE: This test runs in a pointer:fine environment (Playwright default).
+    // profile.prefersCoarsePointer=false → React applies `absolute bottom-[...] left-1/2 -translate-x-1/2`.
+    // addStyleTag overrides position to `relative`, simulating what the CSS @media rule does on a
+    // real pointer:coarse+reduced-motion device. On such devices the CSS @media block fires at first
+    // paint (before React hydration completes), and React's mobileStaticHero subsequently converges
+    // to the same layout — closing that convergence gap was the CLS fix in Issue #149.
+    // The intent is to verify CSS cascade values directly — not the production SSR convergence scenario.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
 
@@ -236,7 +244,12 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
 
     // Inject CSS equivalent to the @media (pointer: coarse) and (prefers-reduced-motion: reduce)
     // block in globals.css to verify the CSS property values and CTA accessibility.
-    // --space-8=64px, --space-6=48px (globals.css :root に対応)
+    // --space-8=64px, --space-6=48px (globals.css :root に対応; see Issue #276 for token-drift tracking)
+    //
+    // NOTE: This CSS uses !important to guarantee style application in the pointer:fine E2E environment
+    // where the production @media rule would not fire. Production globals.css does NOT use !important
+    // in the @media block. Therefore, this test cannot detect regressions where a GSAP inline style
+    // or React prop overrides the cascade without !important — see Issue #275 for the broader tracking.
     await page.addStyleTag({
       content: [
         '[data-hero="immersive"]{flex-direction:column!important;height:auto!important;min-height:100svh!important;overflow:visible!important;padding-top:calc(64px + env(safe-area-inset-top,0px))!important;padding-bottom:64px!important;}',
@@ -244,18 +257,55 @@ test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => 
       ].join('\n'),
     });
 
-    const ctaLink = page.locator('[data-hero="immersive"] [data-hero-cta] .hero-cta');
+    const ctaWrapper = page.locator('[data-hero="immersive"] [data-hero-cta]');
+    const ctaLink = ctaWrapper.locator('.hero-cta');
     await expect(ctaLink).toBeVisible();
 
-    // Off-screen guard: CTA must not be pushed outside the viewport by absolute positioning.
-    await expect(async () => {
-      const box = await ctaLink.boundingBox();
-      expect(box).not.toBeNull();
-      if (!box) return;
-      expect(box.y, 'CTA must be within the viewport height').toBeLessThan(1366);
-      // x > 0: ensures CTA is not hidden off the left edge of the viewport
-      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThan(0);
-    }).toPass({ timeout: 3_000 });
+    // Verify computed styles directly via getComputedStyle — independent of !important cascade boost.
+    // Confirms CSS override values are actually applied, guarding against future regressions where
+    // a style prop or GSAP setup change could silently bypass the intended cascade.
+    // Also verifies left/transform resets: pointer:fine React applies `left-1/2 -translate-x-1/2`,
+    // and both must be overridden alongside `position` (see Issue #149 fix intent).
+    const ctaStyles = await ctaWrapper.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        position: cs.position,
+        textAlign: cs.textAlign,
+        left: cs.left,
+        transform: cs.transform,
+      };
+    });
+    expect(ctaStyles.position, 'CTA wrapper position must be relative after CSS override').toBe('relative');
+    expect(ctaStyles.textAlign, 'CTA wrapper text-align must be center after CSS override').toBe('center');
+    // left: auto resolves to 0px for position:relative in Chromium — confirms Tailwind left-1/2 is overridden.
+    // NOTE: This is Chromium-specific behavior. Firefox/WebKit may return 'auto' instead.
+    // If a non-Chromium Playwright project is added, convert this to a range check (see Issue #273).
+    expect(ctaStyles.left, 'CTA wrapper left must be reset (Tailwind left-1/2 overridden)').toBe('0px');
+    // transform: none confirms Tailwind -translate-x-1/2 CSS variable chain is disabled.
+    expect(ctaStyles.transform, 'CTA wrapper transform must be none (Tailwind -translate-x-1/2 overridden)').toBe('none');
+
+    // Bi-directional off-screen guard: CTA must remain within the viewport on all four edges.
+    // Uses page.viewportSize() instead of hardcoded constants so the check stays in sync with
+    // test.use({ viewport }) above.
+    //
+    // Tolerance is intentionally asymmetric:
+    //   - left/top:  >= 0 (no tolerance) — a value below 0 means the element is off-screen; no slack needed.
+    //   - right/bottom: +0.5px tolerance — getBoundingClientRect() floating-point arithmetic can make
+    //     box.x + box.width slightly exceed vpW (e.g. 1024.0002) for elements flush with the edge.
+    //
+    // addStyleTag injects static styles; browser style recalculation is synchronous, so
+    // toPass retry-polling is unnecessary — a single boundingBox snapshot is sufficient.
+    const vp = page.viewportSize();
+    const vpW = vp?.width ?? 1024;
+    const vpH = vp?.height ?? 1366;
+    const box = await ctaLink.boundingBox();
+    expect(box, 'CTA bounding box must be available').not.toBeNull();
+    if (box) {
+      expect(box.y, 'CTA must not be above the viewport top').toBeGreaterThanOrEqual(0);
+      expect(box.y + box.height, 'CTA must not exceed the viewport bottom').toBeLessThanOrEqual(vpH + 0.5);
+      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(vpW + 0.5);
+    }
   });
 });
 
