@@ -19,6 +19,8 @@ export default function TopTheory() {
     const { theory } = topHero;
     gsap
       .timeline({
+        // 既定 duration を 0.5 に固定（グローバル 1.4 の影響を打ち消し、参照HTMLの尺比を再現）
+        defaults: { duration: theory.tweenDuration },
         scrollTrigger: {
           trigger: '#theory',
           start: theory.pin.start,

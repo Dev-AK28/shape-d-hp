@@ -17,7 +17,7 @@ const { mockUseGsapContext, mockTimeline, mockTo } = vi.hoisted(() => {
   to.mockReturnValue(tl);
   return {
     mockUseGsapContext: vi.fn<(setup: () => void, deps?: ReadonlyArray<unknown>) => void>(),
-    mockTimeline: vi.fn((_vars?: Record<string, unknown>) => tl),
+    mockTimeline: vi.fn<(vars?: Record<string, unknown>) => typeof tl>(() => tl),
     mockTo: to,
   };
 });
@@ -56,7 +56,12 @@ describe('TopTheory', () => {
     render(<TopTheory />);
 
     expect(mockTimeline).toHaveBeenCalledTimes(1);
-    const tlArg = mockTimeline.mock.calls[0][0] as unknown as { scrollTrigger: Record<string, unknown> };
+    const tlArg = mockTimeline.mock.calls[0][0] as unknown as {
+      defaults: { duration: number };
+      scrollTrigger: Record<string, unknown>;
+    };
+    // グローバル 1.4 の影響を打ち消し、参照HTMLの尺比を再現するため duration を 0.5 に固定
+    expect(tlArg.defaults).toEqual({ duration: topHero.theory.tweenDuration });
     expect(tlArg.scrollTrigger).toMatchObject({
       trigger: '#theory',
       start: topHero.theory.pin.start,

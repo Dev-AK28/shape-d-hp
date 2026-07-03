@@ -239,6 +239,13 @@ export const topHero = {
      * コンテンツと一貫して動く（#312 で velocity-skew 無効化後も安全）。
      */
     pin: { start: 'top top', end: '+=120%', scrub: 1, pinType: 'transform' },
+    /**
+     * タイムライン各トゥイーンの duration。参照HTMLは GSAP 既定（0.5s）に依存するが、
+     * 本アプリは configureGsapDefaults() が duration を 1.4s に設定するため、明示しないと
+     * position（0.5/0.72/0.6）に対する総尺が変わりラベル出現のスクロール割合がズレる。
+     * 0.5 を明示して参照HTMLの尺比を再現する。
+     */
+    tweenDuration: 0.5,
     /** 円の収束: xPercent ±84（参照HTML L932-L933） */
     idealXPercent: 84,
     realXPercent: -84,

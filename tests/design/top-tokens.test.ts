@@ -87,6 +87,8 @@ describe('top page renewal tokens (#303)', () => {
     expect(topHero.theory.labelAt).toBe(0.72);
     expect(topHero.theory.borderAt).toBe(0.5);
     expect(topHero.theory.dimAt).toBe(0.6);
+    // 参照HTMLの尺比再現用に既定 duration を 0.5 明示
+    expect(topHero.theory.tweenDuration).toBe(0.5);
   });
 
   it('defines rain canvas constants matching the reference HTML (#304)', () => {
