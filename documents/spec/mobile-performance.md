@@ -65,7 +65,7 @@ GSAP を使う全コンポーネントが `useGsapContext` を通じているた
 | `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示。**モバイル（`profile.isMobile`）は SPA クライアント遷移でも即時表示**（#151）。デスクトップのみ 2 回目以降のルート遷移で fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
 | Micro-interactions | ナビ `.nav-link` とボタン hover は opacity 変化のみ（magnetic effect なし）。タッチ端末・`prefers-reduced-motion` では hover opacity 無効。`:focus-visible` でキーボードフォーカスリング |
 | `Navigation`（モバイル） | `px-4 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-3`、ロゴ `height=36`、ハンバーガー `44×44px` タップ領域。デスクトップは `px-6 pt-[max(1.25rem,env(safe-area-inset-top,0px))] pb-5`・ロゴ `height=48` を維持（Issue #74）。`viewport-fit=cover` 有効時にノッチ/Dynamic Island と重複しないよう上部パディングを `safe-area-inset-top` に応じて伸長（Issue #162） |
-| フォント | `next/font` で Cormorant Garamond + Noto Serif JP を preload（`app/layout.tsx`） |
+| フォント | `next/font` — Cormorant Garamond（`app/layout.tsx`、latin preload）+ Noto Serif JP（`app/(site)/layout.tsx`、下層限定 — #326 でルートから移設しトップでは非ロード）。トップ限定フォントは `components/top/top-fonts.ts`（日本語フォントは `preload: false` 必須 — 全 unicode-range スライス preload 化を防ぐ） |
 | GSAP | tree-shaking: `gsap` + `gsap/ScrollTrigger` のみ import。bundle 目安 ~38KB（Lenis ~8KB + GSAP ~30KB） |
 | 画像 | 参照中の PNG のみ `npm run optimize:images` で WebP 化し、表示参照を `.webp` に切替 |
 
