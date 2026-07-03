@@ -222,6 +222,11 @@ export const topHero = {
     scrub: 0.8,
     start: 'top 70%',
     end: 'center center',
+    /**
+     * 各文字トゥイーンの duration。参照HTMLは GSAP 既定（0.5s）に依存するが、本アプリは
+     * configureGsapDefaults() が 1.4s を設定するため、明示しないと文字送りの尺比がズレる（#313）。
+     */
+    tweenDuration: 0.5,
   },
   /** 課題提起 #pain の行フェードイン — 参照HTML L913-L923 */
   pain: {

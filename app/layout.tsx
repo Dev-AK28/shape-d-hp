@@ -24,10 +24,28 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
+const SITE_TITLE = 'SHAPE∞D — 想いを、動くかたちに。自己一致 × AIエンジニアリング';
+const SITE_DESCRIPTION =
+  '機能だけなら、誰でもつくれる。私たちは、想いまで実装する。SHAPE∞Dは、会社の「らしさ」を最大限反映したシステムをつくる、自己一致 × AIエンジニアリングのスタジオです。';
+
 export const metadata: Metadata = {
-  title: 'SHAPE∞D - AIで効率化し、本来の創造に集中する環境を作る',
-  description:
-    '最新のAIスタックによる、安全かつ圧倒的な開発速度の実現。AIエンジニア / 事業家としての提供価値',
+  // #313: 参照HTMLのタイトルへ更新 + OGP / Twitter カード整備
+  metadataBase: new URL('https://www.shape-d.com'),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    locale: 'ja_JP',
+    url: '/',
+    siteName: 'SHAPE∞D',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

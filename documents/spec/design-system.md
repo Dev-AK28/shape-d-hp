@@ -4,6 +4,16 @@
 
 dark/minimal なビジュアル言語を Design Token として SSOT 化する。
 
+## トップページの仕上げ（#313）
+
+- **meta / OGP**（`app/layout.tsx`）: タイトルを参照HTMLの「SHAPE∞D — 想いを、動くかたちに。自己一致 × AIエンジニアリング」へ更新。`metadataBase` = `https://www.shape-d.com`、`openGraph`（type/locale/siteName/url）+ `twitter`（`summary_large_image`）を整備。
+- **OGP 画像**（`app/opengraph-image.tsx`）: `next/og` の `ImageResponse` で 1200×630 を動的生成（ink 背景 / moon 文字 / rain 色の ∞）。Satori のフォント読込回避のため英字・記号のみ。
+- **レスポンシブ**: 375 / 640 / 768 / 1280px で全セクション（円の重なり・pinned パネル含む）に横あふれが無いことを E2E（`e2e/top-responsive.spec.ts`）で担保。
+- **キーボードフォーカス**: ナビ下層リンク / ご相談 CTA / CTA ボタンに `:focus-visible` の `--rain` アウトライン。Tab 順で主要導線に到達することを E2E で確認。
+- **雨 Canvas の省電力**（#313）: `IntersectionObserver` + `visibilitychange` でヒーローが画面外・タブ非アクティブのとき rAF を停止。
+- **文字送りの尺**（#313）: PHILOSOPHY タグライン scrub の tween に `duration: 0.5` を明示し、`configureGsapDefaults()` の 1.4 の影響を打ち消して参照HTMLの尺比を再現。
+- **Lighthouse**: CI（mobile / 閾値 0.7）で Performance **80**（通過）。受け入れ条件の 90 到達に向けたフォント最適化・コード分割は **#326** で追跡。Accessibility は focus-visible / aria 実装で担保。
+
 ## トップページのアニメーション制御（#312）
 
 参照HTML（L611-L617, L878-L896）に合わせ、トップページ（`/`）と下層ページで演出インフラを分岐する（2026-07-03 確定）。SSOT は `lib/scroll/lenis-config.ts`（`getPageScrollProfile`）。

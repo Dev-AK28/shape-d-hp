@@ -68,6 +68,8 @@ describe('top page renewal tokens (#303)', () => {
     expect(topHero.taglineScrub.scrub).toBe(0.8);
     expect(topHero.taglineScrub.start).toBe('top 70%');
     expect(topHero.taglineScrub.end).toBe('center center');
+    // #313: 既定 1.4 の影響を打ち消し参照HTMLの尺比を再現するため duration を 0.5 明示
+    expect(topHero.taglineScrub.tweenDuration).toBe(0.5);
   });
 
   it('defines pain-line reveal constants matching the reference HTML (#306)', () => {

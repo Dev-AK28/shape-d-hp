@@ -19,6 +19,8 @@ export default function TopPhilosophy() {
     const { taglineScrub } = topHero;
     gsap.to('#vision .vision-tagline .w', {
       opacity: 1,
+      // 既定 duration 1.4 の影響を打ち消し、参照HTMLの尺比を再現（#313）
+      duration: taglineScrub.tweenDuration,
       stagger: taglineScrub.stagger,
       ease: 'none',
       scrollTrigger: {
