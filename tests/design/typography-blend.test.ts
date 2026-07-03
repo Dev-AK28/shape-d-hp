@@ -49,11 +49,12 @@ describe('typographyBlend tokens (Issue #101)', () => {
     expect(heroSource).toContain('logoScrollHidden');
   });
 
-  it('applies cosmic blend to Hero heading and lead copy', () => {
-    expect(pageSource).toContain('typographyBlend.classCosmic');
-    expect(pageSource).toContain('typographyBlend.testIdCosmic');
-    // className に typographyBlend.classCosmic が含まれ、リード文が存在することを確認
-    // テンプレートリテラル／単独属性どちらの形式でも成立するよう汎化
+  it('wires cosmic blend + lead copy in the Hero component', () => {
+    // #304: トップページのヒーローは参照HTMLの #hero（TopHero）へ置換され、
+    // ink 背景に moon 色のソリッド表示を採る（cosmic blend は使わない）。
+    // このため app/page.tsx の cosmic-blend アサーションは廃止した。
+    // cosmic blend 自体は Hero コンポーネント（他所での利用余地あり）と PageHeader が引き続き保持する。
+    expect(pageSource).not.toContain('typographyBlend.classCosmic');
     expect(heroSource).toMatch(
       /typographyBlend\.classCosmic[\s\S]{0,200}爆速・安全・低コスト/,
     );

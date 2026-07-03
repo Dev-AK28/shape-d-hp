@@ -189,6 +189,27 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
   it('keeps safe-area-inset-top compensation in the top nav (#166 regression guard)', () => {
     expect(globalsCss).toMatch(/\.top-nav\s*\{[^}]*safe-area-inset-top/);
   });
+
+  it('defines hero section styles scoped to the top page (#304)', () => {
+    expect(globalsCss).toContain('.top-scope .top-hero');
+    expect(globalsCss).toContain('.top-scope #rain-canvas');
+    expect(globalsCss).toContain('.top-scope .hero-mark');
+    expect(globalsCss).toContain('.top-scope .hero-copy .line');
+    expect(globalsCss).toContain('.top-scope .hero-sub');
+    expect(globalsCss).toContain('.top-scope .scroll-cue');
+    // 雨 Canvas は opacity 0.5（参照HTML L130）
+    expect(globalsCss).toMatch(/\.top-scope #rain-canvas\s*\{[^}]*opacity:\s*0\.5/);
+    // ヒーロー要素はイントロ前 opacity:0（参照HTML L149/L163/L173/L183）
+    expect(globalsCss).toMatch(/\.top-scope \.hero-mark\s*\{[^}]*opacity:\s*0/);
+  });
+
+  it('forces hero elements visible under reduced-motion (#304 fallback)', () => {
+    // 参照HTML L611-L617 相当 — GSAP が走らない環境で全要素を即時表示
+    const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const heroReduced = reducedBlocks.find((b) => b.includes('.top-scope .hero-mark'));
+    expect(heroReduced, 'hero reduced-motion fallback block').toBeDefined();
+    expect(heroReduced).toContain('opacity: 1 !important');
+  });
 });
 
 describe('design token cross-layer sync', () => {

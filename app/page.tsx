@@ -1,34 +1,16 @@
-import Hero from '@/components/Hero';
 import About from '@/components/About';
 import MissionVision from '@/components/MissionVision';
 import HomePageShell from '@/components/home/HomePageShell';
 import ShowcaseSection from '@/components/home/ShowcaseSection';
 import TopShell from '@/components/top/TopShell';
-import { typographyBlend } from '@/lib/design/tokens';
-
-const heroH1ClassName = [
-  typographyBlend.classCosmic,
-  'text-[clamp(24px,4vw,40px)] type-font-serif-jp font-light',
-  'leading-[1.55] tracking-[0.04em] text-center text-balance',
-  'max-w-[var(--content-prose)] mx-auto mb-[var(--space-2)]',
-  'text-[color:var(--foreground)]',
-].join(' ');
+import TopHero from '@/components/top/TopHero';
 
 export default function Home() {
   return (
-    // 既存セクションは #304〜#311 で参照HTMLの各セクションへ順次差し替える（#303 は基盤のみ）
+    // #304 でヒーローを参照HTMLの #hero へ置換。残りの既存セクションは #305〜#311 で順次差し替える。
     <TopShell>
       <HomePageShell>
-        <Hero>
-          <h1
-            className={heroH1ClassName}
-            data-testid={typographyBlend.testIdCosmic}
-          >
-            AIで効率化し、
-            <br />
-            本来の創造に集中する環境を作る。
-          </h1>
-        </Hero>
+        <TopHero />
         <About />
         <MissionVision />
         <ShowcaseSection />
