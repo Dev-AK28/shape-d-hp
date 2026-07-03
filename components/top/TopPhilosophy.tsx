@@ -1,6 +1,5 @@
 'use client';
 
-import { useRef } from 'react';
 import { useGsapContext } from '@/lib/hooks/useGsapContext';
 import { gsap } from '@/lib/scroll/gsap-config';
 import { topHero } from '@/lib/design/tokens';
@@ -15,8 +14,7 @@ const TAGLINE = '商品・サービスは、自己表現のツールである。
  * globals.css の `.top-scope` フォールバックで全文字が即時表示される。
  */
 export default function TopPhilosophy() {
-  const rootRef = useRef<HTMLElement>(null);
-
+  // #vision はページ内で一意のため、useGsapContext 内でグローバルセレクタを用いる（scope ref は不要）。
   useGsapContext(() => {
     const { taglineScrub } = topHero;
     gsap.to('#vision .vision-tagline .w', {
@@ -33,7 +31,7 @@ export default function TopPhilosophy() {
   });
 
   return (
-    <section id="vision" ref={rootRef}>
+    <section id="vision">
       <div className="stage">
         <p className="eyebrow">
           <em>PHILOSOPHY</em>私たちの考え
