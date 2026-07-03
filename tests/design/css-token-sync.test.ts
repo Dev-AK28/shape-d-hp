@@ -210,6 +210,21 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(heroReduced, 'hero reduced-motion fallback block').toBeDefined();
     expect(heroReduced).toContain('opacity: 1 !important');
   });
+
+  it('defines philosophy (#vision) styles scoped to the top page (#305)', () => {
+    expect(globalsCss).toContain('.top-scope #vision');
+    expect(globalsCss).toContain('.top-scope .vision-tagline');
+    expect(globalsCss).toContain('.top-scope .vision-note');
+    // 文字送り前の初期 opacity 0.08（参照HTML L214）
+    expect(globalsCss).toMatch(/\.top-scope \.vision-tagline \.w\s*\{[^}]*opacity:\s*0\.08/);
+  });
+
+  it('forces tagline chars visible under reduced-motion (#305 fallback)', () => {
+    const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const block = reducedBlocks.find((b) => b.includes('.top-scope .vision-tagline .w'));
+    expect(block, 'philosophy reduced-motion fallback block').toBeDefined();
+    expect(block).toContain('opacity: 1 !important');
+  });
 });
 
 describe('design token cross-layer sync', () => {

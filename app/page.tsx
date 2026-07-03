@@ -4,13 +4,16 @@ import HomePageShell from '@/components/home/HomePageShell';
 import ShowcaseSection from '@/components/home/ShowcaseSection';
 import TopShell from '@/components/top/TopShell';
 import TopHero from '@/components/top/TopHero';
+import TopPhilosophy from '@/components/top/TopPhilosophy';
 
 export default function Home() {
   return (
-    // #304 でヒーローを参照HTMLの #hero へ置換。残りの既存セクションは #305〜#311 で順次差し替える。
+    // 参照HTMLの各セクションを順次追加中（#304 hero / #305 philosophy）。
+    // 残りの既存セクション（About / MissionVision / Showcase）は後続 issue で差し替え・撤去する。
     <TopShell>
       <HomePageShell>
         <TopHero />
+        <TopPhilosophy />
         <About />
         <MissionVision />
         <ShowcaseSection />

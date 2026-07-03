@@ -214,6 +214,15 @@ export const topHero = {
     /** .scroll-cue { opacity:1, duration:1.4 } at "-=0.8" */
     cue: { duration: 1.4, at: '-=0.8' },
   },
+  /** PHILOSOPHY タグラインの文字送り — 参照HTML L905-L911 */
+  taglineScrub: {
+    /** .vision-tagline .w の初期 opacity（参照HTML L214） */
+    opacityFrom: 0.08,
+    stagger: 0.05,
+    scrub: 0.8,
+    start: 'top 70%',
+    end: 'center center',
+  },
   /** 雨 Canvas — 参照HTML L816-L857。色は topColors.rain の rgb（125,156,196） */
   rain: {
     /** 線密度: offsetWidth / 26 本 */
