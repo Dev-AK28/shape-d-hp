@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getPageScrollProfile, isTopPagePath, topPageEasing, TOP_PAGE_PATH } from '@/lib/scroll/lenis-config';
+import { getPageScrollProfile, getScrollProfile, isTopPagePath, topPageEasing, TOP_PAGE_PATH } from '@/lib/scroll/lenis-config';
 
 /**
  * ページ別 Lenis スクロール設定 — Issue #312
@@ -29,6 +29,13 @@ describe('page scroll profile (#312)', () => {
       expect(profile.lenis.easing).toBeUndefined();
       expect(profile.velocitySkew).toBe(true);
     }
+  });
+
+  it('selects the profile by a top/sub boundary boolean (used as effect dep)', () => {
+    expect(getScrollProfile(true)).toEqual(getPageScrollProfile('/'));
+    expect(getScrollProfile(false)).toEqual(getPageScrollProfile('/services'));
+    // 下層はどのパスでも同一プロファイル（下層→下層で Lenis を再生成しないため）
+    expect(getPageScrollProfile('/services')).toEqual(getPageScrollProfile('/contact'));
   });
 
   it('reproduces the reference HTML easing (out-quart): t => 1 - (1-t)^4', () => {

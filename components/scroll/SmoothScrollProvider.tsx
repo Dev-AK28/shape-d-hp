@@ -12,7 +12,7 @@ import {
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
 import { VELOCITY_SKEW } from '@/lib/scroll/animation-tokens';
-import { getPageScrollProfile } from '@/lib/scroll/lenis-config';
+import { getScrollProfile, isTopPagePath } from '@/lib/scroll/lenis-config';
 
 type SmoothScrollProviderProps = {
   children: ReactNode;
@@ -21,6 +21,9 @@ type SmoothScrollProviderProps = {
 export default function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const { profile, isReady } = useDeviceProfile();
   const pathname = usePathname();
+  // スクロールプロファイルはトップ/下層でのみ変化する。下層ページ間の遷移で Lenis を
+  // 無駄に再生成（スクロールジャンプの原因）しないよう、境界（isTopPage）を effect の依存にする。
+  const isTopPage = isTopPagePath(pathname);
 
   useEffect(() => {
     if (!isReady) {
@@ -35,7 +38,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     }
 
     // #312: トップページは Lenis 1.8 + カスタム easing・velocity-skew なし。下層は 1.4 + skew。
-    const scrollProfile = getPageScrollProfile(pathname);
+    const scrollProfile = getScrollProfile(isTopPage);
 
     let lenis: InstanceType<Awaited<typeof import('lenis')>['default']> | undefined;
     let cancelled = false;
@@ -122,8 +125,9 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       skewSetter = null;
       skewTarget = null;
     };
-    // pathname 変更で scroll profile（トップ 1.8/skewなし ↔ 下層 1.4/skewあり）を再構築する
-  }, [isReady, profile, pathname]);
+    // トップ↔下層の境界変化でのみ scroll profile（1.8/skewなし ↔ 1.4/skewあり）を再構築する。
+    // 下層→下層の遷移では Lenis を保持し、スクロールジャンプを避ける。
+  }, [isReady, profile, isTopPage]);
 
   return <>{children}</>;
 }

@@ -28,9 +28,9 @@ export function isTopPagePath(pathname: string | null | undefined): boolean {
   return pathname === TOP_PAGE_PATH;
 }
 
-/** pathname に応じたスクロールプロファイルを返す（トップ: 1.8/skewなし、下層: 1.4/skewあり） */
-export function getPageScrollProfile(pathname: string | null | undefined): PageScrollProfile {
-  if (isTopPagePath(pathname)) {
+/** トップページか否かでスクロールプロファイルを返す（トップ: 1.8/skewなし、下層: 1.4/skewあり） */
+export function getScrollProfile(isTop: boolean): PageScrollProfile {
+  if (isTop) {
     return {
       lenis: { duration: 1.8, smoothWheel: true, easing: topPageEasing },
       velocitySkew: false,
@@ -40,4 +40,9 @@ export function getPageScrollProfile(pathname: string | null | undefined): PageS
     lenis: { duration: 1.4, smoothWheel: true },
     velocitySkew: true,
   };
+}
+
+/** pathname に応じたスクロールプロファイルを返す */
+export function getPageScrollProfile(pathname: string | null | undefined): PageScrollProfile {
+  return getScrollProfile(isTopPagePath(pathname));
 }
