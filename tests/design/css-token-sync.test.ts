@@ -244,6 +244,29 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(block).toContain('.top-scope .pain-close');
     expect(block).toContain('opacity: 1 !important');
   });
+
+  it('defines theory (#theory) circle styles scoped to the top page (#307)', () => {
+    expect(globalsCss).toContain('.top-scope #theory');
+    expect(globalsCss).toContain('.top-scope .circles');
+    expect(globalsCss).toContain('.top-scope .circle.ideal');
+    expect(globalsCss).toContain('.top-scope .circle.real');
+    expect(globalsCss).toContain('.top-scope .congruence-label');
+    // 円は初期位置（ideal 左 / real 右）に配置、congruence-label は初期 opacity:0
+    expect(globalsCss).toMatch(/\.top-scope \.circle\.ideal\s*\{[^}]*translate\(-118%, -50%\)/);
+    expect(globalsCss).toMatch(/\.top-scope \.circle\.real\s*\{[^}]*translate\(18%, -50%\)/);
+    expect(globalsCss).toMatch(/\.top-scope \.congruence-label\s*\{[^}]*opacity:\s*0/);
+    // 375px 等で円 160px に縮小
+    expect(globalsCss).toMatch(/@media \(max-width: 640px\)\s*\{[\s\S]*?\.top-scope \.circle\s*\{[^}]*width:\s*160px/);
+  });
+
+  it('shows theory converged state + label under reduced-motion (#307 fallback)', () => {
+    const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const block = reducedBlocks.find((b) => b.includes('.top-scope .congruence-label'));
+    expect(block, 'theory reduced-motion fallback block').toBeDefined();
+    // 円を中央へ寄せて収束状態を静的表示 + ラベル表示
+    expect(block).toContain('translate(-50%, -50%) !important');
+    expect(block).toMatch(/\.top-scope \.congruence-label\s*\{[^}]*opacity:\s*1 !important/);
+  });
 });
 
 describe('design token cross-layer sync', () => {

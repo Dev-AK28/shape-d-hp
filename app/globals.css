@@ -765,6 +765,120 @@ button:not(.nav-menu-button):hover {
   opacity: 0;
 }
 
+/* ---------- 04 theory (pinned circles) — 参照HTML L253-L324 ---------- */
+.top-scope #theory {
+  background: var(--ink-2);
+  /* 初期スプレッド状態の円がビューポート端を数 px 超えるため、セクション内に閉じ込める
+     （参照HTMLは body の overflow-x:hidden に依存。ここでは自己完結させて横スクロールを防ぐ）。 */
+  overflow: hidden;
+}
+
+.top-scope .theory-stage {
+  height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.top-scope .circles {
+  position: relative;
+  width: min(560px, 84vw);
+  height: 300px;
+  margin: 40px 0;
+}
+
+.top-scope .circle {
+  position: absolute;
+  top: 50%;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 1px solid var(--rain-dim);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--mist);
+}
+
+.top-scope .circle.ideal {
+  left: 50%;
+  transform: translate(-118%, -50%);
+}
+
+.top-scope .circle.real {
+  left: 50%;
+  transform: translate(18%, -50%);
+}
+
+.top-scope .congruence-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.top-scope .congruence-label b {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  color: var(--rain);
+}
+
+.top-scope .congruence-label small {
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--mist-dim);
+}
+
+.top-scope .theory-title {
+  font-family: var(--serif);
+  font-size: clamp(20px, 3.4vw, 32px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--moon);
+}
+
+.top-scope .theory-desc {
+  max-width: 580px;
+  font-size: 13px;
+  color: var(--mist);
+  line-height: 2.4;
+}
+
+.top-scope .theory-desc strong {
+  font-weight: 500;
+  color: var(--moon);
+}
+
+/* 375px 等: 円を 160px に縮小（参照HTML L605-L609） */
+@media (max-width: 640px) {
+  .top-scope .circle {
+    width: 160px;
+    height: 160px;
+    font-size: 10px;
+  }
+
+  .top-scope .circles {
+    height: 220px;
+  }
+}
+
 /* reduced-motion: イントロ／スクラブ／リビールを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
 @media (prefers-reduced-motion: reduce) {
   .top-scope .hero-mark,
@@ -780,6 +894,18 @@ button:not(.nav-menu-button):hover {
 
   .top-scope .scroll-cue .drop {
     animation: none;
+  }
+
+  /* #theory: pin なしで収束状態を静的表示（#307 受け入れ条件: ラベル含む全要素表示） */
+  .top-scope .circle.ideal,
+  .top-scope .circle.real {
+    transform: translate(-50%, -50%) !important;
+    border-color: var(--rain);
+    color: var(--mist-dim);
+  }
+
+  .top-scope .congruence-label {
+    opacity: 1 !important;
   }
 }
 

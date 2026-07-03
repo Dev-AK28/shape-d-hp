@@ -230,6 +230,32 @@ export const topHero = {
     /** .pain-close: opacity 0→1, duration 2, power2.out, trigger top 82% */
     close: { duration: 2, ease: 'power2.out', start: 'top 82%' },
   },
+  /** 自己一致 #theory の円収束 pinned scrub — 参照HTML L925-L936 */
+  theory: {
+    /**
+     * pin ScrollTrigger（trigger #theory / start top top / end +=120% / scrub 1）。
+     * pinType は 'transform' を明示: velocity-skew（[data-velocity-content] の transform）が
+     * 祖先に残るため、既定の position:fixed pin は破綻する。transform pin なら周囲の
+     * コンテンツと一貫して動く（#312 で velocity-skew 無効化後も安全）。
+     */
+    pin: { start: 'top top', end: '+=120%', scrub: 1, pinType: 'transform' },
+    /**
+     * タイムライン各トゥイーンの duration。参照HTMLは GSAP 既定（0.5s）に依存するが、
+     * 本アプリは configureGsapDefaults() が duration を 1.4s に設定するため、明示しないと
+     * position（0.5/0.72/0.6）に対する総尺が変わりラベル出現のスクロール割合がズレる。
+     * 0.5 を明示して参照HTMLの尺比を再現する。
+     */
+    tweenDuration: 0.5,
+    /** 円の収束: xPercent ±84（参照HTML L932-L933） */
+    idealXPercent: 84,
+    realXPercent: -84,
+    /** タイムライン position: border 強調 0.5 / label 0.72 / 円ラベル減光 0.6（参照HTML L934-L936） */
+    borderAt: 0.5,
+    labelAt: 0.72,
+    dimAt: 0.6,
+    borderColor: 'rgba(125,156,196,0.7)',
+    dimColor: 'rgba(139,147,161,0.25)',
+  },
   /** 雨 Canvas — 参照HTML L816-L857。色は topColors.rain の rgb（125,156,196） */
   rain: {
     /** 線密度: offsetWidth / 26 本 */
