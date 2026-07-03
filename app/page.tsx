@@ -3,6 +3,7 @@ import About from '@/components/About';
 import MissionVision from '@/components/MissionVision';
 import HomePageShell from '@/components/home/HomePageShell';
 import ShowcaseSection from '@/components/home/ShowcaseSection';
+import TopShell from '@/components/top/TopShell';
 import { typographyBlend } from '@/lib/design/tokens';
 
 const heroH1ClassName = [
@@ -15,20 +16,23 @@ const heroH1ClassName = [
 
 export default function Home() {
   return (
-    <HomePageShell>
-      <Hero>
-        <h1
-          className={heroH1ClassName}
-          data-testid={typographyBlend.testIdCosmic}
-        >
-          AIで効率化し、
-          <br />
-          本来の創造に集中する環境を作る。
-        </h1>
-      </Hero>
-      <About />
-      <MissionVision />
-      <ShowcaseSection />
-    </HomePageShell>
+    // 既存セクションは #304〜#311 で参照HTMLの各セクションへ順次差し替える（#303 は基盤のみ）
+    <TopShell>
+      <HomePageShell>
+        <Hero>
+          <h1
+            className={heroH1ClassName}
+            data-testid={typographyBlend.testIdCosmic}
+          >
+            AIで効率化し、
+            <br />
+            本来の創造に集中する環境を作る。
+          </h1>
+        </Hero>
+        <About />
+        <MissionVision />
+        <ShowcaseSection />
+      </HomePageShell>
+    </TopShell>
   );
 }
