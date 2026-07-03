@@ -13,7 +13,6 @@ const pageHeaderSource = readFileSync(
   join(process.cwd(), 'components/ui/PageHeader.tsx'),
   'utf8',
 );
-const heroSource = readFileSync(join(process.cwd(), 'components/Hero.tsx'), 'utf8');
 
 describe('typographyBlend tokens (Issue #101)', () => {
   it('defines screen blend for cosmic backgrounds', () => {
@@ -43,21 +42,11 @@ describe('typographyBlend tokens (Issue #101)', () => {
     expect(textRevealSource).toContain("blend = 'solid'");
   });
 
-  it('hides hero logo instantly at copy reveal start for cosmic typography blend', () => {
-    expect(heroSource).toContain('timeline.set');
-    expect(heroSource).toContain('logoOpacityHideAt * timelineDuration');
-    expect(heroSource).toContain('logoScrollHidden');
-  });
-
-  it('wires cosmic blend + lead copy in the Hero component', () => {
-    // #304: トップページのヒーローは参照HTMLの #hero（TopHero）へ置換され、
-    // ink 背景に moon 色のソリッド表示を採る（cosmic blend は使わない）。
-    // このため app/page.tsx の cosmic-blend アサーションは廃止した。
-    // cosmic blend 自体は Hero コンポーネント（他所での利用余地あり）と PageHeader が引き続き保持する。
+  it('does not use cosmic typography blend on the new top page (#316)', () => {
+    // #312/#316: 旧イマーシブ Hero を撤去し、トップページは参照デザインのみ。
+    // トップ（app/page.tsx）は cosmic blend を使わない。cosmic blend 自体は
+    // PageHeader（starBackground 時）が引き続き保持する。
     expect(pageSource).not.toContain('typographyBlend.classCosmic');
-    expect(heroSource).toMatch(
-      /typographyBlend\.classCosmic[\s\S]{0,200}爆速・安全・低コスト/,
-    );
   });
 
   it('enables cosmic blend on PageHeader when starBackground is set', () => {
