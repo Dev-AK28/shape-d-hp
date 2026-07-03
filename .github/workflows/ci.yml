@@ -96,5 +96,6 @@ jobs:
       - name: Lighthouse mobile performance
         run: npm run lighthouse:check
         env:
-          LIGHTHOUSE_MIN_PERFORMANCE: '0.7'
+          # #326: トップページの Performance 受け入れ条件（90 以上）を CI で強制する
+          LIGHTHOUSE_MIN_PERFORMANCE: '0.9'
           LIGHTHOUSE_WARMUP_PASSES: '3'
