@@ -1,13 +1,15 @@
 import { expect, test } from '@playwright/test';
 import { expectPainted, waitForHomePageReady } from './helpers';
 
+// #303: トップページは TopNav（参照HTMLビジュアル + 下層導線維持 — #314 暫定方針）。
+// 旧 Navigation は下層ページ（app/(site)/）でのみ表示される。
+// 「お問い合わせ」はトップのデスクトップナビでは「ご相談」CTA に置き換え。
 const NAV_ITEMS = [
-  { name: 'ホーム', href: '/', urlPattern: /\/$/ },
   { name: '商品・サービス', href: '/services', urlPattern: /\/services$/ },
   { name: '実績', href: '/works', urlPattern: /\/works$/ },
   { name: '制作の流れ', href: '/process', urlPattern: /\/process$/ },
   { name: '哲学', href: '/philosophy', urlPattern: /\/philosophy$/ },
-  { name: 'お問い合わせ', href: '/contact', urlPattern: /\/contact$/ },
+  { name: 'ご相談', href: '/contact', urlPattern: /\/contact$/ },
 ] as const;
 
 test.describe('Navigation', () => {
@@ -113,49 +115,36 @@ test.describe('Navigation mobile layout', () => {
   });
 
   /**
-   * Regression test for Issue #166 — Navigation safe-area-inset-top compensation.
+   * Regression test for Issue #166 — safe-area-inset-top compensation (TopNav 版 — #303).
    *
-   * Two assertions:
-   * 1. The inner div class attribute contains `safe-area-inset-top` — detects accidental
-   *    removal of the env() formula even when safe-area resolves to 0 in Playwright viewports.
-   * 2. Computed padding-top >= 12px — verifies no-notch baseline (max(0.75rem, 0) = 12px).
-   *
-   * Actual notch-device behaviour (safe-area > 0) is simulated via CSS injection in the
-   * companion test below. Playwright cannot control env() variables natively (#166).
+   * TopNav は Tailwind クラスではなく globals.css の .top-nav ルールで
+   * `padding-top: max(28px, env(safe-area-inset-top, 0px))` を適用する。
+   * env() 式の除去検知（静的ガード）は tests/design/css-token-sync.test.ts が担う。
+   * ここでは no-notch baseline（max(28px, 0) = 28px）を検証する。
    */
-  test('Navigation padding-top includes safe-area-inset-top formula (#166)', async ({ page }) => {
+  test('TopNav padding-top keeps safe-area baseline of 28px (#166 / #303)', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
     const nav = page.getByRole('navigation');
-    // The inner div carries the pt-[max(0.75rem,env(safe-area-inset-top,0px))] class.
-    // Use `> div` (direct child only) to avoid matching nested divs if the nav structure changes.
-    const innerDiv = nav.locator('> div').first();
-
-    const className = (await innerDiv.getAttribute('class')) ?? '';
-    expect(className).toContain('safe-area-inset-top');
-
-    // On standard Playwright viewport (safe-area = 0), padding-top == 0.75rem == 12px.
-    const paddingTop = await innerDiv.evaluate(
+    const paddingTop = await nav.evaluate(
       (el) => parseFloat(getComputedStyle(el).paddingTop),
     );
-    expect(paddingTop).toBeGreaterThanOrEqual(12);
+    expect(paddingTop).toBeGreaterThanOrEqual(28);
   });
 
   /**
-   * CSS-injection simulation for Issue #166 — notch scenario.
+   * CSS-injection simulation for Issue #166 — notch scenario (TopNav 版 — #303).
    *
    * env(safe-area-inset-top) is always 0 in standard Playwright viewports, so we inject
-   * an explicit padding-top (44px — typical iPhone notch/Dynamic Island clearance) via
-   * page.addStyleTag with !important to simulate a notch device. We then verify that the
-   * Navigation height grows beyond the no-notch baseline (<80px), confirming the layout
-   * correctly accommodates safe-area padding when it is non-zero.
+   * an explicit padding-top (88px — max(28px, 88px) 相当) via page.addStyleTag with
+   * !important to simulate a notch device, then verify the nav grows accordingly.
    *
    * NOTE: Production CSS does NOT use !important. This test cannot detect regressions
    * where a higher-specificity rule silently overrides the safe-area formula on real devices.
    * See Issue #166 for tracking.
    */
-  test('Navigation height grows with simulated safe-area-inset-top of 44px (#166)', async ({ page }) => {
+  test('TopNav height grows with simulated safe-area-inset-top (#166 / #303)', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
@@ -163,27 +152,23 @@ test.describe('Navigation mobile layout', () => {
     const baselineBox = await nav.boundingBox();
     expect(baselineBox, 'baseline nav must be rendered').not.toBeNull();
 
-    // Simulate env(safe-area-inset-top) = 44px (iPhone notch / Dynamic Island clearance).
-    // Override the inner div padding to max(0.75rem, 44px) = 44px.
-    // NOTE: <nav> carries role="navigation" implicitly; it does NOT have an explicit role attribute,
-    // so the selector must be `nav > div:first-child`, not `nav[role="navigation"] > div`.
+    // Simulate env(safe-area-inset-top) = 88px (> 28px baseline).
+    // transition: none — .top-nav は padding を 0.6s で transition するため、
+    // 遷移中の中間値を計測しないよう無効化する。
     await page.addStyleTag({
-      content: 'nav > div:first-child { padding-top: 44px !important; }',
+      content: '.top-nav { padding-top: 88px !important; transition: none !important; }',
     });
 
-    // Verify the injection was applied to the correct element (inner div) before measuring height.
-    // `nav > div:first-child` (CSS) and `nav.locator('> div').first()` (Playwright) target the same element.
-    const injectedPaddingTop = await nav.locator('> div').first().evaluate(
+    const injectedPaddingTop = await nav.evaluate(
       (el) => parseFloat(getComputedStyle(el).paddingTop),
     );
-    expect(injectedPaddingTop).toBe(44);
+    expect(injectedPaddingTop).toBe(88);
 
     const simulatedBox = await nav.boundingBox();
 
-    // With 44px padding (vs 12px baseline), the nav must be taller than the no-notch threshold.
     expect(simulatedBox?.height).toBeGreaterThan(80);
-    // Growth must be at least the injected delta (44 - 12 = 32px).
-    expect((simulatedBox?.height ?? 0) - (baselineBox?.height ?? 0)).toBeGreaterThanOrEqual(32);
+    // Growth must be at least the injected delta (88 - 28 = 60px).
+    expect((simulatedBox?.height ?? 0) - (baselineBox?.height ?? 0)).toBeGreaterThanOrEqual(60);
   });
 
   test('closes hamburger menu when viewport expands to 768px', async ({ page }) => {
