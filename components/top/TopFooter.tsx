@@ -10,7 +10,8 @@ const FOOTER_LINKS = [
 ] as const;
 
 /**
- * トップページ専用フッター — Issue #303（参照HTML L585-L598, L805-L808）
+ * トップページ専用フッター — Issue #303 / #311（参照HTML L585-L598, L805-L808）
+ * コピーライトは #311 で参照HTMLの文言へ確定。下層リンクは #314 暫定方針で維持。
  */
 export default function TopFooter() {
   return (
@@ -25,7 +26,7 @@ export default function TopFooter() {
           </li>
         ))}
       </ul>
-      <p className="top-footer-copy">© 2026 Kota Akashi. All rights reserved.</p>
+      <p className="top-footer-copy">© 2026 SHAPE∞D — self-congruence × ai engineering</p>
     </footer>
   );
 }
