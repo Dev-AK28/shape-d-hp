@@ -51,10 +51,11 @@ describe('TopPhilosophy', () => {
     expect(mockGsapTo).toHaveBeenCalledTimes(1);
     const [target, vars] = mockGsapTo.mock.calls[0] as [
       string,
-      { opacity: number; stagger: number; ease: string; scrollTrigger: Record<string, unknown> },
+      { opacity: number; duration: number; stagger: number; ease: string; scrollTrigger: Record<string, unknown> },
     ];
     expect(target).toBe('#vision .vision-tagline .w');
     expect(vars.opacity).toBe(1);
+    expect(vars.duration).toBe(topHero.taglineScrub.tweenDuration);
     expect(vars.stagger).toBe(topHero.taglineScrub.stagger);
     expect(vars.ease).toBe('none');
     expect(vars.scrollTrigger).toMatchObject({

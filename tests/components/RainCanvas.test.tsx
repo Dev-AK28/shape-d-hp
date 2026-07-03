@@ -22,8 +22,27 @@ import RainCanvas from '@/components/top/RainCanvas';
 type Ctx2D = ReturnType<HTMLCanvasElement['getContext']>;
 
 let ctxStub: Record<string, ReturnType<typeof vi.fn>>;
+let ioObserve: ReturnType<typeof vi.fn>;
+let ioDisconnect: ReturnType<typeof vi.fn>;
+let ioCallback: IntersectionObserverCallback | undefined;
 
 beforeEach(() => {
+  // jsdom は IntersectionObserver 未実装のためスタブ（#313: 画面外で rAF 停止）
+  ioObserve = vi.fn();
+  ioDisconnect = vi.fn();
+  ioCallback = undefined;
+  vi.stubGlobal(
+    'IntersectionObserver',
+    class {
+      constructor(cb: IntersectionObserverCallback) {
+        ioCallback = cb;
+      }
+      observe = ioObserve;
+      disconnect = ioDisconnect;
+      unobserve = vi.fn();
+      takeRecords = vi.fn();
+    },
+  );
   ctxStub = {
     clearRect: vi.fn(),
     beginPath: vi.fn(),
@@ -41,6 +60,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('RainCanvas', () => {
@@ -67,7 +87,27 @@ describe('RainCanvas', () => {
     const cancelSpy = vi.spyOn(window, 'cancelAnimationFrame');
     const { unmount } = render(<RainCanvas />);
     expect(rafSpy).toHaveBeenCalledTimes(1);
+    // 画面外監視の IntersectionObserver を canvas に張る
+    expect(ioObserve).toHaveBeenCalled();
     unmount();
     expect(cancelSpy).toHaveBeenCalledWith(42);
+    expect(ioDisconnect).toHaveBeenCalled();
+  });
+
+  it('pauses the rAF loop when the hero scrolls out of view and resumes when back (#313)', () => {
+    mockUseReducedMotion.mockReturnValue(false);
+    const cancelSpy = vi.spyOn(window, 'cancelAnimationFrame');
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(7);
+    render(<RainCanvas />);
+    expect(rafSpy).toHaveBeenCalledTimes(1);
+
+    // 画面外に出ると rAF を停止
+    ioCallback?.([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver);
+    expect(cancelSpy).toHaveBeenCalledWith(7);
+
+    // 再び画面内に入ると rAF を再開
+    rafSpy.mockClear();
+    ioCallback?.([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
+    expect(rafSpy).toHaveBeenCalledTimes(1);
   });
 });

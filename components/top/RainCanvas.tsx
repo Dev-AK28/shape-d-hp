@@ -75,6 +75,7 @@ export default function RainCanvas() {
     }
 
     let rafId = 0;
+    let inView = true;
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
       ctx.lineWidth = 1;
@@ -92,11 +93,47 @@ export default function RainCanvas() {
       });
       rafId = window.requestAnimationFrame(draw);
     };
-    rafId = window.requestAnimationFrame(draw);
 
+    // #313: ヒーローが画面外・タブ非アクティブのときは rAF を止めて CPU/バッテリーを節約する。
+    const start = () => {
+      if (!rafId && inView && !document.hidden) {
+        rafId = window.requestAnimationFrame(draw);
+      }
+    };
+    const stop = () => {
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+    };
+
+    let observer: IntersectionObserver | undefined;
+    if (typeof IntersectionObserver !== 'undefined') {
+      observer = new IntersectionObserver((entries) => {
+        inView = entries[0]?.isIntersecting ?? true;
+        if (inView) {
+          start();
+        } else {
+          stop();
+        }
+      });
+      observer.observe(canvas);
+    }
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        start();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    start();
     window.addEventListener('resize', buildDrops);
     return () => {
-      window.cancelAnimationFrame(rafId);
+      stop();
+      observer?.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('resize', buildDrops);
     };
   }, [reduceMotion]);
