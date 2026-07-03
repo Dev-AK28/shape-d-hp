@@ -337,6 +337,23 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     // ドット即時点灯
     expect(block).toMatch(/\.top-scope \.converge circle\s*\{[^}]*opacity:\s*1 !important/);
   });
+
+  it('defines cta (#cta) styles with hover fill + focus-visible (#311)', () => {
+    expect(globalsCss).toContain('.top-scope #cta');
+    expect(globalsCss).toContain('.top-scope .cta-copy');
+    expect(globalsCss).toContain('.top-scope .cta-note');
+    expect(globalsCss).toContain('.top-scope .cta-button');
+    // 背景は ink→ink-3 グラデーション（参照HTML L539）
+    expect(globalsCss).toMatch(/\.top-scope #cta\s*\{[^}]*linear-gradient\(to bottom, var\(--ink\), var\(--ink-3\)\)/);
+    // ホバーで rain 背景が左から scaleX（::after transform-origin: left → scaleX(1)）
+    expect(globalsCss).toMatch(/\.top-scope \.cta-button::after\s*\{[^}]*transform:\s*scaleX\(0\)/);
+    expect(globalsCss).toMatch(/\.top-scope \.cta-button::after\s*\{[^}]*transform-origin:\s*left/);
+    expect(globalsCss).toMatch(/\.top-scope \.cta-button:hover::after\s*\{[^}]*transform:\s*scaleX\(1\)/);
+    // ホバーで文字色が ink に反転
+    expect(globalsCss).toMatch(/\.top-scope \.cta-button:hover\s*\{[^}]*color:\s*var\(--ink\)/);
+    // focus-visible で rain アウトライン
+    expect(globalsCss).toMatch(/\.top-scope \.cta-button:focus-visible\s*\{[^}]*outline:\s*1px solid var\(--rain\)/);
+  });
 });
 
 describe('design token cross-layer sync', () => {

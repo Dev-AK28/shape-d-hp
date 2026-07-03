@@ -10,11 +10,13 @@ import TopTheory from '@/components/top/TopTheory';
 import TopServices from '@/components/top/TopServices';
 import TopProcess from '@/components/top/TopProcess';
 import TopProfile from '@/components/top/TopProfile';
+import TopCta from '@/components/top/TopCta';
 
 export default function Home() {
   return (
-    // 参照HTMLの各セクションを順次追加中（#304 hero / #305 philosophy / #306 pain / #307 theory / #308 services / #309 process / #310 profile）。
-    // 残りの既存セクション（About / MissionVision / Showcase）は後続 issue で差し替え・撤去する。
+    // 参照HTMLの各セクション（hero〜CTA）を実装済み（#304〜#311）。
+    // 旧セクション（About / MissionVision / Showcase）は参照側で置換済みだが、既存の回帰テストが
+    // 結びついているため据え置き、HomePageShell（cosmic 背景）ごとの撤去は #316 / #312 で行う。
     <TopShell>
       <HomePageShell>
         <TopHero />
@@ -27,6 +29,7 @@ export default function Home() {
         <About />
         <MissionVision />
         <ShowcaseSection />
+        <TopCta />
       </HomePageShell>
     </TopShell>
   );

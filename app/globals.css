@@ -1154,6 +1154,77 @@ button:not(.nav-menu-button):hover {
   }
 }
 
+/* ---------- 08 cta — 参照HTML L537-L583 ---------- */
+.top-scope #cta {
+  background: linear-gradient(to bottom, var(--ink), var(--ink-3));
+  min-height: 90vh;
+}
+
+.top-scope .cta-copy {
+  font-family: var(--serif);
+  font-size: clamp(24px, 4.4vw, 42px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 2.2;
+  color: var(--moon);
+}
+
+.top-scope .cta-note {
+  margin-top: 36px;
+  font-size: 12.5px;
+  color: var(--mist);
+  max-width: 520px;
+  line-height: 2.4;
+}
+
+.top-scope .cta-button {
+  margin-top: 64px;
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  color: var(--moon);
+  text-decoration: none;
+  border: 1px solid var(--rain-dim);
+  padding: 22px 64px;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.6s ease;
+  z-index: 1;
+}
+
+.top-scope .cta-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--rain);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: -1;
+}
+
+.top-scope .cta-button:hover {
+  color: var(--ink);
+}
+
+.top-scope .cta-button:hover::after {
+  transform: scaleX(1);
+}
+
+.top-scope .cta-button:focus-visible {
+  outline: 1px solid var(--rain);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-scope .cta-button,
+  .top-scope .cta-button::after {
+    transition: none;
+  }
+}
+
 /* reduced-motion: イントロ／スクラブ／リビールを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
 @media (prefers-reduced-motion: reduce) {
   .top-scope .hero-mark,
