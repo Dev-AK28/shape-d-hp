@@ -47,8 +47,11 @@ export default function TopHero() {
     <section id="hero" ref={rootRef} className="top-hero">
       <RainCanvas />
       <div className="hero-inner">
-        <h1 className="hero-mark">
-          SHAPE<span className="inf">∞</span>D
+        {/* aria-label で「SHAPE インフィニティ D」等の読み上げブレを防ぎ、ブランド名として読ませる */}
+        <h1 className="hero-mark" aria-label="SHAPE∞D">
+          <span aria-hidden="true">
+            SHAPE<span className="inf">∞</span>D
+          </span>
         </h1>
         <p className="hero-copy">
           <span className="line">機能だけなら、誰でもつくれる。</span>
