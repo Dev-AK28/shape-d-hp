@@ -965,6 +965,64 @@ button:not(.nav-menu-button):hover {
   background: var(--rain);
 }
 
+/* ---------- 06 process (vertical timeline) — 参照HTML L391-L433 ---------- */
+.top-scope #process {
+  background: linear-gradient(to bottom, var(--ink-2), var(--ink));
+}
+
+.top-scope .steps {
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+  width: 100%;
+  text-align: left;
+}
+
+.top-scope .step {
+  position: relative;
+  padding: 36px 0 36px 52px;
+  border-left: 1px solid var(--hairline);
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.top-scope .step::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 48px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rain);
+}
+
+.top-scope .step-num {
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--rain);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.top-scope .step-title {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--moon);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.top-scope .step-desc {
+  font-size: 12.5px;
+  color: var(--mist);
+  line-height: 2.2;
+}
+
 /* reduced-motion: イントロ／スクラブ／リビールを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
 @media (prefers-reduced-motion: reduce) {
   .top-scope .hero-mark,
@@ -973,7 +1031,8 @@ button:not(.nav-menu-button):hover {
   .top-scope .scroll-cue,
   .top-scope .vision-tagline .w,
   .top-scope .pain-line,
-  .top-scope .pain-close {
+  .top-scope .pain-close,
+  .top-scope .step {
     opacity: 1 !important;
     transform: none !important;
   }
