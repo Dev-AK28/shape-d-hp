@@ -730,13 +730,50 @@ button:not(.nav-menu-button):hover {
   line-height: 2.4;
 }
 
-/* reduced-motion: イントロ／スクラブを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
+/* ---------- 03 pain — 参照HTML L224-L251 ---------- */
+.top-scope #pain {
+  background: linear-gradient(to bottom, var(--ink), var(--ink-2));
+}
+
+.top-scope .pain-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+  max-width: 660px;
+}
+
+.top-scope .pain-line {
+  font-family: var(--serif);
+  font-size: clamp(16px, 2.6vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--mist);
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.top-scope .pain-line strong {
+  font-weight: 500;
+  color: var(--moon);
+}
+
+.top-scope .pain-close {
+  margin-top: 72px;
+  font-size: 12px;
+  letter-spacing: 0.34em;
+  color: var(--rain);
+  opacity: 0;
+}
+
+/* reduced-motion: イントロ／スクラブ／リビールを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
 @media (prefers-reduced-motion: reduce) {
   .top-scope .hero-mark,
   .top-scope .hero-copy .line,
   .top-scope .hero-sub,
   .top-scope .scroll-cue,
-  .top-scope .vision-tagline .w {
+  .top-scope .vision-tagline .w,
+  .top-scope .pain-line,
+  .top-scope .pain-close {
     opacity: 1 !important;
     transform: none !important;
   }
