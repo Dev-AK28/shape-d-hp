@@ -267,6 +267,30 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(block).toContain('translate(-50%, -50%) !important');
     expect(block).toMatch(/\.top-scope \.congruence-label\s*\{[^}]*opacity:\s*1 !important/);
   });
+
+  it('defines services (#services) panel styles scoped to the top page (#308)', () => {
+    expect(globalsCss).toContain('.top-scope #services');
+    expect(globalsCss).toContain('.top-scope .svc-stage');
+    expect(globalsCss).toContain('.top-scope .svc-panel');
+    expect(globalsCss).toContain('.top-scope .svc-progress');
+    expect(globalsCss).toContain('.top-scope .svc-dot.on');
+    // パネルは絶対配置で重ね、初期は非表示（先頭のみ表示）— 参照HTML L333-L344
+    expect(globalsCss).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*position:\s*absolute/);
+    expect(globalsCss).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*visibility:\s*hidden/);
+    expect(globalsCss).toMatch(/\.top-scope \.svc-panel:first-of-type\s*\{[^}]*visibility:\s*visible/);
+    // アウトライン数字（text-stroke）
+    expect(globalsCss).toMatch(/\.top-scope \.svc-num\s*\{[^}]*text-stroke:\s*1px var\(--rain-dim\)/);
+  });
+
+  it('stacks service panels vertically under reduced-motion (#308 fallback)', () => {
+    const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const block = reducedBlocks.find((b) => b.includes('.top-scope .svc-panel'));
+    expect(block, 'services reduced-motion fallback block').toBeDefined();
+    // 各パネルを relative + min-height 100vh で縦積み、全表示
+    expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*position:\s*relative/);
+    expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*min-height:\s*100vh/);
+    expect(block).toContain('visibility: visible !important');
+  });
 });
 
 describe('design token cross-layer sync', () => {

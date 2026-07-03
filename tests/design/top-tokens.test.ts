@@ -91,6 +91,19 @@ describe('top page renewal tokens (#303)', () => {
     expect(topHero.theory.tweenDuration).toBe(0.5);
   });
 
+  it('defines services pinned-panel constants matching the reference HTML (#308)', () => {
+    expect(topHero.services.pin).toEqual({ start: 'top top', scrub: 0.8, pinType: 'transform' });
+    // end = +=(panels × 90)%（参照HTML L944）
+    expect(topHero.services.panelStepPercent).toBe(90);
+    // クロスフェード（参照HTML L956-L957）
+    expect(topHero.services.transitionDuration).toBe(0.35);
+    expect(topHero.services.fadeOutY).toBe(-30);
+    expect(topHero.services.fadeInYFrom).toBe(30);
+    expect(topHero.services.fadeInOffset).toBe(0.15);
+    expect(topHero.services.firstRevealDuration).toBe(0.001);
+    expect(topHero.services.tailDuration).toBe(0.6);
+  });
+
   it('defines rain canvas constants matching the reference HTML (#304)', () => {
     // Math.floor(offsetWidth / 26) — 参照HTML L825
     expect(topHero.rain.columnWidthPx).toBe(26);
