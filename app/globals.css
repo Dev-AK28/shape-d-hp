@@ -283,6 +283,323 @@ button:not(.nav-menu-button):hover {
   }
 }
 
+/* ══ Top page renewal scope — Issue #303 (SSOT: lib/design/shape-d-prototype-v4.html) ══
+   新フォント・新カラートークンはトップページ限定（.top-scope 配下）。既存トークンと並存し、
+   下層ページには影響しない（#302 基本方針 2026-07-03 確定）。
+   トークン値は lib/design/tokens.ts の topColors / topFontCssVars と css-token-sync テストで同期。 */
+.top-scope {
+  --ink: #07090d;
+  --ink-2: #0b0e15;
+  --ink-3: #10141d;
+  --moon: #dfe3ea;
+  --mist: #8b93a1;
+  --mist-dim: #545c6a;
+  --rain: #7d9cc4;
+  --rain-dim: rgba(125, 156, 196, 0.35);
+  --hairline: rgba(139, 147, 161, 0.16);
+
+  /* next/font 変数（components/top/top-fonts.ts）へ解決。--latin は既存 Cormorant を流用 */
+  --serif: var(--font-shippori-mincho), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  --gothic: var(--font-zen-kaku-gothic-new), 'Hiragino Kaku Gothic ProN', sans-serif;
+  --latin: var(--font-display), serif;
+  --mono: var(--font-jetbrains-mono), monospace;
+
+  background: var(--ink);
+  color: var(--moon);
+  font-family: var(--gothic);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 2;
+  min-height: 100svh;
+}
+
+.top-scope ::selection {
+  background: var(--rain-dim);
+  color: var(--moon);
+}
+
+/* 参照HTMLでは見出しに --serif（Shippori Mincho）を使用 */
+.top-scope :is(h1, h2, h3) {
+  font-family: var(--serif);
+}
+
+.top-scope a:focus-visible {
+  outline: 1px solid var(--rain);
+  outline-offset: 4px;
+}
+
+/* ---------- thread of rain (signature) — 参照HTML L45-L56 ---------- */
+#thread {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100vh;
+  background: linear-gradient(to bottom, transparent, var(--rain) 30%, var(--rain) 70%, transparent);
+  opacity: 0.28;
+  transform-origin: top center;
+  transform: scaleY(0);
+  pointer-events: none;
+  /* 参照HTMLは z-index: 2（セクションは z auto）。既存 main が z-10 のため、
+     コンテンツより上に描画する参照挙動を保つには 10 超が必要。nav (z-50) より下 */
+  z-index: 20;
+}
+
+/* ---------- top nav — 参照HTML L58-L94 + 下層導線維持（#314 暫定方針） ---------- */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 48px;
+  padding-top: max(28px, env(safe-area-inset-top, 0px));
+  transition: padding 0.6s ease, background 0.6s ease, backdrop-filter 0.6s ease;
+}
+
+.top-nav.scrolled {
+  padding: 16px 48px;
+  padding-top: max(16px, env(safe-area-inset-top, 0px));
+  background: rgba(7, 9, 13, 0.72);
+  /* -webkit- prefix は Lightning CSS が自動生成する（手書きすると標準プロパティが除去される） */
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.top-nav-mark {
+  font-family: var(--latin);
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: 0.34em;
+  color: var(--moon);
+  text-decoration: none;
+}
+
+.top-nav-mark span {
+  color: var(--rain);
+}
+
+.top-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.top-nav-link {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--mist);
+  text-decoration: none;
+  transition: color 0.5s ease;
+}
+
+.top-nav-link:hover {
+  color: var(--moon);
+}
+
+.top-nav-cta {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--mist);
+  text-decoration: none;
+  border: 1px solid var(--hairline);
+  padding: 10px 22px;
+  border-radius: 2px;
+  transition: color 0.5s ease, border-color 0.5s ease;
+}
+
+.top-nav-cta:hover {
+  color: var(--moon);
+  border-color: var(--rain-dim);
+}
+
+.top-nav-menu-button {
+  display: none;
+}
+
+/* ---------- top mobile menu ---------- */
+@media (max-width: 767px) {
+  .top-nav-links {
+    display: none;
+  }
+
+  .top-nav-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    /* 44px タップ領域を確保しつつレイアウト上は 20px に抑え、モバイル nav 高を 80px 未満に保つ */
+    margin: -12px 0;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .top-nav-menu-icon {
+    position: relative;
+    width: 24px;
+    height: 14px;
+  }
+
+  .top-nav-menu-icon span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--moon);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .top-nav-menu-icon span:nth-child(1) {
+    top: 0;
+  }
+
+  .top-nav-menu-icon span:nth-child(2) {
+    bottom: 0;
+  }
+
+  .top-nav-menu-button[aria-expanded='true'] .top-nav-menu-icon span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+
+  .top-nav-menu-button[aria-expanded='true'] .top-nav-menu-icon span:nth-child(2) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  .top-nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(7, 9, 13, 0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
+    padding: 12px 20px 24px;
+  }
+
+  .top-nav-menu a {
+    display: block;
+    padding: 16px 0;
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    color: var(--mist);
+    text-decoration: none;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .top-nav-menu a:hover {
+    color: var(--moon);
+  }
+}
+
+@media (max-width: 640px) {
+  .top-nav,
+  .top-nav.scrolled {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+/* ---------- shared layout / typography — 参照HTML L96-L123 ---------- */
+.top-scope section {
+  position: relative;
+}
+
+.top-scope .stage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 24px;
+  text-align: center;
+}
+
+.top-scope .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  color: var(--mist-dim);
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+.top-scope .eyebrow em {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--rain);
+  letter-spacing: 0.4em;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* ---------- top footer — 参照HTML L585-L598 + 下層導線（#314 暫定 / #311 で最終化） ---------- */
+.top-footer {
+  position: relative;
+  /* 既存セクション残存中は fixed CosmicScene (z-0) より上に描画する（#97 と同趣旨） */
+  z-index: 20;
+  padding: 56px 24px;
+  text-align: center;
+  border-top: 1px solid var(--hairline);
+  background: var(--ink-3);
+}
+
+.top-footer-mark {
+  font-family: var(--latin);
+  font-size: 14px;
+  letter-spacing: 0.4em;
+  color: var(--mist-dim);
+}
+
+.top-footer-mark span {
+  color: var(--rain-dim);
+}
+
+.top-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 24px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.top-footer-links a {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--mist);
+  text-decoration: none;
+  transition: color 0.5s ease;
+}
+
+.top-footer-links a:hover {
+  color: var(--moon);
+}
+
+.top-footer-copy {
+  margin-top: 14px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--mist-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-nav,
+  .top-nav-link,
+  .top-nav-cta,
+  .top-nav-menu-icon span,
+  .top-footer-links a {
+    transition: none;
+  }
+}
+
 /* ── Hero CLS prevention: coarse-pointer + reduced-motion (Issue #149) ──────── */
 /* On touch-primary large screens (iPad Pro, large Android tablets) with
    prefers-reduced-motion, the JS mobileStaticHero flag switches Hero from

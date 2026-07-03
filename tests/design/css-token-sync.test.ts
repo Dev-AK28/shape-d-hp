@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cosmicGrade, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, typography, typographyBlend, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys } from '@/lib/design/tokens';
+import { colors, cosmicGrade, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, topColors, topColorCssVars, topFontCssVars, topNextFontCssVars, topShell, typography, typographyBlend, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   desktopMinWidthMediaQuery,
@@ -125,6 +125,69 @@ describe('design tokens ↔ globals.css sync', () => {
   it('mirrors mobile breakpoint in cursor fallback media query', () => {
     expect(mobileMaxWidthMediaQuery()).toBe(`(max-width: ${MOBILE_BREAKPOINT_PX - 1}px)`);
     expect(globalsCss).toContain(`(max-width: ${MOBILE_BREAKPOINT_PX - 1}px)`);
+  });
+});
+
+/**
+ * トップページ刷新（#302）基盤 — Issue #303
+ * 新トークンは既存トークンと並存し、`.top-scope` 配下（トップページ限定）でのみ使用する。
+ */
+describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
+  it('mirrors the top palette in CSS variables', () => {
+    for (const key of Object.keys(topColors) as Array<keyof typeof topColors>) {
+      expect(globalsCss).toContain(`${topColorCssVars[key]}: ${topColors[key]}`);
+    }
+  });
+
+  it('scopes the top palette under .top-scope (not :root)', () => {
+    const rootBlock = globalsCss.slice(0, globalsCss.indexOf('@tailwind base'));
+    expect(rootBlock).not.toContain('--ink:');
+    expect(globalsCss).toContain(`.${topShell.scopeClass} {`);
+  });
+
+  it('maps semantic font variables to next/font variables', () => {
+    expect(globalsCss).toContain(
+      `${topFontCssVars.serif}: var(${topNextFontCssVars.shipporiMincho})`,
+    );
+    expect(globalsCss).toContain(
+      `${topFontCssVars.gothic}: var(${topNextFontCssVars.zenKakuGothicNew})`,
+    );
+    expect(globalsCss).toContain(
+      `${topFontCssVars.latin}: var(${topNextFontCssVars.cormorantGaramond})`,
+    );
+    expect(globalsCss).toContain(
+      `${topFontCssVars.mono}: var(${topNextFontCssVars.jetBrainsMono})`,
+    );
+  });
+
+  it('applies the top base style (ink background / moon text / gothic body)', () => {
+    const scopeBlock = globalsCss.slice(globalsCss.indexOf(`.${topShell.scopeClass} {`));
+    expect(scopeBlock).toContain('background: var(--ink)');
+    expect(scopeBlock).toContain('color: var(--moon)');
+    expect(scopeBlock).toContain('font-family: var(--gothic)');
+  });
+
+  it('defines shared .stage / .eyebrow styles scoped to the top page', () => {
+    expect(globalsCss).toContain(`.${topShell.scopeClass} .stage`);
+    expect(globalsCss).toContain(`.${topShell.scopeClass} .eyebrow`);
+    expect(globalsCss).toContain(`.${topShell.scopeClass} .eyebrow em`);
+  });
+
+  it('defines the #thread signature line with scaleY(0) initial transform', () => {
+    expect(globalsCss).toMatch(/#thread\s*\{[^}]*transform:\s*scaleY\(0\)/);
+    expect(globalsCss).toMatch(/#thread\s*\{[^}]*transform-origin:\s*top center/);
+  });
+
+  it('defines top nav shrink styles with blur + hairline border', () => {
+    expect(globalsCss).toContain('.top-nav.scrolled');
+    expect(globalsCss).toMatch(/\.top-nav\.scrolled\s*\{[^}]*backdrop-filter:\s*blur\(14px\)/);
+    expect(globalsCss).toMatch(
+      /\.top-nav\.scrolled\s*\{[^}]*border-bottom:\s*1px solid var\(--hairline\)/,
+    );
+  });
+
+  it('keeps safe-area-inset-top compensation in the top nav (#166 regression guard)', () => {
+    expect(globalsCss).toMatch(/\.top-nav\s*\{[^}]*safe-area-inset-top/);
   });
 });
 
