@@ -312,6 +312,31 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(block, 'process reduced-motion fallback block').toBeDefined();
     expect(block).toContain('opacity: 1 !important');
   });
+
+  it('defines profile (#profile) styles scoped to the top page (#310)', () => {
+    expect(globalsCss).toContain('.top-scope #profile');
+    expect(globalsCss).toContain('.top-scope .profile-head');
+    expect(globalsCss).toContain('.top-scope .thoughts');
+    expect(globalsCss).toContain('.top-scope .thought');
+    expect(globalsCss).toContain('.top-scope .converge');
+    expect(globalsCss).toContain('.top-scope .creed');
+    // thoughts は 2 カラムグリッド、converge circle は初期 opacity:0
+    expect(globalsCss).toMatch(/\.top-scope \.thoughts\s*\{[^}]*grid-template-columns:\s*1fr 1fr/);
+    expect(globalsCss).toMatch(/\.top-scope \.converge circle\s*\{[^}]*opacity:\s*0/);
+    // 640px 以下で 1 カラム化 + converge 非表示
+    expect(globalsCss).toMatch(/@media \(max-width: 640px\)\s*\{[\s\S]*?\.top-scope \.thoughts\s*\{[^}]*grid-template-columns:\s*1fr\b/);
+    expect(globalsCss).toMatch(/@media \(max-width: 640px\)\s*\{[\s\S]*?\.top-scope \.converge\s*\{[^}]*display:\s*none/);
+  });
+
+  it('shows profile cards/dot/creed under reduced-motion (#310 fallback)', () => {
+    const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const block = reducedBlocks.find((b) => b.includes('.top-scope .profile-head'));
+    expect(block, 'profile reduced-motion fallback block').toBeDefined();
+    expect(block).toContain('.top-scope .thought');
+    expect(block).toContain('.top-scope .creed');
+    // ドット即時点灯
+    expect(block).toMatch(/\.top-scope \.converge circle\s*\{[^}]*opacity:\s*1 !important/);
+  });
 });
 
 describe('design token cross-layer sync', () => {

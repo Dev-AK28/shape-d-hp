@@ -1023,6 +1023,137 @@ button:not(.nav-menu-button):hover {
   line-height: 2.2;
 }
 
+/* ---------- 07 profile — 参照HTML L435-L535 ---------- */
+.top-scope #profile {
+  background: var(--ink);
+}
+
+.top-scope .profile-head {
+  margin-bottom: 72px;
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.top-scope .profile-head b {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 21px;
+  letter-spacing: 0.3em;
+  color: var(--moon);
+  display: block;
+}
+
+.top-scope .profile-head small {
+  display: block;
+  margin-top: 14px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--mist);
+  line-height: 2.2;
+}
+
+.top-scope .profile-head small span {
+  color: var(--mist-dim);
+}
+
+.top-scope .thoughts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 7vw, 96px);
+  max-width: 880px;
+  width: 100%;
+  text-align: left;
+}
+
+.top-scope .thought {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.top-scope .thought-tag {
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  color: var(--rain);
+  display: block;
+  margin-bottom: 20px;
+}
+
+.top-scope .thought-quote {
+  font-family: var(--serif);
+  font-size: clamp(17px, 2.4vw, 21px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 2.2;
+  color: var(--moon);
+  margin-bottom: 18px;
+}
+
+.top-scope .thought-desc {
+  font-size: 12.5px;
+  color: var(--mist);
+  line-height: 2.3;
+}
+
+.top-scope .converge {
+  width: min(880px, 100%);
+  margin-top: 8px;
+  display: block;
+}
+
+.top-scope .converge path {
+  fill: none;
+  stroke: var(--rain);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+
+.top-scope .converge circle {
+  fill: var(--rain);
+  opacity: 0;
+}
+
+.top-scope .creed {
+  margin-top: 40px;
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.top-scope .creed small {
+  display: block;
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--mist-dim);
+  margin-bottom: 22px;
+}
+
+.top-scope .creed b {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(19px, 3.2vw, 28px);
+  letter-spacing: 0.12em;
+  line-height: 2.2;
+  color: var(--moon);
+}
+
+@media (max-width: 640px) {
+  .top-scope .thoughts {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .top-scope .converge {
+    display: none;
+  }
+
+  .top-scope .creed {
+    margin-top: 56px;
+  }
+}
+
 /* reduced-motion: イントロ／スクラブ／リビールを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
 @media (prefers-reduced-motion: reduce) {
   .top-scope .hero-mark,
@@ -1032,9 +1163,17 @@ button:not(.nav-menu-button):hover {
   .top-scope .vision-tagline .w,
   .top-scope .pain-line,
   .top-scope .pain-close,
-  .top-scope .step {
+  .top-scope .step,
+  .top-scope .profile-head,
+  .top-scope .thought,
+  .top-scope .creed {
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  /* #profile 収束 SVG のドットは即時点灯（パスは dasharray 未設定のため全描画される） */
+  .top-scope .converge circle {
+    opacity: 1 !important;
   }
 
   .top-scope .scroll-cue .drop {
