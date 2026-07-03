@@ -90,9 +90,9 @@ test.describe('375px Home page mobile', () => {
     // is on screen, framer-motion may hold ancestor elements at opacity:0 and the
     // 200ms expectPainted window would fire too early and report a false failure.
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 10_000 });
-    // networkidle ensures React hydration and framer-motion's initial animate
-    // commit have settled before we sample opacity.
-    await page.waitForLoadState('networkidle');
+    // #310: 重くなったトップページでは CI の networkidle が不安定なため 'load' を用いる。
+    // framer-motion の初期 animate 反映は後続の expectPainted（toPass リトライ）が待機する。
+    await page.waitForLoadState('load');
 
     const aboutHeading = page.locator('h2').filter({ hasText: /^ABOUT$/ }).first();
     const visionHeading = page.locator('h2').filter({ hasText: /^VISION$/ }).first();

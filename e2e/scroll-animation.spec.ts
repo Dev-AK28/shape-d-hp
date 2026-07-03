@@ -28,7 +28,9 @@ test.describe('Scroll animations', () => {
   test('shows about timeline immediately under reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
     await expect(page.getByTestId('page-loader')).toHaveCount(0);
 
     const firstTimelineItem = page.locator('[data-timeline-item]').first();
@@ -41,7 +43,9 @@ test.describe('Scroll animations', () => {
   test('disables page loader under reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
 
     await expect(page.getByTestId('page-loader')).toHaveCount(0);
   });
@@ -59,7 +63,9 @@ test.describe('ShowcaseSection — smoke (#215)', () => {
   test('section と最初のカードが reduced-motion で表示される', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
 
     const section = page.locator('[aria-label="サービス紹介"]');
     await section.scrollIntoViewIfNeeded();
@@ -76,7 +82,9 @@ test.describe('ShowcaseSection — smoke (#215)', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
 
     await expect(page.locator('[data-showcase-card]')).toHaveCount(4, { timeout: 8000 });
 
@@ -115,14 +123,18 @@ test.describe('velocity skew target — SPA route transition (#185)', () => {
 
   test('[data-velocity-content] が初期ロード後に存在する', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
 
     await expect(page.locator('[data-velocity-content]')).toHaveCount(1);
   });
 
   test('[data-velocity-content] がルート遷移後も存在する', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
 
     await page.goto('/services');
     await page.waitForLoadState('networkidle');
@@ -203,7 +215,9 @@ test.describe('ShowcaseSection desktop horizontal scroll (#249)', () => {
 
   test('1スクロールで第2カードへ進む (GSAP pin+scrub が動作している)', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
 
     // Baseline: confirm all cards are rendered.
     await expect(page.locator('[data-showcase-card]')).toHaveCount(CARD_COUNT);
@@ -227,7 +241,9 @@ test.describe('ShowcaseSection desktop horizontal scroll (#249)', () => {
     test.setTimeout(60_000);
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // #310: トップページが重くなり CI で networkidle が 30s 以内に発火しないことがあるため
+    // 'load'（goto で発火済み・確実）に変更。後続アサーションが個別タイムアウトで実挙動を検証する。
+    await page.waitForLoadState('load');
 
     // Baseline: confirm card count.
     await expect(page.locator('[data-showcase-card]')).toHaveCount(CARD_COUNT);
