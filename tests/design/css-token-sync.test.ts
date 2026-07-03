@@ -225,6 +225,25 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(block, 'philosophy reduced-motion fallback block').toBeDefined();
     expect(block).toContain('opacity: 1 !important');
   });
+
+  it('defines pain (#pain) styles scoped to the top page (#306)', () => {
+    expect(globalsCss).toContain('.top-scope #pain');
+    expect(globalsCss).toContain('.top-scope .pain-line');
+    expect(globalsCss).toContain('.top-scope .pain-close');
+    // 背景は ink→ink-2 グラデーション（参照HTML L225）
+    expect(globalsCss).toMatch(/\.top-scope #pain\s*\{[^}]*linear-gradient\(to bottom, var\(--ink\), var\(--ink-2\)\)/);
+    // 行はリビール前 opacity:0 + translateY(24px)（参照HTML L238-L239）
+    expect(globalsCss).toMatch(/\.top-scope \.pain-line\s*\{[^}]*opacity:\s*0/);
+    expect(globalsCss).toMatch(/\.top-scope \.pain-line\s*\{[^}]*translateY\(24px\)/);
+  });
+
+  it('forces pain lines + close visible under reduced-motion (#306 fallback)', () => {
+    const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const block = reducedBlocks.find((b) => b.includes('.top-scope .pain-line'));
+    expect(block, 'pain reduced-motion fallback block').toBeDefined();
+    expect(block).toContain('.top-scope .pain-close');
+    expect(block).toContain('opacity: 1 !important');
+  });
 });
 
 describe('design token cross-layer sync', () => {

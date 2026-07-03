@@ -223,6 +223,13 @@ export const topHero = {
     start: 'top 70%',
     end: 'center center',
   },
+  /** 課題提起 #pain の行フェードイン — 参照HTML L913-L923 */
+  pain: {
+    /** .pain-line: opacity 0→1, y 24→0, duration 1.6, power2.out, trigger 各行 top 78% */
+    line: { duration: 1.6, ease: 'power2.out', yFrom: 24, start: 'top 78%' },
+    /** .pain-close: opacity 0→1, duration 2, power2.out, trigger top 82% */
+    close: { duration: 2, ease: 'power2.out', start: 'top 82%' },
+  },
   /** 雨 Canvas — 参照HTML L816-L857。色は topColors.rain の rgb（125,156,196） */
   rain: {
     /** 線密度: offsetWidth / 26 本 */

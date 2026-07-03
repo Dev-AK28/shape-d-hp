@@ -70,6 +70,13 @@ describe('top page renewal tokens (#303)', () => {
     expect(topHero.taglineScrub.end).toBe('center center');
   });
 
+  it('defines pain-line reveal constants matching the reference HTML (#306)', () => {
+    // .pain-line: duration 1.6, power2.out, y 24, trigger top 78% — 参照HTML L915-L918
+    expect(topHero.pain.line).toEqual({ duration: 1.6, ease: 'power2.out', yFrom: 24, start: 'top 78%' });
+    // .pain-close: duration 2, power2.out, trigger top 82% — 参照HTML L920-L923
+    expect(topHero.pain.close).toEqual({ duration: 2, ease: 'power2.out', start: 'top 82%' });
+  });
+
   it('defines rain canvas constants matching the reference HTML (#304)', () => {
     // Math.floor(offsetWidth / 26) — 参照HTML L825
     expect(topHero.rain.columnWidthPx).toBe(26);
