@@ -4,6 +4,25 @@
 
 dark/minimal なビジュアル言語を Design Token として SSOT 化する。
 
+## トップページのアニメーション制御（#312）
+
+参照HTML（L611-L617, L878-L896）に合わせ、トップページ（`/`）と下層ページで演出インフラを分岐する（2026-07-03 確定）。SSOT は `lib/scroll/lenis-config.ts`（`getPageScrollProfile`）。
+
+| 項目 | トップページ（`/`） | 下層ページ |
+|------|------|------|
+| Lenis スクロール | duration **1.8** + カスタム easing（`t => 1 - (1-t)^4`） | duration 1.4 |
+| velocity-skew（skewY） | **無効** | 有効（`[data-velocity-content]` を追跡） |
+| CustomCursor | **無効** | 有効（`SubPageEffects`、デスクトップ fine-pointer） |
+| PageLoader | **無効** | 有効 |
+| MicroInteractionBinder | **無効** | 有効 |
+| cosmic 背景（CosmicScene） | **撤去**（各参照セクションが不透明 `--ink` 系背景を持つ） | 使用しない |
+
+- 実装: `SmoothScrollProvider`（`usePathname()` で Lenis 速度・velocity-skew を分岐）/ `SubPageEffects`（トップで cursor/loader/micro を非マウント）/ `app/page.tsx`（HomePageShell を使わず plain `<main>`）。
+- reduced-motion: 各参照セクションが `.top-scope` の CSS フォールバックで即時表示（`useGsapContext` / RainCanvas が GSAP/rAF をスキップ）。
+- pin（`#theory` / `#services`）: `pinType:'transform'` で velocity-skew の transform 祖先問題を回避（#307/#308）。velocity-skew 自体もトップで無効化したため二重に安全。ScrollTrigger は `useGsapContext` の `gsap.context().revert()` で route 遷移・アンマウント時にクリーンアップ。
+- テスト: `tests/scroll/lenis-config.test.ts`（プロファイル選択）/ `e2e/home.spec.ts`（トップ無効化）/ `e2e/sub-page-effects.spec.ts`（下層維持）。
+- 旧トップ資産（`components/Hero.tsx` / `About.tsx` / `MissionVision.tsx` / `home/ShowcaseSection.tsx` / `home/HomePageShell.tsx` / cosmic 関連）はトップから撤去済みで未使用。物理削除は #316 で追跡。
+
 ## Hero バリアント
 
 | Variant | 用途 | 挙動 |
