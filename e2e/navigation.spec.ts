@@ -43,12 +43,8 @@ test.describe('Navigation mobile layout', () => {
   test('uses a compact header with 44px menu tap target', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-    await expect(
-      page.getByRole('heading', {
-        level: 1,
-        name: /AIで効率化し、.*本来の創造に集中する環境を作る。/,
-      }),
-    ).toBeVisible();
+    // #304: トップのヒーローマーク（h1「SHAPE∞D」）表示で準備完了を確認
+    await expect(page.locator('#hero .hero-mark')).toBeVisible();
 
     const nav = page.getByRole('navigation');
     const navBox = await nav.boundingBox();

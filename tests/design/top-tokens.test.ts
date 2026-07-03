@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { topColors, topColorCssVars, topFontCssVars, topNextFontCssVars, topShell } from '@/lib/design/tokens';
+import { topColors, topColorCssVars, topFontCssVars, topHero, topNextFontCssVars, topShell } from '@/lib/design/tokens';
 
 /**
  * トップページ刷新（#302）基盤トークン — Issue #303
@@ -50,5 +50,29 @@ describe('top page renewal tokens (#303)', () => {
     // gsap.to("#thread", { scrub: 1.2 }) — 参照HTML L895
     expect(topShell.threadScrub).toBe(1.2);
     expect(topShell.scopeClass).toBe('top-scope');
+  });
+
+  it('defines hero intro timeline constants matching the reference HTML (#304)', () => {
+    // gsap.timeline({defaults:{ease:"power3.out"}}) — 参照HTML L899-L903
+    expect(topHero.intro.ease).toBe('power3.out');
+    expect(topHero.intro.mark).toEqual({ duration: 2.4, at: 0.4 });
+    expect(topHero.intro.copy).toEqual({ duration: 1.8, stagger: 0.9, at: 1.2 });
+    expect(topHero.intro.sub).toEqual({ duration: 1.6, at: '-=0.6' });
+    expect(topHero.intro.cue).toEqual({ duration: 1.4, at: '-=0.8' });
+  });
+
+  it('defines rain canvas constants matching the reference HTML (#304)', () => {
+    // Math.floor(offsetWidth / 26) — 参照HTML L825
+    expect(topHero.rain.columnWidthPx).toBe(26);
+    // rgba(125,156,196,...) — topColors.rain の rgb と一致
+    expect(topHero.rain.strokeRgb).toBe('125,156,196');
+    expect(topHero.rain.canvasOpacity).toBe(0.5);
+    // 長さ 40+rand*70 / 速度 0.4+rand*0.8 / alpha 0.05+rand*0.12 — 参照HTML L828-L830
+    expect(topHero.rain.lengthMinPx).toBe(40);
+    expect(topHero.rain.lengthRangePx).toBe(70);
+    expect(topHero.rain.speedMin).toBe(0.4);
+    expect(topHero.rain.speedRange).toBe(0.8);
+    expect(topHero.rain.alphaMin).toBe(0.05);
+    expect(topHero.rain.alphaRange).toBe(0.12);
   });
 });

@@ -42,15 +42,17 @@ test.describe('Top shell foundation (#303)', () => {
 
     const fonts = await page.locator('.top-scope').evaluate((el) => {
       const computed = getComputedStyle(el);
+      const copy = el.querySelector('#hero .hero-copy');
+      const mark = el.querySelector('#hero .hero-mark');
       return {
         shippori: computed.getPropertyValue('--font-shippori-mincho').trim(),
         zenKaku: computed.getPropertyValue('--font-zen-kaku-gothic-new').trim(),
         mono: computed.getPropertyValue('--font-jetbrains-mono').trim(),
         latin: computed.getPropertyValue('--latin').trim(),
         bodyFamily: computed.fontFamily,
-        headingFamily: getComputedStyle(
-          el.querySelector('h1') ?? el,
-        ).fontFamily,
+        // #304: ヒーローのコピーは --serif（Shippori）、マークは --latin（Cormorant）
+        copyFamily: copy ? getComputedStyle(copy).fontFamily : '',
+        markFamily: mark ? getComputedStyle(mark).fontFamily : '',
       };
     });
 
@@ -60,9 +62,11 @@ test.describe('Top shell foundation (#303)', () => {
     expect(fonts.mono).toContain('JetBrains Mono');
     // --latin は既存 Cormorant（--font-display）を流用
     expect(fonts.latin).toContain('Cormorant');
-    // 本文 = Zen Kaku Gothic New（--gothic）/ 見出し = Shippori Mincho（--serif）
+    // 本文 = Zen Kaku Gothic New（--gothic）
     expect(fonts.bodyFamily).toContain('Zen Kaku Gothic New');
-    expect(fonts.headingFamily).toContain('Shippori Mincho');
+    // ヒーローコピー = Shippori Mincho（--serif）/ ヒーローマーク = Cormorant（--latin）
+    expect(fonts.copyFamily).toContain('Shippori Mincho');
+    expect(fonts.markFamily).toContain('Cormorant');
   });
 
   test('renewal tokens do NOT leak to sub pages (top-page scope only)', async ({ page }) => {

@@ -1,225 +1,57 @@
 import { expect, test } from '@playwright/test';
-import { expectBigbangCanvasRetiredWithLogoVisible, expectFooterVisibleAboveCosmicBackground, expectHeroBrandLogoAfterFormation, expectNoHorizontalOverflow, expectPainted, LOGO_ALT, waitForHomePageReady } from './helpers';
-import { ANIMATION_DURATION, REVEAL_DELAY } from '../lib/scroll/animation-tokens';
+import { expectFooterVisibleAboveCosmicBackground, expectNoHorizontalOverflow, expectPainted, waitForHomePageReady } from './helpers';
+
+// #304: トップページのヒーローは参照HTMLの #hero（TopHero）へ置換された。
+// 旧イマーシブヒーロー（粒子形成 / ビッグバン Canvas / cosmic blend 見出し / hero-cta /
+// スクロールインジケーター / [data-hero="immersive"] CLS 対策）の E2E はトップページから撤去。
+// ヒーロー固有の受け入れ条件は e2e/top-hero.spec.ts が担う。
+// cosmic 背景（CosmicScene）と下層セクション（About / MissionVision）は #312 まで維持されるため、
+// ここではそれらの回帰テストを温存する。撤去した旧ヒーロー資産の整理は別 issue で追跡。
 
 test.describe('Home page', () => {
-  test('shows hero heading after load', async ({ page }) => {
-    await page.goto('/');
-    await waitForHomePageReady(page);
-  });
-
   test('applies cosmic grade overlay on cosmic background', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);
     await expect(page.getByTestId('cosmic-grade-overlay')).toBeAttached();
-  });
-
-  test('applies cosmic typography blend to hero heading', async ({ page }) => {
-    await page.goto('/');
-    await waitForHomePageReady(page);
-    const heading = page.getByTestId('type-blend-cosmic');
-    await expect(heading).toHaveClass(/type-blend-cosmic/);
-    await expect(heading).toHaveCSS('mix-blend-mode', 'screen');
   });
 });
 
 test.describe('Home page desktop', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test('shows brand logo after particle formation', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-    await expectHeroBrandLogoAfterFormation(page);
-  });
-
   test('shows footer above fixed cosmic background when scrolled to bottom', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);
     await expectFooterVisibleAboveCosmicBackground(page);
-  });
-
-  test('exposes hero pin section for cosmic depth ScrollTrigger coupling', async ({ page }) => {
-    await page.goto('/');
-    await waitForHomePageReady(page);
-    await expect(page.getByTestId('hero-pin-section')).toBeVisible();
-  });
-
-  test('reveals hero CTA after scroll on desktop', async ({ page }) => {
-    await page.goto('/');
-    await waitForHomePageReady(page);
-
-    const heroLogo = page.locator('main section').first().getByRole('img', { name: LOGO_ALT });
-    await expect(heroLogo).toBeVisible({ timeout: 5000 });
-
-    await page.mouse.wheel(0, 900);
-
-    await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
-  });
-
-  test('shows scroll indicator after particle formation and hides after scroll', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-    await expectHeroBrandLogoAfterFormation(page);
-
-    // Playwright considers opacity:0 elements as "visible" — use toHaveCSS to check GSAP opacity.
-    // Indicator animates 0→1 after REVEAL_DELAY.heroScrollIndicator (delay 1.2s + duration 0.6s).
-    // expectHeroBrandLogoAfterFormation already consumes the full big-bang formation window,
-    // so 4 000ms here leaves ample CI buffer for the indicator fade-in.
-    const indicator = page.getByTestId('hero-scroll-indicator');
-    await expect(indicator).toHaveCSS('opacity', '1', { timeout: 4000 });
-
-    // Scroll to trigger copy/CTA reveal via GSAP scrub. GSAP animates [data-testid="hero-cta-wrapper"]
-    // (CSS opacity is not inherited by child elements, so querying the wrapper directly is required).
-    // data-testid is used here (not [data-hero-cta]) because this checks GSAP-driven opacity state,
-    // unrelated to the CSS @media selector — see the "1024px iPad Pro" describe block below for the
-    // [data-hero-cta] regression guard on the CSS selector itself (#272).
-    // GSAP scrub (exponential smoothing) may settle at 0.999x rather than exactly 1.0; use
-    // waitForFunction with >= 0.99 threshold to confirm scrollRevealed=true, then verify indicator
-    // fades out (opacity 1→0, duration 0.4s). page.getByTestId() cannot be used inside
-    // waitForFunction because it runs in browser context where Playwright API is unavailable.
-    await page.mouse.wheel(0, 900);
-    await page.waitForFunction(
-      () => {
-        const el = document.querySelector('[data-testid="hero-cta-wrapper"]');
-        return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
-      },
-      { timeout: 10_000 },
-    );
-    await expect(indicator).toHaveCSS('opacity', '0', { timeout: 5000 });
-  });
-
-  test('scroll indicator bottom class includes safe-area-inset-bottom formula (#165)', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-
-    const indicator = page.getByTestId('hero-scroll-indicator');
-    // Wait for the indicator to be mounted (only rendered in isImmersive && gsapControlled path).
-    await expect(indicator).toBeAttached();
-    // Verify env(safe-area-inset-bottom) formula is present in class attribute.
-    const className = await indicator.getAttribute('class') ?? '';
-    expect(className).toContain('safe-area-inset-bottom');
-
-    // On standard Playwright viewport safe-area-inset-bottom = 0 (#166), so bottom = var(--space-3) = 24px.
-    const bottomPx = await indicator.evaluate(
-      (el) => parseFloat(getComputedStyle(el).bottom),
-    );
-    expect(bottomPx).toBeGreaterThanOrEqual(24);
-  });
-
-  test('does not show scroll indicator when user scrolls before particle formation completes', async ({ page }) => {
-    // Regression test for the early-scroll race condition fixed in PR #139.
-    // scrollRevealed guard prevents the fade-in tween from starting when the user
-    // scrolls before formationComplete=true.
-    await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-
-    // Scroll immediately after page load. Formation takes HERO_PARTICLE_FORMATION_MS (big-bang
-    // bigBang+drift+gather) after image-load completion; the GSAP scrub (scrub: 1.6 = ANIMATION_DURATION.hero) sets
-    // scrollRevealed within ~1s (exponential catch-up to 93% of trigger range), leaving
-    // significant margin before formation finishes.
-    await page.mouse.wheel(0, 900);
-
-    // Confirm the scroll was processed by GSAP and scrollRevealed=true fired before formation
-    // completes. GSAP animates [data-testid="hero-cta-wrapper"] (CSS opacity is not inherited by
-    // child elements). data-testid is intentionally used here rather than [data-hero-cta] — this
-    // checks GSAP opacity state, not the CSS @media selector contract (see #272).
-    // GSAP scrub may settle at 0.999x; use waitForFunction with >= 0.99 threshold.
-    // page.getByTestId() cannot be used inside waitForFunction (browser context, no Playwright API).
-    await page.waitForFunction(
-      () => {
-        const el = document.querySelector('[data-testid="hero-cta-wrapper"]');
-        return !!el && parseFloat(getComputedStyle(el).opacity) >= 0.99;
-      },
-      { timeout: 5000 },
-    );
-
-    // Wait for formation to complete. After scrolling, the depth passage hides the logo
-    // (opacity→0), so expectHeroBrandLogoAfterFormation cannot be used. Instead, wait for
-    // the hero-formation-complete sentinel element that Hero mounts when formationComplete=true.
-    await page.getByTestId('hero-formation-complete').waitFor({ state: 'attached', timeout: 10000 });
-    const postFormationWaitMs = Math.ceil(
-      (REVEAL_DELAY.heroScrollIndicator + ANIMATION_DURATION.heroScrollIndicator) * 1000 + 500, // +500ms CI buffer
-    );
-    await page.waitForTimeout(postFormationWaitMs);
-
-    // With scrollRevealed=true when formationComplete fires, the fade-in guard prevents
-    // the tween from starting. Indicator must remain at opacity:0.
-    // waitForTimeout above already consumed the full reveal window; 1000ms is enough here.
-    const indicator = page.getByTestId('hero-scroll-indicator');
-    await expect(indicator).toHaveCSS('opacity', '0', { timeout: 1000 });
-  });
-
-  test('retires bigbang canvas and keeps BrandLogo visible after formation (#218)', async ({ page }) => {
-    // Explicitly opt-out of reduced-motion so the big-bang canvas is rendered.
-    // In reduced-motion mode skipFormation=true and the canvas is never created,
-    // which would cause expectBigbangCanvasRetiredWithLogoVisible to fail early
-    // at the "canvas must appear" guard — the intended failure signal.
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-    await expectBigbangCanvasRetiredWithLogoVisible(page);
-  });
-
-  test('keeps cosmic typography blend after hero scroll reveal on desktop', async ({ page }) => {
-    await page.goto('/');
-    await waitForHomePageReady(page);
-    await expectHeroBrandLogoAfterFormation(page);
-
-    await page.mouse.wheel(0, 900);
-    await expect(page.locator('a.hero-cta')).toBeVisible({ timeout: 10_000 });
-
-    const heading = page.getByTestId('type-blend-cosmic');
-    await expect(heading).toBeVisible();
-    await expect(heading).toHaveCSS('mix-blend-mode', 'screen');
-
-    await expect(async () => {
-      const logoLayerOpacity = await page.getByTestId('hero-logo-stage').evaluate((stage) => {
-        const layer = stage.parentElement;
-        if (!layer) {
-          return 1;
-        }
-        return Number.parseFloat(getComputedStyle(layer).opacity);
-      });
-      expect(logoLayerOpacity).toBeLessThan(0.05);
-    }).toPass({ timeout: 10_000 });
   });
 });
 
 test.describe('Home page mobile', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('shows About and MissionVision content below hero CTA', async ({ page }) => {
+  test('shows About and MissionVision content below the hero', async ({ page }) => {
     await page.goto('/');
-    await expect(
-      page.getByRole('heading', {
-        level: 1,
-        name: /AIで効率化し、.*本来の創造に集中する環境を作る。/,
-      }),
-    ).toBeVisible();
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await waitForHomePageReady(page);
 
-    await page.locator('a.hero-cta').scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.5));
+    // ヒーローは 100vh。下層の About / MissionVision まではスクロールで到達する。
+    await page.evaluate(() => window.scrollBy(0, window.innerHeight));
 
     const psyText = page.getByText('心理学', { exact: true });
     const careerText = page.getByText('経歴', { exact: true });
     const congruenceText = page.getByText('自己一致（SELF-CONGRUENCE）への道');
 
-    await expect(psyText).toBeVisible();
-    await expect(careerText).toBeVisible();
-    await expect(congruenceText).toBeVisible();
-
     // #159: confirm painted (opacity=1) — guards against framer-motion holding opacity:0
     await psyText.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expect(psyText).toBeVisible();
     await expectPainted(psyText, 5000);
     await careerText.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expect(careerText).toBeVisible();
     await expectPainted(careerText, 5000);
     await congruenceText.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
+    await expect(congruenceText).toBeVisible();
     await expectPainted(congruenceText, 5000);
 
     // #159: bounding box — all three texts must be within viewport (not pushed off-screen).
-    // Checks the same section-padding constraint as the 375px test (x >= 24) for every element,
-    // ensuring uniform coverage across psyText / careerText / congruenceText.
     for (const [locator, label] of [
       [psyText, '心理学'],
       [careerText, '経歴'],
@@ -246,7 +78,6 @@ test.describe('Home page mobile', () => {
 });
 
 // ── 375px (iPhone SE) — Home page ABOUT / VISION headings (#150 / #159) ─────────────────────
-// Consolidated from e2e/mobile-pages.spec.ts in Issue #159.
 // Regression guard: ABOUT and VISION h2 headings must be visible, fully painted, and must not
 // overflow horizontally at 375px (the narrowest supported mobile viewport).
 
@@ -298,250 +129,3 @@ test.describe('375px Home page mobile', () => {
     }).toPass({ timeout: 3_000 });
   });
 });
-
-// Computes (ids, classes-or-attrs-or-pseudoclasses, elements) CSS selector specificity.
-// Not a full CSS grammar parser — sufficient for the simple attribute/class/element selectors
-// used in this codebase (no pseudo-elements, no nested :not()/:has() argument selectors, no
-// selector lists needing per-branch specificity). Used by the #269 cascade specificity guard
-// below to verify statically that production CSS beats Tailwind without relying on !important
-// or addStyleTag simulation (see issue for the addStyleTag verification-gap this closes).
-function computeSelectorSpecificity(selector: string): [ids: number, classes: number, elements: number] {
-  const ids = (selector.match(/#[\w-]+/g) ?? []).length;
-  const classes =
-    (selector.match(/\.[\w-]+/g) ?? []).length +
-    (selector.match(/\[[^\]]+\]/g) ?? []).length +
-    (selector.match(/:(?!:)[\w-]+(\([^)]*\))?/g) ?? []).length;
-  const strippedOfClassesAndAttrs = selector
-    .replace(/\[[^\]]+\]/g, '')
-    .replace(/#[\w-]+/g, '')
-    .replace(/\.[\w-]+/g, '')
-    .replace(/::?[\w-]+(\([^)]*\))?/g, '');
-  const elements = (strippedOfClassesAndAttrs.match(/[a-zA-Z][\w-]*/g) ?? []).length;
-  return [ids, classes, elements];
-}
-
-function isHigherSpecificity(a: [number, number, number], b: [number, number, number]): boolean {
-  return a[0] !== b[0] ? a[0] > b[0] : a[1] !== b[1] ? a[1] > b[1] : a[2] > b[2];
-}
-
-// ── 1024px (iPad Pro) — coarse pointer + reduced-motion CLS prevention (#149) ──────────────
-// Regression guard: Hero must render in mobile flow layout (flex-col) from the first browser
-// paint on touch-primary large screens with prefers-reduced-motion, eliminating the layout
-// shift that occurred during the isReady=false→true transition in useDeviceProfile.
-
-test.describe('1024px iPad Pro — coarse+reduced-motion CLS prevention', () => {
-  test.use({ viewport: { width: 1024, height: 1366 } });
-
-  test('CTA position override: addStyleTag simulation of pointer:coarse + reduced-motion (#149)', async ({ page }) => {
-    // NOTE: Playwright 1.x cannot reliably emulate `pointer: coarse` via CDP.
-    // page.emulateMedia() and page.goto() both internally call Emulation.setEmulatedMedia
-    // with a features array that excludes 'pointer', resetting any prior CDP state set via
-    // page.context().newCDPSession(). True pointer:coarse emulation requires a physical device
-    // or browser-level flag injection outside Playwright's managed API.
-    // This test instead: (1) verifies the data attributes are present in the DOM as regression
-    // guard, and (2) injects the equivalent CSS via addStyleTag to verify that when the
-    // @media rule fires on a real coarse-pointer device, the CTA remains accessible.
-    //
-    // SCENARIO NOTE: This test runs in a pointer:fine environment (Playwright default).
-    // profile.prefersCoarsePointer=false → React applies `absolute bottom-[...] left-1/2 -translate-x-1/2`.
-    // addStyleTag overrides position to `relative`, simulating what the CSS @media rule does on a
-    // real pointer:coarse+reduced-motion device. On such devices the CSS @media block fires at first
-    // paint (before React hydration completes), and React's mobileStaticHero subsequently converges
-    // to the same layout — closing that convergence gap was the CLS fix in Issue #149.
-    // The intent is to verify CSS cascade values directly — not the production SSR convergence scenario.
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
-    // Wait for the loader to clear, as other tests in this file do (e.g. L31, L61) —
-    // otherwise addStyleTag / boundingBox / getComputedStyle below could observe a
-    // transient pre-loader layout state (#271).
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-
-    // data-hero="immersive" must be on the section — required for CSS @media selector (#149)
-    await expect(page.locator('[data-hero="immersive"]')).toBeVisible({ timeout: 10_000 });
-
-    // data-hero-cta must be present on the CTA wrapper — required for CSS position override.
-    // [data-hero-cta] is used intentionally here instead of [data-testid="hero-cta-wrapper"]:
-    // this is a regression guard confirming the exact CSS attribute selector
-    // `[data-hero="immersive"] [data-hero-cta]` from globals.css still targets this element,
-    // not just any stable test hook (#272).
-    await expect(page.locator('[data-hero="immersive"] [data-hero-cta]')).toBeVisible();
-
-    // Inject CSS equivalent to the @media (pointer: coarse) and (prefers-reduced-motion: reduce)
-    // block in globals.css to verify the CSS property values and CTA accessibility.
-    // --space-8=64px, --space-6=48px (globals.css :root に対応; see Issue #276 for token-drift tracking)
-    //
-    // NOTE: This CSS uses !important to guarantee style application in the pointer:fine E2E environment
-    // where the production @media rule would not fire. Production globals.css does NOT use !important
-    // in the @media block. Therefore, this test cannot detect regressions where a GSAP inline style
-    // or React prop overrides the cascade without !important — see Issue #275 for the broader tracking.
-    // NOTE: env(safe-area-inset-top) resolves to 0 in standard Playwright viewports (#166);
-    // padding-top effectively equals 64px here. Notch-device behaviour is validated separately
-    // in navigation.spec.ts via CSS-injection simulation (see Issue #166).
-    await page.addStyleTag({
-      content: [
-        '[data-hero="immersive"]{flex-direction:column!important;height:auto!important;min-height:100svh!important;overflow:visible!important;padding-top:calc(64px + env(safe-area-inset-top,0px))!important;padding-bottom:64px!important;}',
-        '[data-hero="immersive"] [data-hero-cta]{position:relative!important;bottom:auto!important;left:auto!important;transform:none!important;margin-top:48px!important;text-align:center!important;}',
-      ].join('\n'),
-    });
-
-    const ctaWrapper = page.locator('[data-hero="immersive"] [data-hero-cta]');
-    const ctaLink = ctaWrapper.locator('.hero-cta');
-    await expect(ctaLink).toBeVisible();
-    // toBeVisible() alone does not catch opacity:0 (Hero's reactRevealStyle can leave the CTA
-    // transiently transparent during isReady/profile transitions even when laid out correctly).
-    // expectPainted confirms cumulative ancestor opacity, guarding CTA a11y (#270).
-    await expectPainted(ctaLink);
-
-    // Verify computed styles directly via getComputedStyle — independent of !important cascade boost.
-    // Confirms CSS override values are actually applied, guarding against future regressions where
-    // a style prop or GSAP setup change could silently bypass the intended cascade.
-    // Also verifies left/transform resets: pointer:fine React applies `left-1/2 -translate-x-1/2`,
-    // and both must be overridden alongside `position` (see Issue #149 fix intent).
-    const ctaStyles = await ctaWrapper.evaluate((el) => {
-      const cs = getComputedStyle(el);
-      return {
-        position: cs.position,
-        textAlign: cs.textAlign,
-        left: cs.left,
-        transform: cs.transform,
-      };
-    });
-    expect(ctaStyles.position, 'CTA wrapper position must be relative after CSS override').toBe('relative');
-    expect(ctaStyles.textAlign, 'CTA wrapper text-align must be center after CSS override').toBe('center');
-    // Tailwind's `left-1/2` sets left:50%; after the CSS override resets left to `auto`,
-    // the resolved value must no longer be 50%. A string inequality check (rather than an exact
-    // literal like '0px', or a numeric parseFloat comparison — which breaks on the string 'auto',
-    // since parseFloat('auto') is NaN and NaN < 50 is false) avoids depending on Chromium's
-    // specific `auto` → '0px' resolution, which Firefox/WebKit may not share (#273).
-    expect(ctaStyles.left, 'CTA wrapper left must be reset (Tailwind left-1/2 overridden)').not.toBe('50%');
-    // transform: none confirms Tailwind -translate-x-1/2 CSS variable chain is disabled.
-    expect(ctaStyles.transform, 'CTA wrapper transform must be none (Tailwind -translate-x-1/2 overridden)').toBe('none');
-
-    // #268: the assertions above only cover the [data-hero-cta] wrapper. The core of the CLS fix
-    // (Issue #149) is the [data-hero="immersive"] section itself switching to mobile flow layout;
-    // that side of the CSS override was never directly verified via getComputedStyle.
-    const sectionStyles = await page.locator('[data-hero="immersive"]').evaluate((el) => {
-      const cs = getComputedStyle(el);
-      return {
-        flexDirection: cs.flexDirection,
-        overflow: cs.overflow,
-        minHeight: cs.minHeight,
-      };
-    });
-    expect(sectionStyles.flexDirection, '[data-hero="immersive"] flex-direction must be column after CSS override').toBe('column');
-    expect(sectionStyles.overflow, '[data-hero="immersive"] overflow must be visible after CSS override').toBe('visible');
-    // Issue #268 originally proposed asserting computed `height` is not the fixed viewport height,
-    // to rule out the pre-fix h-svh/absolute layout. That check is unreliable here: this override
-    // also sets `min-height: 100svh`, so when content is shorter than the viewport (as in this test),
-    // `height` legitimately resolves to the viewport height even though `height: auto` is correctly
-    // applied — a false failure, verified by probing the actual computed value before writing this
-    // assertion. `min-height` is asserted instead: it is a real, previously-unverified property from
-    // the same override and, unlike `height`, is not ambiguous with the pre-fix fixed-height case.
-    const viewportForMinHeight = page.viewportSize();
-    expect(sectionStyles.minHeight, '[data-hero="immersive"] min-height must resolve to the viewport height (100svh)').toBe(`${viewportForMinHeight?.height ?? 1366}px`);
-
-    // Bi-directional off-screen guard: CTA must remain within the viewport on all four edges.
-    // Uses page.viewportSize() instead of hardcoded constants so the check stays in sync with
-    // test.use({ viewport }) above.
-    //
-    // Tolerance is symmetric (±0.5px) on all four edges: getBoundingClientRect() floating-point
-    // arithmetic can push a value slightly past the boundary in either direction for elements
-    // flush with an edge (e.g. right/bottom: box.x + box.width = 1024.0002; left/top: box.x =
-    // -0.0002) — the same rounding class, not just a right/bottom-only concern (#274).
-    //
-    // addStyleTag injects static styles; browser style recalculation is synchronous, so
-    // toPass retry-polling is unnecessary — a single boundingBox snapshot is sufficient.
-    const vp = page.viewportSize();
-    const vpW = vp?.width ?? 1024;
-    const vpH = vp?.height ?? 1366;
-    const box = await ctaLink.boundingBox();
-    expect(box, 'CTA bounding box must be available').not.toBeNull();
-    if (box) {
-      expect(box.y, 'CTA must not be above the viewport top').toBeGreaterThanOrEqual(-0.5);
-      expect(box.y + box.height, 'CTA must not exceed the viewport bottom').toBeLessThanOrEqual(vpH + 0.5);
-      expect(box.x, 'CTA must not be pushed off the left edge').toBeGreaterThanOrEqual(-0.5);
-      expect(box.x + box.width, 'CTA must not be pushed off the right edge').toBeLessThanOrEqual(vpW + 0.5);
-    }
-  });
-
-  // #269: the test above verifies the *result* of cascade by simulating it with `addStyleTag`
-  // (`!important`), which always wins regardless of the production rule's real specificity — it
-  // cannot detect a regression where the production `@media` block loses to Tailwind (e.g. if
-  // Tailwind starts emitting `!important`, or the production selector's specificity is weakened).
-  // This test instead statically inspects the *actual* loaded stylesheet (no addStyleTag, no
-  // pointer/reduced-motion emulation needed) to verify the real cascade mechanism is intact:
-  // the production rule exists, doesn't rely on `!important`, and has strictly higher selector
-  // specificity than a Tailwind utility class — the same invariant documented in
-  // documents/spec/mobile-performance.md (design rationale for Issue #149's CSS fix).
-  test('production @media cascade specificity beats Tailwind without !important (#269)', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
-
-    // Single evaluate() round-trip: extracts both the production @media rule and a representative
-    // Tailwind utility rule (`.absolute`, e.g. `.left-1\/2`) in one pass over document.styleSheets.
-    const { ctaRule, tailwindAbsoluteSelector } = await page.evaluate(() => {
-      let ctaRuleFound: { selectorText: string; cssText: string } | null = null;
-      let tailwindAbsoluteFound: string | null = null;
-
-      const walk = (list: CSSRuleList) => {
-        for (const rule of Array.from(list)) {
-          if (
-            !ctaRuleFound &&
-            rule instanceof CSSMediaRule &&
-            rule.media.mediaText.includes('pointer: coarse') &&
-            rule.media.mediaText.includes('prefers-reduced-motion: reduce')
-          ) {
-            for (const inner of Array.from(rule.cssRules)) {
-              if (inner instanceof CSSStyleRule && inner.selectorText === '[data-hero="immersive"] [data-hero-cta]') {
-                ctaRuleFound = { selectorText: inner.selectorText, cssText: inner.cssText };
-              }
-            }
-          }
-          if (!tailwindAbsoluteFound && rule instanceof CSSStyleRule && /(^|,)\s*\.absolute\s*(,|$)/.test(rule.selectorText)) {
-            tailwindAbsoluteFound = rule.selectorText;
-          }
-          const nested = (rule as unknown as { cssRules?: CSSRuleList }).cssRules;
-          if (nested) {
-            walk(nested);
-          }
-        }
-      };
-
-      for (const sheet of Array.from(document.styleSheets)) {
-        let rules: CSSRuleList;
-        try {
-          rules = sheet.cssRules;
-        } catch {
-          continue; // cross-origin stylesheet; not relevant here
-        }
-        walk(rules);
-      }
-      // Cast explicitly: TS narrows ctaRuleFound/tailwindAbsoluteFound to their initial `null`
-      // literal here because the only reassignments happen inside the `walk` closure, which TS
-      // does not use to widen the outer scope's narrowed type back to the declared union.
-      return {
-        ctaRule: ctaRuleFound as { selectorText: string; cssText: string } | null,
-        tailwindAbsoluteSelector: tailwindAbsoluteFound as string | null,
-      };
-    });
-
-    expect(ctaRule, 'production @media (pointer: coarse) and (prefers-reduced-motion: reduce) rule for [data-hero-cta] must exist in the loaded stylesheet').not.toBeNull();
-    if (!ctaRule) return;
-
-    expect(ctaRule.cssText, 'production rule must win via specificity, not !important (see Issue #269)').not.toContain('!important');
-
-    // Tailwind utility classes (e.g. `.absolute`, `.left-1\/2`) are always single-class selectors —
-    // confirmed against the actual generated stylesheet rather than assumed, so this guard also
-    // catches a future Tailwind version compiling utilities as compound/nested selectors.
-    expect(tailwindAbsoluteSelector, 'Tailwind .absolute utility rule must be present in the loaded stylesheet').not.toBeNull();
-    if (!tailwindAbsoluteSelector) return;
-
-    const productionSpecificity = computeSelectorSpecificity(ctaRule.selectorText);
-    const tailwindSpecificity = computeSelectorSpecificity(tailwindAbsoluteSelector);
-    expect(
-      isHigherSpecificity(productionSpecificity, tailwindSpecificity),
-      `production selector "${ctaRule.selectorText}" (${JSON.stringify(productionSpecificity)}) must have strictly higher specificity than Tailwind "${tailwindAbsoluteSelector}" (${JSON.stringify(tailwindSpecificity)}), independent of document order`,
-    ).toBe(true);
-  });
-});
-
