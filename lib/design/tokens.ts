@@ -256,6 +256,22 @@ export const topHero = {
     borderColor: 'rgba(125,156,196,0.7)',
     dimColor: 'rgba(139,147,161,0.25)',
   },
+  /** サービス #services の pinned パネル切替 — 参照HTML L938-L960 */
+  services: {
+    /** pin ScrollTrigger（trigger #services / start top top / scrub 0.8）。pinType transform（#307 と同理由） */
+    pin: { start: 'top top', scrub: 0.8, pinType: 'transform' },
+    /** end = +=(パネル数 × 90)%（参照HTML L944） */
+    panelStepPercent: 90,
+    /** 先頭パネルの初期表示（autoAlpha 1, duration 0.001）— 参照HTML L954 */
+    firstRevealDuration: 0.001,
+    /** クロスフェード: 前 y-30 フェードアウト → 次 y+30→0 フェードイン（各 duration 0.35、次は +0.15 オフセット）— 参照HTML L956-L957 */
+    transitionDuration: 0.35,
+    fadeOutY: -30,
+    fadeInYFrom: 30,
+    fadeInOffset: 0.15,
+    /** 末尾の余白トゥイーン（参照HTML L959） */
+    tailDuration: 0.6,
+  },
   /** 雨 Canvas — 参照HTML L816-L857。色は topColors.rain の rgb（125,156,196） */
   rain: {
     /** 線密度: offsetWidth / 26 本 */
