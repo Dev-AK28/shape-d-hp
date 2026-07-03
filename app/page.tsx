@@ -6,16 +6,18 @@ import TopShell from '@/components/top/TopShell';
 import TopHero from '@/components/top/TopHero';
 import TopPhilosophy from '@/components/top/TopPhilosophy';
 import TopPain from '@/components/top/TopPain';
+import TopTheory from '@/components/top/TopTheory';
 
 export default function Home() {
   return (
-    // 参照HTMLの各セクションを順次追加中（#304 hero / #305 philosophy / #306 pain）。
+    // 参照HTMLの各セクションを順次追加中（#304 hero / #305 philosophy / #306 pain / #307 theory）。
     // 残りの既存セクション（About / MissionVision / Showcase）は後続 issue で差し替え・撤去する。
     <TopShell>
       <HomePageShell>
         <TopHero />
         <TopPhilosophy />
         <TopPain />
+        <TopTheory />
         <About />
         <MissionVision />
         <ShowcaseSection />

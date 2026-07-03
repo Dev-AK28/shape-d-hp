@@ -77,6 +77,18 @@ describe('top page renewal tokens (#303)', () => {
     expect(topHero.pain.close).toEqual({ duration: 2, ease: 'power2.out', start: 'top 82%' });
   });
 
+  it('defines theory pinned-scrub constants matching the reference HTML (#307)', () => {
+    // pinned scrub: start top top / end +=120% / scrub 1、pinType transform（velocity-skew 回避）
+    expect(topHero.theory.pin).toEqual({ start: 'top top', end: '+=120%', scrub: 1, pinType: 'transform' });
+    // 円収束 xPercent ±84（参照HTML L932-L933）
+    expect(topHero.theory.idealXPercent).toBe(84);
+    expect(topHero.theory.realXPercent).toBe(-84);
+    // タイムライン position: label 0.72（参照HTML L935）
+    expect(topHero.theory.labelAt).toBe(0.72);
+    expect(topHero.theory.borderAt).toBe(0.5);
+    expect(topHero.theory.dimAt).toBe(0.6);
+  });
+
   it('defines rain canvas constants matching the reference HTML (#304)', () => {
     // Math.floor(offsetWidth / 26) — 参照HTML L825
     expect(topHero.rain.columnWidthPx).toBe(26);
