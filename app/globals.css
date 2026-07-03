@@ -619,6 +619,28 @@ button:not(.nav-menu-button):hover {
   z-index: 3;
 }
 
+/* #326: ヒーローイントロは CSS アニメーション（JS 非依存）。ハイドレーションを待たずに
+   開始されるため FCP/LCP を遅らせず、JS 無効環境でも表示される。
+   尺・順序（mark→copy→sub→cue）は lib/design/tokens.ts topHero.intro と同期
+   （css-token-sync テスト）。イージングは参照HTML の power3.out ≒ easeOutQuart。
+   copy 終端 = 1.2 + 0.9 + 1.8 = 3.9s、sub = 3.9 - 0.6 = 3.3s、cue = 3.3 + 1.6 - 0.8 = 4.1s */
+.top-scope .top-hero {
+  --hero-intro-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes top-hero-intro-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes top-hero-intro-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .top-scope .hero-mark {
   font-family: var(--latin);
   font-size: clamp(34px, 6vw, 64px);
@@ -627,6 +649,7 @@ button:not(.nav-menu-button):hover {
   color: var(--moon);
   font-weight: 400;
   opacity: 0;
+  animation: top-hero-intro-fade 2.4s var(--hero-intro-ease) 0.4s forwards;
 }
 
 .top-scope .hero-mark .inf {
@@ -647,6 +670,12 @@ button:not(.nav-menu-button):hover {
   display: block;
   opacity: 0;
   transform: translateY(18px);
+  animation: top-hero-intro-rise 1.8s var(--hero-intro-ease) 1.2s forwards;
+}
+
+/* stagger 0.9s: 2行目は 1.2 + 0.9 = 2.1s 開始 */
+.top-scope .hero-copy .line:nth-child(2) {
+  animation-delay: 2.1s;
 }
 
 .top-scope .hero-sub {
@@ -657,6 +686,7 @@ button:not(.nav-menu-button):hover {
   letter-spacing: 0.24em;
   color: var(--mist);
   opacity: 0;
+  animation: top-hero-intro-fade 1.6s var(--hero-intro-ease) 3.3s forwards;
 }
 
 .top-scope .scroll-cue {
@@ -669,6 +699,7 @@ button:not(.nav-menu-button):hover {
   align-items: center;
   gap: 14px;
   opacity: 0;
+  animation: top-hero-intro-fade 1.4s var(--hero-intro-ease) 4.1s forwards;
 }
 
 .top-scope .scroll-cue small {
@@ -1245,6 +1276,14 @@ button:not(.nav-menu-button):hover {
   /* #profile 収束 SVG のドットは即時点灯（パスは dasharray 未設定のため全描画される） */
   .top-scope .converge circle {
     opacity: 1 !important;
+  }
+
+  /* #326: CSS イントロも走らせない（opacity:1 !important が勝つが、アニメーション自体も停止） */
+  .top-scope .hero-mark,
+  .top-scope .hero-copy .line,
+  .top-scope .hero-sub,
+  .top-scope .scroll-cue {
+    animation: none;
   }
 
   .top-scope .scroll-cue .drop {
