@@ -88,7 +88,8 @@ export default function TopNav() {
         onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
         aria-expanded={isOpen}
-        aria-controls={MOBILE_MENU_ID}
+        // メニュー DOM は開時のみ存在するため、閉時は参照を付けない（dangling aria-controls 回避）
+        aria-controls={isOpen ? MOBILE_MENU_ID : undefined}
       >
         <span className="top-nav-menu-icon" aria-hidden="true">
           <span />

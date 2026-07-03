@@ -83,6 +83,19 @@ describe('TopNav', () => {
     expect(nav.className).not.toContain('scrolled');
   });
 
+  it('only references the menu via aria-controls while it is open (a11y)', () => {
+    render(<TopNav />);
+    // 閉時はメニュー DOM が存在しないため aria-controls は付けない（dangling reference 回避）
+    const button = screen.getByRole('button', { name: 'メニューを開く' });
+    expect(button.getAttribute('aria-controls')).toBeNull();
+
+    fireEvent.click(button);
+
+    const opened = screen.getByRole('button', { name: 'メニューを閉じる' });
+    expect(opened.getAttribute('aria-controls')).toBe('mobile-nav-menu');
+    expect(document.getElementById('mobile-nav-menu')).not.toBeNull();
+  });
+
   it('opens the mobile menu with all lower-page + contact links, locking body scroll', () => {
     render(<TopNav />);
     const button = screen.getByRole('button', { name: 'メニューを開く' });
