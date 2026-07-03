@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Noto_Serif_JP } from 'next/font/google';
-import Footer from '@/components/Footer';
-import Navigation from '@/components/Navigation';
 import DeferredCustomCursor from '@/components/ui/DeferredCustomCursor';
 import MicroInteractionBinder from '@/components/ui/MicroInteractionBinder';
 import DeferredPageLoader from '@/components/scroll/DeferredPageLoader';
@@ -44,15 +42,15 @@ export default function RootLayout({
       lang="ja"
       className={`${cormorant.variable} ${notoSerifJp.variable} h-full antialiased`}
     >
+      {/* Navigation / Footer は app/(site)/layout.tsx（下層ページ）へ移設 — Issue #303。
+          トップページのシェルは components/top/TopShell。 */}
       <body className="min-h-full flex flex-col">
         <SmoothScrollProvider>
           <DeferredCustomCursor />
           <MicroInteractionBinder />
           <DeferredPageLoader />
-          <Navigation />
           {children}
         </SmoothScrollProvider>
-        <Footer />
       </body>
     </html>
   );

@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHAPE∞D — 想いを、動くかたちに。自己一致 × AIエンジニアリング</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #07090d;
+    --ink-2: #0b0e15;
+    --ink-3: #10141d;
+    --moon: #dfe3ea;
+    --mist: #8b93a1;
+    --mist-dim: #545c6a;
+    --rain: #7d9cc4;
+    --rain-dim: rgba(125, 156, 196, 0.35);
+    --hairline: rgba(139, 147, 161, 0.16);
+    --serif: "Shippori Mincho", serif;
+    --gothic: "Zen Kaku Gothic New", sans-serif;
+    --latin: "Cormorant Garamond", serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: var(--ink); }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+  body {
+    background: var(--ink);
+    color: var(--moon);
+    font-family: var(--gothic);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    line-height: 2;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--rain-dim); color: var(--moon); }
+
+  /* ---------- thread of rain (signature) ---------- */
+  #thread {
+    position: fixed;
+    top: 0; left: 50%;
+    width: 1px; height: 100vh;
+    background: linear-gradient(to bottom, transparent, var(--rain) 30%, var(--rain) 70%, transparent);
+    opacity: 0.28;
+    transform-origin: top center;
+    transform: scaleY(0);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 48px;
+    transition: padding 0.6s ease, background 0.6s ease, backdrop-filter 0.6s ease;
+  }
+  nav.scrolled {
+    padding: 16px 48px;
+    background: rgba(7, 9, 13, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .nav-mark {
+    font-family: var(--latin);
+    font-size: 17px;
+    letter-spacing: 0.34em;
+    color: var(--moon);
+    text-decoration: none;
+  }
+  .nav-mark span { color: var(--rain); }
+  .nav-cta {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    color: var(--mist);
+    text-decoration: none;
+    border: 1px solid var(--hairline);
+    padding: 10px 22px;
+    border-radius: 2px;
+    transition: color 0.5s ease, border-color 0.5s ease;
+  }
+  .nav-cta:hover { color: var(--moon); border-color: var(--rain-dim); }
+
+  /* ---------- shared ---------- */
+  section { position: relative; }
+  .stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 120px 24px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    color: var(--mist-dim);
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+  .eyebrow em {
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--rain);
+    letter-spacing: 0.4em;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  /* ---------- 01 hero ---------- */
+  #hero { height: 100vh; overflow: hidden; }
+  #rain-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    opacity: 0.5;
+  }
+  .hero-inner {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 3;
+  }
+  .hero-mark {
+    font-family: var(--latin);
+    font-size: clamp(34px, 6vw, 64px);
+    letter-spacing: 0.4em;
+    text-indent: 0.4em;
+    color: var(--moon);
+    font-weight: 400;
+    opacity: 0;
+  }
+  .hero-mark .inf { color: var(--rain); }
+  .hero-copy {
+    margin-top: 56px;
+    font-family: var(--serif);
+    font-size: clamp(17px, 2.4vw, 24px);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    line-height: 2.6;
+    color: var(--moon);
+  }
+  .hero-copy .line {
+    display: block;
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  .hero-sub {
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.24em;
+    color: var(--mist);
+    opacity: 0;
+  }
+  .scroll-cue {
+    position: absolute;
+    bottom: 40px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+  }
+  .scroll-cue small {
+    font-size: 9px;
+    letter-spacing: 0.5em;
+    color: var(--mist-dim);
+  }
+  .scroll-cue .drop {
+    width: 1px; height: 44px;
+    background: linear-gradient(to bottom, var(--rain), transparent);
+    animation: fall 2.6s ease-in-out infinite;
+  }
+  @keyframes fall {
+    0% { transform: scaleY(0); transform-origin: top; }
+    45% { transform: scaleY(1); transform-origin: top; }
+    55% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  /* ---------- 02 philosophy ---------- */
+  #vision { background: var(--ink); }
+  .vision-tagline {
+    font-family: var(--serif);
+    font-size: clamp(24px, 4.6vw, 46px);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    line-height: 2.2;
+    color: var(--moon);
+  }
+  .vision-tagline .w {
+    display: inline-block;
+    opacity: 0.08;
+  }
+  .vision-note {
+    margin-top: 64px;
+    max-width: 580px;
+    font-size: 13px;
+    color: var(--mist);
+    line-height: 2.4;
+  }
+
+  /* ---------- 03 pain ---------- */
+  #pain { background: linear-gradient(to bottom, var(--ink), var(--ink-2)); }
+  .pain-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+    max-width: 660px;
+  }
+  .pain-line {
+    font-family: var(--serif);
+    font-size: clamp(16px, 2.6vw, 22px);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: var(--mist);
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  .pain-line strong {
+    font-weight: 500;
+    color: var(--moon);
+  }
+  .pain-close {
+    margin-top: 72px;
+    font-size: 12px;
+    letter-spacing: 0.34em;
+    color: var(--rain);
+    opacity: 0;
+  }
+
+  /* ---------- 04 theory (pinned circles) ---------- */
+  #theory { background: var(--ink-2); }
+  .theory-stage {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 24px;
+  }
+  .circles {
+    position: relative;
+    width: min(560px, 84vw);
+    height: 300px;
+    margin: 40px 0;
+  }
+  .circle {
+    position: absolute;
+    top: 50%;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    border: 1px solid var(--rain-dim);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--mist);
+  }
+  .circle.ideal { left: 50%; transform: translate(-118%, -50%); }
+  .circle.real  { left: 50%; transform: translate(18%, -50%); }
+  .congruence-label {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    white-space: nowrap;
+  }
+  .congruence-label b {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.4em;
+    text-indent: 0.4em;
+    color: var(--rain);
+  }
+  .congruence-label small {
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--mist-dim);
+  }
+  .theory-title {
+    font-family: var(--serif);
+    font-size: clamp(20px, 3.4vw, 32px);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--moon);
+  }
+  .theory-desc {
+    max-width: 580px;
+    font-size: 13px;
+    color: var(--mist);
+    line-height: 2.4;
+  }
+  .theory-desc strong { font-weight: 500; color: var(--moon); }
+
+  /* ---------- 05 services (pinned panels) ---------- */
+  #services { background: var(--ink-2); }
+  .svc-stage {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  .svc-panel {
+    position: absolute; inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 24px;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .svc-panel:first-of-type { opacity: 1; visibility: visible; }
+  .svc-num {
+    font-family: var(--latin);
+    font-size: clamp(88px, 16vw, 160px);
+    font-weight: 400;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--rain-dim);
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+  .svc-title {
+    font-family: var(--serif);
+    font-size: clamp(22px, 3.6vw, 34px);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--moon);
+    margin-bottom: 12px;
+  }
+  .svc-en {
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.34em;
+    color: var(--mist-dim);
+    margin-bottom: 28px;
+  }
+  .svc-desc {
+    max-width: 540px;
+    font-size: 13px;
+    color: var(--mist);
+    line-height: 2.4;
+  }
+  .svc-progress {
+    position: absolute;
+    bottom: 48px; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 18px;
+    z-index: 5;
+  }
+  .svc-dot {
+    width: 20px; height: 1px;
+    background: var(--mist-dim);
+    transition: background 0.5s ease;
+  }
+  .svc-dot.on { background: var(--rain); }
+
+  /* ---------- 06 process ---------- */
+  #process { background: linear-gradient(to bottom, var(--ink-2), var(--ink)); }
+  .steps {
+    display: flex;
+    flex-direction: column;
+    max-width: 560px;
+    width: 100%;
+    text-align: left;
+  }
+  .step {
+    position: relative;
+    padding: 36px 0 36px 52px;
+    border-left: 1px solid var(--hairline);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .step::before {
+    content: "";
+    position: absolute;
+    left: -3px; top: 48px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--rain);
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--rain);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .step-title {
+    font-family: var(--serif);
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--moon);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .step-desc { font-size: 12.5px; color: var(--mist); line-height: 2.2; }
+
+  /* ---------- 07 profile ---------- */
+  #profile { background: var(--ink); }
+  .profile-head {
+    margin-bottom: 72px;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .profile-head b {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 21px;
+    letter-spacing: 0.3em;
+    color: var(--moon);
+    display: block;
+  }
+  .profile-head small {
+    display: block;
+    margin-top: 14px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--mist);
+    line-height: 2.2;
+  }
+  .profile-head small span { color: var(--mist-dim); }
+  .thoughts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 7vw, 96px);
+    max-width: 880px;
+    width: 100%;
+    text-align: left;
+  }
+  .thought {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .thought-tag {
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.34em;
+    color: var(--rain);
+    display: block;
+    margin-bottom: 20px;
+  }
+  .thought-quote {
+    font-family: var(--serif);
+    font-size: clamp(17px, 2.4vw, 21px);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    line-height: 2.2;
+    color: var(--moon);
+    margin-bottom: 18px;
+  }
+  .thought-desc {
+    font-size: 12.5px;
+    color: var(--mist);
+    line-height: 2.3;
+  }
+  .converge {
+    width: min(880px, 100%);
+    margin-top: 8px;
+    display: block;
+  }
+  .converge path {
+    fill: none;
+    stroke: var(--rain);
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+  .converge circle {
+    fill: var(--rain);
+    opacity: 0;
+  }
+  .creed {
+    margin-top: 40px;
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .creed small {
+    display: block;
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--mist-dim);
+    margin-bottom: 22px;
+  }
+  .creed b {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(19px, 3.2vw, 28px);
+    letter-spacing: 0.12em;
+    line-height: 2.2;
+    color: var(--moon);
+  }
+  @media (max-width: 640px) {
+    .thoughts { grid-template-columns: 1fr; gap: 48px; }
+    .converge { display: none; }
+    .creed { margin-top: 56px; }
+  }
+
+  /* ---------- 08 cta ---------- */
+  #cta {
+    background: linear-gradient(to bottom, var(--ink), var(--ink-3));
+    min-height: 90vh;
+  }
+  .cta-copy {
+    font-family: var(--serif);
+    font-size: clamp(24px, 4.4vw, 42px);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    line-height: 2.2;
+    color: var(--moon);
+  }
+  .cta-note {
+    margin-top: 36px;
+    font-size: 12.5px;
+    color: var(--mist);
+    max-width: 520px;
+    line-height: 2.4;
+  }
+  .cta-button {
+    margin-top: 64px;
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 0.4em;
+    text-indent: 0.4em;
+    color: var(--moon);
+    text-decoration: none;
+    border: 1px solid var(--rain-dim);
+    padding: 22px 64px;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.6s ease;
+    z-index: 1;
+  }
+  .cta-button::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--rain);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: -1;
+  }
+  .cta-button:hover { color: var(--ink); }
+  .cta-button:hover::after { transform: scaleX(1); }
+
+  footer {
+    padding: 56px 24px;
+    text-align: center;
+    border-top: 1px solid var(--hairline);
+    background: var(--ink-3);
+  }
+  footer .mark {
+    font-family: var(--latin);
+    font-size: 14px;
+    letter-spacing: 0.4em;
+    color: var(--mist-dim);
+  }
+  footer .mark span { color: var(--rain-dim); }
+  footer p { margin-top: 14px; font-size: 10px; letter-spacing: 0.2em; color: var(--mist-dim); }
+
+  a:focus-visible, .cta-button:focus-visible {
+    outline: 1px solid var(--rain);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 640px) {
+    nav, nav.scrolled { padding-left: 20px; padding-right: 20px; }
+    .circle { width: 160px; height: 160px; font-size: 10px; }
+    .circles { height: 220px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-mark, .hero-copy .line, .hero-sub, .scroll-cue,
+    .pain-line, .pain-close, .step, .thought, .profile-head, .creed { opacity: 1 !important; transform: none !important; }
+    .converge circle { opacity: 1; }
+    .vision-tagline .w { opacity: 1; }
+    .scroll-cue .drop { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="thread" aria-hidden="true"></div>
+
+<nav id="nav">
+  <a class="nav-mark" href="#hero">SHAPE<span>∞</span>D</a>
+  <a class="nav-cta" href="#cta">ご相談</a>
+</nav>
+
+<!-- 01 hero -->
+<section id="hero">
+  <canvas id="rain-canvas" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <h1 class="hero-mark">SHAPE<span class="inf">∞</span>D</h1>
+    <p class="hero-copy">
+      <span class="line">機能だけなら、誰でもつくれる。</span>
+      <span class="line">私たちは、想いまで実装する。</span>
+    </p>
+    <p class="hero-sub">SYSTEM / WEB / AI — SELF-CONGRUENCE &times; AI ENGINEERING</p>
+    <div class="scroll-cue">
+      <small>SCROLL</small>
+      <div class="drop"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 philosophy -->
+<section id="vision">
+  <div class="stage">
+    <p class="eyebrow"><em>PHILOSOPHY</em>私たちの考え</p>
+    <h2 class="vision-tagline" id="tagline">商品・サービスは、自己表現のツールである。</h2>
+    <p class="vision-note">
+      人と会社は、同じだと考えています。<br>
+      想いが伝わる会社は、価格ではなく「らしさ」で選ばれる。<br>
+      SHAPE∞Dは、その「らしさ」を最大限反映したシステムをつくるエンジニアリングスタジオです。
+    </p>
+  </div>
+</section>
+
+<!-- 03 pain -->
+<section id="pain">
+  <div class="stage">
+    <p class="eyebrow"><em>REALITY</em>こんな課題はありませんか</p>
+    <div class="pain-lines">
+      <p class="pain-line">新しい事業の構想はある。でもノウハウがなく、<strong>構想のまま、時間だけが過ぎていく。</strong></p>
+      <p class="pain-line">HPはある。でも自社の色は伝わらず、<strong>結局、価格で比べられている。</strong></p>
+      <p class="pain-line">一度は外注した。仕様どおりの「それらしいもの」は届いた。<strong>でも、想いは載っていなかった。</strong></p>
+    </div>
+    <p class="pain-close">足りないのは技術ではなく、想いを翻訳する相手です。</p>
+  </div>
+</section>
+
+<!-- 04 theory -->
+<section id="theory">
+  <div class="theory-stage">
+    <p class="eyebrow"><em>APPROACH</em>差別化の核</p>
+    <h2 class="theory-title">自己一致 &times; AIエンジニアリング</h2>
+    <div class="circles" aria-label="こうありたい姿といまの姿が、システムというかたちで重なっていく図">
+      <div class="circle ideal" id="c-ideal">こうありたい姿</div>
+      <div class="circle real" id="c-real">いまの姿</div>
+      <span class="congruence-label" id="c-label">
+        <b>一致</b>
+        <small>SYSTEM AS SELF-EXPRESSION</small>
+      </span>
+    </div>
+    <p class="theory-desc">
+      心理学者カール・ロジャーズは、「ありたい自分」と「いまの自分」の重なりを<strong>自己一致</strong>と呼びました。
+      一致している人の言葉が自然と伝わるように、<strong>一致している会社は、説明しなくても選ばれます。</strong>
+      SHAPE∞Dは、会社の「こうありたい」と「いまの姿」のギャップを、
+      AIエンジニアリングの力でシステムというかたちに体現する — 選ばれる理由を、実装します。
+    </p>
+  </div>
+</section>
+
+<!-- 05 services -->
+<section id="services">
+  <div class="svc-stage" id="svc-stage">
+    <div class="svc-panel">
+      <div class="svc-num">01</div>
+      <h3 class="svc-title">基幹システム開発</h3>
+      <p class="svc-en">CORE SYSTEM DEVELOPMENT</p>
+      <p class="svc-desc">「こんなサービスができたら」を、事業の主軸となるシステムに。要件定義の前、構想の言語化から伴走します。ノウハウはこちらが持ちます。あなたは、想いを持ってきてください。</p>
+    </div>
+    <div class="svc-panel">
+      <div class="svc-num">02</div>
+      <h3 class="svc-title">HP・Webサイト制作</h3>
+      <p class="svc-en">WEB &amp; BRAND EXPRESSION</p>
+      <p class="svc-desc">サイトは名刺ではなく、営業と採用の最前線です。ブランドの色、こだわり、空気感まで実装し、「なんとなく良い」ではなく「この会社に頼みたい」と思われる状態をつくります。</p>
+    </div>
+    <div class="svc-panel">
+      <div class="svc-num">03</div>
+      <h3 class="svc-title">AI活用・業務効率化</h3>
+      <p class="svc-en">AI-POWERED EFFICIENCY</p>
+      <p class="svc-desc">繰り返し作業に、経営者やエースの時間が溶けていないでしょうか。AIで日々の業務を軽くし、その時間を「その会社にしかできない仕事」へ返します。効率化は目的ではなく、創造のための余白づくりです。</p>
+    </div>
+    <div class="svc-panel">
+      <div class="svc-num">04</div>
+      <h3 class="svc-title">継続開発・伴走</h3>
+      <p class="svc-en">GROW TOGETHER</p>
+      <p class="svc-desc">納品して終わりの関係は、つくりません。事業が変われば、あるべきかたちも変わる。リリース後も改善を重ね、システムを事業と一緒に育てていきます。</p>
+    </div>
+    <div class="svc-progress" aria-hidden="true">
+      <span class="svc-dot on"></span><span class="svc-dot"></span><span class="svc-dot"></span><span class="svc-dot"></span>
+    </div>
+  </div>
+</section>
+
+<!-- 06 process -->
+<section id="process">
+  <div class="stage">
+    <p class="eyebrow"><em>PROCESS</em>つくり方</p>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01 — LISTEN</span>
+        <span class="step-title">聴く</span>
+        <p class="step-desc">専門用語は要りません。事業への想い、こだわり、理想の姿を、そのままの言葉で聴かせてください。</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02 — TRANSLATE</span>
+        <span class="step-title">翻訳する</span>
+        <p class="step-desc">聴いた想いを、要件・設計・デザインに翻訳します。「何をつくるべきか」が曖昧なまま、開発は始めません。</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03 — BUILD</span>
+        <span class="step-title">かたちにする</span>
+        <p class="step-desc">AIを活用した開発で、速度と品質を両立。進捗は常に見える状態で進め、途中の軌道修正も歓迎します。</p>
+      </div>
+      <div class="step">
+        <span class="step-num">04 — GROW</span>
+        <span class="step-title">育てる</span>
+        <p class="step-desc">リリースは始まりです。数字と現場の声を見ながら、事業の成長に合わせて改善を続けます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 profile -->
+<section id="profile">
+  <div class="stage">
+    <p class="eyebrow"><em>PROFILE</em>代表者紹介</p>
+    <div class="profile-head">
+      <b>明石 康汰</b>
+      <small>
+        SHAPE∞D 代表 / エンジニア<br>
+        <span>AutoDevJapan — BRM（ビジネスリレーションシップマネージャー）兼 CBO</span>
+      </small>
+    </div>
+    <div class="thoughts">
+      <div class="thought" id="th-psy">
+        <span class="thought-tag">01 — PSYCHOLOGY</span>
+        <p class="thought-quote">人と会社は、同じ。<br>本来の形に還るとき、いちばん強く語れる。</p>
+        <p class="thought-desc">心理学のアカデミックなバックグラウンドと、カール・ロジャーズの自己一致理論。「こうありたい姿」に一致した会社は、無理に売り込まなくても伝わり、選ばれる — この視点を、事業とシステムづくりに持ち込んでいます。</p>
+      </div>
+      <div class="thought" id="th-eng">
+        <span class="thought-tag">02 — AI ENGINEERING</span>
+        <p class="thought-quote">AIで日々を軽くし、<br>人は、本来の創造へ。</p>
+        <p class="thought-desc">技術は目的ではなく、想いを翻訳する手段。日々の業務に追われて本来やりたい創造に時間を使えない — その状態をAIエンジニアリングで解き、人が「その会社にしかできないこと」に集中できる環境をつくります。</p>
+      </div>
+    </div>
+    <svg class="converge" viewBox="0 0 880 150" aria-hidden="true">
+      <path id="cv-l" d="M 220 0 C 220 80, 440 60, 440 130"/>
+      <path id="cv-r" d="M 660 0 C 660 80, 440 60, 440 130"/>
+      <circle id="cv-dot" cx="440" cy="130" r="3"/>
+    </svg>
+    <p class="creed">
+      <small>二つの思想は、一つの理念へ</small>
+      <b>商品・サービスは、自己表現のツールである。</b>
+    </p>
+  </div>
+</section>
+
+<!-- 08 cta -->
+<section id="cta">
+  <div class="stage">
+    <p class="eyebrow"><em>CONTACT</em>最初の一歩</p>
+    <h2 class="cta-copy">構想の段階から、<br>話せます。</h2>
+    <p class="cta-note">
+      まだ要件になっていなくて構いません。<br>
+      「こんなことができたら」の段階からが、いちばん良い仕事になります。<br>
+      無料相談では、想いの言語化と、実現までの道筋の整理まで行います。売り込みはしません。
+    </p>
+    <a class="cta-button" href="#">無料相談を申し込む</a>
+  </div>
+</section>
+
+<footer>
+  <div class="mark">SHAPE<span>∞</span>D</div>
+  <p>&copy; 2026 SHAPE∞D — self-congruence &times; ai engineering</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- rain canvas ---------- */
+  (function () {
+    const canvas = document.getElementById("rain-canvas");
+    const ctx = canvas.getContext("2d");
+    let w, h, drops;
+
+    function resize() {
+      w = canvas.width = canvas.offsetWidth * devicePixelRatio;
+      h = canvas.height = canvas.offsetHeight * devicePixelRatio;
+      drops = Array.from({ length: Math.floor(canvas.offsetWidth / 26) }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        len: (40 + Math.random() * 70) * devicePixelRatio,
+        speed: (0.4 + Math.random() * 0.8) * devicePixelRatio,
+        alpha: 0.05 + Math.random() * 0.12
+      }));
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    if (reduceMotion) {
+      ctx.strokeStyle = "rgba(125,156,196,0.08)";
+      drops.forEach(d => {
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x, d.y + d.len); ctx.stroke();
+      });
+      return;
+    }
+    (function draw() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.lineWidth = 1;
+      drops.forEach(d => {
+        ctx.strokeStyle = `rgba(125,156,196,${d.alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x, d.y + d.len);
+        ctx.stroke();
+        d.y += d.speed;
+        if (d.y > h) { d.y = -d.len; d.x = Math.random() * w; }
+      });
+      requestAnimationFrame(draw);
+    })();
+  })();
+
+  /* ---------- tagline: split into spans ---------- */
+  (function () {
+    const el = document.getElementById("tagline");
+    const chars = [...el.textContent];
+    el.textContent = "";
+    chars.forEach(ch => {
+      const s = document.createElement("span");
+      s.className = "w";
+      s.textContent = ch;
+      el.appendChild(s);
+    });
+  })();
+
+  /* ---------- nav shrink ---------- */
+  const nav = document.getElementById("nav");
+  window.addEventListener("scroll", () => {
+    nav.classList.toggle("scrolled", window.scrollY > 60);
+  }, { passive: true });
+
+  if (!reduceMotion && window.gsap) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* Lenis — deliberately slow */
+    const lenis = new Lenis({
+      duration: 1.8,
+      easing: t => 1 - Math.pow(1 - t, 4),
+      smoothWheel: true
+    });
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* signature thread */
+    gsap.to("#thread", {
+      scaleY: 1,
+      ease: "none",
+      scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 1.2 }
+    });
+
+    /* 01 hero intro */
+    gsap.timeline({ defaults: { ease: "power3.out" } })
+      .to(".hero-mark", { opacity: 1, duration: 2.4 }, 0.4)
+      .to(".hero-copy .line", { opacity: 1, y: 0, duration: 1.8, stagger: 0.9 }, 1.2)
+      .to(".hero-sub", { opacity: 1, duration: 1.6 }, "-=0.6")
+      .to(".scroll-cue", { opacity: 1, duration: 1.4 }, "-=0.8");
+
+    /* 02 tagline: char-by-char scrub */
+    gsap.to("#tagline .w", {
+      opacity: 1,
+      stagger: 0.05,
+      ease: "none",
+      scrollTrigger: { trigger: "#vision", start: "top 70%", end: "center center", scrub: 0.8 }
+    });
+
+    /* 03 pain lines */
+    gsap.utils.toArray(".pain-line").forEach(line => {
+      gsap.to(line, {
+        opacity: 1, y: 0, duration: 1.6, ease: "power2.out",
+        scrollTrigger: { trigger: line, start: "top 78%" }
+      });
+    });
+    gsap.to(".pain-close", {
+      opacity: 1, duration: 2, ease: "power2.out",
+      scrollTrigger: { trigger: ".pain-close", start: "top 82%" }
+    });
+
+    /* 04 theory: circles converge (pinned scrub) */
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: "#theory", start: "top top", end: "+=120%",
+        pin: true, scrub: 1
+      }
+    })
+      .to("#c-ideal", { xPercent: 84, ease: "none" }, 0)
+      .to("#c-real", { xPercent: -84, ease: "none" }, 0)
+      .to("#c-ideal, #c-real", { borderColor: "rgba(125,156,196,0.7)" }, 0.5)
+      .to("#c-label", { opacity: 1 }, 0.72)
+      .to("#c-ideal, #c-real", { color: "rgba(139,147,161,0.25)" }, 0.6);
+
+    /* 05 services: pinned panel sequence */
+    const panels = gsap.utils.toArray(".svc-panel");
+    const dots = gsap.utils.toArray(".svc-dot");
+    const svcTL = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#services", start: "top top",
+        end: "+=" + panels.length * 90 + "%",
+        pin: true, scrub: 0.8,
+        onUpdate: self => {
+          const i = Math.min(panels.length - 1, Math.floor(self.progress * panels.length));
+          dots.forEach((d, k) => d.classList.toggle("on", k === i));
+        }
+      }
+    });
+    panels.forEach((p, i) => {
+      if (i === 0) {
+        svcTL.to(p, { autoAlpha: 1, duration: 0.001 }, 0);
+      } else {
+        svcTL.to(panels[i - 1], { autoAlpha: 0, y: -30, duration: 0.35 }, i)
+             .fromTo(p, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.35 }, i + 0.15);
+      }
+      if (i === panels.length - 1) svcTL.to({}, { duration: 0.6 });
+    });
+
+    /* 06 steps */
+    gsap.utils.toArray(".step").forEach((s, i) => {
+      gsap.to(s, {
+        opacity: 1, y: 0, duration: 1.4, ease: "power2.out", delay: i * 0.12,
+        scrollTrigger: { trigger: s, start: "top 82%" }
+      });
+    });
+
+    /* 07 profile */
+    gsap.to(".profile-head", {
+      opacity: 1, y: 0, duration: 1.6, ease: "power2.out",
+      scrollTrigger: { trigger: ".profile-head", start: "top 84%" }
+    });
+    gsap.utils.toArray(".thought").forEach((t, i) => {
+      gsap.to(t, {
+        opacity: 1, y: 0, duration: 1.6, ease: "power2.out", delay: i * 0.3,
+        scrollTrigger: { trigger: ".thoughts", start: "top 80%" }
+      });
+    });
+    /* two thoughts converge into one creed */
+    ["#cv-l", "#cv-r"].forEach(sel => {
+      const path = document.querySelector(sel);
+      const len = path.getTotalLength();
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+      gsap.to(path, {
+        strokeDashoffset: 0,
+        ease: "none",
+        scrollTrigger: { trigger: ".converge", start: "top 88%", end: "top 42%", scrub: 0.8 }
+      });
+    });
+    gsap.to("#cv-dot", {
+      opacity: 1, duration: 0.8,
+      scrollTrigger: { trigger: ".converge", start: "top 44%" }
+    });
+    gsap.to(".creed", {
+      opacity: 1, y: 0, duration: 2, ease: "power2.out",
+      scrollTrigger: { trigger: ".converge", start: "top 40%" }
+    });
+  } else {
+    /* reduced motion or no gsap: reveal everything */
+    document.querySelectorAll("#tagline .w").forEach(w => (w.style.opacity = 1));
+    document.querySelectorAll(".svc-panel").forEach(p => {
+      p.style.position = "relative";
+      p.style.opacity = 1;
+      p.style.visibility = "visible";
+      p.style.minHeight = "100vh";
+    });
+    document.getElementById("svc-stage").style.height = "auto";
+    document.getElementById("c-label").style.opacity = 1;
+  }
+</script>
+</body>
+</html>

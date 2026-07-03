@@ -142,6 +142,61 @@ export const cosmicGrade = {
   testId: 'cosmic-grade-overlay',
 } as const;
 
+/**
+ * トップページ刷新（#302）基盤トークン — Issue #303
+ * SSOT: lib/design/shape-d-prototype-v4.html（:root L11-L25）
+ * 既存トークンと並存し、`.top-scope`（トップページ）配下でのみ使用する。下層ページはスコープ外。
+ */
+export const topColors = {
+  ink: '#07090d',
+  ink2: '#0b0e15',
+  ink3: '#10141d',
+  moon: '#dfe3ea',
+  mist: '#8b93a1',
+  mistDim: '#545c6a',
+  rain: '#7d9cc4',
+  rainDim: 'rgba(125, 156, 196, 0.35)',
+  hairline: 'rgba(139, 147, 161, 0.16)',
+} as const;
+
+/** CSS custom property names for topColors — mirrors .top-scope in globals.css */
+export const topColorCssVars: Record<keyof typeof topColors, string> = {
+  ink: '--ink',
+  ink2: '--ink-2',
+  ink3: '--ink-3',
+  moon: '--moon',
+  mist: '--mist',
+  mistDim: '--mist-dim',
+  rain: '--rain',
+  rainDim: '--rain-dim',
+  hairline: '--hairline',
+};
+
+/** 参照HTMLのセマンティックフォント変数（--serif 等）— .top-scope で next/font 変数へ解決 */
+export const topFontCssVars = {
+  serif: '--serif',
+  gothic: '--gothic',
+  latin: '--latin',
+  mono: '--mono',
+} as const;
+
+/** next/font が生成する変数名（components/top/top-fonts.ts と同期）。Cormorant は既存 --font-display を流用 */
+export const topNextFontCssVars = {
+  shipporiMincho: '--font-shippori-mincho',
+  zenKakuGothicNew: '--font-zen-kaku-gothic-new',
+  jetBrainsMono: '--font-jetbrains-mono',
+  cormorantGaramond: '--font-display',
+} as const;
+
+/** 共通シェル挙動定数（参照HTML L875 / L892-L896） */
+export const topShell = {
+  scopeClass: 'top-scope',
+  /** nav.classList.toggle("scrolled", window.scrollY > 60) */
+  navScrollThresholdPx: 60,
+  /** gsap.to("#thread", { scrollTrigger: { scrub: 1.2 } }) */
+  threadScrub: 1.2,
+} as const;
+
 /** Typography mix-blend-mode for cosmic vs solid section backgrounds — Issue #101 */
 export const typographyBlend = {
   cosmic: 'screen',
