@@ -7,8 +7,6 @@ export const LOGO_ALT = 'SHAPE∞D Logo';
 /** Re-export SSOT from `lib/hero/sample-logo-target-points`. */
 export const HERO_PARTICLE_FORMATION_MS = LOGO_PARTICLE_FORMATION_MS;
 
-const HERO_HEADING = /AIで効率化し、.*本来の創造に集中する環境を作る。/;
-
 export async function expectHeroBrandLogoAfterFormation(page: Page): Promise<void> {
   const heroSection = page.locator('main section').first();
   const logoStage = heroSection.getByTestId('hero-logo-stage');
@@ -99,19 +97,11 @@ export async function expectBigbangCanvasRetiredWithLogoVisible(page: Page): Pro
 export async function waitForHomePageReady(page: Page): Promise<void> {
   await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
 
-  const heroSection = page.locator('main section').first();
-  const heroBrandLogo = heroSection.getByRole('img', { name: LOGO_ALT });
-  const heroHeading = heroSection.getByRole('heading', {
-    level: 1,
-    name: HERO_HEADING,
-  });
-
-  await expect(async () => {
-    const headingVisible = await heroHeading.isVisible();
-    const logoVisible =
-      (await heroBrandLogo.count()) > 0 && (await heroBrandLogo.isVisible());
-    expect(headingVisible || logoVisible).toBe(true);
-  }).toPass({ timeout: 15_000 });
+  // #304: トップページのヒーローは参照HTMLの #hero（TopHero）。
+  // マーク h1「SHAPE∞D」がレンダリングされていれば準備完了とみなす
+  // （イントロは opacity をフェードするが、Playwright は opacity:0 も visible と判定するため即座に通る）。
+  const heroMark = page.locator('#hero .hero-mark');
+  await expect(heroMark).toBeVisible({ timeout: 15_000 });
 }
 
 /** Issue #97: Footer must render above fixed CosmicScene on home page scroll. */
