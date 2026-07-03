@@ -197,6 +197,41 @@ export const topShell = {
   threadScrub: 1.2,
 } as const;
 
+/**
+ * ヒーローセクション（#hero）の演出定数 — Issue #304
+ * SSOT: lib/design/shape-d-prototype-v4.html（雨 Canvas L816-L857 / イントロ L898-L903）
+ */
+export const topHero = {
+  /** イントロタイムライン（gsap.timeline defaults ease power3.out）— 参照HTML L898-L903 */
+  intro: {
+    ease: 'power3.out',
+    /** .hero-mark { opacity:1, duration:2.4 } at 0.4 */
+    mark: { duration: 2.4, at: 0.4 },
+    /** .hero-copy .line { opacity:1, y:0, duration:1.8, stagger:0.9 } at 1.2 */
+    copy: { duration: 1.8, stagger: 0.9, at: 1.2 },
+    /** .hero-sub { opacity:1, duration:1.6 } at "-=0.6" */
+    sub: { duration: 1.6, at: '-=0.6' },
+    /** .scroll-cue { opacity:1, duration:1.4 } at "-=0.8" */
+    cue: { duration: 1.4, at: '-=0.8' },
+  },
+  /** 雨 Canvas — 参照HTML L816-L857。色は topColors.rain の rgb（125,156,196） */
+  rain: {
+    /** 線密度: offsetWidth / 26 本 */
+    columnWidthPx: 26,
+    strokeRgb: '125,156,196',
+    /** reduced-motion 静止描画時の一律 alpha */
+    staticAlpha: 0.08,
+    lengthMinPx: 40,
+    lengthRangePx: 70,
+    speedMin: 0.4,
+    speedRange: 0.8,
+    alphaMin: 0.05,
+    alphaRange: 0.12,
+    /** #rain-canvas { opacity: 0.5 } */
+    canvasOpacity: 0.5,
+  },
+} as const;
+
 /** Typography mix-blend-mode for cosmic vs solid section backgrounds — Issue #101 */
 export const typographyBlend = {
   cosmic: 'screen',
