@@ -277,6 +277,19 @@ export const topHero = {
     /** .step: opacity 0→1, y 20→0, duration 1.4, power2.out, delay i×0.12, trigger 各 step top 82% */
     step: { duration: 1.4, ease: 'power2.out', yFrom: 20, staggerDelay: 0.12, start: 'top 82%' },
   },
+  /** Profile #profile の各演出 — 参照HTML L970-L999 */
+  profile: {
+    /** .profile-head: opacity 0→1, y 16→0, duration 1.6, top 84% */
+    head: { duration: 1.6, yFrom: 16, start: 'top 84%' },
+    /** .thought × 2: duration 1.6, delay i×0.3, trigger .thoughts top 80%, y 20 */
+    thought: { duration: 1.6, staggerDelay: 0.3, yFrom: 20, start: 'top 80%' },
+    /** 収束 SVG パス: strokeDashoffset を scrub 描画（trigger .converge top 88%→top 42% / scrub 0.8） */
+    converge: { start: 'top 88%', end: 'top 42%', scrub: 0.8 },
+    /** #cv-dot: opacity 0→1, duration 0.8, top 44% */
+    dot: { duration: 0.8, start: 'top 44%' },
+    /** .creed: opacity 0→1, y 14→0, duration 2, top 40% */
+    creed: { duration: 2, yFrom: 14, start: 'top 40%' },
+  },
   /** 雨 Canvas — 参照HTML L816-L857。色は topColors.rain の rgb（125,156,196） */
   rain: {
     /** 線密度: offsetWidth / 26 本 */

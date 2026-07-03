@@ -115,6 +115,15 @@ describe('top page renewal tokens (#303)', () => {
     });
   });
 
+  it('defines profile animation constants matching the reference HTML (#310)', () => {
+    expect(topHero.profile.head).toEqual({ duration: 1.6, yFrom: 16, start: 'top 84%' });
+    expect(topHero.profile.thought).toEqual({ duration: 1.6, staggerDelay: 0.3, yFrom: 20, start: 'top 80%' });
+    // 収束 SVG scrub（参照HTML L989）
+    expect(topHero.profile.converge).toEqual({ start: 'top 88%', end: 'top 42%', scrub: 0.8 });
+    expect(topHero.profile.dot).toEqual({ duration: 0.8, start: 'top 44%' });
+    expect(topHero.profile.creed).toEqual({ duration: 2, yFrom: 14, start: 'top 40%' });
+  });
+
   it('defines rain canvas constants matching the reference HTML (#304)', () => {
     // Math.floor(offsetWidth / 26) — 参照HTML L825
     expect(topHero.rain.columnWidthPx).toBe(26);
