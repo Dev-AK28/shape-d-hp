@@ -291,6 +291,27 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*min-height:\s*100vh/);
     expect(block).toContain('visibility: visible !important');
   });
+
+  it('defines process (#process) timeline styles scoped to the top page (#309)', () => {
+    expect(globalsCss).toContain('.top-scope #process');
+    expect(globalsCss).toContain('.top-scope .steps');
+    expect(globalsCss).toContain('.top-scope .step');
+    expect(globalsCss).toContain('.top-scope .step::before');
+    // 背景は ink-2→ink グラデーション（参照HTML L392）
+    expect(globalsCss).toMatch(/\.top-scope #process\s*\{[^}]*linear-gradient\(to bottom, var\(--ink-2\), var\(--ink\)\)/);
+    // 左ボーダー + リビール前 opacity:0 + translateY(20px)（参照HTML L403-L405）
+    expect(globalsCss).toMatch(/\.top-scope \.step\s*\{[^}]*border-left:\s*1px solid var\(--hairline\)/);
+    expect(globalsCss).toMatch(/\.top-scope \.step\s*\{[^}]*translateY\(20px\)/);
+    // rain ドット（::before）
+    expect(globalsCss).toMatch(/\.top-scope \.step::before\s*\{[^}]*background:\s*var\(--rain\)/);
+  });
+
+  it('forces steps visible under reduced-motion (#309 fallback)', () => {
+    const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
+    const block = reducedBlocks.find((b) => b.includes('.top-scope .step'));
+    expect(block, 'process reduced-motion fallback block').toBeDefined();
+    expect(block).toContain('opacity: 1 !important');
+  });
 });
 
 describe('design token cross-layer sync', () => {

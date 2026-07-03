@@ -104,6 +104,17 @@ describe('top page renewal tokens (#303)', () => {
     expect(topHero.services.tailDuration).toBe(0.6);
   });
 
+  it('defines process step-reveal constants matching the reference HTML (#309)', () => {
+    // .step: duration 1.4, power2.out, y 20, delay i×0.12, trigger top 82% — 参照HTML L963-L967
+    expect(topHero.process.step).toEqual({
+      duration: 1.4,
+      ease: 'power2.out',
+      yFrom: 20,
+      staggerDelay: 0.12,
+      start: 'top 82%',
+    });
+  });
+
   it('defines rain canvas constants matching the reference HTML (#304)', () => {
     // Math.floor(offsetWidth / 26) — 参照HTML L825
     expect(topHero.rain.columnWidthPx).toBe(26);

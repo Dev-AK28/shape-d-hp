@@ -272,6 +272,11 @@ export const topHero = {
     /** 末尾の余白トゥイーン（参照HTML L959） */
     tailDuration: 0.6,
   },
+  /** プロセス #process の縦タイムライン ステップフェードイン — 参照HTML L962-L968 */
+  process: {
+    /** .step: opacity 0→1, y 20→0, duration 1.4, power2.out, delay i×0.12, trigger 各 step top 82% */
+    step: { duration: 1.4, ease: 'power2.out', yFrom: 20, staggerDelay: 0.12, start: 'top 82%' },
+  },
   /** 雨 Canvas — 参照HTML L816-L857。色は topColors.rain の rgb（125,156,196） */
   rain: {
     /** 線密度: offsetWidth / 26 本 */
