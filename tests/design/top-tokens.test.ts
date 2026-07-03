@@ -61,6 +61,15 @@ describe('top page renewal tokens (#303)', () => {
     expect(topHero.intro.cue).toEqual({ duration: 1.4, at: '-=0.8' });
   });
 
+  it('defines tagline scrub constants matching the reference HTML (#305)', () => {
+    // gsap.to("#tagline .w", {opacity:1, stagger:0.05, scrollTrigger:{start,end,scrub:0.8}}) — 参照HTML L905-L911
+    expect(topHero.taglineScrub.opacityFrom).toBe(0.08);
+    expect(topHero.taglineScrub.stagger).toBe(0.05);
+    expect(topHero.taglineScrub.scrub).toBe(0.8);
+    expect(topHero.taglineScrub.start).toBe('top 70%');
+    expect(topHero.taglineScrub.end).toBe('center center');
+  });
+
   it('defines rain canvas constants matching the reference HTML (#304)', () => {
     // Math.floor(offsetWidth / 26) — 参照HTML L825
     expect(topHero.rain.columnWidthPx).toBe(26);

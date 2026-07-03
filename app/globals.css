@@ -703,12 +703,40 @@ button:not(.nav-menu-button):hover {
   }
 }
 
-/* reduced-motion: イントロを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
+/* ---------- 02 philosophy — 参照HTML L202-L222 ---------- */
+.top-scope #vision {
+  background: var(--ink);
+}
+
+.top-scope .vision-tagline {
+  font-family: var(--serif);
+  font-size: clamp(24px, 4.6vw, 46px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 2.2;
+  color: var(--moon);
+}
+
+.top-scope .vision-tagline .w {
+  display: inline-block;
+  opacity: 0.08;
+}
+
+.top-scope .vision-note {
+  margin-top: 64px;
+  max-width: 580px;
+  font-size: 13px;
+  color: var(--mist);
+  line-height: 2.4;
+}
+
+/* reduced-motion: イントロ／スクラブを走らせない代わりに全要素を即時表示（参照HTML L611-L617） */
 @media (prefers-reduced-motion: reduce) {
   .top-scope .hero-mark,
   .top-scope .hero-copy .line,
   .top-scope .hero-sub,
-  .top-scope .scroll-cue {
+  .top-scope .scroll-cue,
+  .top-scope .vision-tagline .w {
     opacity: 1 !important;
     transform: none !important;
   }
