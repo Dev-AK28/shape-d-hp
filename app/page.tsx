@@ -1,7 +1,3 @@
-import About from '@/components/About';
-import MissionVision from '@/components/MissionVision';
-import HomePageShell from '@/components/home/HomePageShell';
-import ShowcaseSection from '@/components/home/ShowcaseSection';
 import TopShell from '@/components/top/TopShell';
 import TopHero from '@/components/top/TopHero';
 import TopPhilosophy from '@/components/top/TopPhilosophy';
@@ -14,11 +10,11 @@ import TopCta from '@/components/top/TopCta';
 
 export default function Home() {
   return (
-    // 参照HTMLの各セクション（hero〜CTA）を実装済み（#304〜#311）。
-    // 旧セクション（About / MissionVision / Showcase）は参照側で置換済みだが、既存の回帰テストが
-    // 結びついているため据え置き、HomePageShell（cosmic 背景）ごとの撤去は #316 / #312 で行う。
+    // #312/#316: 参照デザイン（hero〜CTA）のみで構成。旧セクション（About / MissionVision /
+    // ShowcaseSection）と HomePageShell（cosmic 背景）を撤去し、cosmic / velocity-skew /
+    // CustomCursor / PageLoader をトップページで無効化した。
     <TopShell>
-      <HomePageShell>
+      <main className="relative min-h-screen">
         <TopHero />
         <TopPhilosophy />
         <TopPain />
@@ -26,11 +22,8 @@ export default function Home() {
         <TopServices />
         <TopProcess />
         <TopProfile />
-        <About />
-        <MissionVision />
-        <ShowcaseSection />
         <TopCta />
-      </HomePageShell>
+      </main>
     </TopShell>
   );
 }
