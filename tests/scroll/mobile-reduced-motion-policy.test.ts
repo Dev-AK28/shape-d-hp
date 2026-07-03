@@ -14,50 +14,9 @@ function src(relPath: string): string {
   return readFileSync(join(process.cwd(), relPath), 'utf8');
 }
 
-// ── Act 3: About ─────────────────────────────────────────────────────────────
-describe('Act 3 About — mobile/reduced-motion policy', () => {
-  it('uses isTouchInputDevice to branch pin vs stagger on mobile', () => {
-    const s = src('components/About.tsx');
-    expect(s).toContain('isTouchInputDevice');
-    // Desktop path: pin=true
-    expect(s).toContain('pin: true');
-    // Mobile path: toggleActions (simple ScrollTrigger, no pin)
-    expect(s).toContain('toggleActions');
-  });
-
-  it('uses useGsapContext (auto-skips on prefers-reduced-motion)', () => {
-    const s = src('components/About.tsx');
-    expect(s).toContain('useGsapContext');
-  });
-
-  it('uses useStaticReveal for staticReveal guard', () => {
-    const s = src('components/About.tsx');
-    expect(s).toContain('useStaticReveal');
-    expect(s).toContain('staticReveal');
-  });
-});
-
-// ── Act 4: MissionVision ──────────────────────────────────────────────────────
-describe('Act 4 MissionVision — mobile/reduced-motion policy', () => {
-  it('uses isTouchInputDevice + mobileScale to weaken parallax on mobile', () => {
-    const s = src('components/MissionVision.tsx');
-    expect(s).toContain('isTouchInputDevice');
-    expect(s).toContain('mobileScale');
-    expect(s).toContain('offsetScale');
-  });
-
-  it('uses useGsapContext (auto-skips on prefers-reduced-motion)', () => {
-    const s = src('components/MissionVision.tsx');
-    expect(s).toContain('useGsapContext');
-  });
-
-  it('uses useStaticReveal for staticReveal guard', () => {
-    const s = src('components/MissionVision.tsx');
-    expect(s).toContain('useStaticReveal');
-    expect(s).toContain('staticReveal');
-  });
-
-  it('ParallaxSection falls back to plain div on prefers-reduced-motion (via useReducedMotion)', () => {
+// #312/#316: 旧トップ幕 About / MissionVision は撤去。ParallaxSection は下層ページで継続使用。
+describe('ParallaxSection — mobile/reduced-motion policy', () => {
+  it('falls back to plain div on prefers-reduced-motion (via useReducedMotion)', () => {
     const s = src('components/scroll/ParallaxSection.tsx');
     expect(s).toContain('useReducedMotion');
     // Reduced-motion path returns plain div

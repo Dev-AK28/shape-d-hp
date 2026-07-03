@@ -1294,33 +1294,5 @@ button:not(.nav-menu-button):hover {
   }
 }
 
-/* ── Hero CLS prevention: coarse-pointer + reduced-motion (Issue #149) ──────── */
-/* On touch-primary large screens (iPad Pro, large Android tablets) with
-   prefers-reduced-motion, the JS mobileStaticHero flag switches Hero from
-   h-svh/absolute-CTA to h-auto/flow-CTA only after hydration (isReady: false→true),
-   causing a visible layout shift. This @media block replicates the same layout from
-   the very first browser paint, eliminating the shift.
-   Convergence note: JS (mobileStaticHero=true) and CSS converge to the same layout,
-   except that CSS additionally sets min-height: 100svh which the Tailwind className
-   path omits; both produce the correct visual result. */
-@media (pointer: coarse) and (prefers-reduced-motion: reduce) {
-  [data-hero="immersive"] {
-    flex-direction: column;
-    height: auto;
-    min-height: 100svh;
-    overflow: visible;
-    padding-top: calc(var(--space-8) + env(safe-area-inset-top, 0px));
-    padding-bottom: var(--space-8);
-  }
-
-  /* Scoped under [data-hero="immersive"] to prevent accidental style leakage
-     if data-hero-cta is used outside the Hero section in the future. */
-  [data-hero="immersive"] [data-hero-cta] {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    margin-top: var(--space-6);
-    text-align: center;
-  }
-}
+/* #316: 旧イマーシブ Hero（[data-hero="immersive"]）撤去に伴い、#149 の CLS 対策
+   CSS ブロックを削除（対象 DOM が存在しないため dead CSS）。 */
