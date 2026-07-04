@@ -271,9 +271,13 @@ PageHeader pt (修正後) = var(--space-section) + S = 120px + 59px = 179px
 
 ノッチなし端末（S=0）では `120px + 0 = 120px` で変化なし。`--space-section` トークンを参照するため、将来の spacing 変更に自動追従する。
 
-### 未対応項目（別 Issue 管理）
+### safe-area 値シミュレーション（E2E）
 
-- E2E テストでの safe-area 値シミュレーション（Playwright 通常 viewport では inset = 0）→ Issue #166
+Playwright の通常 viewport では `env(safe-area-inset-top)` が常に 0 のため、CSS injection（`padding-top: <notch>px !important`）でノッチ端末を再現して補償挙動を検証する。
+
+- モバイル `Navigation`（390px baseline）/ TopNav（88px 注入）: `e2e/navigation.spec.ts`（#166 / #303）
+- **デスクトップ 下層 `Navigation`（1280px・`md:pt` 式の class 存在 + 59px 注入で高さ増加）: `e2e/navigation.spec.ts`（#288）**
+- `PageHeader`（`safe-area-inset-top` 式の存在確認）: `e2e/page-headers.spec.ts`（#167）。注入シミュレーションは Issue #289 で追跡
 
 ## Hero CLS 修正：coarse pointer + reduced-motion（Issue #149 / #269）— 撤去済み
 

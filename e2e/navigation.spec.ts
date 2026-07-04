@@ -238,4 +238,53 @@ test.describe('Navigation desktop layout', () => {
 
     expect(navBox?.height).toBeGreaterThanOrEqual(80);
   });
+
+  /**
+   * Regression test for Issue #288 — 下層 Navigation デスクトップ safe-area-inset-top 補償。
+   *
+   * `Navigation.tsx` の内側 div はモバイル用 `pt-[max(0.75rem,env(safe-area-inset-top,0px))]` と
+   * デスクトップ用 `md:pt-[max(1.25rem,env(safe-area-inset-top,0px))]` の両方を持つ。既存の #166
+   * safe-area テストは 390px（モバイル）で `safe-area-inset-top` 文字列のみを検証するため、
+   * `md:pt-5` 等へ誤置換してもモバイルクラス側が残り検出できない。ここでは 1280px で:
+   *   1. class にデスクトップ式 `md:pt-[max(1.25rem,env(safe-area-inset-top,0px))]` が残ること（誤置換検知）
+   *   2. no-notch baseline の computed padding-top >= 20px（1.25rem）であること
+   *   3. safe-area = 59px（iPhone 14 Pro Dynamic Island 相当）を CSS injection したとき nav 高さが増えること
+   * を検証する。下層 Navigation は `/services` 等（`app/(site)/`）でのみ描画される（#303）。
+   */
+  test('下層 Navigation desktop keeps md:pt safe-area-inset-top formula (#288)', async ({ page }) => {
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    const inner = nav.locator('> div').first();
+
+    // 1. デスクトップ式が class に残っていること（md:pt-5 等への誤置換を検出）
+    const className = (await inner.getAttribute('class')) ?? '';
+    expect(className).toContain('md:pt-[max(1.25rem,env(safe-area-inset-top,0px))]');
+
+    // 2. safe-area = 0 の標準 viewport では padding-top == max(1.25rem, 0) = 20px
+    const baselinePaddingTop = await inner.evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(baselinePaddingTop).toBeGreaterThanOrEqual(20);
+
+    const baselineBox = await nav.boundingBox();
+    expect(baselineBox, 'baseline nav must be rendered').not.toBeNull();
+
+    // 3. Dynamic Island（59px）をシミュレート。env(safe-area-inset-top) は Playwright で常に 0 のため、
+    //    inner div へ padding-top: 59px を !important で注入して notch 端末を再現する。
+    //    NOTE: 本番 CSS は !important を使わない（#166 と同じ制約）。
+    await page.addStyleTag({
+      content: 'nav > div:first-child { padding-top: 59px !important; }',
+    });
+
+    const injectedPaddingTop = await inner.evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(injectedPaddingTop).toBe(59);
+
+    const simulatedBox = await nav.boundingBox();
+    // 注入分（59 - 20 = 39px）だけ nav 高さが増える
+    expect((simulatedBox?.height ?? 0) - (baselineBox?.height ?? 0)).toBeGreaterThanOrEqual(39);
+  });
 });

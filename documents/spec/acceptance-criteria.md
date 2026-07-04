@@ -140,6 +140,7 @@ Then 進捗ドットが対応セクションに追従する
 | E2E（ファビコン） | `e2e/favicon.spec.ts` |
 | E2E（トップ Hero） | `e2e/home.spec.ts`（粒子 Canvas 描画・形成後ロゴの hero ステージ内センター整合: `expectHeroBrandLogoAfterFormation`、スクロールインジケータ `bottom` の `safe-area-inset-bottom` 補正式の存在確認（#165）、粒子形成中スクロール時インジケーター非表示（#135）: `does not show scroll indicator when user scrolls before particle formation completes`） |
 | E2E（下層ページ見出し） | `e2e/page-headers.spec.ts`（`PageHeader` 中央配置・h1・リード文・divider/email/starBackground のページ別断言、safe-area-inset-top 補正式の存在確認（#167）） |
+| E2E（下層 Navigation safe-area） | `e2e/navigation.spec.ts`（`Navigation desktop layout`・1280px）— デスクトップ式 `md:pt-[max(1.25rem,env(safe-area-inset-top,0px))]` の class 存在確認・baseline padding-top >= 20px・59px（Dynamic Island 相当）CSS injection で nav 高さ増加（#288）。モバイル 390px の baseline は #166 で検証 |
 | 粒子ロゴ PNG サンプリング | `tests/hero/sample-logo-target-points.test.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts`（375/390px ハンバーガー → `/services`・`/works` SPA 遷移後の `expectPainted` 含む） |
 | E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
