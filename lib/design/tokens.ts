@@ -123,25 +123,6 @@ export const cursor = {
   followerLerp: 0.12,
 } as const;
 
-/** Cosmic grade overlay for Hero cosmic background — Issue #102 / #227. Cool deep-space (silver/blue) palette. */
-const cosmicGradeOverlayStart = 'rgba(150, 170, 210, 0.08)';
-const cosmicGradeOverlayMid = 'rgba(150, 170, 210, 0.12)';
-const cosmicGradeOverlayEnd = 'rgba(150, 170, 210, 0.15)';
-const cosmicGradeOverlayMidStop = '45%';
-
-export const cosmicGrade = {
-  overlayStart: cosmicGradeOverlayStart,
-  overlayMid: cosmicGradeOverlayMid,
-  overlayEnd: cosmicGradeOverlayEnd,
-  overlayMidStop: cosmicGradeOverlayMidStop,
-  overlayGradient: `linear-gradient(180deg, ${cosmicGradeOverlayStart} 0%, ${cosmicGradeOverlayMid} ${cosmicGradeOverlayMidStop}, ${cosmicGradeOverlayEnd} 100%)`,
-  /** Desktop-only nebula filter (no warm tint) — disabled on mobile / reduced-motion via CSS */
-  nebulaFilter: 'saturate(1.05) brightness(1.04)',
-  /** screen blend opacity for the cosmic nebula layer; prevents white blowout at high luminance (#201) */
-  nebulaScreenOpacity: 0.42,
-  testId: 'cosmic-grade-overlay',
-} as const;
-
 /**
  * トップページ刷新（#302）基盤トークン — Issue #303
  * SSOT: lib/design/shape-d-prototype-v4.html（:root L11-L25）
