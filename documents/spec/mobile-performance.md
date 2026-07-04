@@ -89,6 +89,10 @@ GSAP を使う全コンポーネントが `useGsapContext` を通じているた
 - クリーンアップ（コンポーネントアンマウント）時に未発火タイマーを `clearTimeout` でキャンセルし、stale コールバックを防ぐ
 - 定数 `RESIZE_DEBOUNCE_MS` を named export することで、テストが値を参照できる
 
+**テスト**:
+- 構造的不変条件（`setTimeout` ラッパー・`clearTimeout`・listener 参照一致）の静的解析: `tests/performance/use-device-profile-debounce.test.ts`（#251 / #257）
+- 振る舞い的不変条件（`vi.useFakeTimers()` + `matchMedia` スタブで `subscribeToDeviceProfile` を直接検証）: `tests/performance/use-device-profile-subscribe.test.ts`（#258）— (1) 150ms 以内の連続 resize は 150ms 後に `onStoreChange` を 1 回のみ呼ぶ、(2) タイマー発火前の cleanup で未発火コールバックがキャンセルされる、(3) cleanup 後の resize は無視される。検証のため `subscribeToDeviceProfile` を `@internal` として named export（本番コードは `useDeviceProfile` を使う）
+
 ```ts
 // lib/hooks/useDeviceProfile.ts（抜粋）
 export const RESIZE_DEBOUNCE_MS = 150;
