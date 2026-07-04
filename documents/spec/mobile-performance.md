@@ -18,14 +18,13 @@ Issue: #51 / 全幕統一方針: #214
 
 ### 幕ごとの実装パターン
 
-| 幕 | コンポーネント | モバイル対応 | reduced-motion 対応 |
+| 対象 | コンポーネント | モバイル対応 | reduced-motion 対応 |
 |----|--------------|------------|-------------------|
-| 第1幕 | `Hero.tsx`（ビッグバン） | `isTouchInputDevice` → lowPower プロファイル（粒子数削減） | `shouldDisableGsapAnimation` → skipFormation |
-| 第2幕 | `Hero.tsx`（深度通過） | GSAP scrub はモバイルでも動作 | `shouldDisableGsapAnimation` → 静的フォールバック |
-| 第3幕 | `About.tsx`（ピン+スクラブ） | `isTouchInputDevice` → ピンなし単純スタガーに切替 | `useGsapContext` が auto-skip |
-| 第4幕 | `MissionVision.tsx`（多層パララックス） | `isTouchInputDevice` → `mobileScale: 0.35` で全 offset 縮小 | `ParallaxSection` が `useReducedMotion()` で静的 div にフォールバック |
+| トップページ | `components/top/`（TopHero ほか） | Lenis 1.8・velocity-skew / CustomCursor / PageLoader 無効（#312）。ヒーローイントロは CSS アニメーション（#326）、`RainCanvas` は画面外・タブ非アクティブで rAF 停止 | `.top-scope` フォールバックで全要素即時表示・`RainCanvas` は静止描画のみ |
 | Philosophy | `PhilosophyContent.tsx`（水平スクロール） | `!isMobile && !prefersCoarsePointer` でのみ水平ピン有効 | `useGsapContext` が auto-skip |
 | 下層ページ | `ServicesContent` / `WorksContent` 等 | `useStaticReveal()` → `staticReveal` で即時表示 | `getScrollRevealProps` + `staticReveal=true` |
+
+> 旧イマーシブ Hero（ビッグバン `Hero.tsx` / 深度通過）と旧セクション（`About.tsx` ピン+スクラブ / `MissionVision.tsx` 多層パララックス）は #302 で置換・#316 で撤去済み。
 
 ### `useGsapContext` による reduced-motion 自動スキップ
 
@@ -43,7 +42,7 @@ GSAP を使う全コンポーネントが `useGsapContext` を通じているた
 ### パフォーマンス予算
 
 詳細は [`performance-budget.md`](./performance-budget.md) を参照。
-- 追加アセット合計 ≤ 1 MB（現在: bigbang 3ファイル計 148 KB）
+- 追加画像アセット: トップは追加画像なし（旧イマーシブ Hero の bigbang / cosmic アセットは #316 で撤去。雨演出は画像を持たない `RainCanvas`）
 - アニメーション系 JS ≤ 80 KB（gzip）
 - LCP モバイル ≤ 3.5 s / CLS ≤ 0.1
 
@@ -59,7 +58,7 @@ GSAP を使う全コンポーネントが `useGsapContext` を通じているた
 |------|------|
 | `StarBackground` | 共通化・lint 解消は [`star-background.md`](./star-background.md)（Issue #1）を参照。モバイルで星数・グロー縮小、更新間隔 150ms、非表示時は rAF ループを停止し `box-shadow` グローを解除（IO 初回判定前はスキップ）、`prefers-reduced-motion` 時は静止しスクロールイン後にグローを復元。IO は `threshold: 0.15` + `rootMargin` で複数インスタンスの同時稼働を抑制。`isReady` 後に IO を有効化 |
 | `SmoothScrollProvider` | `prefers-reduced-motion` 時のみ Lenis 無効（モバイル・タッチ端末も Lenis 有効）。プロファイル変更時に Lenis を create/destroy。Lenis 初期化後に `ScrollTrigger.refresh()` |
-| Hero `immersive` | トップのみ。GSAP pin はデスクトップ・モバイル共通で有効。`prefers-reduced-motion` 時のみ静的フォールバック（コピー即時表示） |
+| トップページ演出 | `components/top/`（#302）。Lenis 1.8・velocity-skew / CustomCursor / PageLoader 無効（#312）。ヒーローイントロは CSS アニメーション（#326）。`RainCanvas` は IntersectionObserver + visibilitychange で rAF 停止。`prefers-reduced-motion` は `.top-scope` フォールバックで全要素即時表示（旧 Hero `immersive` は #302 / #316 で撤去） |
 | `NebulaBackground` | Philosophy 等で継続利用。モバイルで blur 半径を 45% に縮小、reduced-motion 時はアニメーション停止、非表示時は blur/animation を停止（`fixed` は常時・IO 無効）。`@keyframes` は `app/globals.css` の `nebula-philosophy-*` |
 | `PageLoader` | fade-out（delay 0.45s + duration 0.5s）完了時に `onAnimationComplete` で非表示。未発火時のフォールバック `setTimeout`（1450ms = 950ms + 500ms buffer）。`pointer-events-none` でフェード中のクリックブロックを回避。`prefers-reduced-motion` 時は表示しない |
 | `PageTransition` | `app/template.tsx` 経由でページ本文 fade-in（0.6s）。初回訪問は LCP 保護のため即時表示。**モバイル（`profile.isMobile`）は SPA クライアント遷移でも即時表示**（#151）。デスクトップのみ 2 回目以降のルート遷移で fade。`Navigation` は `layout.tsx` 配置でフェード対象外 |
@@ -118,17 +117,17 @@ window.addEventListener('resize', debouncedStoreChange);
 - **When** 改善前後を比較する
 - **Then** Performance スコアまたは LCP / TBT が改善している
 
-- **Given** デスクトップまたはモバイルでトップ Hero を確認する
-- **When** スクロールで pin アニメーションを実行する
-- **Then** ロゴが縮小・消失しキャッチコピーが現れる（`CosmicScene` 宇宙背景は `HomePageShell` によりフッター手前まで継続）
+- **Given** デスクトップまたはモバイルでトップ `TopHero` を確認する
+- **When** 初回表示する
+- **Then** マーク → コピー → サブ → スクロールキューが CSS アニメーションでフェードインし、`RainCanvas` の雨が背後に描画される（#302 / #304 / #326）
 
 - **Given** `prefers-reduced-motion: reduce` が有効
-- **When** トップ Hero を操作する
-- **Then** GSAP pin は無効化され、静的フォールバックが表示される
+- **When** トップページを開く
+- **Then** `.top-scope` フォールバックで全要素が即時表示され、`RainCanvas` は静止描画のみになる
 
 - **Given** モバイル幅（390px / 375px）でトップページを閲覧している
-- **When** Hero のお問い合わせボタンから下方向へスクロールする
-- **Then** About および MissionVision のコンテンツが表示される
+- **When** ヒーローから下方向へスクロールする
+- **Then** 各セクション（PHILOSOPHY / 課題提起 / 自己一致 / サービス / プロセス / Profile / CTA）が表示される
 - **And** フッター直前に意図しない大きな空白領域がない
 
 - **Given** モバイル幅（375px / 390px）で `/services`・`/works`・`/process`・`/process/development`・`/process/consulting`・`/philosophy`・`/contact` を開く（Issue #151）
@@ -138,7 +137,7 @@ window.addEventListener('resize', debouncedStoreChange);
 
 - **Given** トップページを最下部までスクロールする
 - **When** フッター領域がビューポートに入る
-- **Then** 著作権表示（`© 2026`）およびナビリンクが `CosmicScene` 固定背景の下に隠れず読める
+- **Then** 著作権表示（`© 2026`）およびフッターリンクが読める（`TopFooter`）
 
 - **Given** モバイル幅（375px / 390px）でトップからハンバーガーメニュー経由で `/services` へ SPA 遷移する（#151）
 - **When** 遷移直後（スクロールなし）
@@ -208,23 +207,9 @@ repeat(auto-fit, minmax(min(350px, 100%), 1fr))
 - 閉じる: リンクタップ / Escape キー / viewport 768px 以上
 - スクロールロック: 開いている間 `document.body.style.overflow = 'hidden'`
 
-## トップページ大見出しクリップ修正（Issue #150）
+## トップページ大見出しクリップ修正（Issue #150）— 撤去済み
 
-iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION` 大見出しの先頭文字が画面外に切れる問題を修正。
-
-**根本原因**:
-1. `getScrollRevealProps` の staticReveal モードが `animate: { opacity: 1, y: 0 }` を返し、Framer Motion が不要な `transform: translateY(0px)` を付与していた。これが `backdrop-filter: blur()` と組み合わさると iOS Chrome/Safari で GPU コンポジット層が誤クリッピングを起こす。
-2. `MissionVision.tsx` の `section` に `overflow-hidden` が設定されており、上記コンポジット層の誤動作時に見出しが左端でクリップされていた。
-
-**修正内容**:
-- `lib/scroll/reveal-props.ts`: staticReveal モードの `animate` を `{ opacity: 1 }` のみに変更（transform プロパティを除外）
-- `components/MissionVision.tsx`: `overflow-hidden` を section 全体でなく装飾テキスト（SELF-CONGRUENCE）専用ラッパー `div.absolute.inset-0.overflow-hidden` のみに移動
-
-**受け入れ基準**:
-- Given 375px viewport でトップページを開く
-- When ABOUT / VISION セクションが画面内に入る
-- Then `h2.ABOUT` および `h2.VISION` の左端がセクション左 padding 内（x ≥ 24px）に収まっている
-- And 水平スクロールが発生しない（`scrollWidth ≤ innerWidth`）
+> **撤去済み（#302 / #316）**: 旧トップの `ABOUT`・`VISION` 大見出し（`MissionVision.tsx`）の iOS クリップ修正記録でした。対象セクションはトップページ刷新（#302）で撤去されたため本項は無効です。`lib/scroll/reveal-props.ts` の staticReveal モードが `animate: { opacity: 1 }` のみを返す（transform を付与しない）仕様は下層ページで現存します。現行トップの 375px レイアウト崩れ防止は各 `e2e/top-*.spec.ts` の横あふれ検証で担保します。
 
 ## iOS Safe Area 対応（Issue #162）
 
@@ -239,12 +224,12 @@ iPhone SE（375px）実機確認にて、トップページの `ABOUT`・`VISION
 | コンポーネント/ファイル | 対応内容 |
 |------------------------|---------|
 | `app/layout.tsx` | `viewport-fit=cover` を `viewport` export で設定 |
-| `components/Navigation.tsx` | `fixed top-0` に `pt-[max(base,env(safe-area-inset-top,0px))]` を適用 |
-| `components/Hero.tsx` | mobileStaticHero パスで `pt-[calc(var(--space-8)_+_env(safe-area-inset-top,_0px))]` |
-| `app/globals.css` | `@media (pointer:coarse) and (prefers-reduced-motion:reduce)` ブロックで同等の `padding-top` |
+| `components/Navigation.tsx`（下層）/ `components/top/TopNav.tsx`（トップ） | `fixed top-0` に `pt-[max(base,env(safe-area-inset-top,0px))]` 相当を適用 |
+| `app/globals.css` | `.top-nav` の safe-area-inset-top 補償ほか |
 | `components/PhilosophyProgressDots.tsx` | 右端の `safe-area-inset-right` を適用済み |
 | `components/ui/PageHeader.tsx` | `pt-[calc(var(--space-section)+env(safe-area-inset-top,0px))]` でノッチ端末でもナビ直下余白を維持（Issue #167） |
-| `components/Hero.tsx`（GSAP パス） | スクロールインジケータ `bottom` を `max(var(--space-3),env(safe-area-inset-bottom,0px))` へ変更し、home indicator との重複を防止（Issue #165） |
+
+> 旧 `components/Hero.tsx` の safe-area 対応（mobileStaticHero の `padding-top` / スクロールインジケータ `bottom`、#165）は #302 / #316 で撤去済み。
 
 ### 設計根拠：Navigation と Hero の padding 計算
 
@@ -290,57 +275,9 @@ PageHeader pt (修正後) = var(--space-section) + S = 120px + 59px = 179px
 
 - E2E テストでの safe-area 値シミュレーション（Playwright 通常 viewport では inset = 0）→ Issue #166
 
-## Hero CLS 修正：coarse pointer + reduced-motion（Issue #149）
+## Hero CLS 修正：coarse pointer + reduced-motion（Issue #149 / #269）— 撤去済み
 
-iPad Pro 等の大画面タッチ端末で `prefers-reduced-motion` が有効な場合、SSR/ハイドレーション中に
-`useDeviceProfile` が `DEFAULT_DEVICE_PROFILE`（`prefersCoarsePointer: false`）を返す間は
-`mobileStaticHero=false`（`h-svh` + absolute 下部 CTA）でレンダリングされる。
-`isReady=true` 後に `mobileStaticHero=true`（`flex-col h-auto` + フロー内 CTA）へ切り替わり CLS が発生する。
-
-**根本原因**:
-`useSyncExternalStore` の設計上、SSR snapshot は常に `DEFAULT_DEVICE_PROFILE` を使用するため、
-`prefersCoarsePointer` の実値は hydration 完了まで不明。
-
-**修正内容**:
-- `app/globals.css`: `@media (pointer: coarse) and (prefers-reduced-motion: reduce)` ブロックを追加し、
-  `[data-hero="immersive"]`（section）と `[data-hero-cta]`（CTA ラッパー）を CSS レベルで
-  mobile flow layout に切り替える。ブラウザは CSS を初回ペイント前に適用するため CLS が発生しない
-- `components/Hero.tsx`: 上記 CSS セレクタ用に `data-hero="immersive"` と `data-hero-cta=""` を追加
-
-**設計根拠**:
-- Tailwind ユーティリティは `@import "tailwindcss"` 位置に展開される。それより後の CSS は
-  cascade 上の後方に位置するため `!important` 不要。特異度は `[data-hero="immersive"]` が
-  Tailwind と同じ（0-1-0）で document order で勝ち、`[data-hero="immersive"] [data-hero-cta]`
-  は Tailwind より高い（0-2-0）ため特異度でも確実に勝つ
-  （この特異度の主張は `e2e/home.spec.ts` の `production @media cascade specificity beats
-  Tailwind without !important (#269)` テストで、実際に読み込まれたスタイルシートを静的解析
-  することにより自動検証されている。従来の `addStyleTag` による `!important` 注入シミュレーション
-  では「本番 CSS が Tailwind に勝てること」自体は検証できていなかった — 詳細は Issue #269）
-- JS `mobileStaticHero` フラグと CSS ブロックは `pointer: coarse` デバイスの steady state で
-  ほぼ同一レイアウトに収束する（CSS は追加で `min-height: 100svh` を設定するが、JS className path
-  はこれを省略する。いずれも正しい表示結果を生む）。ただし `isMobile=true + pointer:fine`
-  の組み合わせ（例: 幅 < 768px のスマートフォンに Bluetooth マウスを接続した場合。
-  iPad mini ポートレートは 768px のため `isMobile = width < 768 = false` であり該当しない）は
-  CSS override の発火条件（`pointer: coarse`）を満たさないため `min-height: 100svh` は付与されず、
-  JS の `h-auto` のみが適用される。この端末では Hero の高さはコンテンツ量に依存するが、
-  意図した表示結果となる
-- `data-*` 属性は className を変更しないため React hydration mismatch は発生しない
-
-**受け入れ基準**:
-- Given 1024px viewport（iPad Pro）で `pointer: coarse` かつ `prefers-reduced-motion: reduce` の端末
-- When トップページを開く
-- Then Hero セクションが初回ペイントから `flex-col` レイアウト（CLS なし）で表示される
-- And CTA（お問い合わせ）がビューポート内に表示される（virtual keyboard で隠れない）
-- And `data-hero="immersive"` と `data-hero-cta` 属性が DOM に存在する
-
-**コンポーネント統合テスト（Issue #147）**:
-`tests/components/Hero.staticFallback.test.tsx` で以下をカバー済み:
-- Given `prefersCoarsePointer=true, isMobile=false, prefersReducedMotion=true, isReady=true`
-- When `<Hero variant="immersive" />` をレンダリング
-- Then `[data-testid="hero-pin-section"]` に `flex-col` / `h-auto` が付与される
-- And `[data-testid="hero-cta-wrapper"]` が `relative` クラスを持ち `absolute` を持たない
-- And 対比ケース（desktop）で `h-svh` / `absolute` が付与される
-- And SSR 初回表示（`isReady=false`）でも `mobileStaticHero=true` になる
+> **撤去済み（#302 / #316）**: iPad Pro 等の大画面タッチ端末で旧イマーシブ Hero（`components/Hero.tsx`、`[data-hero="immersive"]`）の静的フォールバック切替時に CLS が出る問題への対策（`app/globals.css` の `@media (pointer: coarse) and (prefers-reduced-motion: reduce)` ブロック、#269 の cascade 特異度検証、`tests/components/Hero.staticFallback.test.tsx`）でした。対象 Hero・DOM フック・CSS ブロック・テストはトップページ刷新（#302）と #316 で撤去済みです。現行 `TopHero` はイントロ前から要素が定位置にあり（CSS アニメーションは opacity のみ変化）レイアウトシフトを生みません。
 
 ## 検証
 
