@@ -11,32 +11,9 @@ Issue: #214 / Part of #210
 
 ## アセット予算
 
-### 追加アニメーションアセット（#210 シリーズ新規追加分）
+### 旧イマーシブ Hero アセット（撤去済み）
 
-| ファイル | 用途 | サイズ | Issue |
-|---------|------|--------|-------|
-| `bigbang-core.webp` | ビッグバン爆発中心光 | 76 KB | #211 |
-| `bigbang-rays.webp` | ビッグバン放射光 | 36 KB | #211 |
-| `bigbang-nebula.webp` | ビッグバン星雲テクスチャ | 36 KB | #211 |
-| **新規追加合計** | | **148 KB** | |
-
-**予算: 追加アセット合計 ≤ 1 MB** → 現在 148 KB ✅（余裕 852 KB）
-
-### Hero 背景アセット（#210 以前から存在・参考値）
-
-| ファイル | サイズ | 解像度 |
-|---------|--------|--------|
-| `hero-cosmic-bg.webp` | 206 KB | 3344×1882 |
-| `hero-cosmic-bg-mobile.webp` | 199 KB | 1536×2304 |
-| `hero-nebula-layer.webp` | 134 KB | 1024×1536 |
-| `hero-particle-band.webp` | 471 KB | 1672×941 |
-| **Hero WebP 小計** | **1,010 KB** | |
-
-Hero 背景アセット予算: ≤ 1,200 KB → 現在 1,010 KB ✅
-
-> `hero-cosmic-bg` / `hero-cosmic-bg-mobile` / `hero-particle-band` / `hero-nebula-layer` はビッグバン演出に合わせた白銀（モノクロ）トーンへ再生成（#224）。粒子帯は純黒背景で生成し輝度→アルファ変換で透過 WebP 化（`object-contain` でブレンド指定がないため透過必須）。ネビュラ層は `mix-blend-mode: screen` のため暗部を純黒に締めて（linear black-point）軽量な不透明 WebP 化。あわせて CSS グレードを暖色→クール宇宙トーンへ変更（`cosmicGrade`、#227 でリネーム済み）。
->
-> **Hi-DPI シャープネス（#224）**: `CosmicScene` は `next/image fill` + `sizes="100vw"` + GSAP 深度スケールでフルブリード描画されるため、旧 1672×941 では 1440 ビューポート@2x（約 2880px 必要）に対し解像度不足で甘くなっていた。`next/image` は intrinsic 幅を超えてアップスケールしないため、ソースを Lanczos3 + 軽量シャープで desktop 3344×1882（2×）・mobile 1536×2304（1.5×）へ引き上げ、最大 deviceSize（3840）要求時にも近接ピクセルで配信できるようにした（白銀トーンは維持）。
+> **撤去済み（#302 / #312 / #316）**: #210 シリーズで追加したビッグバン光テクスチャ（`bigbang-core/rays/nebula.webp`、計 148 KB）と旧 Hero 背景アセット（`hero-cosmic-bg*.webp` / `hero-nebula-layer.webp` / `hero-particle-band.webp`、計約 1,010 KB）は、トップページ刷新（#302）と `CosmicScene` / `LogoParticleFormation` の撤去に伴い削除しました（合計約 1.2MB 減）。現行トップは追加画像アセットを持たず、雨演出は `RainCanvas`（Canvas2D・画像なし）で描画します。
 
 ### Works / Services 画像（参考値）
 

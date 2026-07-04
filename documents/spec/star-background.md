@@ -17,9 +17,9 @@ Issue: #1
 - **パフォーマンス層**: `useDeviceProfile` + `useIntersectionVisible` + `scaleStarConfig` / `getStarUpdateIntervalMs` を配線済み（[`mobile-performance.md`](./mobile-performance.md)）
 - **ページ別上書き**: 各利用コンポーネントは `config={{ count: ... }}` 等で上書き可能
 - **利用コンポーネント**: Contact, ProcessContent, ProcessNavigation, Vision, WhatIDo, WhoIAm, ConsultingContent, DevelopmentContent
-- **非利用（トップ Hero）**: `CosmicScene` 画像背景を使用（`design-system.md` 参照）
+- **非利用（トップページ・#302 刷新）**: `components/top/` の各セクションが不透明な `--ink` 系背景 + `RainCanvas` を使用（旧 `CosmicScene` 画像背景は #312 / #316 で撤去。`design-system.md` 参照）
 - **非利用（Issue #93）**: ServicesContent / WorksContent — StarBackground Hero を廃止し単色背景 + ページ見出しに統一
-- **非利用（Issue #80）**: About / MissionVision — scroll storytelling 化に伴い StarBackground を外し、デザイントークン背景に統一
+- **非利用（Issue #80 / #302）**: 旧 About / MissionVision — scroll storytelling 化で StarBackground を外し、#302 でトップ刷新に伴い撤去済み
 - **非利用（Issue #81）**: `/philosophy` — CSS/GSAP ベースの alphabet-driven ビジュアル。追加の背景画像は使用せず、各パネルは `bgTint` グラデーション差分のみで温度感を表現する（Issue #202 でダストテクスチャ撤去済み）。詳細は [`philosophy-page.md`](./philosophy-page.md)
 
 ## 受け入れ基準（Given-When-Then）

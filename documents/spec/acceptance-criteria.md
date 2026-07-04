@@ -152,12 +152,11 @@ Then 進捗ドットが対応セクションに追従する
 | shouldUseStaticReveal 基本行列 | `tests/scroll/static-reveal.test.ts` |
 | useStaticReveal / hook 拡張行列 | `tests/scroll/use-static-reveal.test.ts`（#154 renderHook follow-up） |
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
-| Hero 深度通過トークン | `tests/scroll/hero-depth-tokens.test.ts` |
-| Hero pin セクション結合 | `e2e/home.spec.ts`（`hero-pin-section` testid） |
-| Cosmic grade overlay | `tests/design/cosmic-grade.test.ts`, `e2e/home.spec.ts`（`cosmic-grade-overlay`） |
-| Typography cosmic blend | `tests/design/typography-blend.test.ts`, `e2e/home.spec.ts`（load + scroll 後 `mix-blend-mode: screen`）, `e2e/page-headers.spec.ts`（starBackground + `/services` / `/works` solid） |
+| 旧イマーシブ Hero 撤去ガード | `e2e/home.spec.ts`（`cosmic-grade-overlay` が存在しないことを検証）。旧 `hero-depth-tokens.test.ts` / `cosmic-grade.test.ts` は #316 で撤去 |
+| トップページ演出（#302 刷新） | `e2e/top-*.spec.ts`（TopHero / TopShell / TopTheory ほか）、`tests/components/TopHero.test.tsx`、`tests/scroll/lenis-config.test.ts`、`tests/design/css-token-sync.test.ts` |
+| Typography cosmic blend（下層 PageHeader） | `tests/design/typography-blend.test.ts`（`PageHeader.tsx`）, `e2e/page-headers.spec.ts`（starBackground + `/services` / `/works` solid） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 90（#326） | `npm run lighthouse:check` + CI `lighthouse` job（`LIGHTHOUSE_MIN_PERFORMANCE=0.9`） |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
 | 横スクロール pin キーボードフォーカス追従（#247）| `tests/a11y/use-horizontal-focus-sync.test.ts`（`computePanelScrollTarget` 純粋関数の単体テスト） |
-| ShowcaseSection CTA サービス個別アンカー遷移（#248）| E2E（#263 で追加予定）— Given: ShowcaseSection のカード CTA をクリック / When: `/services` へ遷移 / Then: 対応するサービスセクション（`#<id>`）までスクロール。`ServicesContent` の各カードに `id={service.id}` を付与、CTA href を `/services#${service.id}` に統一 |
+| サービス個別アンカー遷移（#248）| `ServicesContent` の各カードに `id={service.id}` を付与し `/services#${service.id}` へハッシュ遷移。CTA 発火元だった旧 `ShowcaseSection` は #316 で撤去済み（アンカー先の `/services` セクション id 付与は現存） |
