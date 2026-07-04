@@ -32,7 +32,7 @@ describe('gsap-config', () => {
   it('exports animation duration tokens within spec range', () => {
     expect(ANIMATION_DURATION.base).toBeGreaterThanOrEqual(1.2);
     expect(ANIMATION_DURATION.base).toBeLessThanOrEqual(2.0);
-    expect(ANIMATION_DURATION.hero).toBe(1.6);
+    expect(ANIMATION_DURATION.section).toBe(1.8);
   });
 
   it('exports expo.out and power3 easing tokens', () => {
