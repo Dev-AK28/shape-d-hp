@@ -150,5 +150,5 @@ Then 進捗ドットが対応セクションに追従する
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
 | Lighthouse Performance >= 90（#326） | `npm run lighthouse:check` + CI `lighthouse` job（`LIGHTHOUSE_MIN_PERFORMANCE=0.9`） |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
-| 横スクロール pin キーボードフォーカス追従（#247）| `tests/a11y/use-horizontal-focus-sync.test.ts`（`computePanelScrollTarget` 純粋関数の単体テスト） |
+| 横スクロール pin キーボードフォーカス追従（#247 / #260）| `tests/a11y/use-horizontal-focus-sync.test.ts`（`computePanelScrollTarget` 純粋関数）+ `tests/a11y/use-horizontal-focus-sync-lenis.test.tsx`（#260: Lenis active 時は `lenis.scrollTo(target,{immediate:false})`、inactive 時は `window.scrollTo` フォールバックの分岐を jsdom で検証）。Lenis インスタンスは `SmoothScrollProvider` が `LenisContext`（`lib/scroll/lenis-context.ts`）で公開 |
 | サービス個別アンカー遷移（#248）| `ServicesContent` の各カードに `id={service.id}` を付与し `/services#${service.id}` へハッシュ遷移。CTA 発火元だった旧 `ShowcaseSection` は #316 で撤去済み（アンカー先の `/services` セクション id 付与は現存） |

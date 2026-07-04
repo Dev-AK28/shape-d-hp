@@ -8,7 +8,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 
 | コンポーネント | 用途 |
 |--------------|------|
-| `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`prefers-reduced-motion` 時無効） |
+| `SmoothScrollProvider` | Lenis スムーズスクロール + GSAP ticker 統合（`prefers-reduced-motion` 時無効）。生成した Lenis を `LenisContext`（`lib/scroll/lenis-context.ts`）で公開し、consumer は `useLenis()` で取得（未起動時は `null`）— #260 |
 | `useGsapContext` | client component 内 GSAP ScrollTrigger セットアップ（reduced-motion 時スキップ） |
 | `PageLoader` | 初回訪問時の軽量ローディング体験（背景透明・LCP 非ブロック） |
 | `PageTransition` | `app/template.tsx` 経由のページ本文 fade-in（0.6s）。初回訪問・reduced-motion・**モバイル（`profile.isMobile`）** は即時表示。デスクトップ 2 回目以降のルート遷移のみ fade（#151 SPA 回帰） |

@@ -2,6 +2,7 @@
 
 import { type RefObject, useEffect } from 'react';
 import type { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useLenis } from '@/lib/scroll/lenis-context';
 
 /**
  * Calculates the window scroll-Y position that places panel `panelIndex`
@@ -34,10 +35,14 @@ export function computePanelScrollTarget(
  * ## Solution
  * Listen for `focusin` on the document. When the focused element lives inside
  * a known panel, calculate the scroll offset that would place that panel in
- * the viewport and call `window.scrollTo` (instant, no `behavior` option) to
- * jump there. Using instant scroll lets Lenis pick up the new position on its
- * next RAF tick and continue its own smooth interpolation, avoiding competing
- * animations between Lenis's RAF loop and the browser's native smooth scroll.
+ * the viewport and scroll there.
+ *
+ * When Lenis is active (`useLenis()` returns an instance), use
+ * `lenis.scrollTo(target, { immediate: false })` so Lenis itself drives the
+ * scroll on its RAF loop — no race between a browser-native scroll and Lenis's
+ * interpolation (#260). When Lenis is inactive (`prefers-reduced-motion` / SSR /
+ * before `import('lenis')` resolves), fall back to native instant
+ * `window.scrollTo` so keyboard focus sync still works.
  *
  * The calculation: `st.start + panelIndex * window.innerWidth`
  * matches the animation formula used by both `ShowcaseSection` and
@@ -63,6 +68,8 @@ export function useHorizontalFocusSync(
   tlRef: RefObject<gsap.core.Timeline | null>,
   enabled: boolean,
 ): void {
+  const lenis = useLenis();
+
   useEffect(() => {
     if (!enabled) return;
 
@@ -92,12 +99,17 @@ export function useHorizontalFocusSync(
       // Skip when the viewport is already positioned at this panel to suppress
       // redundant calls (e.g. tabbing between elements within the same panel).
       if (Math.abs(window.scrollY - targetScroll) < 1) return;
-      // Omit `behavior` (instant) so Lenis picks up the new scroll position on
-      // its next RAF tick instead of racing with a browser-native smooth scroll.
-      window.scrollTo({ top: targetScroll });
+
+      if (lenis) {
+        // Lenis drives the scroll on its own RAF loop (smooth, no native race). #260
+        lenis.scrollTo(targetScroll, { immediate: false });
+      } else {
+        // No Lenis (reduced-motion / SSR / pre-import): native instant scroll.
+        window.scrollTo({ top: targetScroll });
+      }
     };
 
     document.addEventListener('focusin', onFocusIn);
     return () => document.removeEventListener('focusin', onFocusIn);
-  }, [enabled, panelsRef, panelSelector, tlRef]);
+  }, [enabled, panelsRef, panelSelector, tlRef, lenis]);
 }
