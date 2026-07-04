@@ -117,9 +117,8 @@ test.describe('Subpage headers', () => {
    *    of the env() formula even when safe-area resolves to 0 in Playwright viewports.
    * 2. Computed padding-top >= 120px — verifies no-notch baseline is unaffected.
    *
-   * Actual notch-device behaviour (safe-area > 0) cannot be simulated in Playwright for PageHeader.
-   * Navigation CSS-injection simulation (nav > div:first-child override) is in navigation.spec.ts (#166);
-   * PageHeader lacks an equivalent injection test — tracked in Issue #289.
+   * env(safe-area-inset-top) > 0 のノッチ端末実挙動は、下の #289 テストで CSS injection により
+   * シミュレートする（Navigation の nav > div:first-child override（#166 / #288）と同パターン）。
    */
   test('PageHeader padding-top includes safe-area-inset-top formula (#167)', async ({ page }) => {
     await page.goto('/services');
@@ -135,6 +134,47 @@ test.describe('Subpage headers', () => {
       (el) => parseFloat(getComputedStyle(el).paddingTop),
     );
     expect(paddingTop).toBeGreaterThanOrEqual(120);
+  });
+
+  /**
+   * CSS-injection simulation for Issue #289 — notch scenario for PageHeader.
+   *
+   * env(safe-area-inset-top) は Playwright の通常 viewport で常に 0 のため、#167 の formula 存在確認
+   * だけではノッチ端末での実挙動（padding が safe-area 分だけ伸びる）を検証できない。Navigation の
+   * injection テスト（#166 / #288）と同パターンで、`[data-testid="page-header"]` の padding-top を
+   * 164px（--space-section 120px + safe-area 44px 相当）へ !important で上書きし、
+   *   1. injection が正しい要素に当たり computed padding-top == 164px になること
+   *   2. ヘッダー本文（h1）が表示され、横あふれが発生しないこと（レイアウト崩れなし）
+   * を検証する。
+   *
+   * NOTE: 本番 CSS は !important を使わない。特異度による上書き回帰は検出できない（#166 と同じ制約）。
+   */
+  test('PageHeader grows with simulated safe-area-inset-top (#289)', async ({ page }) => {
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const header = page.getByTestId('page-header');
+    const baselinePaddingTop = await header.evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(baselinePaddingTop).toBeGreaterThanOrEqual(120);
+
+    // Simulate env(safe-area-inset-top) = 44px → --space-section(120px) + 44px = 164px 相当。
+    await page.addStyleTag({
+      content: '[data-testid="page-header"] { padding-top: 164px !important; }',
+    });
+
+    const injectedPaddingTop = await header.evaluate(
+      (el) => parseFloat(getComputedStyle(el).paddingTop),
+    );
+    expect(injectedPaddingTop).toBe(164);
+
+    // レイアウト崩れがないこと: h1 が表示され、横スクロールが発生しない。
+    await expect(header.locator('h1')).toBeVisible();
+    const hasHorizontalOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    );
+    expect(hasHorizontalOverflow, 'no horizontal overflow after injection').toBe(false);
   });
 
   test('page headers apply dividerVariant gradient classes', async ({ page }) => {
