@@ -164,6 +164,16 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
   // The prevEnableHorizontal useState guard must fire setGsapActiveIndex(0) synchronously so
   // that dot 0 is active immediately on re-entry to desktop mode — before the new
   // ScrollTrigger's onUpdate has a chance to fire with the scroll position at the top.
+  //
+  // Regression-proof scope (#256, Approach C — decided 2026-07-04): this E2E verifies the
+  // *final observable state* (dot 0 active after the resize cycle). It cannot deterministically
+  // fail without the fix: step "scroll back to top" (below) puts the page at position 0, so on
+  // re-entry to desktop the fresh ScrollTrigger's onUpdate naturally computes index 0 within the
+  // toPass window even if the synchronous reset never ran. A "scroll-to-top-less" variant would
+  // make GSAP return a scroll-derived non-zero index on the way, turning the assertion timing-
+  // dependent (flaky). The fix's *mechanism* — `setGsapActiveIndex(0)` presence, direction guard,
+  // and placement before `useGsapContext` — is therefore verified authoritatively by the static
+  // test `tests/philosophy/content.test.ts`, which is the regression SSOT for this guard.
   test('progress dots reset to index 0 after desktop→mobile→desktop resize (#254)', async ({ page }) => {
     await page.goto('/philosophy');
     await page.waitForLoadState('networkidle');
