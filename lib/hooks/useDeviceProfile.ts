@@ -19,7 +19,12 @@ import {
  */
 export const RESIZE_DEBOUNCE_MS = 150;
 
-function subscribeToDeviceProfile(onStoreChange: () => void) {
+/**
+ * @internal Exported for behavioral testing of the resize debounce (#258).
+ * Production code must use {@link useDeviceProfile} — this is passed directly to
+ * `useSyncExternalStore` and is not part of the public API.
+ */
+export function subscribeToDeviceProfile(onStoreChange: () => void) {
   let resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
   const debouncedStoreChange = () => {
