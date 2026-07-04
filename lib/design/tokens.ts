@@ -202,7 +202,14 @@ export const topShell = {
  * SSOT: lib/design/shape-d-prototype-v4.html（雨 Canvas L816-L857 / イントロ L898-L903）
  */
 export const topHero = {
-  /** イントロタイムライン（gsap.timeline defaults ease power3.out）— 参照HTML L898-L903 */
+  /**
+   * イントロタイムライン — 参照HTML L898-L903（ease power3.out）
+   * #326: 実装は globals.css の CSS アニメーション（top-hero-intro-*）。ハイドレーションを
+   * 待たずに開始し FCP/LCP を遅らせないため GSAP から移行した。ここが尺の SSOT で、
+   * CSS 側の duration / delay と css-token-sync テストで同期する。
+   * delay 展開: mark 0.4s / copy 1.2s（stagger 0.9s → 2行目 2.1s）/
+   * sub = copy終端(3.9s) - 0.6 = 3.3s / cue = sub終端(4.9s) - 0.8 = 4.1s
+   */
   intro: {
     ease: 'power3.out',
     /** .hero-mark { opacity:1, duration:2.4 } at 0.4 */

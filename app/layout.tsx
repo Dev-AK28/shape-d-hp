@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Cormorant_Garamond, Noto_Serif_JP } from 'next/font/google';
+import { Cormorant_Garamond } from 'next/font/google';
 import SubPageEffects from '@/components/scroll/SubPageEffects';
 import SmoothScrollProvider from '@/components/scroll/SmoothScrollProvider';
 import './globals.css';
@@ -8,14 +8,6 @@ const cormorant = Cormorant_Garamond({
   variable: '--font-display',
   subsets: ['latin'],
   weight: ['300', '400', '500'],
-  display: 'swap',
-  preload: true,
-});
-
-const notoSerifJp = Noto_Serif_JP({
-  variable: '--font-serif-jp',
-  subsets: ['latin'],
-  weight: ['300', '400'],
   display: 'swap',
   preload: true,
 });
@@ -54,11 +46,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ja"
-      className={`${cormorant.variable} ${notoSerifJp.variable} h-full antialiased`}
-    >
+    <html lang="ja" className={`${cormorant.variable} h-full antialiased`}>
       {/* Navigation / Footer は app/(site)/layout.tsx（下層ページ）へ移設 — Issue #303。
+          Noto Serif JP（--font-serif-jp）も下層専用のため app/(site)/layout.tsx へ移設 — Issue #326
+          （next/font はフォント CSS を使用したレイアウト配下にのみ含めるため、トップでロードされない）。
           トップページのシェルは components/top/TopShell。
           CustomCursor / PageLoader / MicroInteraction はトップで無効化（#312・SubPageEffects）。
           SmoothScrollProvider はトップ 1.8/skewなし・下層 1.4/skewあり を内部で切替（#312）。 */}

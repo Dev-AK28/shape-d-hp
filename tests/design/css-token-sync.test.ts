@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cosmicGrade, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, topColors, topColorCssVars, topFontCssVars, topNextFontCssVars, topShell, typography, typographyBlend, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys } from '@/lib/design/tokens';
+import { colors, cosmicGrade, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, topColors, topColorCssVars, topFontCssVars, topHero, topNextFontCssVars, topShell, typography, typographyBlend, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
   desktopMinWidthMediaQuery,
@@ -201,6 +201,31 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(globalsCss).toMatch(/\.top-scope #rain-canvas\s*\{[^}]*opacity:\s*0\.5/);
     // ヒーロー要素はイントロ前 opacity:0（参照HTML L149/L163/L173/L183）
     expect(globalsCss).toMatch(/\.top-scope \.hero-mark\s*\{[^}]*opacity:\s*0/);
+  });
+
+  it('mirrors hero intro timings as CSS animations (#326)', () => {
+    const { intro } = topHero;
+    // GSAP タイムライン位置 → CSS delay の展開（tokens.ts topHero.intro コメント参照）
+    const copyEnd = intro.copy.at + intro.copy.stagger + intro.copy.duration; // 3.9
+    const subDelay = Number((copyEnd - Math.abs(parseFloat(intro.sub.at.replace('-=', '-')))).toFixed(2)); // 3.3
+    const cueDelay = Number((subDelay + intro.sub.duration - Math.abs(parseFloat(intro.cue.at.replace('-=', '-')))).toFixed(2)); // 4.1
+    const line2Delay = Number((intro.copy.at + intro.copy.stagger).toFixed(2)); // 2.1
+
+    expect(globalsCss).toMatch(
+      new RegExp(`\\.top-scope \\.hero-mark\\s*\\{[^}]*animation: top-hero-intro-fade ${intro.mark.duration}s var\\(--hero-intro-ease\\) ${intro.mark.at}s forwards`),
+    );
+    expect(globalsCss).toMatch(
+      new RegExp(`\\.top-scope \\.hero-copy \\.line\\s*\\{[^}]*animation: top-hero-intro-rise ${intro.copy.duration}s var\\(--hero-intro-ease\\) ${intro.copy.at}s forwards`),
+    );
+    expect(globalsCss).toMatch(
+      new RegExp(`\\.top-scope \\.hero-copy \\.line:nth-child\\(2\\)\\s*\\{[^}]*animation-delay: ${line2Delay}s`),
+    );
+    expect(globalsCss).toMatch(
+      new RegExp(`\\.top-scope \\.hero-sub\\s*\\{[^}]*animation: top-hero-intro-fade ${intro.sub.duration}s var\\(--hero-intro-ease\\) ${subDelay}s forwards`),
+    );
+    expect(globalsCss).toMatch(
+      new RegExp(`\\.top-scope \\.scroll-cue\\s*\\{[^}]*animation: top-hero-intro-fade ${intro.cue.duration}s var\\(--hero-intro-ease\\) ${cueDelay}s forwards`),
+    );
   });
 
   it('forces hero elements visible under reduced-motion (#304 fallback)', () => {
