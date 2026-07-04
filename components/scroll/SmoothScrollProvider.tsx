@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import type Lenis from 'lenis';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { shouldDisableSmoothScroll } from '@/lib/performance/device-profile';
 import {
@@ -12,6 +13,7 @@ import {
   ScrollTrigger,
 } from '@/lib/scroll/gsap-config';
 import { VELOCITY_SKEW } from '@/lib/scroll/animation-tokens';
+import { LenisContext } from '@/lib/scroll/lenis-context';
 import { getScrollProfile, isTopPagePath } from '@/lib/scroll/lenis-config';
 
 type SmoothScrollProviderProps = {
@@ -21,6 +23,9 @@ type SmoothScrollProviderProps = {
 export default function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const { profile, isReady } = useDeviceProfile();
   const pathname = usePathname();
+  // #260: 生成した Lenis を Context で公開する。null = Lenis 未起動（SSR / import 前 /
+  // reduced-motion）。consumer（useHorizontalFocusSync 等）は null 時に window.scrollTo へフォールバックする。
+  const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
   // スクロールプロファイルはトップ/下層でのみ変化する。下層ページ間の遷移で Lenis を
   // 無駄に再生成（スクロールジャンプの原因）しないよう、境界（isTopPage）を effect の依存にする。
   const isTopPage = isTopPagePath(pathname);
@@ -40,7 +45,7 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     // #312: トップページは Lenis 1.8 + カスタム easing・velocity-skew なし。下層は 1.4 + skew。
     const scrollProfile = getScrollProfile(isTopPage);
 
-    let lenis: InstanceType<Awaited<typeof import('lenis')>['default']> | undefined;
+    let lenis: Lenis | undefined;
     let cancelled = false;
     let tickerCallback: ((time: number) => void) | undefined;
     const defaultLagSmoothing = 500;
@@ -59,6 +64,8 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       }
 
       lenis = new Lenis(scrollProfile.lenis);
+      // #260: Context を通じて consumer に公開する。
+      setLenisInstance(lenis);
 
       const makeSkewSetter = (el: Element | null) =>
         el
@@ -119,6 +126,8 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
       }
       gsap.ticker.lagSmoothing(defaultLagSmoothing);
       lenis?.destroy();
+      // #260: Lenis 破棄に合わせて Context を null に戻す（consumer をフォールバックへ）。
+      setLenisInstance(null);
       skewObserver?.disconnect();
       skewObserver = undefined;
       // Release quickTo instance and DOM reference to allow GC.
@@ -129,5 +138,5 @@ export default function SmoothScrollProvider({ children }: SmoothScrollProviderP
     // 下層→下層の遷移では Lenis を保持し、スクロールジャンプを避ける。
   }, [isReady, profile, isTopPage]);
 
-  return <>{children}</>;
+  return <LenisContext.Provider value={lenisInstance}>{children}</LenisContext.Provider>;
 }
