@@ -40,7 +40,8 @@ Then 対応するページが表示される
 ```gherkin
 Given ユーザーがトップページにアクセスする
 When ページが読み込まれる
-Then ローディング体験または Hero 入場アニメーションが表示される
+Then TopHero の入場アニメーション（マーク→コピー→サブ→スクロールキューの CSS フェードイン・#326）が表示される
+And RainCanvas の雨が背後に描画される（PageLoader はトップでは無効・#312）
 ```
 
 ```gherkin
@@ -74,21 +75,12 @@ Then アニメーションは無効化または最小限に抑えられる
 ```
 
 ```gherkin
-Given デスクトップ環境でトップページにアクセスし、粒子形成アニメーション（2400ms）進行中である（#135 B案）
-When ユーザーが粒子形成完了前にスクロール操作を行う
-Then GSAP pin が進行し、コピー・CTA が出現する（スクロールをブロックしない）
-And 形成完了後もスクロールインジケーターは表示されない（`scrollRevealed` ガードにより抑制）
+Given ユーザーが prefers-reduced-motion を有効にしてトップページを開く
+When TopHero を表示する
+Then .top-scope フォールバックで全要素が opacity:1 で即時表示され、RainCanvas は静止描画のみになる（#302 / #326）
 ```
 
-## Hero 深度通過（#100）
-
-```gherkin
-Given デスクトップでトップページ Hero を表示
-When ユーザーが Hero セクションをスクロールする
-Then nebula / 粒子 / ロゴが深度方向に移動し「通過」感が生まれる
-And ブランドのダーク・ミニマルなトーンを維持している
-And reduced-motion / 低性能デバイスでは静的または簡略化フォールバックになる
-```
+> **撤去済み（#302 / #316）**: 旧イマーシブ Hero の「粒子形成アニメーション（#135 B案）」「Hero 深度通過（#100・nebula/粒子/ロゴの深度移動）」の受け入れ基準はここにありましたが、対象実装はトップページ刷新（#302）で撤去されました。現行トップの演出受け入れ基準は各 `e2e/top-*.spec.ts` を参照。
 
 ## Cosmic Grade（#102 / #227）
 
@@ -138,12 +130,11 @@ Then 進捗ドットが対応セクションに追従する
 | Redis フォールバック | `tests/contact/rate-limit-service.test.ts` |
 | E2E（お問い合わせ） | `e2e/contact.spec.ts`（Playwright） |
 | E2E（ファビコン） | `e2e/favicon.spec.ts` |
-| E2E（トップ Hero） | `e2e/home.spec.ts`（粒子 Canvas 描画・形成後ロゴの hero ステージ内センター整合: `expectHeroBrandLogoAfterFormation`、スクロールインジケータ `bottom` の `safe-area-inset-bottom` 補正式の存在確認（#165）、粒子形成中スクロール時インジケーター非表示（#135）: `does not show scroll indicator when user scrolls before particle formation completes`） |
+| E2E（トップページ・#302） | `e2e/home.spec.ts`（トップで PageLoader / CustomCursor / cosmic 背景が無効・#312、TopFooter 下端表示、モバイルで全参照セクション横あふれなし）、`e2e/top-*.spec.ts`（TopHero / TopShell / TopTheory ほか各セクション演出・#304〜#313） |
 | E2E（下層ページ見出し） | `e2e/page-headers.spec.ts`（`PageHeader` 中央配置・h1・リード文・divider/email/starBackground のページ別断言、safe-area-inset-top 補正式の存在確認（#167）、164px 注入シミュレーションで padding 伸長・横あふれなし（#289）） |
 | E2E（下層 Navigation safe-area） | `e2e/navigation.spec.ts`（`Navigation desktop layout`・1280px）— デスクトップ式 `md:pt-[max(1.25rem,env(safe-area-inset-top,0px))]` の class 存在確認・baseline padding-top >= 20px・59px（Dynamic Island 相当）CSS injection で nav 高さ増加（#288）。モバイル 390px の baseline は #166 で検証 |
-| 粒子ロゴ PNG サンプリング | `tests/hero/sample-logo-target-points.test.ts` |
 | E2E（全ナビリンク） | `e2e/navigation.spec.ts`（375/390px ハンバーガー → `/services`・`/works` SPA 遷移後の `expectPainted` 含む） |
-| E2E（スクロールアニメーション） | `e2e/scroll-animation.spec.ts`（About / Vision リビール、reduced-motion タイムライン即時表示） |
+| E2E（スクロールアニメーション・下層） | `e2e/scroll-animation.spec.ts`（下層ページのセクションリビール / reduced-motion。旧トップの About / Vision / Showcase 演出は #312 / #316 で撤去） |
 | E2E（モバイル初期表示・#151） | `e2e/mobile-pages.spec.ts`（375px / 390px でページ読み込み直後の累積 opacity ≈ 1 を `expectPainted()` で検証） |
 | E2E（desktop→mobile resize リビール remount・#155） | `e2e/mobile-pages.spec.ts`（1280px で `/services` / `/works` へ遷移後、390px へリサイズして `expectPainted()` 検証。framer `key` の staticReveal-aware remount 保証） |
 | フォーカス復元（remount 後・#175） | `tests/a11y/focus-restore.test.ts`（`buildFocusSelector` 純粋関数の単体テスト）。DOM 統合テスト（jsdom + @testing-library/react）は後続 issue で対応 |
