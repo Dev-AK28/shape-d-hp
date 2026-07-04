@@ -359,4 +359,25 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
     // viewport 内要素は opacity:1 を維持するべき
     await expectPainted(h1, 1000);
   });
+
+  // #266: expectPainted(h1) は祖先方向の opacity のみ評価するため、TextReveal の per-char
+  // motion.span（子孫）が独立に保持する opacity は #182 テストではカバーされない。
+  // isTouchInputDevice の変化で各 span の viewport prop だけが更新されても、IO 発火済みの
+  // per-char opacity がリセットされないことを検証する（#182 follow-up）。
+  test('TextReveal per-char spans retain opacity after resize to mobile (#266)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    // デスクトップ幅で h1 TextReveal の per-char span が paint 済みであること。
+    const firstChar = page.locator('main h1 span.inline-block').first();
+    await expect(firstChar).toBeVisible({ timeout: 5000 });
+    await expectPainted(firstChar, 5000);
+
+    // モバイルへリサイズ（isTouchInputDevice 変化で span の viewport prop が更新される）。
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(firstChar).toBeVisible({ timeout: 5000 });
+    // per-char span の累積 opacity が 1 を維持していること（reset されない）。
+    await expectPainted(firstChar, 1000);
+  });
 });
