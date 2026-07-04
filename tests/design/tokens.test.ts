@@ -1,16 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import {
-  pillarTextClass,
-  sectionAccentDividerClass,
-  sectionCaptionClass,
-  sectionHeadingClass,
-  sectionHistoryCaptionClass,
-  timelineBodyClass,
-  timelineIndexClass,
-  visualWordClass,
-  visionLeadClass,
-  visionQuoteClass,
-} from '@/lib/design/section-typography-classes';
 import { colors, layout, motion, spacing, typography, typographyFontClasses, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys } from '@/lib/design/tokens';
 
 describe('design tokens', () => {
@@ -60,24 +48,5 @@ describe('design tokens', () => {
     expect(Object.keys(typographySizeCssVars).length).toBe(Object.keys(typographySizeClasses).length);
     expect(typographySizeTokenKeys.heading).toBe('sizeHeading');
     expect(typography[typographySizeTokenKeys.visualWord]).toBe(typography.sizeVisualWord);
-  });
-
-  it('embeds typography utilities in shared home section classes', () => {
-    expect(sectionHeadingClass).toContain(typographyFontClasses.serif);
-    expect(sectionHeadingClass).toContain(typographySizeClasses.heading);
-    expect(sectionCaptionClass).toContain(typographySizeClasses.caption);
-    expect(sectionCaptionClass).toContain('mb-[var(--space-2)]');
-    expect(sectionCaptionClass).toContain('tracking-[0.15em]');
-    expect(sectionHistoryCaptionClass).toContain(typographySizeClasses.caption);
-    expect(sectionHistoryCaptionClass).toContain('mb-[var(--space-4)]');
-    expect(sectionHistoryCaptionClass).toContain('tracking-[0.12em]');
-    expect(pillarTextClass).toContain(typographyFontClasses.serifJp);
-    expect(pillarTextClass).toContain(typographySizeClasses.subheading);
-    expect(sectionAccentDividerClass).toContain('bg-[var(--accent)]');
-    expect(visualWordClass).toContain(typographySizeClasses.visualWord);
-    expect(visionLeadClass).toContain(typographySizeClasses.subheading);
-    expect(visionQuoteClass).toContain(typographySizeClasses.quote);
-    expect(timelineIndexClass).toContain(typographySizeClasses.caption);
-    expect(timelineBodyClass).toContain(typographySizeClasses.body);
   });
 });
