@@ -238,22 +238,9 @@ preload なしなら実際に使う文字のスライスのみオンデマンド
 
 既存セクション（Hero / About / MissionVision / Showcase）は #304〜#311 で参照HTMLの各セクションへ差し替え完了済み。旧 `CosmicScene`（`fixed z-0` + 自前背景）は #312 でトップから撤去され、各セクションが不透明な `--ink` 系背景を持つ。
 
-## Cosmic Grade（#102 / #224）— 撤去済み
+## Cosmic Grade（#102 / #224 / #227）— 撤去済み（#347）
 
-> **撤去済み（#312 / #316）**: この CSS グレーディングは旧イマーシブ Hero のキービジュアル（`CosmicScene`）専用でした。`CosmicScene` はトップページ刷新（#302）で撤去され、現行トップは不透明な `--ink` 系背景を使います。`cosmicGrade` トークン・`.cosmic-grade-overlay` / `.cosmic-nebula-layer` CSS は現時点でどのコンポーネントからも参照されていません（別途クリーンアップ判断の対象）。以下は履歴として残します。
-
-Hero / キービジュアル（`CosmicScene`）に subtle な質感を加えていた CSS レイヤー。全面 WebGL は採用せず、オーバーレイで premium な depth を抽象化していた。当初は warm-gold グレードだったが、ビッグバン導入の白銀トーンに合わせて**クールな深宇宙（シルバー/ブルー）**へ再調整した（#224）。識別子は #227 で `warmGrade` → `cosmicGrade` へリネーム済み。
-
-| Token / Class | 値 / 挙動 | 備考 |
-|---------------|-----------|------|
-| `cosmicGrade.overlayStart/Mid/End` | `rgba(150,170,210,0.08–0.15)` | TS SSOT（`lib/design/tokens.ts`）。`overlayGradient` は stops + `overlayMidStop`（45%）から導出 |
-| `--cosmic-grade-overlay` | 上記 stops の linear-gradient（CSS は var 参照で同等構造） | `app/globals.css`。mid stop は `overlayMidStop` と sync テストで検証 |
-| `.cosmic-grade-overlay` | `mix-blend-mode: soft-light` | 常時適用（モバイル含む） |
-| `--cosmic-grade-nebula-filter` | `saturate(1.05) brightness(1.04)`（暖色なし） | デスクトップ nebula のみ |
-| `.cosmic-nebula-layer--cosmic-grade` | `@media (min-width:768px) and (prefers-reduced-motion: no-preference)` で filter 適用 | モバイル / reduced-motion は overlay のみ |
-| `.cosmic-nebula-layer` | `mix-blend-mode: screen` / `opacity: var(--cosmic-grade-nebula-screen-opacity)` | グレードは CSS overlay で一元管理。素材画像は色味を焼き込まない素直な版を使用する（Issue #202 で AI 焼き込み版から復元） |
-
-`data-testid="cosmic-grade-overlay"` で E2E 検証可能。背景 `#0a0a0a` の暗さ・ミニマルさは維持する。色温度は素材画像ではなく CSS グレード overlay（`.cosmic-grade-overlay` / `--cosmic-grade-nebula-filter`）で付与する設計とし、色味調整を1箇所に集約してテイストのブレを防ぐ。
+> **撤去済み（#312 / #347）**: 旧イマーシブ Hero のキービジュアル（`CosmicScene`）に premium な depth を加えていた CSS グレーディング（`cosmicGrade` トークン・`--cosmic-grade-*` CSS 変数・`.cosmic-grade-overlay` / `.cosmic-nebula-layer` / `.cosmic-nebula-layer--cosmic-grade` クラス）です。`CosmicScene` はトップページ刷新（#302 / #312）で撤去され、消費者がいなくなったため、トークンと CSS を #347 で物理削除しました（`lib/design/tokens.ts` / `app/globals.css` / `tests/design/css-token-sync.test.ts`）。現行トップは不透明な `--ink` 系背景を使います。仕様の詳細（暖色→クール宇宙トーンの経緯等）は GitHub Issue #102 / #224 / #227 を参照してください。撤去の回帰ガードとして `e2e/home.spec.ts` が `data-testid="cosmic-grade-overlay"` の非存在（`toHaveCount(0)`）を検証します。
 
 ## Typography Blend（#101）
 

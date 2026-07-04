@@ -1,10 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { colors, cosmicGrade, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, topColors, topColorCssVars, topFontCssVars, topHero, topNextFontCssVars, topShell, typography, typographyBlend, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys } from '@/lib/design/tokens';
+import { colors, cursor, layout, motion, pageHeaderDividers, pageHeaderDividerColors, sectionAccentCssVars, spacing, topColors, topColorCssVars, topFontCssVars, topHero, topNextFontCssVars, topShell, typography, typographyBlend, typographySizeClasses, typographySizeCssVars, typographySizeTokenKeys } from '@/lib/design/tokens';
 import {
   MOBILE_BREAKPOINT_PX,
-  desktopMinWidthMediaQuery,
   mobileMaxWidthMediaQuery,
 } from '@/lib/performance/device-profile';
 
@@ -45,25 +44,10 @@ describe('design tokens ↔ globals.css sync', () => {
     expect(globalsCss).toContain(`--ease-base: ${motion.easeBase}`);
   });
 
-  it('mirrors cosmic grade tokens in CSS variables', () => {
-    expect(globalsCss).toContain(`--cosmic-grade-overlay-start: ${cosmicGrade.overlayStart}`);
-    expect(globalsCss).toContain(`--cosmic-grade-overlay-mid: ${cosmicGrade.overlayMid}`);
-    expect(globalsCss).toContain(`--cosmic-grade-overlay-end: ${cosmicGrade.overlayEnd}`);
-    expect(globalsCss).toContain(`--cosmic-grade-nebula-filter: ${cosmicGrade.nebulaFilter}`);
-    expect(globalsCss).toContain(`--cosmic-grade-nebula-screen-opacity: ${cosmicGrade.nebulaScreenOpacity}`);
-  });
-
-  it('uses CSS variable for .cosmic-nebula-layer opacity (#201)', () => {
-    expect(globalsCss).toMatch(/\.cosmic-nebula-layer\s*\{[^}]*opacity:\s*var\(--cosmic-grade-nebula-screen-opacity\)/);
-    expect(globalsCss).not.toMatch(/\.cosmic-nebula-layer\s*\{[^}]*opacity:\s*[\d.]+[^}]*\}/);
-  });
-
-  it('mirrors cosmic grade overlay gradient structure in CSS', () => {
-    expect(globalsCss).toContain('--cosmic-grade-overlay: linear-gradient');
-    expect(globalsCss).toContain(`var(--cosmic-grade-overlay-start) 0%`);
-    expect(globalsCss).toContain(`var(--cosmic-grade-overlay-mid) ${cosmicGrade.overlayMidStop}`);
-    expect(globalsCss).toContain('var(--cosmic-grade-overlay-end) 100%');
-    expect(cosmicGrade.overlayGradient).toContain(cosmicGrade.overlayMidStop);
+  it('no longer defines cosmic grade tokens/CSS (removed with CosmicScene — #347)', () => {
+    expect(globalsCss).not.toContain('--cosmic-grade-');
+    expect(globalsCss).not.toContain('.cosmic-nebula-layer');
+    expect(globalsCss).not.toContain('.cosmic-grade-overlay');
   });
 
   it('mirrors typography blend tokens in CSS variables', () => {
@@ -108,13 +92,6 @@ describe('design tokens ↔ globals.css sync', () => {
       expect(globalsCss).toContain(pageHeaderDividerColors[variant]);
       expect(globalsCss).toContain(`${accentVar}: ${pageHeaderDividerColors[variant]}`);
     }
-  });
-
-  it('mirrors desktop breakpoint in cosmic grade nebula filter media query', () => {
-    expect(desktopMinWidthMediaQuery()).toBe(`(min-width: ${MOBILE_BREAKPOINT_PX}px)`);
-    expect(globalsCss).toContain(
-      `@media (min-width: ${MOBILE_BREAKPOINT_PX}px) and (prefers-reduced-motion: no-preference)`,
-    );
   });
 
   it('defines custom cursor CSS hooks', () => {

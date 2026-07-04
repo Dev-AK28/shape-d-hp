@@ -144,7 +144,7 @@ Then 進捗ドットが対応セクションに追従する
 | shouldUseStaticReveal 基本行列 | `tests/scroll/static-reveal.test.ts` |
 | useStaticReveal / hook 拡張行列 | `tests/scroll/use-static-reveal.test.ts`（#154 renderHook follow-up） |
 | GSAP 設定・トークン | `tests/scroll/gsap-config.test.ts` |
-| 旧イマーシブ Hero 撤去ガード | `e2e/home.spec.ts`（`cosmic-grade-overlay` が存在しないことを検証）。旧 `hero-depth-tokens.test.ts` / `cosmic-grade.test.ts` は #316 で撤去 |
+| 旧イマーシブ Hero 撤去ガード | `e2e/home.spec.ts`（`cosmic-grade-overlay` が存在しないことを検証）。旧 `hero-depth-tokens.test.ts` / `cosmic-grade.test.ts` は #316 で撤去。`cosmicGrade` トークン/CSS 自体は #347 で撤去し、`css-token-sync.test.ts` が `--cosmic-grade-` / `.cosmic-nebula-layer` の非存在を検証 |
 | トップページ演出（#302 刷新） | `e2e/top-*.spec.ts`（TopHero / TopShell / TopTheory ほか）、`tests/components/TopHero.test.tsx`、`tests/scroll/lenis-config.test.ts`、`tests/design/css-token-sync.test.ts` |
 | Typography cosmic blend（下層 PageHeader） | `tests/design/typography-blend.test.ts`（`PageHeader.tsx`）, `e2e/page-headers.spec.ts`（starBackground + `/services` / `/works` solid） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
