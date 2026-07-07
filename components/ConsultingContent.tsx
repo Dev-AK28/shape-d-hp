@@ -70,13 +70,14 @@ export default function ConsultingContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
         >
-          {/* Background Image */}
+          {/* Background Image (LCP element on this page: loads eagerly, above the fold) */}
           <Image
             src={OPTIMIZED_PUBLIC_IMAGES.consultingBackground}
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 1200px"
             aria-hidden
+            loading="eager"
             style={{ objectFit: 'cover', opacity: 0.1, zIndex: 0 }}
           />
           {/* Dark overlay for better text contrast */}
