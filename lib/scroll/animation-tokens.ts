@@ -69,6 +69,14 @@ export const VELOCITY_SKEW = {
  */
 export const PHILOSOPHY_HORIZONTAL = {
   scrub: 1.8,
+  /**
+   * `pinType: 'transform'` — mirrors TopTheory/TopServices (#307/#308). Subpages
+   * (unlike the top page) keep velocity-skew enabled on `[data-velocity-content]`
+   * (see design-system.md #312), and a default `position: fixed` pin breaks under
+   * that transform-bearing ancestor. Without this, everything past the first
+   * panel renders blank once the pin activates and skewY starts applying (#351).
+   */
+  pinType: 'transform' as const,
   /** GSAP timeline length in seconds; pan and letter tweens are anchored to this. */
   panDuration: 1,
   /** Per-panel letter opacity fade in/out duration (seconds). */

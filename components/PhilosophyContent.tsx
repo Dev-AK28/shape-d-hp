@@ -164,6 +164,7 @@ export default function PhilosophyContent() {
         scrollTrigger: {
           trigger: sectionWrapperRef.current,
           pin: true,
+          pinType: PHILOSOPHY_HORIZONTAL.pinType,
           pinSpacing: true,
           start: 'top top',
           end: () => `+=${getScrollDistance()}`,
