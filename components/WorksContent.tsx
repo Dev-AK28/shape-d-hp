@@ -23,7 +23,8 @@ export default function WorksContent() {
       challenge: "複雑なUI要件とリアルタイムデータ処理が必要なAIアドバイザーツールの開発。従来の開発手法では工期が長く、コストも高くなる傾向がありました。",
       solution: "最新のAIスタックを活用し、コンポーネントベースの高速構築を実現。Next.jsとSupabaseの組み合わせで、バックエンド開発を大幅に短縮し、フロントエンドの複雑なUIも迅速に実装。",
       result: "開発期間：通常の1/3、コスト：相場の半額程度で実現。リアルタイム処理と複雑なUIを両立した高品質な製品を短期間で納品。",
-      imagePlaceholder: "AIアドバイザーツール"
+      imagePlaceholder: "AIアドバイザーツール",
+      monogram: "AI"
     },
     {
       id: 2,
@@ -34,7 +35,8 @@ export default function WorksContent() {
       challenge: "構造的思考をサポートするOS的アプリの開発。従来のノートアプリやタスク管理ツールとは異なる、思考の構造化を促進する新しいパラダイムが必要。",
       solution: "最新のAIスタックを活用したアジャイル開発手法でプロトタイプから実装まで迅速に進行。ユーザーの思考プロセスを可視化・構造化する独自のアルゴリズムとUI設計を実装。",
       result: "現在開発中。プロトタイプ段階で高いユーザー満足度を獲得。2026年リリース予定。",
-      imagePlaceholder: "Scopa"
+      imagePlaceholder: "Scopa",
+      monogram: "SC"
     }
   ];
 
@@ -114,6 +116,7 @@ export default function WorksContent() {
                     isMobile: isTouchDevice,
                   })}
                   style={{
+                    position: 'relative',
                     aspectRatio: '16/10',
                     background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -121,12 +124,40 @@ export default function WorksContent() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backdropFilter: 'blur(10px)'
+                    backdropFilter: 'blur(10px)',
+                    overflow: 'hidden'
                   }}
                 >
-                  <div style={{ textAlign: 'center', color: '#60a5fa' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.4 }}>□</div>
-                    <p style={{ fontSize: '14px', letterSpacing: '0.1em', fontFamily: 'serif' }}>{work.imagePlaceholder}</p>
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.07) 1px, transparent 0)',
+                      backgroundSize: `${spacing.md}px ${spacing.md}px`,
+                    }}
+                  />
+                  <div style={{ position: 'relative', textAlign: 'center', color: '#60a5fa' }}>
+                    <div
+                      style={{
+                        width: `${spacing.xxl}px`,
+                        height: `${spacing.xxl}px`,
+                        margin: `0 auto ${spacing.sm}px`,
+                        borderRadius: '50%',
+                        border: '1px solid rgba(96, 165, 250, 0.35)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '28px',
+                        fontWeight: 300,
+                        fontFamily: 'serif',
+                        letterSpacing: '0.05em',
+                        color: '#93c5fd',
+                      }}
+                    >
+                      {work.monogram}
+                    </div>
+                    <p style={{ fontSize: '14px', letterSpacing: '0.1em', fontFamily: 'serif', color: '#9ca3af' }}>{work.imagePlaceholder}</p>
                   </div>
                 </motion.div>
 
