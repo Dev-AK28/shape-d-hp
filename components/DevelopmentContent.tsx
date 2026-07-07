@@ -148,7 +148,7 @@ export default function DevelopmentContent() {
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             className="inline-flex items-center gap-2 px-12 py-4 border border-[color:var(--section-blue)] rounded-full text-[#93c5fd] bg-transparent cursor-pointer text-base type-font-serif no-underline"
           >
-            <BrandLogo height={16} className="max-w-4" />
+            <BrandLogo width={16} />
             爆速でプロトタイプを試す（初回相談）
           </motion.a>
         </motion.div>
