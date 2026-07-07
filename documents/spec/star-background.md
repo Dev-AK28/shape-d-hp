@@ -14,6 +14,7 @@ Issue: #1
 - **デフォルト値**: `StarBackground.tsx` 内 `DEFAULT_CONFIG`（`StarConfig` 型: `count`, `maxSize`/`minSize`, `maxOpacity`/`minOpacity`, `maxSpeed`/`minSpeed`, `drift`, `glowMultiplier`）
 - **スケーリング / 更新間隔**: `lib/performance/star-config.ts`（`scaleStarConfig`, `getStarUpdateIntervalMs`）
 - **描画方式**: `useRef` + 間引き `setInterval` + imperative DOM 位置更新（effect 内の同期的 `setState` を回避）
+- **SSR / hydration 安全性**（Issue #352）: 星の座標・サイズ等は `Math.random()` で決定するため、SSR とクライアント初回レンダーで同時に呼ぶと値が食い違い hydration mismatch になる。`useDeviceProfile` の `isReady`（SSR / hydration 中は `false`、mount 後に `true` へ反転）で `createStars()` の呼び出しをゲートし、`isReady === false` の間は星を 0 件で描画してサーバー出力とクライアント初回レンダーを一致させ、mount 後にのみランダムな星を生成する
 - **パフォーマンス層**: `useDeviceProfile` + `useIntersectionVisible` + `scaleStarConfig` / `getStarUpdateIntervalMs` を配線済み（[`mobile-performance.md`](./mobile-performance.md)）
 - **ページ別上書き**: 各利用コンポーネントは `config={{ count: ... }}` 等で上書き可能
 - **利用コンポーネント**: Contact, ProcessContent, ProcessNavigation, Vision, WhatIDo, WhoIAm, ConsultingContent, DevelopmentContent

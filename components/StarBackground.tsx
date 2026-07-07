@@ -62,7 +62,15 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
     return isReady ? scaleStarConfig(base, profile) : base;
   }, [config, isReady, profile]);
 
-  const stars = useMemo(() => createStars(merged), [merged]);
+  // Math.random() must not run during the SSR / pre-hydration render: the
+  // server and the client would each roll different values, producing a
+  // hydration mismatch on every star's left/top/width/opacity/boxShadow.
+  // `isReady` (see useDeviceProfile) is false for both the server render and
+  // the client's first (hydrating) render, then flips to true post-hydration
+  // (#151-style pattern also used by TextReveal / PhilosophyContent). Stars
+  // stay empty until that flip, so SSR output and the first client render
+  // always match; real star positions are only randomized client-side.
+  const stars = useMemo(() => (isReady ? createStars(merged) : []), [isReady, merged]);
 
   useEffect(() => {
     if (!animateStars) {
