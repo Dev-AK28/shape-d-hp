@@ -26,7 +26,7 @@ Issue: #81
 
 | 挙動 | 設定 | reduced-motion 時 |
 |------|------|-------------------|
-| デスクトップ水平スクロール | `gsap.timeline` + `ScrollTrigger` pin — scrub `1.8`、`end` は関数形式（`#186` リサイズ対応） | 無効（`useGsapContext` スキップ） |
+| デスクトップ水平スクロール | `gsap.timeline` + `ScrollTrigger` pin — scrub `1.8`、`end` は関数形式（`#186` リサイズ対応）。**`pinType: 'transform'` を明示**（`TopTheory`/`TopServices` と同理由。下層ページは velocity-skew が `[data-velocity-content]` に有効なため、既定の `position: fixed` pin だと transform 祖先下で破綻する — #351） | 無効（`useGsapContext` スキップ） |
 | モバイル垂直 snap | `isMobile` または `prefersCoarsePointer` 時は縦スクロール + `ScrollTrigger.snap` | 同上 |
 | 文字 opacity scrub | `0.04` → `0.08`（デスクトップ: per-panel fade-in / モバイル: scrub） | 静的 `0.04` |
 | テキストリビール | `getScrollRevealProps` + `TextReveal`（`useStaticReveal` / hydration ラッチ — #151） | `staticReveal` 経由で即時表示 |
