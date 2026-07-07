@@ -227,7 +227,7 @@ export default function ConsultingContent() {
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
-            <BrandLogo height={16} className="max-w-4" />
+            <BrandLogo width={16} />
             『自分の言葉』を取り戻す対話を始める（初回無料）
           </motion.a>
         </motion.div>
