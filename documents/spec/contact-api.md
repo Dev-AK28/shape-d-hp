@@ -64,6 +64,7 @@
 - `From` ヘッダー形式: `shape-d-hp <RESEND_FROM_EMAIL>`
 - 件名形式: `[shape-d-hp] お問い合わせ: {name}`
 - 本文先頭に `送信元: shape-d-hp (https://www.shape-d.com)` を記載
+- `RESEND_FROM_EMAIL` 未設定時は `onboarding@resend.dev`（Resend のテスト用送信元）にフォールバックする（`formatFromAddress()`）。これは開発/未設定時の暫定値であり、**本番では `shape-d.com` の Resend ドメイン検証完了後、必ず検証済みアドレス（例: `hello@shape-d.com`）を `RESEND_FROM_EMAIL` に設定すること**（[#69](https://github.com/Dev-AK28/shape-d-hp/issues/69) 参照。未検証ドメイン宛の送信は 403 になる）
 - 実装: `lib/contact/email-format.ts`
 
 ## セキュリティ
