@@ -12,6 +12,10 @@ export function getFromName(): string {
 }
 
 export function formatFromAddress(): string {
+  // Fallback is Resend's shared test sender for local/dev use only. In production,
+  // RESEND_FROM_EMAIL MUST be set to an address on a Resend-verified domain
+  // (e.g. hello@shape-d.com) — see documents/spec/contact-api.md and issue #69.
+  // Sending to real recipients from an unverified domain returns 403.
   const email = sanitizeEmailHeaderValue(
     process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev',
   );
