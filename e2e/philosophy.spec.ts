@@ -159,6 +159,22 @@ test.describe('Philosophy desktop horizontal scroll (#184)', () => {
     await expect(page.getByRole('main').getByRole('link', { name: 'お問い合わせ' })).toBeVisible({ timeout: 5000 });
   });
 
+  // Issue #365: the fixed-position progress dots must hide once the panelled
+  // section has scrolled out of view — otherwise they float over the closing
+  // CTA / footer content, overlapping its links/text.
+  test('progress dots hide once scrolled past the panels to the footer/closing CTA (#365)', async ({ page }) => {
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.locator('[data-testid="philosophy-progress-dots"]');
+    await expect(dots).toBeVisible();
+
+    // Scroll all the way to the bottom of the page (past the closing CTA / footer).
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    await expect(dots).toBeHidden({ timeout: 5000 });
+  });
+
   // Issue #254: gsapActiveIndex stale-value guard (symmetric to usePanelActiveIndex #250 round 2).
   // After advancing to a non-zero panel on desktop, resize to mobile then back to desktop.
   // The prevEnableHorizontal useState guard must fire setGsapActiveIndex(0) synchronously so
@@ -308,5 +324,20 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
       await expect(dots.nth(2)).toHaveAttribute('data-active', 'true');
       await expect(dots.first()).toHaveAttribute('data-active', 'false');
     }).toPass({ timeout: Math.ceil(ANIMATION_DURATION.section * 1000) + 2500 });
+  });
+
+  // Issue #365: mobile counterpart of the desktop regression above — the dots
+  // must also hide once scrolled past the panels into the footer/closing CTA
+  // on the vertical-scroll mobile layout.
+  test('progress dots hide once scrolled past the panels to the footer/closing CTA on mobile (#365)', async ({ page }) => {
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.locator('[data-testid="philosophy-progress-dots"]');
+    await expect(dots).toBeVisible();
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    await expect(dots).toBeHidden({ timeout: 5000 });
   });
 });
