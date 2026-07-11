@@ -586,6 +586,10 @@ button:not(.nav-menu-button):hover {
   align-items: center;
   text-align: center;
   z-index: 3;
+  /* #367: 雨 Canvas（フルブリード背景）はそのままに、テキストのみ他セクション
+     （.stage / .theory-stage 等）と同じ左右 24px 余白を持たせ、モバイルで文言が
+     画面端に張り付くのを防ぐ */
+  padding: 0 24px;
 }
 
 /* #326: ヒーローイントロは CSS アニメーション（JS 非依存）。ハイドレーションを待たずに
