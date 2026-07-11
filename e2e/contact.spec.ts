@@ -33,7 +33,7 @@ test.describe('Contact page', () => {
     });
   });
 
-  test('shows browser validation for empty required fields', async ({ page }) => {
+  test('shows custom inline validation for empty required fields', async ({ page }) => {
     await page.goto('/contact');
     await page.waitForLoadState('networkidle');
 
@@ -44,15 +44,41 @@ test.describe('Contact page', () => {
     // 必須項目を空のまま送信ボタンをクリック
     await page.getByRole('button', { name: '送信する' }).click();
 
-    // spec GWT: お名前・メールアドレス・メッセージの全必須フィールドが :invalid になる
-    const [nameValid, emailValid, messageValid] = await Promise.all([
-      nameField.evaluate((el: HTMLInputElement) => el.validity.valid),
-      page.locator('#email').evaluate((el: HTMLInputElement) => el.validity.valid),
-      page.locator('#message').evaluate((el: HTMLTextAreaElement) => el.validity.valid),
-    ]);
-    expect(nameValid).toBe(false);
-    expect(emailValid).toBe(false);
-    expect(messageValid).toBe(false);
+    // spec GWT: お名前・メールアドレス・メッセージの全必須フィールドについて
+    // ネイティブの吹き出しではなく、ダークテーマに合わせたインラインエラーが表示される
+    await expect(page.locator('#name-error')).toContainText('お名前を入力してください');
+    await expect(page.locator('#email-error')).toContainText('メールアドレスを入力してください');
+    await expect(page.locator('#message-error')).toContainText('メッセージを入力してください');
+    await expect(nameField).toHaveAttribute('aria-invalid', 'true');
+
+    // フォームは noValidate でネイティブの検証UI(吹き出し)には委譲していない
+    const formNoValidate = await page
+      .locator('form')
+      .evaluate((el: HTMLFormElement) => el.noValidate);
+    expect(formNoValidate).toBe(true);
+
+    // フォームは送信されないため成功メッセージは表示されない
+    await expect(page.getByRole('status')).toHaveCount(0);
+  });
+
+  test('shows custom inline validation for an invalid email format', async ({ page }) => {
+    await page.goto('/contact');
+    await page.waitForLoadState('networkidle');
+
+    const nameField = page.locator('#name');
+    await nameField.scrollIntoViewIfNeeded();
+    await expect(nameField).toBeVisible();
+
+    await nameField.fill('山田 太郎');
+    await page.locator('#email').fill('not-an-email');
+    await page.locator('#message').fill('テスト');
+
+    await page.getByRole('button', { name: '送信する' }).click();
+
+    await expect(page.locator('#email-error')).toContainText(
+      'メールアドレスの形式が正しくありません'
+    );
+    await expect(page.locator('#email')).toHaveAttribute('aria-invalid', 'true');
 
     // フォームは送信されないため成功メッセージは表示されない
     await expect(page.getByRole('status')).toHaveCount(0);
