@@ -2,14 +2,24 @@
 
 html {
   color-scheme: dark;
-  /* Offset anchor scroll targets below the sticky nav (#262).
-     Mobile nav: pt(12px) + logo(36px) + pb(12px) = 60px → 64px with margin.
-     Desktop nav uses larger logo (48px) and taller padding → 88px. */
+}
+
+/* Offset anchor/focus scroll targets below the sticky nav (#262, #366).
+   Mobile nav: pt(12px) + logo(36px) + pb(12px) = 60px → 64px with margin.
+   Desktop nav uses larger logo (48px) and taller padding → 88px.
+   Declared on both html and body: body's `overflow-x: hidden` (below) makes it
+   the actual scroll container in some browsers, and scroll-padding-top only
+   takes effect on the element that is actually scrolling. Keyboard Tab focus
+   and mobile browsers auto-scrolling a focused input above the keyboard both
+   land flush under the fixed nav if only one of html/body has the offset. */
+html,
+body {
   scroll-padding-top: 64px;
 }
 
 @media (min-width: 768px) {
-  html {
+  html,
+  body {
     scroll-padding-top: 88px;
   }
 }
@@ -72,7 +82,9 @@ body {
   /* Prevent horizontal overflow from velocity-driven skewY animation.
      Lenis uses window (not body) as scroll target, so this is safe.
      Note: overflow: hidden on body creates a new scroll container in some browsers,
-     which can break position: sticky. Verify sticky elements if any are added in future. */
+     which can break position: sticky. Verify sticky elements if any are added in future.
+     #366: it also means `html`'s scroll-padding-top alone doesn't reliably offset
+     focus/anchor scrolling under the fixed nav — see the html,body rule above. */
   overflow-x: hidden;
 }
 
