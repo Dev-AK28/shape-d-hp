@@ -1174,6 +1174,15 @@ button:not(.nav-menu-button):hover {
 .top-scope #cta {
   background: linear-gradient(to bottom, var(--ink), var(--ink-3));
   min-height: 90vh;
+  /* Issue #379: 最大スクロール位置（scrollY = document.body.scrollHeight - window.innerHeight）
+     では、直後の #cta 一枚分の高さがそのままフッター分の余白として使われ、
+     見出し（.cta-copy）のボックスが可視領域の先頭に到達し、固定ヘッダーの
+     backdrop-filter: blur(14px) と重なって読めなくなる（実測: 1440x900 で
+     見出しボックス全体の下端が nav 下端の 215.9px 手前まで到達）。
+     見出しが常にヘッダーの blur 帯より完全に上（既にスクロールし終えた領域）に
+     退避できるよう、実測値 215.9px にフォントメトリクスのばらつき分の余裕を
+     足した値を確保する。*/
+  padding-bottom: 240px;
 }
 
 .top-scope .cta-copy {
