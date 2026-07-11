@@ -77,4 +77,22 @@ test.describe('Top hero (#304)', () => {
     );
     expect(hasOverflow, 'horizontal overflow at 375px').toBe(false);
   });
+
+  test('375px: hero text keeps horizontal breathing room from the viewport edges (#367)', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    // .hero-sub は最も横幅が広くなりやすい行。他セクション（.stage/.theory-stage 等）と同じ
+    // 左右 24px 余白（globals.css .hero-inner）が保たれ、画面端に張り付かないことを確認する。
+    const sub = page.locator('#hero .hero-sub');
+    await expect.poll(async () => (await sub.boundingBox())?.x ?? 0, { timeout: 8000 }).toBeGreaterThanOrEqual(20);
+
+    const box = await sub.boundingBox();
+    expect(box).not.toBeNull();
+    const leftMargin = box!.x;
+    const rightMargin = 375 - (box!.x + box!.width);
+    expect(leftMargin, 'hero-sub left margin at 375px').toBeGreaterThanOrEqual(20);
+    expect(rightMargin, 'hero-sub right margin at 375px').toBeGreaterThanOrEqual(20);
+  });
 });
