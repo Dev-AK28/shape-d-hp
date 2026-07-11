@@ -10,6 +10,7 @@ import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { usePanelActiveIndex } from '@/lib/hooks/usePanelActiveIndex';
 import { useHorizontalFocusSync } from '@/lib/hooks/useHorizontalFocusSync';
+import { useIntersectionVisible } from '@/lib/hooks/useIntersectionVisible';
 import {
   ANIMATION_DURATION,
   ANIMATION_EASE,
@@ -19,6 +20,7 @@ import {
 } from '@/lib/scroll/gsap-config';
 import { PHILOSOPHY_HORIZONTAL } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { PHILOSOPHY_PANEL_INTERSECTION_OPTIONS } from '@/lib/performance/visibility-options';
 const sections = [
   {
     letter: 'S',
@@ -126,6 +128,18 @@ export default function PhilosophyContent() {
   const ioActiveIndex = usePanelActiveIndex(panelsRef, { enabled: !enableHorizontal });
 
   const activeIndex = isReady && enableHorizontal ? gsapActiveIndex : ioActiveIndex;
+
+  // Progress-dots visibility (#365): observes the panel section wrapper (the
+  // pin/overflow target — present in both desktop and mobile layouts) and
+  // hides the fixed-position dots once it has fully scrolled out of view,
+  // so they no longer float over the closing CTA / footer content.
+  // `observed` is false until the first async IO callback fires — treat that
+  // brief pre-observation window as visible so dots don't flash hidden on load.
+  const { visible: panelSectionInView, observed: panelSectionObserved } = useIntersectionVisible(
+    sectionWrapperRef,
+    PHILOSOPHY_PANEL_INTERSECTION_OPTIONS,
+  );
+  const showProgressDots = !panelSectionObserved || panelSectionInView;
 
   // Re-evaluate function-based x values whenever ScrollTrigger refreshes (e.g. on resize).
   // tl.invalidate() clears recorded start values so GSAP re-reads function-based tween sources on the next render.
@@ -246,7 +260,11 @@ export default function PhilosophyContent() {
 
   return (
     <section ref={focusGuardRef} className="relative bg-[var(--background)]">
-      <PhilosophyProgressDots letters={sectionLetters} activeIndex={activeIndex} />
+      <PhilosophyProgressDots
+        letters={sectionLetters}
+        activeIndex={activeIndex}
+        visible={showProgressDots}
+      />
 
       {/* sectionWrapperRef = pin target; panelsRef = horizontal flex container */}
       <div ref={sectionWrapperRef}>
