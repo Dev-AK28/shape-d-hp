@@ -1,5 +1,8 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
+
 type PhilosophyProgressDotsProps = {
   letters: readonly string[];
   activeIndex: number;
@@ -17,7 +20,29 @@ export default function PhilosophyProgressDots({
   activeIndex,
   visible,
 }: PhilosophyProgressDotsProps) {
-  return (
+  // #378: identical root cause to #368 (Navigation.tsx). app/template.tsx wraps
+  // page content in a `[data-velocity-content]` div that SmoothScrollProvider
+  // applies a GSAP skewY transform to while scrolling (velocity-skew, #312).
+  // Per the CSS Transforms spec, a non-`none` transform on an ancestor makes it
+  // the containing block for `position: fixed` descendants — so once that
+  // transform engages, these fixed dots stop tracking the viewport and drift
+  // with the document scroll instead (roughly 1:1 with scrollY). Portal to
+  // `document.body` (a sibling of the transformed wrapper, not a descendant)
+  // so `fixed` stays anchored to the viewport regardless of ancestor
+  // transforms. `isMounted` mirrors the Navigation.tsx / useDeviceProfile
+  // isReady pattern (useSyncExternalStore w/ no-op subscribe) rather than an
+  // effect + setState, so React itself resolves SSR-vs-client without a
+  // post-mount re-render flash — rendered in-place on the server/first paint,
+  // then swapped to the portal on the client (no visible change since no
+  // transform is applied before scroll).
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const portalContainer = isMounted ? document.body : null;
+
+  const dotsElement = (
     <div
       aria-hidden="true"
       data-testid="philosophy-progress-dots"
@@ -38,4 +63,6 @@ export default function PhilosophyProgressDots({
       ))}
     </div>
   );
+
+  return portalContainer ? createPortal(dotsElement, portalContainer) : dotsElement;
 }
