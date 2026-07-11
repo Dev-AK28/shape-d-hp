@@ -341,3 +341,70 @@ test.describe('Philosophy mobile vertical snap (#184)', () => {
     await expect(dots).toBeHidden({ timeout: 5000 });
   });
 });
+
+/**
+ * Regression test for Issue #378 — fixed progress dots must stay anchored to
+ * the viewport while scrolling, not drift with scrollY.
+ *
+ * Root cause: identical to #368 (Navigation.tsx). app/template.tsx wraps page
+ * content in a `[data-velocity-content]` div that SmoothScrollProvider applies
+ * a GSAP skewY transform to on scroll (velocity-skew, #312). Per the CSS
+ * Transforms spec, any ancestor with a non-`none` transform becomes the
+ * containing block for `position: fixed` descendants — so once that transform
+ * engages, the dots (previously nested inside the transformed wrapper via
+ * PhilosophyContent) stopped tracking the viewport and drifted with the
+ * document scroll instead (roughly 1:1 with scrollY). PhilosophyProgressDots
+ * now portals to `document.body` (a sibling of the transformed wrapper) to
+ * keep `fixed` anchored regardless of that ancestor.
+ */
+test.describe('Progress dots stay anchored to the viewport while scrolling (#378)', () => {
+  test('desktop (1440x900): dots bounding box does not drift with scrollY', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.getByTestId('philosophy-progress-dots');
+    await expect(dots).toBeVisible();
+
+    const baseline = await dots.boundingBox();
+    expect(baseline).not.toBeNull();
+
+    // Sample multiple scroll positions while still within the panelled section
+    // (dots must remain visible/anchored here, not yet hidden by #365's logic).
+    for (const scrollY of [200, 500, 900, 1400]) {
+      await page.evaluate((y) => window.scrollTo(0, y), scrollY);
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+
+      await expect(async () => {
+        const box = await dots.boundingBox();
+        expect(box).not.toBeNull();
+        expect(Math.abs((box?.y ?? 0) - (baseline?.y ?? 0))).toBeLessThan(5);
+        expect(Math.abs((box?.x ?? 0) - (baseline?.x ?? 0))).toBeLessThan(5);
+      }).toPass({ timeout: 3000 });
+    }
+  });
+
+  test('mobile (375x812): dots bounding box does not drift with scrollY', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/philosophy');
+    await page.waitForLoadState('networkidle');
+
+    const dots = page.getByTestId('philosophy-progress-dots');
+    await expect(dots).toBeVisible();
+
+    const baseline = await dots.boundingBox();
+    expect(baseline).not.toBeNull();
+
+    for (const scrollY of [150, 400, 700, 1000]) {
+      await page.evaluate((y) => window.scrollTo(0, y), scrollY);
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+
+      await expect(async () => {
+        const box = await dots.boundingBox();
+        expect(box).not.toBeNull();
+        expect(Math.abs((box?.y ?? 0) - (baseline?.y ?? 0))).toBeLessThan(5);
+        expect(Math.abs((box?.x ?? 0) - (baseline?.x ?? 0))).toBeLessThan(5);
+      }).toPass({ timeout: 3000 });
+    }
+  });
+});
