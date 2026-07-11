@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,6 +17,25 @@ export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isOpen = menuOpenAtPath === pathname;
+
+  // #368: app/template.tsx wraps page content in a `[data-velocity-content]` div that
+  // SmoothScrollProvider applies a GSAP skewY transform to while scrolling (velocity-skew,
+  // #312). Any non-`none` transform on an ancestor makes it the containing block for
+  // `position: fixed` descendants (CSS Transforms spec), so once that transform engages,
+  // this fixed nav stops tracking the viewport and instead scrolls away with the document —
+  // it isn't "transparent", it has physically scrolled out of view. Portal the nav to
+  // `document.body` (a sibling of the transformed wrapper, not a descendant) so `fixed`
+  // stays anchored to the viewport regardless of ancestor transforms. `isMounted` mirrors
+  // the useDeviceProfile isReady pattern (useSyncExternalStore w/ no-op subscribe) rather
+  // than an effect + setState, so React itself resolves SSR-vs-client without a post-mount
+  // re-render flash — rendered in-place on the server/first paint, then swapped to the
+  // portal on the client (no visible change since no transform is applied before scroll).
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const portalContainer = isMounted ? document.body : null;
 
   const closeMenu = useCallback(() => setMenuOpenAtPath(null), []);
   const toggleMenu = useCallback(() => {
@@ -70,7 +90,7 @@ export default function Navigation() {
     { name: 'お問い合わせ', href: '/contact' },
   ];
 
-  return (
+  const navElement = (
     <nav
       className={`fixed top-0 left-0 right-0 z-[1000] ${
         reduceMotion ? '' : 'transition-[background-color,border-color,backdrop-filter] duration-300'
@@ -187,4 +207,6 @@ export default function Navigation() {
       </AnimatePresence>
     </nav>
   );
+
+  return portalContainer ? createPortal(navElement, portalContainer) : navElement;
 }

@@ -288,3 +288,81 @@ test.describe('Navigation desktop layout', () => {
     expect((simulatedBox?.height ?? 0) - (baselineBox?.height ?? 0)).toBeGreaterThanOrEqual(39);
   });
 });
+
+/**
+ * Regression test for Issue #368 — fixed nav must stay anchored to the viewport
+ * while scrolling on subpages, not just have a solid background applied.
+ *
+ * Root cause: app/template.tsx wraps page content in a `[data-velocity-content]`
+ * div that SmoothScrollProvider applies a GSAP skewY transform to on scroll
+ * (velocity-skew, #312). Per the CSS Transforms spec, any ancestor with a
+ * non-`none` transform becomes the containing block for `position: fixed`
+ * descendants — so once that transform engages, a plain `fixed` nav nested
+ * inside it stops tracking the viewport and scrolls away with the document
+ * instead. It isn't "transparent"; it has physically scrolled out of view.
+ * Navigation.tsx now portals its `<nav>` to `document.body` (a sibling of the
+ * transformed wrapper) to keep `fixed` anchored regardless of that ancestor.
+ */
+test.describe('Fixed nav stays anchored while scrolling on subpages (#368)', () => {
+  for (const path of ['/philosophy', '/process'] as const) {
+    test(`${path}: nav stays pinned to the viewport top and keeps its opaque background`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+      const nav = page.getByRole('navigation');
+      await expect(nav).toBeVisible();
+
+      // Scroll well past the isScrolled(#>50) threshold so both the opaque
+      // background and the GSAP velocity-skew transform on the ancestor engage.
+      await page.evaluate(() => window.scrollTo(0, 600));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(50);
+
+      // The ancestor transform must not be able to drag `nav` out of place.
+      await expect.poll(async () => (await nav.boundingBox())?.y).toBe(0);
+
+      const className = (await nav.getAttribute('class')) ?? '';
+      expect(className).toContain('bg-black/95');
+      expect(className).toContain('backdrop-blur-xl');
+    });
+  }
+});
+
+/**
+ * Regression test for Issue #366 — focused/scrolled elements must not land
+ * behind the fixed nav. `html`'s scroll-padding-top alone doesn't help once
+ * `body` (which has `overflow-x: hidden`) becomes the actual scroll container
+ * in some browsers, so app/globals.css now sets scroll-padding-top on both.
+ */
+test.describe('Scroll-padding keeps focused elements clear of the fixed nav (#366)', () => {
+  test('scroll-padding-top is set on both html and body, not only html', async ({ page }) => {
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const scrollPadding = await page.evaluate(() => ({
+      html: getComputedStyle(document.documentElement).scrollPaddingTop,
+      body: getComputedStyle(document.body).scrollPaddingTop,
+    }));
+
+    expect(scrollPadding.html).not.toBe('0px');
+    expect(scrollPadding.body).toBe(scrollPadding.html);
+  });
+
+  test('keyboard-focused #name field on /contact is not obscured by the nav (375px)', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 700 });
+    await page.goto('/contact');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    // Start scrolled past the field so focusing it forces the browser to
+    // scroll it back into view — mirroring keyboard Tab traversal and mobile
+    // browsers auto-scrolling a tapped input above the on-screen keyboard.
+    await page.evaluate(() => window.scrollTo(0, 1000));
+
+    await page.locator('#name').focus();
+    await expect.poll(async () => {
+      const navBox = await page.getByRole('navigation').boundingBox();
+      const fieldBox = await page.locator('#name').boundingBox();
+      if (!navBox || !fieldBox) return null;
+      return fieldBox.y >= navBox.y + navBox.height;
+    }).toBe(true);
+  });
+});
