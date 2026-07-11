@@ -81,6 +81,41 @@ test.describe('Top CTA (#311)', () => {
     await expect(footer).toContainText('© 2026 SHAPE∞D');
   });
 
+  test('desktop: CTA heading never sits under the fixed nav blur zone at max scroll (#379)', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const maxScroll = await page.evaluate(
+      () => document.body.scrollHeight - window.innerHeight,
+    );
+    await page.evaluate((y) => window.scrollTo(0, y), maxScroll);
+    // .top-nav.scrolled のトランジション（padding/background/backdrop-filter 0.6s）が
+    // 落ち着くのを待つ。
+    await page.waitForTimeout(700);
+
+    const overlap = await page.evaluate(() => {
+      const nav = document.querySelector('.top-nav');
+      if (!nav) throw new Error('.top-nav not found');
+      const navRect = nav.getBoundingClientRect();
+      const heading = document.querySelector('.cta-copy');
+      if (!heading) throw new Error('.cta-copy not found');
+      const headingRect = heading.getBoundingClientRect();
+      // 区間 [navRect.top, navRect.bottom] と [headingRect.top, headingRect.bottom] の
+      // 交差量（px）。0 以下 = 重なりなし。見出しが可視領域より上に完全にスクロール
+      // し終えている（headingRect.bottom < 0）場合も正しく「重なりなし」になる。
+      return (
+        Math.min(navRect.bottom, headingRect.bottom) - Math.max(navRect.top, headingRect.top)
+      );
+    });
+
+    // #379: 最大スクロール位置で見出し（.cta-copy）が固定ヘッダーの
+    // backdrop-filter: blur(14px) 帯と重なってはならない。
+    expect(overlap).toBeLessThanOrEqual(0);
+  });
+
   test('375px: CTA copy and button fit without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
