@@ -88,7 +88,11 @@ describe('top page renewal tokens (#303)', () => {
     // タイムライン position: label 0.72（参照HTML L935）
     expect(topHero.theory.labelAt).toBe(0.72);
     expect(topHero.theory.borderAt).toBe(0.5);
-    expect(topHero.theory.dimAt).toBe(0.6);
+    // dimAt は意図的に参照HTML(0.6)から前倒し（Issue #371）。0.6 のままだと円の収束
+    // トゥイーン完了（t=0.5）から減光開始（t=0.6）までの間、円ラベルが完全不透明のまま
+    // 交差し「いまの姿」「こうありたい姿」が可読な文字で重なって静止して見える無演出区間
+    // ができるため、0.2 に前倒しして収束中から徐々に減光するようにした。
+    expect(topHero.theory.dimAt).toBe(0.2);
     // 参照HTMLの尺比再現用に既定 duration を 0.5 明示
     expect(topHero.theory.tweenDuration).toBe(0.5);
   });
