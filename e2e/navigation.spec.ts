@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectPainted, waitForHomePageReady } from './helpers';
+import { topShell } from '../lib/design/tokens';
 
 // #303: トップページは TopNav（参照HTMLビジュアル + 下層導線維持 — #314 暫定方針）。
 // 旧 Navigation は下層ページ（app/(site)/）でのみ表示される。
@@ -312,10 +313,12 @@ test.describe('Fixed nav stays anchored while scrolling on subpages (#368)', () 
       const nav = page.getByRole('navigation');
       await expect(nav).toBeVisible();
 
-      // Scroll well past the isScrolled(#>50) threshold so both the opaque
-      // background and the GSAP velocity-skew transform on the ancestor engage.
+      // Scroll well past the isScrolled(topShell.navScrollThresholdPx) threshold so both
+      // the opaque background and the GSAP velocity-skew transform on the ancestor engage.
       await page.evaluate(() => window.scrollTo(0, 600));
-      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(50);
+      await expect
+        .poll(() => page.evaluate(() => window.scrollY))
+        .toBeGreaterThan(topShell.navScrollThresholdPx);
 
       // The ancestor transform must not be able to drag `nav` out of place.
       await expect.poll(async () => (await nav.boundingBox())?.y).toBe(0);

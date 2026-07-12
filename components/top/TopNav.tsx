@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { topShell } from '@/lib/design/tokens';
+import { useMobileMenuLock } from '@/lib/hooks/useMobileMenuLock';
 
 const MOBILE_MENU_ID = 'mobile-nav-menu';
 
@@ -33,35 +34,7 @@ export default function TopNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        closeMenu();
-      }
-    };
-
-    const desktopQuery = window.matchMedia('(min-width: 768px)');
-    const handleDesktopResize = () => {
-      if (desktopQuery.matches) {
-        closeMenu();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    desktopQuery.addEventListener('change', handleDesktopResize);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-      desktopQuery.removeEventListener('change', handleDesktopResize);
-    };
-  }, [isOpen, closeMenu]);
+  useMobileMenuLock(isOpen, closeMenu);
 
   return (
     <nav className={`top-nav${isScrolled ? ' scrolled' : ''}`}>

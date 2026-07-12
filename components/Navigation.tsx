@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
 import { isNavItemActive } from '@/lib/navigation/is-nav-active';
+import { useIsMounted } from '@/lib/hooks/useIsMounted';
+import { useMobileMenuLock } from '@/lib/hooks/useMobileMenuLock';
+import { topShell } from '@/lib/design/tokens';
 
 const MOBILE_MENU_ID = 'mobile-nav-menu';
 
@@ -26,15 +29,11 @@ export default function Navigation() {
   // it isn't "transparent", it has physically scrolled out of view. Portal the nav to
   // `document.body` (a sibling of the transformed wrapper, not a descendant) so `fixed`
   // stays anchored to the viewport regardless of ancestor transforms. `isMounted` mirrors
-  // the useDeviceProfile isReady pattern (useSyncExternalStore w/ no-op subscribe) rather
-  // than an effect + setState, so React itself resolves SSR-vs-client without a post-mount
-  // re-render flash — rendered in-place on the server/first paint, then swapped to the
-  // portal on the client (no visible change since no transform is applied before scroll).
-  const isMounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
+  // the useDeviceProfile isReady pattern (useIsMounted, #385) rather than an effect +
+  // setState, so React itself resolves SSR-vs-client without a post-mount re-render
+  // flash — rendered in-place on the server/first paint, then swapped to the portal on
+  // the client (no visible change since no transform is applied before scroll).
+  const isMounted = useIsMounted();
   const portalContainer = isMounted ? document.body : null;
 
   const closeMenu = useCallback(() => setMenuOpenAtPath(null), []);
@@ -44,42 +43,14 @@ export default function Navigation() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > topShell.navScrollThresholdPx);
     };
     handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        closeMenu();
-      }
-    };
-
-    const desktopQuery = window.matchMedia('(min-width: 768px)');
-    const handleDesktopResize = () => {
-      if (desktopQuery.matches) {
-        closeMenu();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    desktopQuery.addEventListener('change', handleDesktopResize);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-      desktopQuery.removeEventListener('change', handleDesktopResize);
-    };
-  }, [isOpen, closeMenu]);
+  useMobileMenuLock(isOpen, closeMenu);
 
   const navItems = [
     { name: 'ホーム', href: '/' },

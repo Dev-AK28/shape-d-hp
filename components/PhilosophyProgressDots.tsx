@@ -1,7 +1,7 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
+import { useIsMounted } from '@/lib/hooks/useIsMounted';
 
 type PhilosophyProgressDotsProps = {
   letters: readonly string[];
@@ -30,16 +30,12 @@ export default function PhilosophyProgressDots({
   // `document.body` (a sibling of the transformed wrapper, not a descendant)
   // so `fixed` stays anchored to the viewport regardless of ancestor
   // transforms. `isMounted` mirrors the Navigation.tsx / useDeviceProfile
-  // isReady pattern (useSyncExternalStore w/ no-op subscribe) rather than an
-  // effect + setState, so React itself resolves SSR-vs-client without a
-  // post-mount re-render flash — rendered in-place on the server/first paint,
-  // then swapped to the portal on the client (no visible change since no
-  // transform is applied before scroll).
-  const isMounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
+  // isReady pattern (useIsMounted, #385) rather than an effect + setState, so
+  // React itself resolves SSR-vs-client without a post-mount re-render
+  // flash — rendered in-place on the server/first paint, then swapped to the
+  // portal on the client (no visible change since no transform is applied
+  // before scroll).
+  const isMounted = useIsMounted();
   const portalContainer = isMounted ? document.body : null;
 
   const dotsElement = (
