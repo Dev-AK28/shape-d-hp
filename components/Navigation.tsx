@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
@@ -35,6 +35,7 @@ export default function Navigation() {
   // the client (no visible change since no transform is applied before scroll).
   const isMounted = useIsMounted();
   const portalContainer = isMounted ? document.body : null;
+  const menuPanelRef = useRef<HTMLDivElement>(null);
 
   const closeMenu = useCallback(() => setMenuOpenAtPath(null), []);
   const toggleMenu = useCallback(() => {
@@ -50,7 +51,7 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useMobileMenuLock(isOpen, closeMenu);
+  useMobileMenuLock(isOpen, closeMenu, menuPanelRef);
 
   const navItems = [
     { name: 'ホーム', href: '/' },
@@ -114,7 +115,8 @@ export default function Navigation() {
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             aria-label={isOpen ? 'メニューを閉じる' : 'メニューを開く'}
             aria-expanded={isOpen}
-            aria-controls={MOBILE_MENU_ID}
+            // メニュー DOM は開時のみ存在するため、閉時は参照を付けない（dangling aria-controls 回避）
+            aria-controls={isOpen ? MOBILE_MENU_ID : undefined}
           >
             <div className="w-6 h-5 relative">
               <motion.span
@@ -141,6 +143,7 @@ export default function Navigation() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={menuPanelRef}
             id={MOBILE_MENU_ID}
             className="absolute top-full left-0 right-0 bg-black/[.98] backdrop-blur-[20px] border-b border-white/10 px-5 py-4 md:hidden"
             initial={reduceMotion ? false : { opacity: 0, y: -20 }}

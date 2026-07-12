@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { topShell } from '@/lib/design/tokens';
 import { useMobileMenuLock } from '@/lib/hooks/useMobileMenuLock';
@@ -22,6 +22,7 @@ const NAV_LINKS = [
 export default function TopNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
 
   const closeMenu = useCallback(() => setIsOpen(false), []);
 
@@ -34,7 +35,7 @@ export default function TopNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useMobileMenuLock(isOpen, closeMenu);
+  useMobileMenuLock(isOpen, closeMenu, menuPanelRef);
 
   return (
     <nav className={`top-nav${isScrolled ? ' scrolled' : ''}`}>
@@ -72,7 +73,7 @@ export default function TopNav() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div id={MOBILE_MENU_ID} className="top-nav-menu">
+        <div id={MOBILE_MENU_ID} className="top-nav-menu" ref={menuPanelRef}>
           {[...NAV_LINKS, { name: 'お問い合わせ', href: '/contact' }].map((item) => (
             <Link key={item.name} href={item.href} onClick={closeMenu}>
               {item.name}

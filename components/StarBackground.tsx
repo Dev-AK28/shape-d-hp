@@ -116,6 +116,7 @@ export default function StarBackground({ config }: { config?: StarConfig }) {
       ref={containerRef}
       data-testid="star-background"
       className="pointer-events-none absolute inset-0 overflow-hidden"
+      aria-hidden="true"
     >
       {stars.map((star) => (
         <div
