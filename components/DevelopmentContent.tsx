@@ -98,11 +98,11 @@ export default function DevelopmentContent() {
                 {/* Step Content */}
                 <div>
                   <div className="mb-[var(--space-3)]">
-                    <h4 className="text-sm text-[color:var(--section-blue)] tracking-[0.15em] uppercase mb-[var(--space-1)]">
-                      {step.subtitle}
-                    </h4>
-                    <h3 className="text-[clamp(24px,3vw,32px)] font-light text-white mb-[var(--space-2)] type-font-serif leading-[1.3]">
+                    <h2 className="text-[clamp(24px,3vw,32px)] font-light text-white mb-[var(--space-2)] type-font-serif leading-[1.3]">
                       {step.title}
+                    </h2>
+                    <h3 className="text-sm text-[color:var(--section-blue)] tracking-[0.15em] uppercase mb-[var(--space-1)]">
+                      {step.subtitle}
                     </h3>
                   </div>
 
@@ -137,9 +137,9 @@ export default function DevelopmentContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           className="text-center p-16 border border-white/10 rounded-lg bg-[linear-gradient(to_right,rgba(96,165,250,0.1),rgba(96,165,250,0.2))] backdrop-blur-[10px]"
         >
-          <h3 className="text-[28px] font-light text-white mb-[var(--space-3)] type-font-serif">
+          <h2 className="text-[28px] font-light text-white mb-[var(--space-3)] type-font-serif">
             「早い＝雑」ではありません
-          </h3>
+          </h2>
           <p className="text-gray-300 text-base max-w-[48rem] mx-auto leading-[2] mb-[var(--space-4)] type-font-serif tracking-[0.02em]">
             GoDDの手法は、AIを効果的に活用しつつ、厳格な品質管理とコードレビューを行います。スピードと品質の両立を可能にする、論理的で丁寧な開発プロセスです。
           </p>

@@ -93,9 +93,9 @@ export default function ConsultingContent() {
           }} />
           
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '32px', fontFamily: 'serif', lineHeight: 1.3 }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '32px', fontFamily: 'serif', lineHeight: 1.3 }}>
               「自分を語れない人間は、選ばれない時代」
-            </h3>
+            </h2>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
               終身雇用・年功序列という日本型雇用モデルが崩壊しつつある。転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく「自分が何者で、何を提供できるか」を語れることが、生存戦略として機能する時代になった。
             </p>
@@ -111,9 +111,9 @@ export default function ConsultingContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
         >
-          <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             3 Steps Process
-          </h3>
+          </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {steps.map((step, index) => (
               <motion.div
@@ -145,12 +145,12 @@ export default function ConsultingContent() {
                   }}>
                     {step.id}
                   </div>
-                  <h4 style={{ fontSize: '12px', color: '#a78bfa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                    {step.subtitle}
-                  </h4>
                   <h3 style={{ fontSize: '24px', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif', lineHeight: 1.3 }}>
                     {step.title}
                   </h3>
+                  <h4 style={{ fontSize: '12px', color: '#a78bfa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    {step.subtitle}
+                  </h4>
                 </div>
 
                 <p style={{ color: '#d1d5db', fontSize: '15px', lineHeight: 2, marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -184,9 +184,9 @@ export default function ConsultingContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.6, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
         >
-          <h3 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '48px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '48px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             なぜ「自己表現力」が最も必要なスキルなのか
-          </h3>
+          </h2>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
               まず、<span style={{ color: '#a78bfa', fontWeight: 500 }}>時代の変化</span>だ。終身雇用・年功序列が崩壊し、転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく<span style={{ color: '#a78bfa', fontWeight: 500 }}>「自分が何者で、何を提供できるか」を語れる</span>ことが生存戦略として機能する。つまり、個を語れない人間は選ばれない時代になった。
@@ -220,9 +220,9 @@ export default function ConsultingContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(167, 139, 250, 0.1), rgba(167, 139, 250, 0.2))', backdropFilter: 'blur(10px)' }}
         >
-          <h3 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
             自己表現力は、個人の幸福・組織の生産性・社会の活力、この三つを同時に底上げできる唯一のスキルである。
-          </h3>
+          </h2>
           <motion.a
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#c4b5fd', transition: { duration: ANIMATION_DURATION.cardHover } }}
