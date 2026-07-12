@@ -84,7 +84,7 @@ export default function PageHeader({
         {email ? (
           <p
             data-testid="page-header-email"
-            className="mt-2 font-serif text-sm text-gray-500"
+            className="mt-2 font-serif text-sm text-gray-400"
           >
             {email}
           </p>

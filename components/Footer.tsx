@@ -31,7 +31,7 @@ export default function Footer() {
                     data-micro-interaction="footer"
                   >
                     {item.label}{' '}
-                    <span className="ml-1 text-xs text-gray-500">| {item.sub}</span>
+                    <span className="ml-1 text-xs text-gray-400">| {item.sub}</span>
                   </Link>
                 </li>
               ))}
@@ -77,7 +77,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-8 text-center">
-          <p className="font-serif text-sm tracking-wide text-gray-500">
+          <p className="font-serif text-sm tracking-wide text-gray-400">
             © 2026 Kota Akashi. All rights reserved.
           </p>
         </div>
