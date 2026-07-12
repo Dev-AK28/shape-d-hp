@@ -8,6 +8,14 @@ export const ANIMATION_DURATION = {
   pageTransition: 0.6,
   /** Pointer hover micro-interactions (nav / CTA / footer) — mirrors --duration-interaction. */
   interaction: 0.25,
+  /**
+   * Framer-motion card-hover `whileHover` transitions (ServicesContent /
+   * ProcessNavigation / ConsultingContent / DevelopmentContent). Distinct
+   * layer from the GSAP `interaction` timing above (see design-system.md
+   * "Micro-interactions" — Issue #103) — intentionally its own value, not a
+   * drift from `interaction` (Issue #388).
+   */
+  cardHover: 0.3,
 } as const;
 
 export const ANIMATION_EASE = {

@@ -6,6 +6,7 @@ import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function DevelopmentContent() {
@@ -144,7 +145,7 @@ export default function DevelopmentContent() {
           </p>
           <motion.a
             href="/contact"
-            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
+            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             className="inline-flex items-center gap-2 px-12 py-4 border border-[color:var(--section-blue)] rounded-full text-[#93c5fd] bg-transparent cursor-pointer text-base type-font-serif no-underline"
           >

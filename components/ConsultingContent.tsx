@@ -7,6 +7,7 @@ import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import BrandLogo from '@/components/BrandLogo';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
 
@@ -224,7 +225,7 @@ export default function ConsultingContent() {
           </h3>
           <motion.a
             href="/contact"
-            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#c4b5fd', transition: { duration: 0.3 } }}
+            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#c4b5fd', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >

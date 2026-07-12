@@ -7,6 +7,7 @@ import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { getServiceById } from '@/lib/data/services';
+import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 
 export default function ServicesContent() {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
@@ -101,7 +102,7 @@ export default function ServicesContent() {
                 id={service.id}
                 key={staticReveal ? `static-service-${service.id}` : `reveal-service-${service.id}`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card', isMobile: isTouchDevice })}
-                whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
+                whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: ANIMATION_DURATION.cardHover } }}
                 style={{ padding: '48px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
                 <div style={{ marginBottom: '24px' }}>
@@ -189,7 +190,7 @@ export default function ServicesContent() {
                   staggerStep: 'card',
                   isMobile: isTouchDevice,
                 })}
-                whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
+                whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: ANIMATION_DURATION.cardHover } }}
                 style={{ padding: '48px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
                 <div style={{ marginBottom: '24px' }}>
@@ -254,7 +255,7 @@ export default function ServicesContent() {
           </p>
           <motion.a
             href="/contact"
-            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: 0.3 } }}
+            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >

@@ -5,6 +5,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
+import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import Link from 'next/link';
 
 const MotionLink = motion.create(Link);
@@ -36,7 +37,7 @@ export default function ProcessNavigation() {
         <motion.div
           key={staticReveal ? 'static-dev' : 'reveal-dev'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
-          whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
+          whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: ANIMATION_DURATION.cardHover } }}
           className={developmentCardClass}
         >
           <h2 className="mb-6 font-serif text-[32px] font-light text-[color:var(--section-blue)]">
@@ -58,7 +59,7 @@ export default function ProcessNavigation() {
         <motion.div
           key={staticReveal ? 'static-cons' : 'reveal-cons'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
-          whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: 0.3 } }}
+          whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: ANIMATION_DURATION.cardHover } }}
           className={consultingCardClass}
         >
           <h2 className="mb-6 font-serif text-[32px] font-light text-[color:var(--section-purple)]">
