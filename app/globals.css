@@ -38,6 +38,10 @@ body {
   --section-purple: #a78bfa;
 
   --font-serif: var(--font-display);
+  /* Noto Serif JP の next/font 読み込みを削除 — Issue #401。
+     japanese サブセットが next/font に存在せず、日本語本文はこのフォールバック
+     スタック自体で描画されていたため、変数の中身をそのフォールバックにする。 */
+  --font-serif-jp: 'Hiragino Mincho ProN', 'Yu Mincho';
 
   /* Motion design tokens */
   --duration-base: 1.4s;
@@ -79,7 +83,7 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  font-family: var(--font-serif-jp), var(--font-serif), serif;
   /* Prevent horizontal overflow from velocity-driven skewY animation.
      Lenis uses window (not body) as scroll target, so this is safe.
      Note: overflow: hidden on body creates a new scroll container in some browsers,
@@ -244,7 +248,7 @@ button:not(.nav-menu-button):hover {
 }
 
 .type-font-serif-jp {
-  font-family: var(--font-serif-jp), var(--font-serif), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  font-family: var(--font-serif-jp), var(--font-serif), serif;
 }
 
 /* GSAP stagger targets: ensure content stays visible when motion is reduced */

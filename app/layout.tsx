@@ -48,8 +48,8 @@ export default function RootLayout({
   return (
     <html lang="ja" className={`${cormorant.variable} h-full antialiased`}>
       {/* Navigation / Footer は app/(site)/layout.tsx（下層ページ）へ移設 — Issue #303。
-          Noto Serif JP（--font-serif-jp）も下層専用のため app/(site)/layout.tsx へ移設 — Issue #326
-          （next/font はフォント CSS を使用したレイアウト配下にのみ含めるため、トップでロードされない）。
+          Noto Serif JP（--font-serif-jp）の next/font 読み込みは削除 — Issue #401
+          （japanese サブセットが存在せず、日本語本文は元々 globals.css のフォールバックで描画されていたため）。
           トップページのシェルは components/top/TopShell。
           CustomCursor / PageLoader / MicroInteraction はトップで無効化（#312・SubPageEffects）。
           SmoothScrollProvider はトップ 1.8/skewなし・下層 1.4/skewあり を内部で切替（#312）。 */}
