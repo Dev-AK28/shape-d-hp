@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
@@ -8,7 +8,7 @@ import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import Link from 'next/link';
 
-const MotionLink = motion.create(Link);
+const MotionLink = m.create(Link);
 
 const processCardLinkClass =
   'inline-block px-12 py-4 rounded-full bg-transparent cursor-pointer text-base font-serif no-underline';
@@ -34,7 +34,7 @@ export default function ProcessNavigation() {
         ref={focusGuardRef}
         className="mx-auto mt-[120px] grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(400px,100%),1fr))] gap-16"
       >
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-dev' : 'reveal-dev'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: ANIMATION_DURATION.cardHover } }}
@@ -54,9 +54,9 @@ export default function ProcessNavigation() {
           >
             詳細を見る
           </MotionLink>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-cons' : 'reveal-cons'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4 })}
           whileHover={reduceMotion ? undefined : { y: -12, transition: { duration: ANIMATION_DURATION.cardHover } }}
@@ -76,7 +76,7 @@ export default function ProcessNavigation() {
           >
             詳細を見る
           </MotionLink>
-        </motion.div>
+        </m.div>
       </div>
     </PageHeader>
   );

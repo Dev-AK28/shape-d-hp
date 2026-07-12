@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
@@ -90,7 +90,7 @@ export default function WorksContent() {
     >
       <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* PROJECTS Section */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-projects' : 'reveal-projects'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
@@ -99,14 +99,14 @@ export default function WorksContent() {
             PROJECTS
           </h2>
           {projects.map((work, index) => (
-            <motion.div
+            <m.div
               key={staticReveal ? `static-project-${work.id}` : `reveal-project-${work.id}`}
               {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 0.2, isMobile: isTouchDevice })}
               style={{ marginBottom: index < projects.length - 1 ? '160px' : '0' }}
             >
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '64px', alignItems: 'center' }}>
                 {/* Image Placeholder */}
-                <motion.div
+                <m.div
                   {...getScrollRevealProps(reduceMotion, {
                     staticReveal,
                     variant: 'scale',
@@ -159,7 +159,7 @@ export default function WorksContent() {
                     </div>
                     <p style={{ fontSize: '14px', letterSpacing: '0.1em', fontFamily: 'serif', color: '#9ca3af' }}>{work.imagePlaceholder}</p>
                   </div>
-                </motion.div>
+                </m.div>
 
                 {/* Content */}
                 <div>
@@ -208,12 +208,12 @@ export default function WorksContent() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* CONCEPT WORKS Section */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-concept' : 'reveal-concept'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px' }}
@@ -223,7 +223,7 @@ export default function WorksContent() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {conceptWorks.map((work, index) => (
-              <motion.div
+              <m.div
                 key={staticReveal ? `static-concept-${work.id}` : `reveal-concept-${work.id}`}
                 {...getScrollRevealProps(reduceMotion, {
                   staticReveal,
@@ -235,7 +235,7 @@ export default function WorksContent() {
                 style={{ padding: '48px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(10px)' }}
               >
                 {/* Image */}
-                <motion.div
+                <m.div
                   className="relative mb-8 overflow-hidden rounded-lg border border-white/10"
                   style={{
                     aspectRatio: '16/10',
@@ -249,7 +249,7 @@ export default function WorksContent() {
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover object-center"
                   />
-                </motion.div>
+                </m.div>
 
                 {/* Content */}
                 <div style={{ marginBottom: '24px' }}>
@@ -295,13 +295,13 @@ export default function WorksContent() {
                     {work.result}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* GoDD Footer */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-footer' : 'reveal-footer'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           style={{ textAlign: 'center', paddingTop: '64px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
@@ -317,7 +317,7 @@ export default function WorksContent() {
               GoDD
             </a>
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

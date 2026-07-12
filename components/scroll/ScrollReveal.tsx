@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { m, type HTMLMotionProps } from 'framer-motion';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
@@ -57,7 +57,7 @@ export default function ScrollReveal({
       };
 
   return (
-    <motion.div
+    <m.div
       // Remount when staticReveal changes so framer `initial` re-evaluates.
       // Handles both mobile/desktop breakpoint resize (#151) and the isReady→true
       // hydration transition on desktop (#153: restores whileInView scroll reveal).
@@ -72,6 +72,6 @@ export default function ScrollReveal({
       {...props}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

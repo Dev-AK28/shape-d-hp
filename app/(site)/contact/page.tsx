@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import ScrollReveal from '@/components/scroll/ScrollReveal';
 import SectionShell from '@/components/ui/SectionShell';
@@ -213,7 +213,7 @@ export default function ContactPage() {
               </div>
 
               {submitStatus === 'success' && (
-                <motion.div
+                <m.div
                   role="status"
                   aria-live="polite"
                   initial={reduceMotion ? false : { opacity: 0, y: -20 }}
@@ -222,11 +222,11 @@ export default function ContactPage() {
                   className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-4 text-center text-green-400"
                 >
                   送信しました。お問い合わせありがとうございます。
-                </motion.div>
+                </m.div>
               )}
 
               {submitStatus === 'error' && (
-                <motion.div
+                <m.div
                   role="alert"
                   aria-live="assertive"
                   initial={reduceMotion ? false : { opacity: 0, y: -20 }}
@@ -235,10 +235,10 @@ export default function ContactPage() {
                   className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-4 text-center text-red-400"
                 >
                   {errorMessage}
-                </motion.div>
+                </m.div>
               )}
 
-              <motion.button
+              <m.button
                 type="submit"
                 disabled={isSubmitting}
                 whileHover={reduceMotion ? undefined : { scale: 1.02, borderColor: '#93c5fa' }}
@@ -246,7 +246,7 @@ export default function ContactPage() {
                 className="self-start rounded-full border border-blue-400 px-16 py-5 font-serif text-lg text-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? '送信中...' : '送信する'}
-              </motion.button>
+              </m.button>
             </form>
           </ScrollReveal>
         </div>

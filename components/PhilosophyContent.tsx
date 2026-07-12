@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import PhilosophyProgressDots from '@/components/PhilosophyProgressDots';
 import TextReveal from '@/components/scroll/TextReveal';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
@@ -287,7 +287,7 @@ export default function PhilosophyContent() {
             </span>
 
             <div className="relative z-[1] max-w-[720px] text-center">
-              <motion.div
+              <m.div
                 key={staticReveal ? `static-${item.letter}-heading` : `reveal-${item.letter}-heading`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
               >
@@ -297,23 +297,23 @@ export default function PhilosophyContent() {
                 <p className="mb-[var(--space-6)] type-size-body tracking-[0.15em] text-[color:var(--accent)]">
                   {item.subtitle}
                 </p>
-              </motion.div>
+              </m.div>
 
-              <motion.p
+              <m.p
                 key={staticReveal ? `static-${item.letter}-body` : `reveal-${item.letter}-body`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2, isMobile: isTouchDevice })}
                 className="mb-[var(--space-4)] font-light leading-[1.9] type-font-serif-jp text-[clamp(18px,2.5vw,24px)] text-[color:var(--foreground)]"
               >
                 {item.description}
-              </motion.p>
+              </m.p>
 
-              <motion.p
+              <m.p
                 key={staticReveal ? `static-${item.letter}-detail` : `reveal-${item.letter}-detail`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.35, isMobile: isTouchDevice })}
                 className="leading-[2] type-size-body type-font-serif-jp text-[color:var(--muted)]"
               >
                 {item.detail}
-              </motion.p>
+              </m.p>
             </div>
           </div>
         ))}
@@ -322,7 +322,7 @@ export default function PhilosophyContent() {
 
       <div className="flex min-h-[60svh] items-center justify-center py-[var(--space-section)] px-[var(--space-3)] text-center">
         <div className="max-w-[800px]">
-          <motion.h2
+          <m.h2
             key={staticReveal ? 'static-closing-heading' : 'reveal-closing-heading'}
             {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
             className="mb-[var(--space-6)] font-light leading-[1.5] type-size-heading type-font-serif-jp text-[color:var(--foreground)]"
@@ -330,15 +330,15 @@ export default function PhilosophyContent() {
             心理学とエンジニアリングの融合が
             <br />
             自己一致への道を照らす
-          </motion.h2>
-          <motion.a
+          </m.h2>
+          <m.a
             key={staticReveal ? 'static-closing-cta' : 'reveal-closing-cta'}
             href="/contact"
             {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2, isMobile: isTouchDevice })}
             className="inline-block rounded-full border border-[var(--accent)] py-[var(--space-2)] px-[var(--space-4)] no-underline type-font-serif-jp text-[color:var(--accent)] transition-opacity duration-[var(--duration-base)] ease-[var(--ease-base)]"
           >
             お問い合わせ
-          </motion.a>
+          </m.a>
         </div>
       </div>
     </section>

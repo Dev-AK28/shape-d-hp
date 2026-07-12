@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
@@ -69,14 +69,14 @@ export default function DevelopmentContent() {
         <div className="max-w-[1200px] mx-auto relative z-10">
           <div className="mb-[var(--space-section)]">
           {steps.map((step, index) => (
-            <motion.div
+            <m.div
               key={staticReveal ? `static-step-${step.id}` : `reveal-step-${step.id}`}
               {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card', isMobile: isTouchDevice })}
               className={index < steps.length - 1 ? 'mb-[100px]' : ''}
             >
               <div className="grid gap-16 items-start grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))]">
                 {/* Step Number */}
-                <motion.div
+                <m.div
                   {...getScrollRevealProps(reduceMotion, {
                     staticReveal,
                     variant: 'scale',
@@ -93,7 +93,7 @@ export default function DevelopmentContent() {
                   {index < steps.length - 1 && (
                     <div className="absolute top-[120px] left-1/2 -translate-x-1/2 w-[2px] h-[100px] bg-[linear-gradient(to_bottom,rgba(96,165,250,0.4),transparent)]" />
                   )}
-                </motion.div>
+                </m.div>
 
                 {/* Step Content */}
                 <div>
@@ -128,11 +128,11 @@ export default function DevelopmentContent() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
 
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-cta' : 'reveal-cta'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           className="text-center p-16 border border-white/10 rounded-lg bg-[linear-gradient(to_right,rgba(96,165,250,0.1),rgba(96,165,250,0.2))] backdrop-blur-[10px]"
@@ -143,7 +143,7 @@ export default function DevelopmentContent() {
           <p className="text-gray-300 text-base max-w-[48rem] mx-auto leading-[2] mb-[var(--space-4)] type-font-serif tracking-[0.02em]">
             GoDDの手法は、AIを効果的に活用しつつ、厳格な品質管理とコードレビューを行います。スピードと品質の両立を可能にする、論理的で丁寧な開発プロセスです。
           </p>
-          <motion.a
+          <m.a
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
@@ -151,8 +151,8 @@ export default function DevelopmentContent() {
           >
             <BrandLogo width={16} />
             爆速でプロトタイプを試す（初回相談）
-          </motion.a>
-        </motion.div>
+          </m.a>
+        </m.div>
         </div>
       </section>
     </>
