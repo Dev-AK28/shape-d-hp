@@ -75,7 +75,7 @@ test.describe('desktop 1280px — ScrollReveal after direct URL load (#153)', ()
     await page.goto('/services');
     await page.waitForLoadState('networkidle');
 
-    // "Digital Solution" is an h3 inside ServicesContent — below the PageHeader fold.
+    // "Digital Solution" is an h2 inside ServicesContent — below the PageHeader fold.
     const heading = page.getByRole('heading', { name: 'Digital Solution' });
     // Use block:'start' so the heading (and its parent motion.div) land at the
     // TOP of the viewport. The parent motion.div spans ~900px; with

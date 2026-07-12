@@ -95,9 +95,9 @@ export default function WorksContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
         >
-          <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
             PROJECTS
-          </h3>
+          </h2>
           {projects.map((work, index) => (
             <motion.div
               key={staticReveal ? `static-project-${work.id}` : `reveal-project-${work.id}`}
@@ -218,9 +218,9 @@ export default function WorksContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px' }}
         >
-          <h3 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
             CONCEPT WORKS
-          </h3>
+          </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {conceptWorks.map((work, index) => (
               <motion.div
