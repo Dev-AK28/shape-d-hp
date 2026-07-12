@@ -112,6 +112,72 @@ test.describe('Navigation mobile layout', () => {
   });
 
   /**
+   * Regression tests for Issue #398 — mobile menu lacked a focus trap: opening
+   * it never moved focus into the panel, Tab could escape into obscured
+   * background content, and the background wasn't marked inert/aria-hidden.
+   * useMobileMenuLock (lib/hooks/useMobileMenuLock.ts) now handles all three;
+   * these tests exercise it via TopNav (top page, '/').
+   */
+  test('opening the menu moves focus to the first menu link (#398)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+
+    await expect(nav.getByRole('link', { name: '商品・サービス' })).toBeFocused();
+  });
+
+  test('Tab cycles within the open menu panel without escaping to background content (#398)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+
+    // TopNav's mobile panel renders NAV_LINKS + a trailing お問い合わせ link (see TopNav.tsx).
+    const linkNames = ['商品・サービス', '実績', '制作の流れ', '哲学', 'お問い合わせ'];
+    await expect(nav.getByRole('link', { name: linkNames[0] })).toBeFocused();
+
+    for (const name of linkNames.slice(1)) {
+      await page.keyboard.press('Tab');
+      await expect(nav.getByRole('link', { name })).toBeFocused();
+    }
+
+    // Tab past the last link must cycle back to the first, not escape the panel.
+    await page.keyboard.press('Tab');
+    await expect(nav.getByRole('link', { name: linkNames[0] })).toBeFocused();
+
+    // Shift+Tab from the first link must cycle back to the last.
+    await page.keyboard.press('Shift+Tab');
+    await expect(nav.getByRole('link', { name: linkNames[linkNames.length - 1] })).toBeFocused();
+  });
+
+  test('background <main> is inert while open and restored after closing (#398)', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+    await expect(nav.getByRole('link', { name: '哲学' })).toBeVisible();
+
+    await expect
+      .poll(() => page.evaluate(() => document.querySelector('main')?.getAttribute('aria-hidden')))
+      .toBe('true');
+    expect(await page.evaluate(() => document.querySelector('main')?.inert)).toBe(true);
+
+    await page.keyboard.press('Escape');
+    await expect(nav.getByRole('link', { name: '哲学' })).toHaveCount(0);
+
+    const restored = await page.evaluate(() => {
+      const main = document.querySelector('main');
+      return { ariaHidden: main?.getAttribute('aria-hidden') ?? null, inert: main?.inert ?? null };
+    });
+    expect(restored.ariaHidden).toBeNull();
+    expect(restored.inert).toBe(false);
+  });
+
+  /**
    * Regression test for Issue #166 — safe-area-inset-top compensation (TopNav 版 — #303).
    *
    * TopNav は Tailwind クラスではなく globals.css の .top-nav ルールで
@@ -224,6 +290,47 @@ test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
     const conceptWorks = page.getByRole('heading', { name: 'CONCEPT WORKS' });
     await conceptWorks.evaluate((el) => el.scrollIntoView({ behavior: 'instant', block: 'center' }));
     await expectPainted(conceptWorks, 5000);
+  });
+});
+
+/**
+ * Regression tests for Issue #398 (下層 Navigation.tsx side) — useMobileMenuLock
+ * is shared between TopNav (see 'Navigation mobile layout' above, tested via
+ * '/') and this component, so the focus trap must also hold for the portaled
+ * `<nav>` used on sub pages (app/(site)/).
+ */
+test.describe('下層 Navigation mobile menu focus trap (#398)', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('opening the menu moves focus to the first link, Tab cycles within the panel, and closing restores <main>', async ({ page }) => {
+    await page.goto('/services');
+    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+
+    const nav = page.getByRole('navigation');
+    await nav.getByRole('button', { name: /メニューを開く/ }).click();
+
+    // Navigation.tsx's mobile panel renders all navItems (see Navigation.tsx).
+    const linkNames = ['ホーム', '商品・サービス', '実績', '制作の流れ', '哲学', 'お問い合わせ'];
+    await expect(nav.getByRole('link', { name: linkNames[0] })).toBeFocused();
+
+    for (const name of linkNames.slice(1)) {
+      await page.keyboard.press('Tab');
+      await expect(nav.getByRole('link', { name })).toBeFocused();
+    }
+
+    // Tab past the last link must cycle back to the first, not escape to background content.
+    await page.keyboard.press('Tab');
+    await expect(nav.getByRole('link', { name: linkNames[0] })).toBeFocused();
+
+    await expect
+      .poll(() => page.evaluate(() => document.querySelector('main')?.getAttribute('aria-hidden')))
+      .toBe('true');
+
+    await page.keyboard.press('Escape');
+    await expect(nav.getByRole('link', { name: linkNames[0] })).toHaveCount(0);
+
+    const mainAriaHidden = await page.evaluate(() => document.querySelector('main')?.getAttribute('aria-hidden'));
+    expect(mainAriaHidden).toBeNull();
   });
 });
 
