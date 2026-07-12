@@ -267,4 +267,49 @@ describe('POST /api/contact', () => {
 
     vi.doUnmock('@/lib/contact/rate-limit-service');
   });
+
+  it('fails open and still sends the email when the rate limiter throws (Redis outage)', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const tryAcquire = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+    const release = vi.fn().mockResolvedValue(undefined);
+
+    vi.doMock('@/lib/contact/rate-limit-service', () => ({
+      getRateLimitService: () => ({ tryAcquire, release }),
+    }));
+
+    vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
+    vi.resetModules();
+    const route = await import('@/app/api/contact/route');
+    const POST = route.POST;
+
+    const response = await POST(createRequest(JSON.stringify(validPayload), { ip: '203.0.113.61' }));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ success: true });
+    expect(sendContactEmail).toHaveBeenCalledOnce();
+    expect(tryAcquire).toHaveBeenCalledOnce();
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Rate limit acquire failed; failing open (allowing request)',
+      expect.objectContaining({ name: 'Error' }),
+    );
+
+    vi.doUnmock('@/lib/contact/rate-limit-service');
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('warns when rate limiting is skipped because the client IP could not be resolved', async () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.mocked(sendContactEmail).mockResolvedValue({ ok: true });
+    const POST = await loadPostHandler();
+
+    const response = await POST(createRequest(JSON.stringify(validPayload)));
+
+    expect(response.status).toBe(200);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Rate limiting skipped: client IP could not be resolved',
+      expect.any(Object),
+    );
+
+    consoleWarnSpy.mockRestore();
+  });
 });

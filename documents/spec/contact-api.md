@@ -83,3 +83,15 @@
   - **共有ストア**: `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`、または Vercel KV の `KV_REST_API_URL` + `KV_REST_API_TOKEN` が設定されている場合、Upstash Redis でインスタンス間共有。未設定時はインメモリ Map にフォールバック
 - PII の console.log 出力なし
 - `reply_to` 等のメールヘッダー値は `sanitizeEmailHeaderValue` で改行除去
+
+## 障害時の挙動（レート制限）
+
+- **Redis（Upstash / Vercel KV）障害時はフェイルオープン**（[#382](https://github.com/Dev-AK28/shape-d-hp/issues/382)）
+  - `rateLimit.tryAcquire()` の呼び出しは `route.ts` 内で個別に try/catch しており、Redis 側の例外（接続断・タイムアウト等）が送信処理全体（`sendContactEmail`）に伝播することはない
+  - 例外発生時は `console.error('Rate limit acquire failed; failing open (allowing request)', ...)` でサーバーログに記録した上で、そのリクエストは**レート制限なしで通過**させる（`allowed = true` として扱う）
+  - 設計判断: レート制限機構自体の障害によってお問い合わせフォーム全体（＝メール送信）を止めてしまうことは、レート制限が守ろうとしている被害より大きい。「保護機構の障害が保護対象より大きな障害になってはならない」という一般的な方針に基づき、フェイルクローズ（拒否）ではなくフェイルオープン（許可）を採用
+  - 上記のフェイルオープン時は、実際には枠を確保できていないため `release()` は呼び出さない（Redis 障害時に無駄な追加呼び出し・追加エラーログを発生させないため）
+- **クライアント IP が解決できずレート制限が適用されない場合は警告ログを出力**（[#383](https://github.com/Dev-AK28/shape-d-hp/issues/383)）
+  - `extractClientIp()` が `null` を返す（プロキシヘッダー信頼が明示的に有効化されていない自己ホスト環境など）と、既存仕様どおりレート制限は適用されない（誤 429 防止のため意図的な挙動）
+  - この状態が発生したことに気づけるよう、`route.ts` はリクエストごとに `console.warn('Rate limiting skipped: client IP could not be resolved', ...)` を出力する
+  - リクエスト単位のログで十分と判断（この API に起動時フックのような仕組みは無く、既存のログ規約もリクエスト処理時点での `console.error` 記録に統一されているため、それに合わせた）
