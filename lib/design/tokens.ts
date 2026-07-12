@@ -72,6 +72,7 @@ export const typography = {
 
 /** CSS utility class names for typography sizes — Issue #15 */
 export const typographySizeClasses = {
+  pageHeading: 'type-size-page-heading',
   heading: 'type-size-heading',
   subheading: 'type-size-subheading',
   quote: 'type-size-quote',
@@ -82,6 +83,7 @@ export const typographySizeClasses = {
 
 /** CSS custom property names for typography sizes — mirrors :root in globals.css */
 export const typographySizeCssVars: Record<keyof typeof typographySizeClasses, string> = {
+  pageHeading: '--type-size-page-heading',
   heading: '--type-size-heading',
   subheading: '--type-size-subheading',
   quote: '--type-size-quote',
@@ -93,8 +95,15 @@ export const typographySizeCssVars: Record<keyof typeof typographySizeClasses, s
 /** Maps typographySizeClasses keys to typography.size* keys — used by css-token-sync tests */
 export const typographySizeTokenKeys: Record<
   keyof typeof typographySizeClasses,
-  'sizeHeading' | 'sizeSubheading' | 'sizeQuote' | 'sizeBody' | 'sizeCaption' | 'sizeVisualWord'
+  | 'sizePageHeading'
+  | 'sizeHeading'
+  | 'sizeSubheading'
+  | 'sizeQuote'
+  | 'sizeBody'
+  | 'sizeCaption'
+  | 'sizeVisualWord'
 > = {
+  pageHeading: 'sizePageHeading',
   heading: 'sizeHeading',
   subheading: 'sizeSubheading',
   quote: 'sizeQuote',

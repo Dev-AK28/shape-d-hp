@@ -63,6 +63,7 @@ body {
   --type-blend-solid: normal;
 
   /* Typography sizes — Issue #15 (mirrors lib/design/tokens.ts typography.size*) */
+  --type-size-page-heading: clamp(24px, 4vw, 40px);
   --type-size-heading: clamp(32px, 5vw, 64px);
   --type-size-subheading: clamp(20px, 2.5vw, 28px);
   --type-size-quote: clamp(18px, 2.5vw, 28px);
@@ -209,6 +210,10 @@ button:not(.nav-menu-button):hover {
 }
 
 /* Typography size utilities — Issue #15 (mirrors lib/design/tokens.ts typographySizeClasses) */
+.type-size-page-heading {
+  font-size: var(--type-size-page-heading);
+}
+
 .type-size-heading {
   font-size: var(--type-size-heading);
 }

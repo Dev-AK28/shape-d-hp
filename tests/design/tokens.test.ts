@@ -32,6 +32,7 @@ describe('design tokens', () => {
   });
 
   it('maps typography utility class names to type-size-* pattern', () => {
+    expect(typographySizeClasses.pageHeading).toBe('type-size-page-heading');
     expect(typographySizeClasses.heading).toBe('type-size-heading');
     expect(typographySizeClasses.visualWord).toBe('type-size-visual-word');
     expect(typography.sizeVisualWord).toBe('clamp(40px, 10vw, 140px)');

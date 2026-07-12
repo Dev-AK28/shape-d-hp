@@ -56,6 +56,7 @@ describe('design tokens ↔ globals.css sync', () => {
   });
 
   it('mirrors typography size tokens and utility classes', () => {
+    expect(globalsCss).toContain(`--type-size-page-heading: ${typography.sizePageHeading}`);
     expect(globalsCss).toContain(`--type-size-heading: ${typography.sizeHeading}`);
     expect(globalsCss).toContain(`--type-size-subheading: ${typography.sizeSubheading}`);
     expect(globalsCss).toContain(`--type-size-quote: ${typography.sizeQuote}`);

@@ -9,6 +9,7 @@ import {
   pageHeaderDividers,
   type PageHeaderDividerVariant,
   typographyBlend,
+  typographySizeClasses,
 } from '@/lib/design/tokens';
 
 export type PageHeaderProps = {
@@ -52,7 +53,7 @@ export default function PageHeader({
       <ScrollReveal className="relative z-10 w-full max-w-[800px] text-center">
         <h1
           aria-label={title}
-          className="mb-4 font-serif text-[clamp(36px,5vw,48px)] font-light tracking-wider text-white"
+          className={`mb-4 font-serif ${typographySizeClasses.pageHeading} font-light tracking-wider text-white`}
         >
           {animateTitle ? (
             <TextReveal as="span" text={title} blend={starBackground ? 'cosmic' : 'solid'} />
