@@ -91,6 +91,14 @@ export async function POST(request: NextRequest) {
         // Fail open: if the rate limiter backend (e.g. Upstash Redis) is down,
         // it must not take the entire contact form offline. Log loudly so the
         // outage is observable, then let the submission proceed unlimited.
+        //
+        // Known residual edge case (#403): if this throw is a client-side
+        // timeout on the `eval` call *after* Upstash already executed the
+        // INCR server-side (i.e. not a hard connection failure), the counter
+        // was incremented but we still fail open here, so that increment is
+        // never released. This is a low-likelihood leak of at most one slot
+        // into the rate-limit window and is accepted as a trade-off of the
+        // fail-open design; no functional fix is planned.
         console.error('Rate limit acquire failed; failing open (allowing request)', {
           name: error instanceof Error ? error.name : 'UnknownError',
         });
