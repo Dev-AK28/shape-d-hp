@@ -155,3 +155,62 @@ test.describe('Top shell foundation (#303)', () => {
     }
   });
 });
+
+/**
+ * Regression test for Issue #384 — TopShell.tsx carries a comment-only invariant:
+ * no ancestor of `#thread` / `.top-nav` / CosmicScene may ever receive a
+ * `transform` (or `filter`, which also establishes a containing block). Per the
+ * CSS Transforms spec, a transformed ancestor becomes the containing block for
+ * `position: fixed` descendants — this is the exact root cause fixed in #368
+ * (Navigation.tsx) and #378 (PhilosophyProgressDots), where a GSAP velocity-skew
+ * transform on `[data-velocity-content]` (applied by SmoothScrollProvider, see
+ * app/template.tsx) dragged fixed elements out of viewport-anchored position.
+ * Today velocity-skew is disabled on the top page (SmoothScrollProvider /
+ * lib/scroll/lenis-config.ts `isTopPagePath`), so the invariant holds — but
+ * nothing previously caught a future regression. This test does both:
+ *   1. A lightweight computed-style assertion that the ancestor chain
+ *      (html / body / [data-velocity-content] / .top-scope) has `transform: none`.
+ *   2. A faithful scroll-based E2E check that `.top-nav` stays pinned to the
+ *      viewport top (`getBoundingClientRect().top === 0`) throughout scroll,
+ *      mirroring the #368/#378 regression tests in navigation.spec.ts /
+ *      philosophy.spec.ts.
+ */
+test.describe('TopShell ancestor chain has no transform (#384)', () => {
+  test('html / body / [data-velocity-content] / .top-scope compute transform: none', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+
+    const transforms = await page.evaluate(() => {
+      const velocityContent = document.querySelector('[data-velocity-content]');
+      const topScope = document.querySelector('.top-scope');
+      return {
+        html: getComputedStyle(document.documentElement).transform,
+        body: getComputedStyle(document.body).transform,
+        velocityContent: velocityContent ? getComputedStyle(velocityContent).transform : null,
+        topScope: topScope ? getComputedStyle(topScope).transform : null,
+      };
+    });
+
+    expect(transforms.html).toBe('none');
+    expect(transforms.body).toBe('none');
+    expect(transforms.velocityContent).toBe('none');
+    expect(transforms.topScope).toBe('none');
+  });
+
+  test('.top-nav (fixed) stays pinned to viewport top while scrolling the top page', async ({ page }) => {
+    await page.goto('/');
+    await waitForHomePageReady(page);
+
+    const nav = page.getByRole('navigation');
+    await expect(nav).toBeVisible();
+
+    for (const scrollY of [200, 800, 1600, 2400, 3200]) {
+      await page.evaluate((y) => window.scrollTo(0, y), scrollY);
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+
+      // A transformed ancestor would make this drift away from 0 (containing
+      // block reassignment) instead of staying pinned to the viewport top.
+      await expect.poll(async () => (await nav.boundingBox())?.y).toBe(0);
+    }
+  });
+});
