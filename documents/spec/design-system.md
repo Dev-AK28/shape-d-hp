@@ -372,7 +372,7 @@ SSOT: `lib/scroll/micro-interaction.ts`（`MICRO_INTERACTION` presets）+ `lib/s
 | `PageHeader.tsx` 区切り線 | 移行済み（`dividerVariant` + `page-header-divider-*` クラス） |
 | `DevelopmentContent.tsx` | 未移行（23 箇所・次優先） |
 | `WorksContent.tsx` / `ServicesContent.tsx` / `ConsultingContent.tsx` | 未移行（各 48–52 箇所・順次対応） |
-| その他（`BrandLogo` / `StarBackground` / `NebulaBackground` / `ParallaxSection`） | 動的値のため style 維持が妥当（Tailwind 移行対象外） |
+| その他（`BrandLogo` / `StarBackground` / `NebulaBackground`） | 動的値のため style 維持が妥当（Tailwind 移行対象外） |
 
 セクションアクセント色（`blue` / `purple` / `sky`）は `lib/design/tokens.ts` の `colors.blue` 等と `:root` の `--section-*` CSS 変数、Tailwind の `blue-400` / `violet-400` / `blue-300` を対応付ける。`css-token-sync.test.ts` で TS ↔ CSS の同期を検証する。
 
