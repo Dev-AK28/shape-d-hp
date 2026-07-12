@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 const LOADER_VISIBLE_MS = 350;
@@ -25,7 +25,7 @@ export default function PageLoader() {
   }
 
   return (
-    <motion.div
+    <m.div
       data-testid="page-loader"
       className="pointer-events-none fixed inset-0 z-[2000] flex items-center justify-center bg-transparent"
       initial={{ opacity: 1 }}
@@ -33,14 +33,14 @@ export default function PageLoader() {
       transition={{ duration: LOADER_FADE_MS / 1000, delay: LOADER_VISIBLE_MS / 1000 }}
       onAnimationComplete={() => setVisible(false)}
     >
-      <motion.p
+      <m.p
         className="font-serif text-sm tracking-[0.35em] text-blue-300 uppercase"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
       >
         読み込み中
-      </motion.p>
-    </motion.div>
+      </m.p>
+    </m.div>
   );
 }

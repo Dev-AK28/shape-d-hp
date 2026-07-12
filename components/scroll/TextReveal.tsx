@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import {
@@ -69,7 +69,7 @@ export default function TextReveal({
   return (
     <Tag className={mergedClassName}>
       {segments.map((segment, index) => (
-        <motion.span
+        <m.span
           key={`${segment}-${index}`}
           initial={{ opacity: 0, y: REVEAL_OFFSET.y }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -83,7 +83,7 @@ export default function TextReveal({
         >
           {segment}
           {text.includes(' ') && index < segments.length - 1 ? '\u00A0' : ''}
-        </motion.span>
+        </m.span>
       ))}
     </Tag>
   );

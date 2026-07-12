@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
@@ -66,7 +66,7 @@ export default function ConsultingContent() {
       >
         <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         {/* Introduction */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-intro' : 'reveal-intro'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)', position: 'relative', overflow: 'hidden' }}
@@ -103,10 +103,10 @@ export default function ConsultingContent() {
               AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが個性・価値観・視点・言語化力であり、それを形にする力こそが自己表現力に他ならない。
             </p>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* 3 Steps */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-steps' : 'reveal-steps'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
@@ -116,7 +116,7 @@ export default function ConsultingContent() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {steps.map((step, index) => (
-              <motion.div
+              <m.div
                 key={step.id}
                 {...getScrollRevealProps(reduceMotion, {
                   staticReveal,
@@ -173,13 +173,13 @@ export default function ConsultingContent() {
                     <span style={{ color: '#d1d5db', marginLeft: '8px' }}>{step.output}</span>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* 8 Perspectives Narrative */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-perspective' : 'reveal-perspective'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.6, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
@@ -213,9 +213,9 @@ export default function ConsultingContent() {
               <span style={{ color: '#a78bfa', fontWeight: 500 }}>社会レベル</span>では、自己表現力の普及が国力の向上につながる。自分らしく生きられる人が増え、真性的な努力の積み重ねができる人間が増え、個人の成長が社会の成長につながる。
             </p>
           </div>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-cta' : 'reveal-cta'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           style={{ textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(167, 139, 250, 0.1), rgba(167, 139, 250, 0.2))', backdropFilter: 'blur(10px)' }}
@@ -223,7 +223,7 @@ export default function ConsultingContent() {
           <h2 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
             自己表現力は、個人の幸福・組織の生産性・社会の活力、この三つを同時に底上げできる唯一のスキルである。
           </h2>
-          <motion.a
+          <m.a
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#c4b5fd', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
@@ -231,8 +231,8 @@ export default function ConsultingContent() {
           >
             <BrandLogo width={16} />
             『自分の言葉』を取り戻す対話を始める（初回無料）
-          </motion.a>
-        </motion.div>
+          </m.a>
+        </m.div>
         </div>
       </section>
     </>

@@ -22,6 +22,7 @@
     "next": "16.2.10",
     "react": "19.2.7",
     "react-dom": "19.2.7",
+    "sharp": "^0.35.3",
     "zod": "^4.4.3"
   },
   "overrides": {
@@ -39,7 +40,6 @@
     "eslint-config-next": "16.2.10",
     "jsdom": "^29.1.1",
     "lighthouse": "^13.4.0",
-    "sharp": "^0.35.3",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10",

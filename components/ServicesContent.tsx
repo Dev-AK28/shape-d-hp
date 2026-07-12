@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { colors, layout, spacing } from '@/lib/design/tokens';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
@@ -88,7 +88,7 @@ export default function ServicesContent() {
     >
       <div style={{ maxWidth: layout.contentWide, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Digital Solution Section */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-digital' : 'reveal-digital'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
@@ -98,7 +98,7 @@ export default function ServicesContent() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {digitalServices.map((service, index) => (
-              <motion.div
+              <m.div
                 id={service.id}
                 key={staticReveal ? `static-service-${service.id}` : `reveal-service-${service.id}`}
                 {...getScrollRevealProps(reduceMotion, { staticReveal, staggerIndex: index, staggerStep: 'card', isMobile: isTouchDevice })}
@@ -155,22 +155,22 @@ export default function ServicesContent() {
                       料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
                     </span>
                   </div>
-                  <motion.a
+                  <m.a
                     href={service.processUrl}
                     whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)', boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)' }}
                     whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                     style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #60a5fa', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
-                  </motion.a>
+                  </m.a>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Human Solution Section */}
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-human' : 'reveal-human'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px' }}
@@ -180,7 +180,7 @@ export default function ServicesContent() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
             {humanServices.map((service, index) => (
-              <motion.div
+              <m.div
                 id={service.id}
                 key={staticReveal ? `static-service-${service.id}` : `reveal-service-${service.id}`}
                 {...getScrollRevealProps(reduceMotion, {
@@ -228,21 +228,21 @@ export default function ServicesContent() {
                       料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
                     </span>
                   </div>
-                  <motion.a
+                  <m.a
                     href={service.processUrl}
                     whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#a78bfa', background: 'rgba(167, 139, 250, 0.1)', boxShadow: '0 0 20px rgba(167, 139, 250, 0.3)' }}
                     whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                     style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
-                  </motion.a>
+                  </m.a>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           key={staticReveal ? 'static-cta' : 'reveal-cta'}
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           style={{ marginTop: '120px', textAlign: 'center', padding: '64px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.1))', backdropFilter: 'blur(10px)' }}
@@ -253,15 +253,15 @@ export default function ServicesContent() {
           <p style={{ color: '#d1d5db', fontSize: '16px', maxWidth: '48rem', margin: '0 auto', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
             プロジェクトの規模や要件に合わせて、最適なソリューションをご提案します。まずはお気軽にご相談ください。
           </p>
-          <motion.a
+          <m.a
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
             お問い合わせ
-          </motion.a>
-        </motion.div>
+          </m.a>
+        </m.div>
       </div>
     </section>
   );

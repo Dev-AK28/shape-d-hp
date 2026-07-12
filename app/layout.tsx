@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond } from 'next/font/google';
 import SubPageEffects from '@/components/scroll/SubPageEffects';
 import SmoothScrollProvider from '@/components/scroll/SmoothScrollProvider';
+import LazyMotionProvider from '@/components/ui/LazyMotionProvider';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
@@ -54,10 +55,12 @@ export default function RootLayout({
           CustomCursor / PageLoader / MicroInteraction はトップで無効化（#312・SubPageEffects）。
           SmoothScrollProvider はトップ 1.8/skewなし・下層 1.4/skewあり を内部で切替（#312）。 */}
       <body className="min-h-full flex flex-col">
-        <SmoothScrollProvider>
-          <SubPageEffects />
-          {children}
-        </SmoothScrollProvider>
+        <LazyMotionProvider>
+          <SmoothScrollProvider>
+            <SubPageEffects />
+            {children}
+          </SmoothScrollProvider>
+        </LazyMotionProvider>
       </body>
     </html>
   );

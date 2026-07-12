@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useDeviceProfile } from '@/lib/hooks/useDeviceProfile';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import { shouldPageTransitionFade } from '@/lib/navigation/page-transition-policy';
@@ -33,7 +33,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
   }, []);
 
   return (
-    <motion.div
+    <m.div
       initial={shouldFade ? { opacity: 0 } : false}
       animate={{ opacity: 1 }}
       transition={{
@@ -42,6 +42,6 @@ export default function PageTransition({ children }: PageTransitionProps) {
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

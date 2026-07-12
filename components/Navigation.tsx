@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
@@ -108,7 +108,7 @@ export default function Navigation() {
           </div>
 
           {/* Mobile Menu Button */}
-          <motion.button
+          <m.button
             type="button"
             className="nav-menu-button flex h-11 w-11 items-center justify-center bg-transparent border-0 cursor-pointer p-0 md:hidden"
             onClick={toggleMenu}
@@ -119,30 +119,30 @@ export default function Navigation() {
             aria-controls={isOpen ? MOBILE_MENU_ID : undefined}
           >
             <div className="w-6 h-5 relative">
-              <motion.span
+              <m.span
                 animate={reduceMotion ? undefined : { rotate: isOpen ? 45 : 0, y: isOpen ? 8 : 0 }}
                 transition={{ duration: reduceMotion ? 0 : 0.3 }}
                 className="absolute w-full h-[2px] bg-[var(--accent)]"
               />
-              <motion.span
+              <m.span
                 animate={reduceMotion ? undefined : { opacity: isOpen ? 0 : 1 }}
                 transition={{ duration: reduceMotion ? 0 : 0.3 }}
                 className="absolute w-full h-[2px] bg-[var(--accent)] top-[9px]"
               />
-              <motion.span
+              <m.span
                 animate={reduceMotion ? undefined : { rotate: isOpen ? -45 : 0, y: isOpen ? -8 : 0 }}
                 transition={{ duration: reduceMotion ? 0 : 0.3 }}
                 className="absolute w-full h-[2px] bg-[var(--accent)] top-[18px]"
               />
             </div>
-          </motion.button>
+          </m.button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             ref={menuPanelRef}
             id={MOBILE_MENU_ID}
             className="absolute top-full left-0 right-0 bg-black/[.98] backdrop-blur-[20px] border-b border-white/10 px-5 py-4 md:hidden"
@@ -152,7 +152,7 @@ export default function Navigation() {
             transition={{ duration: reduceMotion ? 0 : 0.3 }}
           >
             {navItems.map((item, index) => (
-              <motion.div
+              <m.div
                 key={item.name}
                 initial={reduceMotion ? false : { opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -174,9 +174,9 @@ export default function Navigation() {
                     {item.name}
                   </div>
                 </Link>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </nav>
