@@ -81,13 +81,38 @@ export async function POST(request: NextRequest) {
 
     if (clientIp) {
       rateLimit = getRateLimitService();
-      if (!(await rateLimit.tryAcquire(clientIp))) {
+
+      let allowed = true;
+      let acquiredSlot = false;
+      try {
+        allowed = await rateLimit.tryAcquire(clientIp);
+        acquiredSlot = allowed;
+      } catch (error) {
+        // Fail open: if the rate limiter backend (e.g. Upstash Redis) is down,
+        // it must not take the entire contact form offline. Log loudly so the
+        // outage is observable, then let the submission proceed unlimited.
+        console.error('Rate limit acquire failed; failing open (allowing request)', {
+          name: error instanceof Error ? error.name : 'UnknownError',
+        });
+        allowed = true;
+      }
+
+      if (!allowed) {
         return NextResponse.json(
           { success: false, error: 'Too many requests. Please try again later.' },
           { status: 429 },
         );
       }
-      slotAcquired = true;
+
+      slotAcquired = acquiredSlot;
+    } else {
+      // Rate limiting is intentionally skipped when the client IP cannot be
+      // resolved (e.g. proxy header trust not configured). Warn so a
+      // misconfigured self-hosted deployment doesn't silently run with zero
+      // rate limiting.
+      console.warn('Rate limiting skipped: client IP could not be resolved', {
+        reason: 'proxy header trust not configured',
+      });
     }
 
     const result = await sendContactEmail(parsed.data);
