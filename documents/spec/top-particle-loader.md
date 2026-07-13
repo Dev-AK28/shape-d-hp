@@ -25,10 +25,11 @@ Issue: #412 / #414
 - **遅延ロード**: `components/top/DeferredTopParticleLoader.tsx` — `next/dynamic` + `ssr: false`。three.js を含むチャンクはトップページ表示時のみロードされる（#402 バンドル配慮）
 - **組み込み**: `app/page.tsx`（`TopShell` 直下）
 - **サンプリングロジック**: `lib/loader/particle-logo.ts` — タイムライン定数と `sampleLogoParticles()`（純粋関数・vitest 対象）
-- **粒子の目標座標**: サンプリング用ロゴ画像の輝度 60 以上のピクセルを step 2px で走査し、最大 6,000 粒子に等間隔で間引く。座標は画像中心原点・y 上向きに変換し、表示幅 `min(vw × 0.78, 520px)` にスケール
+- **粒子の目標座標**: サンプリング用ロゴ画像の輝度 60 以上かつ alpha ≥ 128 のピクセルを step 2px で走査し、最大 6,000 粒子に等間隔で間引く。座標は画像中心原点・y 上向きに変換し、表示幅 `min(vw × 0.78, 520px, vh × 0.7 × アスペクト比)` にスケール（高さ側のクランプはスマホ横持ちでの上下クリップ防止 — PR #413 レビュー対応）
 - **ロゴアセット**: `public/loader/logo-particle-source.png`（360×286・約 29KB）。`public/image_2.png` から `node scripts/generate-loader-logo.mjs` で生成（中央領域の輝度バウンディングボックスを切り出し。右下の装飾✦は走査範囲外として除外）
 - **シェーダ**: 収束進捗は converge（easeInOutSine・粒子ごと 0〜1200ms のスタッガー）が 55% まで、snap（easeOutQuart）が残り 45% を受け持つ 2 段合成。drift 中は出発位置の周囲を漂い（振幅 26px、収束に応じ減衰）、完成後は微小ゆらぎになる。目標座標は z=±22px の板厚を持ち、手前ほど明るい深度シェーディング（0.72〜1.0）。マウス反発は `uInteract`（snap 完了後 300ms で 0→1）× `1 - smoothstep(0, 110, dist)` で最大 46px の変位（GLSL の smoothstep は edge0 < edge1 のみ定義 — PR #413 レビュー対応）。フラグメントは `gl_PointCoord` による円形ソフトドット + 加算ブレンド
-- **カメラ / 視差**: PerspectiveCamera（fov 35°）を z=0 平面で 1 world unit = 1 CSS px となる距離に配置。hold 中はマウス NDC に応じて点群を最大 ±0.12rad 傾け、板厚を視差で見せる
+- **カメラ / 視差**: PerspectiveCamera（fov 35°）を z=0 平面で 1 world unit = 1 CSS px となる距離に配置。hold 中はマウス NDC に応じて点群を最大 y ±0.12rad / x ±0.06rad 傾け、板厚を視差で見せる。マウス反発が有効なのはロゴ完成後〜消灯（fade 終了）まで
+- **リサイズ / 画面回転**: レンダラサイズ・カメラ距離（1 unit = 1 CSS px を維持）・uMouse 座標基準を追従更新する。粒子の目標座標（ロゴサイズ）はマウント時確定のまま — 演出中の全レイアウト再構築より歪みゼロを優先（PR #415 レビュー対応）
 - **WebGL 判定**: `lib/webgl/support.ts` の `detectWebGLSupport()` を再利用。非対応時は描画しない
 
 ## タイムライン（`lib/loader/particle-logo.ts` が SSOT）
@@ -41,7 +42,7 @@ Issue: #412 / #414
 | hold | 1200ms | ロゴ静止・微小ゆらぎ・マウス反発 + 視差 |
 | fade | 800ms | オーバーレイ全体をフェードアウトし unmount |
 
-- 合計 10000ms + フォールバックタイマー 1000ms = 11000ms < **`LOADER_E2E_TIMEOUT_MS`（12000ms・SSOT）**（e2e が `data-testid="page-loader"` の消滅を待つ上限。`e2e/helpers.ts` の `expectPageLoaderGone()` が参照）
+- 合計 10000ms + フォールバックタイマー 1000ms = 11000ms < **`LOADER_E2E_TIMEOUT_MS`（12000ms・SSOT）**（e2e が `data-testid="page-loader"` の消滅を待つ上限。`e2e/helpers.ts` の `expectPageLoaderGone()` が参照。出現待ちも `LOADER_E2E_ATTACH_TIMEOUT_MS`（3000ms）で SSOT 化）
 - タイムライン変更時はこの予算を超えないこと（`tests/loader/particle-logo.test.ts` が検証）
 
 ## e2e の時間予算対策（Issue #414）
