@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 /**
  * サービスセクション #services（TopServices）— Issue #308
@@ -8,7 +9,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Top services (#308)', () => {
   test('renders four panels and four progress dots', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const services = page.locator('#services');
     await expect(services.locator('.svc-panel')).toHaveCount(4);
@@ -21,7 +22,7 @@ test.describe('Top services (#308)', () => {
   test('pins the section and switches panels 01→…→04 with progress dots on scroll', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const panels = page.locator('#services .svc-panel');
     const dots = page.locator('#services .svc-dot');
@@ -63,7 +64,7 @@ test.describe('Top services (#308)', () => {
   test('reduced-motion: four panels are stacked vertically and all visible (no pin)', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const panels = page.locator('#services .svc-panel');
     for (let i = 0; i < 4; i++) {
@@ -79,7 +80,7 @@ test.describe('Top services (#308)', () => {
   test('375px: panel content fits without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#services').evaluate((el) => el.scrollIntoView({ block: 'start' }));
     await expect(page.locator('#services .svc-panel').first().locator('.svc-title')).toBeVisible();

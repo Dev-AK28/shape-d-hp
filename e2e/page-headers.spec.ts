@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 type PageHeaderCase = {
   path: string;
@@ -57,7 +58,7 @@ test.describe('Subpage headers', () => {
   for (const pageHeader of PAGE_HEADERS) {
     test(`${pageHeader.path} uses the shared centered PageHeader pattern`, async ({ page }) => {
       await page.goto(pageHeader.path);
-      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+      await expectPageLoaderGone(page);
 
       const header = page.getByTestId('page-header');
       await expect(header).toBeVisible();
@@ -94,7 +95,7 @@ test.describe('Subpage headers', () => {
   test('/services and /works do not render StarBackground in PageHeader', async ({ page }) => {
     for (const path of ['/services', '/works'] as const) {
       await page.goto(path);
-      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+      await expectPageLoaderGone(page);
       await expect(page.getByTestId('page-header').getByTestId('star-background')).toHaveCount(0);
     }
   });
@@ -102,7 +103,7 @@ test.describe('Subpage headers', () => {
   test('/services and /works use solid typography blend on page headers', async ({ page }) => {
     for (const path of ['/services', '/works'] as const) {
       await page.goto(path);
-      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+      await expectPageLoaderGone(page);
       await expect(
         page.getByTestId('page-header').locator('h1 span').first(),
       ).toHaveCSS('mix-blend-mode', 'normal');
@@ -122,7 +123,7 @@ test.describe('Subpage headers', () => {
    */
   test('PageHeader padding-top includes safe-area-inset-top formula (#167)', async ({ page }) => {
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
     const header = page.getByTestId('page-header');
 
     // Verify env(safe-area-inset-top) formula is present in class attribute.
@@ -151,7 +152,7 @@ test.describe('Subpage headers', () => {
    */
   test('PageHeader grows with simulated safe-area-inset-top (#289)', async ({ page }) => {
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const header = page.getByTestId('page-header');
     const baselinePaddingTop = await header.evaluate(
@@ -188,7 +189,7 @@ test.describe('Subpage headers', () => {
 
     for (const { path, className } of dividerCases) {
       await page.goto(path);
-      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+      await expectPageLoaderGone(page);
       await expect(page.getByTestId('page-header-divider')).toHaveClass(
         new RegExp(`\\b${className}\\b`),
       );

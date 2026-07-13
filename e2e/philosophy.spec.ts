@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { expectPainted } from './helpers';
 import { ANIMATION_DURATION, PHILOSOPHY_HORIZONTAL } from '../lib/scroll/animation-tokens';
 

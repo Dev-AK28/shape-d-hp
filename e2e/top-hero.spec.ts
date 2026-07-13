@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 /**
  * ヒーローセクション #hero（TopHero）の受け入れ条件検証 — Issue #304
@@ -8,7 +9,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Top hero (#304)', () => {
   test('renders mark, copy lines, sub copy and scroll cue', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const mark = page.locator('#hero .hero-mark');
     await expect(mark).toBeVisible();
@@ -28,7 +29,7 @@ test.describe('Top hero (#304)', () => {
 
   test('fades the intro in mark→copy→sub→cue order', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const opacity = (selector: string) =>
       page.locator(selector).first().evaluate((el) => parseFloat(getComputedStyle(el).opacity));
@@ -43,7 +44,7 @@ test.describe('Top hero (#304)', () => {
 
   test('rain canvas is sized and drawn (non-zero backing store)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const canvas = page.getByTestId('hero-rain-canvas');
     await expect(canvas).toBeAttached();
@@ -57,7 +58,7 @@ test.describe('Top hero (#304)', () => {
   test('reduced-motion: all hero text is shown immediately and drop animation is disabled', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     // イントロを待たずに全要素が opacity:1
     for (const sel of ['#hero .hero-mark', '#hero .hero-copy .line', '#hero .hero-sub', '#hero .scroll-cue']) {
@@ -69,7 +70,7 @@ test.describe('Top hero (#304)', () => {
   test('375px: hero fits without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await expect(page.locator('#hero .hero-mark')).toBeVisible();
     const hasOverflow = await page.evaluate(
@@ -81,7 +82,7 @@ test.describe('Top hero (#304)', () => {
   test('375px: hero text keeps horizontal breathing room from the viewport edges (#367)', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     // .hero-sub は最も横幅が広くなりやすい行。他セクション（.stage/.theory-stage 等）と同じ
     // 左右 24px 余白（globals.css .hero-inner）が保たれ、画面端に張り付かないことを確認する。

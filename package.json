@@ -14,7 +14,6 @@
     "postinstall": "node -e \"try{const fs=require('fs'),d='node_modules/@types';for(const n of fs.readdirSync(d)){if(/ \\d+$/.test(n))fs.rmSync(d+'/'+n,{recursive:true,force:true})}}catch(e){}\""
   },
   "dependencies": {
-    "@types/three": "^0.185.1",
     "@upstash/redis": "^1.38.0",
     "framer-motion": "^12.42.2",
     "gsap": "^3.15.0",
@@ -38,6 +37,7 @@
     "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.185.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "jsdom": "^29.1.1",

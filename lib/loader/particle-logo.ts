@@ -1,5 +1,5 @@
 /**
- * トップページ パーティクルローダーの定数とサンプリングロジック — Issue #412
+ * トップページ パーティクルローダーの定数とサンプリングロジック — Issue #412 / #414
  *
  * ロゴ画像（public/loader/logo-particle-source.png）の高輝度ピクセルを
  * 粒子の目標座標としてサンプリングする。描画側（TopParticleLoader）から
@@ -8,29 +8,84 @@
 
 export const LOADER_LOGO_SRC = '/loader/logo-particle-source.png';
 
-/** 演出タイムライン。e2e が page-loader の消滅を 5000ms 以内で待つため合計をその半分強に抑える。 */
+/**
+ * 演出タイムライン（5 フェーズ・合計約 10 秒 — Issue #414）。
+ * drift: 粒子が散開位置で浮遊 / converge: 波状スタッガーで緩やかに収束 /
+ * snap: 一気に加速してロゴへ吸着 / hold: 静止・マウス反発・視差 / fade: フェードアウト。
+ */
 export const LOADER_TIMELINE_MS = {
-  /** 粒子が散開位置からロゴへ収束するまで（スタッガー込み） */
-  gather: 1250,
-  /** ロゴ完成後の静止時間。この間だけマウス反発が有効（2026-07-13 確定） */
-  hold: 1000,
-  /** オーバーレイ全体のフェードアウト */
-  fade: 450,
+  drift: 2500,
+  converge: 4000,
+  snap: 1500,
+  hold: 1200,
+  fade: 800,
 } as const;
 
 export const LOADER_TOTAL_MS =
-  LOADER_TIMELINE_MS.gather + LOADER_TIMELINE_MS.hold + LOADER_TIMELINE_MS.fade;
+  LOADER_TIMELINE_MS.drift +
+  LOADER_TIMELINE_MS.converge +
+  LOADER_TIMELINE_MS.snap +
+  LOADER_TIMELINE_MS.hold +
+  LOADER_TIMELINE_MS.fade;
 
 /** 画像ロード遅延等で演出が始まらなくても必ず消えるための保険。 */
-export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 900;
+export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 1000;
 
-/** 粒子の出発が出揃うまでのばらつき幅。gather からこれを引いた分が個々の移動時間。 */
-export const PARTICLE_STAGGER_MS = 350;
-export const PARTICLE_TRAVEL_MS = LOADER_TIMELINE_MS.gather - PARTICLE_STAGGER_MS;
+/**
+ * e2e が page-loader の消滅を待つ上限（e2e/helpers.ts の SSOT）。
+ * LOADER_FALLBACK_MS はこの値を必ず下回ること（tests/loader が検証）。
+ */
+export const LOADER_E2E_TIMEOUT_MS = 12_000;
+
+/**
+ * e2e がローダーの「出現」を待つ上限（e2e/helpers.ts の SSOT）。
+ * ローダーは ssr:false のためハイドレーション + three.js チャンク評価後に
+ * 出現する。遅い CI でもマウント前に消滅チェックが成立しないよう余裕を持たせる。
+ */
+export const LOADER_E2E_ATTACH_TIMEOUT_MS = 3_000;
+
+/**
+ * e2e 一括実行用のタイムスケール（e2e/fixtures.ts が initScript で注入）。
+ * 実時間の 10 秒演出は e2e/top-loader.spec.ts のみが等倍で検証する。
+ */
+export const LOADER_FAST_TIME_SCALE = 0.15;
+
+declare global {
+  interface Window {
+    /** e2e 専用: 演出全体の時間倍率（0 < scale ≤ 1）。未設定なら等倍。 */
+    __SHAPE_D_LOADER_TIME_SCALE__?: number;
+  }
+}
+
+/** e2e の高速化フラグを読む。実ユーザーでは常に 1（等倍）。 */
+export function getLoaderTimeScale(): number {
+  if (typeof window === 'undefined') {
+    return 1;
+  }
+  const scale = window.__SHAPE_D_LOADER_TIME_SCALE__;
+  return typeof scale === 'number' && scale > 0 && scale <= 1 ? scale : 1;
+}
+
+/** converge フェーズ内で粒子の出発が出揃うまでのばらつき幅。 */
+export const PARTICLE_STAGGER_MS = 1200;
+
+/** 収束進捗のうち converge フェーズが受け持つ割合（残りを snap が一気に詰める）。 */
+export const CONVERGE_PROGRESS_SHARE = 0.55;
+
+/** ロゴの板厚（z 方向、CSS px）— Issue #414 立体感。目標座標は ±この半分に散らす。 */
+export const LOGO_DEPTH_PX = 44;
+
+/** drift 中に粒子が漂う振幅（CSS px）。収束が進むほど減衰する。 */
+export const DRIFT_AMPLITUDE_PX = 26;
 
 /** ロゴの表示幅（CSS px）。ビューポート幅の 78% と 520px の小さい方。 */
 export const LOGO_DISPLAY_WIDTH_RATIO = 0.78;
 export const LOGO_DISPLAY_WIDTH_MAX_PX = 520;
+/**
+ * ロゴの表示高さの上限（ビューポート高さ比）。幅だけでスケールすると
+ * スマホ横持ち（844x390 等）でロゴが上下クリップするため高さ側でもクランプする。
+ */
+export const LOGO_DISPLAY_HEIGHT_RATIO = 0.7;
 
 export const SAMPLE_STEP_PX = 2;
 export const SAMPLE_LUMINANCE_THRESHOLD = 60;
@@ -54,6 +109,8 @@ export type LogoParticles = {
 /**
  * 高輝度ピクセルを粒子の目標座標と色に変換する。
  * step 間隔で走査し、maxCount を超える場合は等間隔に間引く。
+ * 透過ピクセル（alpha < 128）は輝度が高くても除外する — 透過 PNG を
+ * 誤って与えたときに不可視ピクセルを粒子化しないための保険。
  */
 export function sampleLogoParticles(
   image: ImageDataLike,
@@ -69,7 +126,7 @@ export function sampleLogoParticles(
     for (let x = 0; x < width; x += step) {
       const i = (y * width + x) * 4;
       const luminance = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
-      if (luminance >= luminanceThreshold) {
+      if (luminance >= luminanceThreshold && data[i + 3] >= 128) {
         picked.push(i);
       }
     }

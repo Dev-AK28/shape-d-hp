@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test';
-import { waitForHomePageReady } from './helpers';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone, waitForHomePageReady } from './helpers';
 
 // #312/#316: トップページは参照デザイン（hero〜CTA）のみで構成。
 // 旧セクション（About / MissionVision / Showcase）と HomePageShell（cosmic 背景）を撤去し、
@@ -11,7 +11,7 @@ test.describe('Home page — effects disabled on top (#312)', () => {
   test('does not mount the page loader on the top page', async ({ page }) => {
     await page.goto('/');
     await waitForHomePageReady(page);
-    await expect(page.getByTestId('page-loader')).toHaveCount(0);
+    await expectPageLoaderGone(page);
   });
 
   test('does not activate the custom cursor on the top page', async ({ page }) => {

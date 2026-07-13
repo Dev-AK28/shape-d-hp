@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 /**
  * プロセスセクション #process（TopProcess）— Issue #309
@@ -8,7 +9,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Top process (#309)', () => {
   test('renders eyebrow and four timeline steps', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const process = page.locator('#process');
     await expect(process.locator('.eyebrow')).toContainText('PROCESS');
@@ -20,7 +21,7 @@ test.describe('Top process (#309)', () => {
 
   test('each step fades in as it enters the viewport', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const lastStep = page.locator('#process .step').last();
     await lastStep.evaluate((el) => el.scrollIntoView({ block: 'center' }));
@@ -32,7 +33,7 @@ test.describe('Top process (#309)', () => {
   test('reduced-motion: all steps are shown at opacity 1', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#process').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await expect(page.locator('#process .step').first()).toHaveCSS('opacity', '1');
@@ -42,7 +43,7 @@ test.describe('Top process (#309)', () => {
   test('375px: process timeline fits without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#process').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await expect(page.locator('#process .step').first().locator('.step-title')).toBeVisible();

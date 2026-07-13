@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 /**
  * Profile セクション #profile（TopProfile）— Issue #310
@@ -8,7 +9,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Top profile (#310)', () => {
   test('renders profile head, two thought cards, converge SVG and creed', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const profile = page.locator('#profile');
     await expect(profile.locator('.eyebrow')).toContainText('PROFILE');
@@ -24,7 +25,7 @@ test.describe('Top profile (#310)', () => {
   test('thoughts fade in and converge paths draw + dot/creed appear on scroll', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const thought = page.locator('#profile .thought').first();
     const dot = page.locator('#profile #cv-dot');
@@ -62,7 +63,7 @@ test.describe('Top profile (#310)', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#profile').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await expect(page.locator('#profile .thought').first()).toHaveCSS('opacity', '1');
@@ -74,7 +75,7 @@ test.describe('Top profile (#310)', () => {
   test('640px: thoughts collapse to one column, converge SVG hidden, no overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#profile').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await expect(page.locator('#profile svg.converge')).toBeHidden();

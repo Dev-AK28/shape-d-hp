@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 /**
  * CTA セクション #cta（TopCta）+ フッター導線 — Issue #311
@@ -8,7 +9,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Top CTA (#311)', () => {
   test('renders eyebrow, copy, note and CTA button', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const cta = page.locator('#cta');
     await expect(cta.locator('.eyebrow')).toContainText('CONTACT');
@@ -20,7 +21,7 @@ test.describe('Top CTA (#311)', () => {
   test('CTA button hover fills the rain background and inverts text color', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const button = page.locator('#cta .cta-button');
     await button.scrollIntoViewIfNeeded();
@@ -51,7 +52,7 @@ test.describe('Top CTA (#311)', () => {
 
   test('CTA button navigates to /contact', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#cta .cta-button').scrollIntoViewIfNeeded();
     await page.locator('#cta .cta-button').click();
@@ -60,7 +61,7 @@ test.describe('Top CTA (#311)', () => {
 
   test('CTA button shows a focus-visible outline on keyboard focus', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const outline = await page.locator('#cta .cta-button').evaluate((el) => {
       el.focus();
@@ -72,7 +73,7 @@ test.describe('Top CTA (#311)', () => {
 
   test('footer keeps lower-page links and reference copyright', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const footer = page.getByRole('contentinfo');
     for (const href of ['/services', '/works', '/process', '/philosophy', '/contact']) {
@@ -86,7 +87,7 @@ test.describe('Top CTA (#311)', () => {
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const maxScroll = await page.evaluate(
       () => document.body.scrollHeight - window.innerHeight,
@@ -119,7 +120,7 @@ test.describe('Top CTA (#311)', () => {
   test('375px: CTA copy and button fit without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#cta').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await expect(page.locator('#cta .cta-button')).toBeVisible();

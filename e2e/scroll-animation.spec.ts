@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { expectPainted } from './helpers';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone, expectPainted } from './helpers';
 
 // #312/#316: トップページの旧セクション（About / MissionVision / ShowcaseSection）と cosmic 背景を
 // 撤去したため、それらに紐づく scroll-animation テスト（about/vision reveal・showcase pin/scrub 等）は
@@ -14,7 +14,7 @@ test.describe('Scroll animations — top page loader disabled (#312)', () => {
     await page.waitForLoadState('load');
 
     // #312: PageLoader はトップページで無効（SubPageEffects）。reduced-motion でも同様。
-    await expect(page.getByTestId('page-loader')).toHaveCount(0);
+    await expectPageLoaderGone(page);
   });
 });
 
