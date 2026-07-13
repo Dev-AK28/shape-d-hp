@@ -38,6 +38,13 @@ export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 1000;
 export const LOADER_E2E_TIMEOUT_MS = 12_000;
 
 /**
+ * e2e がローダーの「出現」を待つ上限（e2e/helpers.ts の SSOT）。
+ * ローダーは ssr:false のためハイドレーション + three.js チャンク評価後に
+ * 出現する。遅い CI でもマウント前に消滅チェックが成立しないよう余裕を持たせる。
+ */
+export const LOADER_E2E_ATTACH_TIMEOUT_MS = 3_000;
+
+/**
  * e2e 一括実行用のタイムスケール（e2e/fixtures.ts が initScript で注入）。
  * 実時間の 10 秒演出は e2e/top-loader.spec.ts のみが等倍で検証する。
  */
@@ -74,6 +81,11 @@ export const DRIFT_AMPLITUDE_PX = 26;
 /** ロゴの表示幅（CSS px）。ビューポート幅の 78% と 520px の小さい方。 */
 export const LOGO_DISPLAY_WIDTH_RATIO = 0.78;
 export const LOGO_DISPLAY_WIDTH_MAX_PX = 520;
+/**
+ * ロゴの表示高さの上限（ビューポート高さ比）。幅だけでスケールすると
+ * スマホ横持ち（844x390 等）でロゴが上下クリップするため高さ側でもクランプする。
+ */
+export const LOGO_DISPLAY_HEIGHT_RATIO = 0.7;
 
 export const SAMPLE_STEP_PX = 2;
 export const SAMPLE_LUMINANCE_THRESHOLD = 60;
@@ -97,6 +109,8 @@ export type LogoParticles = {
 /**
  * 高輝度ピクセルを粒子の目標座標と色に変換する。
  * step 間隔で走査し、maxCount を超える場合は等間隔に間引く。
+ * 透過ピクセル（alpha < 128）は輝度が高くても除外する — 透過 PNG を
+ * 誤って与えたときに不可視ピクセルを粒子化しないための保険。
  */
 export function sampleLogoParticles(
   image: ImageDataLike,
@@ -112,7 +126,7 @@ export function sampleLogoParticles(
     for (let x = 0; x < width; x += step) {
       const i = (y * width + x) * 4;
       const luminance = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
-      if (luminance >= luminanceThreshold) {
+      if (luminance >= luminanceThreshold && data[i + 3] >= 128) {
         picked.push(i);
       }
     }

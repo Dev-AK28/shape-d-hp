@@ -12,6 +12,7 @@ import {
   LOADER_LOGO_SRC,
   LOADER_TIMELINE_MS,
   LOGO_DEPTH_PX,
+  LOGO_DISPLAY_HEIGHT_RATIO,
   LOGO_DISPLAY_WIDTH_MAX_PX,
   LOGO_DISPLAY_WIDTH_RATIO,
   PARTICLE_STAGGER_MS,
@@ -67,8 +68,10 @@ void main() {
   // snap: 残り距離を一気に詰める
   float ts = clamp((uTime - uDrift - uConverge) / uSnap, 0.0, 1.0);
   float ps = 1.0 - pow(1.0 - ts, 4.0); // easeOutQuart
-  float p = ${CONVERGE_PROGRESS_SHARE.toFixed(2)} * pc
-    + ${(1 - CONVERGE_PROGRESS_SHARE).toFixed(2)} * ps;
+  // 補数は GLSL 側で計算する — JS で 2 値を別々に丸めて埋め込むと合計が 1.0 に
+  // ならず p が 1.0 に届かない（ロゴが完成しない）恐れがあるため（PR #415 レビュー対応）
+  float share = ${CONVERGE_PROGRESS_SHARE.toFixed(4)};
+  float p = share * pc + (1.0 - share) * ps;
 
   vec3 pos = mix(aStart, position, p);
 
@@ -78,7 +81,9 @@ void main() {
   pos.y += cos(uTime * 0.00033 + aRand * 12.566) * wobble;
   pos.z += sin(uTime * 0.00047 + aRand * 9.4248) * wobble * 0.5;
 
-  // マウス反発（ロゴ完成後のみ）。smoothstep は edge0 < edge1 のみ定義（PR #413 レビュー対応）
+  // マウス反発（ロゴ完成後のみ）。smoothstep は edge0 < edge1 のみ定義（PR #413 レビュー対応）。
+  // 視差回転（最大 0.12rad）はこの後段の modelViewMatrix で掛かるため、hold 中の反発中心は
+  // スクリーンから最大数 px ずれる近似（半径 110px に対し誤差 ~7px で許容。回転量を増やす場合は要見直し）
   vec2 d = pos.xy - uMouse;
   float dist = length(d) + 0.0001;
   float force = (1.0 - smoothstep(0.0, ${REPEL_RADIUS_PX.toFixed(1)}, dist))
@@ -155,8 +160,9 @@ export default function TopParticleLoader() {
       return () => window.clearTimeout(fallback);
     }
 
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    // リサイズ・画面回転時にレンダラ/カメラ側だけ追従させるため let（下の handleResize 参照）
+    let width = window.innerWidth;
+    let height = window.innerHeight;
     let cancelled = false;
     let rafId = 0;
     let dispose: (() => void) | undefined;
@@ -205,10 +211,15 @@ export default function TopParticleLoader() {
       );
       camera.position.z = cameraDistance;
 
-      // 目標座標（画像 px）を表示サイズへスケールし、z に板厚を与える
-      const scale =
-        Math.min(width * LOGO_DISPLAY_WIDTH_RATIO, LOGO_DISPLAY_WIDTH_MAX_PX) /
-        image.naturalWidth;
+      // 目標座標（画像 px）を表示サイズへスケールし、z に板厚を与える。
+      // 幅だけでなく高さ側でもクランプする — 幅基準のみだとスマホ横持ち
+      // （844x390 等）でロゴが上下クリップする（PR #413 レビュー対応）
+      const displayWidth = Math.min(
+        width * LOGO_DISPLAY_WIDTH_RATIO,
+        LOGO_DISPLAY_WIDTH_MAX_PX,
+        (height * LOGO_DISPLAY_HEIGHT_RATIO * image.naturalWidth) / image.naturalHeight,
+      );
+      const scale = displayWidth / image.naturalWidth;
       const positions = new Float32Array(count * 3);
       const starts = new Float32Array(count * 3);
       const delays = new Float32Array(count);
@@ -277,6 +288,25 @@ export default function TopParticleLoader() {
       window.addEventListener('pointermove', handlePointerMove);
       disposers.push(() => window.removeEventListener('pointermove', handlePointerMove));
 
+      // リサイズ・画面回転への追従（PR #415 レビュー対応）: レンダラとカメラ、
+      // uMouse の座標基準だけ更新する。粒子の目標座標（ロゴのサイズ）はマウント時
+      // 確定のまま — 10 秒の演出中に全レイアウトを組み直すより歪みゼロを優先する
+      const handleResize = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        // カメラ距離も追従させ「z=0 で 1 world unit = 1 CSS px」を維持する
+        // （uMouse の座標基準・gl_PointSize の等倍条件と整合させるため）
+        const distance = height / 2 / Math.tan(fovRad / 2);
+        camera.position.z = distance;
+        camera.far = distance * 3;
+        camera.updateProjectionMatrix();
+        shaderUniforms.uPointScale.value = distance;
+      };
+      window.addEventListener('resize', handleResize);
+      disposers.push(() => window.removeEventListener('resize', handleResize));
+
       const formationEndMs =
         LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge + LOADER_TIMELINE_MS.snap;
       const startedAt = performance.now();
@@ -290,7 +320,8 @@ export default function TopParticleLoader() {
           formationEndMs + INTERACT_RAMP_MS,
         );
         shaderUniforms.uInteract.value = interact;
-        // 視差: ロゴ完成後、マウス位置に向けて緩やかに傾けて板厚を見せる
+        // 視差: ロゴ完成後、マウス位置に向けて緩やかに傾けて板厚を見せる。
+        // PARALLAX_LERP はフレームレート依存（30fps では追従が約半分）だが演出品質のみの影響
         points.rotation.y +=
           (mouseNdc.x * PARALLAX_MAX_RAD.y * interact - points.rotation.y) * PARALLAX_LERP;
         points.rotation.x +=
@@ -329,8 +360,8 @@ export default function TopParticleLoader() {
     return null;
   }
 
-  const formationStartMs = LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge;
-  const holdEndMs = formationStartMs + LOADER_TIMELINE_MS.snap + LOADER_TIMELINE_MS.hold;
+  const snapStartMs = LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge;
+  const holdEndMs = snapStartMs + LOADER_TIMELINE_MS.snap + LOADER_TIMELINE_MS.hold;
 
   return (
     <m.div
