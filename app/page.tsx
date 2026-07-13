@@ -1,4 +1,5 @@
 import TopShell from '@/components/top/TopShell';
+import DeferredTopParticleLoader from '@/components/top/DeferredTopParticleLoader';
 import TopHero from '@/components/top/TopHero';
 import TopPhilosophy from '@/components/top/TopPhilosophy';
 import TopPain from '@/components/top/TopPain';
@@ -13,7 +14,10 @@ export default function Home() {
     // #312/#316: 参照デザイン（hero〜CTA）のみで構成。旧セクション（About / MissionVision /
     // ShowcaseSection）と HomePageShell（cosmic 背景）を撤去し、cosmic / velocity-skew /
     // CustomCursor / PageLoader をトップページで無効化した。
+    // #412: パーティクルローダーのみトップで有効化（#312 の「トップはローダーなし」を変更。
+    // 下層の PageLoader / SubPageEffects は従来どおり）。
     <TopShell>
+      <DeferredTopParticleLoader />
       <main className="relative min-h-screen">
         <TopHero />
         <TopPhilosophy />
