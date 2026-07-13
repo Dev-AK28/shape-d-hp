@@ -12,16 +12,16 @@ import {
   type ImageDataLike,
 } from '@/lib/loader/particle-logo';
 
-/** 全ピクセル黒の画像に、指定座標だけ RGB を置いた ImageData 互換オブジェクトを作る。 */
+/** 全ピクセル黒の画像に、指定座標だけ RGB(A) を置いた ImageData 互換オブジェクトを作る。 */
 function makeImage(
   width: number,
   height: number,
-  pixels: Array<{ x: number; y: number; rgb: [number, number, number] }>,
+  pixels: Array<{ x: number; y: number; rgb: [number, number, number]; alpha?: number }>,
 ): ImageDataLike {
   const data = new Uint8ClampedArray(width * height * 4);
-  for (const { x, y, rgb } of pixels) {
+  for (const { x, y, rgb, alpha = 255 } of pixels) {
     const i = (y * width + x) * 4;
-    [data[i], data[i + 1], data[i + 2], data[i + 3]] = [...rgb, 255];
+    [data[i], data[i + 1], data[i + 2], data[i + 3]] = [...rgb, alpha];
   }
   return { data, width, height };
 }
@@ -75,6 +75,16 @@ describe('sampleLogoParticles', () => {
     expect(targets).toHaveLength(count * 3);
   });
 
+  it('透過ピクセル（alpha < 128）は高輝度でも除外する', () => {
+    const image = makeImage(4, 4, [
+      { x: 0, y: 0, rgb: [255, 255, 255], alpha: 0 }, // 透過 → 除外
+      { x: 2, y: 0, rgb: [255, 255, 255], alpha: 127 }, // 半透過 → 除外
+      { x: 0, y: 2, rgb: [255, 255, 255], alpha: 128 }, // 閾値ちょうど → 採用
+    ]);
+    const { count } = sampleLogoParticles(image, { step: 2 });
+    expect(count).toBe(1);
+  });
+
   it('高輝度ピクセルがなければ count 0 を返す', () => {
     const image = makeImage(4, 4, []);
     const result = sampleLogoParticles(image, { step: 1 });
@@ -105,6 +115,12 @@ describe('LOADER_TIMELINE', () => {
     expect(PARTICLE_STAGGER_MS).toBeLessThan(LOADER_TIMELINE_MS.converge);
     expect(CONVERGE_PROGRESS_SHARE).toBeGreaterThan(0);
     expect(CONVERGE_PROGRESS_SHARE).toBeLessThan(1);
+  });
+
+  it('進捗配分はシェーダへの埋め込み（toFixed(4)）で情報が落ちない', () => {
+    // シェーダは share のみ埋め込み補数を GLSL 側で計算するが、埋め込み時の
+    // 丸めで share 自体が変わると converge/snap の配分が仕様とずれるため固定する
+    expect(Number(CONVERGE_PROGRESS_SHARE.toFixed(4))).toBe(CONVERGE_PROGRESS_SHARE);
   });
 });
 
