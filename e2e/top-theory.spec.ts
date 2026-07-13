@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 /**
  * 自己一致セクション #theory（TopTheory）— Issue #307
@@ -8,7 +9,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Top theory (#307)', () => {
   test('renders eyebrow, title, circles with aria-label and desc', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const theory = page.locator('#theory');
     await expect(theory.locator('.eyebrow')).toContainText('APPROACH');
@@ -23,7 +24,7 @@ test.describe('Top theory (#307)', () => {
   test('pins the section and converges circles + reveals the label on scroll', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const ideal = page.locator('#c-ideal');
     const real = page.locator('#c-real');
@@ -69,7 +70,7 @@ test.describe('Top theory (#307)', () => {
   test('reduced-motion: circles are centered/converged and label is visible (no pin)', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#theory').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await expect(page.locator('#c-label')).toHaveCSS('opacity', '1');
@@ -85,7 +86,7 @@ test.describe('Top theory (#307)', () => {
   test('375px: circles shrink to 160px without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#theory').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     const w = await page.locator('#c-ideal').evaluate((el) => el.getBoundingClientRect().width);

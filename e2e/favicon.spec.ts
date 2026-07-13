@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from './fixtures';
 import sharp from 'sharp';
 
 const MAX_FAVICON_BYTES = 50 * 1024;

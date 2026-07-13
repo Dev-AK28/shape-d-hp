@@ -1,11 +1,29 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import { LOADER_E2E_TIMEOUT_MS } from '../lib/loader/particle-logo';
 
 // #316: 旧イマーシブ Hero（粒子形成 / ビッグバン Canvas / cosmic 背景）撤去に伴い、
 // expectHeroBrandLogoAfterFormation / expectBigbangCanvasRetiredWithLogoVisible /
 // expectFooterVisibleAboveCosmicBackground / LOGO_ALT などの旧ヘルパーを削除した。
 
+/**
+ * page-loader（トップ: パーティクルローダー / 下層: テキストローダー）の消滅を待つ。
+ *
+ * ローダーは ssr:false のため testid はハイドレーション後に出現する。先に短時間
+ * attached を待つことで「マウント前に count 0 が成立してしまう」レースを防ぐ
+ * （PR #413 レビュー指摘）。reduced-motion 等でそもそも出現しないケースは
+ * catch で握って消滅チェックへ進む。タイムアウトの SSOT は lib/loader/particle-logo.ts。
+ */
+export async function expectPageLoaderGone(page: Page): Promise<void> {
+  const loader = page.getByTestId('page-loader');
+  await loader
+    .first()
+    .waitFor({ state: 'attached', timeout: 1500 })
+    .catch(() => {});
+  await expect(loader).toHaveCount(0, { timeout: LOADER_E2E_TIMEOUT_MS });
+}
+
 export async function waitForHomePageReady(page: Page): Promise<void> {
-  await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+  await expectPageLoaderGone(page);
 
   // #304: トップページのヒーローは参照HTMLの #hero（TopHero）。
   // マーク h1「SHAPE∞D」がレンダリングされていれば準備完了とみなす

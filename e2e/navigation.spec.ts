@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test';
-import { expectPainted, waitForHomePageReady } from './helpers';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone, expectPainted, waitForHomePageReady } from './helpers';
 import { topShell } from '../lib/design/tokens';
 
 // #303: トップページは TopNav（参照HTMLビジュアル + 下層導線維持 — #314 暫定方針）。
@@ -43,7 +43,7 @@ test.describe('Navigation mobile layout', () => {
 
   test('uses a compact header with 44px menu tap target', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
     // #304: トップのヒーローマーク（h1「SHAPE∞D」）表示で準備完了を確認
     await expect(page.locator('#hero .hero-mark')).toBeVisible();
 
@@ -62,7 +62,7 @@ test.describe('Navigation mobile layout', () => {
 
   test('opens hamburger menu and closes on link tap', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     const menuButton = nav.getByRole('button', { name: /メニューを開く/ });
@@ -86,7 +86,7 @@ test.describe('Navigation mobile layout', () => {
 
   test('SPA hamburger nav to /works: below-fold content reveals on scroll (#151 / #180)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -101,7 +101,7 @@ test.describe('Navigation mobile layout', () => {
 
   test('closes hamburger menu with Escape key', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -120,7 +120,7 @@ test.describe('Navigation mobile layout', () => {
    */
   test('opening the menu moves focus to the first menu link (#398)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -130,7 +130,7 @@ test.describe('Navigation mobile layout', () => {
 
   test('Tab cycles within the open menu panel without escaping to background content (#398)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -155,7 +155,7 @@ test.describe('Navigation mobile layout', () => {
 
   test('background <main> is inert while open and restored after closing (#398)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -187,7 +187,7 @@ test.describe('Navigation mobile layout', () => {
    */
   test('TopNav padding-top keeps safe-area baseline of 28px (#166 / #303)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     const paddingTop = await nav.evaluate(
@@ -209,7 +209,7 @@ test.describe('Navigation mobile layout', () => {
    */
   test('TopNav height grows with simulated safe-area-inset-top (#166 / #303)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     const baselineBox = await nav.boundingBox();
@@ -236,7 +236,7 @@ test.describe('Navigation mobile layout', () => {
 
   test('closes hamburger menu when viewport expands to 768px', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -264,7 +264,7 @@ test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
 
   test('hamburger → /services: below-fold content reveals on scroll', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -279,7 +279,7 @@ test.describe('375px SPA client nav — scroll reveal (#151 / #180)', () => {
 
   test('hamburger → /works: below-fold content reveals on scroll', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -304,7 +304,7 @@ test.describe('下層 Navigation mobile menu focus trap (#398)', () => {
 
   test('opening the menu moves focus to the first link, Tab cycles within the panel, and closing restores <main>', async ({ page }) => {
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: /メニューを開く/ }).click();
@@ -361,7 +361,7 @@ test.describe('Navigation desktop layout', () => {
    */
   test('下層 Navigation desktop keeps md:pt safe-area-inset-top formula (#288)', async ({ page }) => {
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const nav = page.getByRole('navigation');
     const inner = nav.locator('> div').first();
@@ -415,7 +415,7 @@ test.describe('Fixed nav stays anchored while scrolling on subpages (#368)', () 
   for (const path of ['/philosophy', '/process'] as const) {
     test(`${path}: nav stays pinned to the viewport top and keeps its opaque background`, async ({ page }) => {
       await page.goto(path);
-      await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+      await expectPageLoaderGone(page);
 
       const nav = page.getByRole('navigation');
       await expect(nav).toBeVisible();
@@ -446,7 +446,7 @@ test.describe('Fixed nav stays anchored while scrolling on subpages (#368)', () 
 test.describe('Scroll-padding keeps focused elements clear of the fixed nav (#366)', () => {
   test('scroll-padding-top is set on both html and body, not only html', async ({ page }) => {
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const scrollPadding = await page.evaluate(() => ({
       html: getComputedStyle(document.documentElement).scrollPaddingTop,
@@ -460,7 +460,7 @@ test.describe('Scroll-padding keeps focused elements clear of the fixed nav (#36
   test('keyboard-focused #name field on /contact is not obscured by the nav (375px)', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 700 });
     await page.goto('/contact');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     // Start scrolled past the field so focusing it forces the browser to
     // scroll it back into view — mirroring keyboard Tab traversal and mobile

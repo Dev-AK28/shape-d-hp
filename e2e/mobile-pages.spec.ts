@@ -2,8 +2,8 @@
  * Mobile parity regression tests (issue #118).
  * Verifies that key content is visible and no horizontal overflow occurs at mobile viewports.
  */
-import { expect, test } from '@playwright/test';
-import { expectNoHorizontalOverflow, expectPainted } from './helpers';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone, expectNoHorizontalOverflow, expectPainted } from './helpers';
 
 // ── 390px (iPhone 14 Pro / Pixel 7) ─────────────────────────────────────────
 
@@ -313,7 +313,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
   test('service cards reveal on scroll after resizing from desktop to mobile', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.setViewportSize({ width: 390, height: 844 });
 
@@ -328,7 +328,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
   test('works project cards reveal on scroll after resizing from desktop to mobile', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/works');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.setViewportSize({ width: 390, height: 844 });
 
@@ -346,7 +346,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
   test('above-fold content retains opacity after resize to mobile (#182)', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     // fold 上の h1 がデスクトップ幅で paint 済みであることを確認。
     // framer-motion duration 1.4s + CI IO 発火遅延を吸収するため 5000ms を使用（他の above-fold テストと統一）。
@@ -367,7 +367,7 @@ test.describe('desktop → mobile resize — /services scroll reveal (#155)', ()
   test('TextReveal per-char spans retain opacity after resize to mobile (#266)', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/services');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     // デスクトップ幅で h1 TextReveal の per-char span が paint 済みであること。
     const firstChar = page.locator('main h1 span.inline-block').first();

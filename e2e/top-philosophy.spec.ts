@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
+import { expectPageLoaderGone } from './helpers';
 
 /**
  * PHILOSOPHY セクション #vision（TopPhilosophy）— Issue #305
@@ -10,7 +11,7 @@ const TAGLINE = '商品・サービスは、自己表現のツールである。
 test.describe('Top philosophy (#305)', () => {
   test('renders eyebrow, per-character tagline and note', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const vision = page.locator('#vision');
     await expect(vision.locator('.eyebrow')).toContainText('PHILOSOPHY');
@@ -23,7 +24,7 @@ test.describe('Top philosophy (#305)', () => {
 
   test('scrubs tagline opacity from ~0.08 toward 1 as the section scrolls in', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const firstChar = page.locator('#vision .vision-tagline .w').first();
 
@@ -44,7 +45,7 @@ test.describe('Top philosophy (#305)', () => {
   test('reduced-motion: all tagline chars are shown at opacity 1 immediately', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     const chars = page.locator('#vision .vision-tagline .w');
     await expect(chars.first()).toHaveCSS('opacity', '1');
@@ -54,7 +55,7 @@ test.describe('Top philosophy (#305)', () => {
   test('375px: tagline wraps without horizontal overflow', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    await expect(page.getByTestId('page-loader')).toHaveCount(0, { timeout: 5000 });
+    await expectPageLoaderGone(page);
 
     await page.locator('#vision').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await expect(page.locator('#vision .vision-tagline')).toBeVisible();
