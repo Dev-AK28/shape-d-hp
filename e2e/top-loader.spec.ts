@@ -18,7 +18,9 @@ test.describe('Top particle loader (#412 / #414)', () => {
     const loader = page.getByTestId('page-loader');
     await loader.waitFor({ state: 'attached', timeout: 5000 });
 
-    // drift + converge 中（開始から約 5 秒）はまだ表示されている（約 10 秒演出の担保）
+    // マウント起点で約 5 秒後もまだ表示されている（約 10 秒演出の担保）。
+    // 粒子タイムラインは画像 decode 起点だが、消滅は framer のマウント起点
+    // ディレイ（10s）に対するものなのでマージン約 5 秒があり安定
     await page.waitForTimeout(LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge - 1500);
     await expect(loader).toHaveCount(1);
 

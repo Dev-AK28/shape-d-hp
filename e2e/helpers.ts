@@ -1,5 +1,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import { LOADER_E2E_TIMEOUT_MS } from '../lib/loader/particle-logo';
+import {
+  LOADER_E2E_ATTACH_TIMEOUT_MS,
+  LOADER_E2E_TIMEOUT_MS,
+} from '../lib/loader/particle-logo';
 
 // #316: 旧イマーシブ Hero（粒子形成 / ビッグバン Canvas / cosmic 背景）撤去に伴い、
 // expectHeroBrandLogoAfterFormation / expectBigbangCanvasRetiredWithLogoVisible /
@@ -17,7 +20,7 @@ export async function expectPageLoaderGone(page: Page): Promise<void> {
   const loader = page.getByTestId('page-loader');
   await loader
     .first()
-    .waitFor({ state: 'attached', timeout: 1500 })
+    .waitFor({ state: 'attached', timeout: LOADER_E2E_ATTACH_TIMEOUT_MS })
     .catch(() => {});
   await expect(loader).toHaveCount(0, { timeout: LOADER_E2E_TIMEOUT_MS });
 }
