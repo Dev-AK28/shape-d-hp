@@ -1,10 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  CONVERGE_PROGRESS_SHARE,
+  getLoaderTimeScale,
+  LOADER_E2E_TIMEOUT_MS,
   LOADER_FALLBACK_MS,
+  LOADER_FAST_TIME_SCALE,
   LOADER_TIMELINE_MS,
   LOADER_TOTAL_MS,
   PARTICLE_STAGGER_MS,
-  PARTICLE_TRAVEL_MS,
   sampleLogoParticles,
   type ImageDataLike,
 } from '@/lib/loader/particle-logo';
@@ -81,16 +84,48 @@ describe('sampleLogoParticles', () => {
 });
 
 describe('LOADER_TIMELINE', () => {
-  it('演出合計 + フォールバックが e2e の待機上限 5000ms に収まる', () => {
-    // e2e/helpers.ts ほかが page-loader の消滅を timeout: 5000 で待つ
+  it('5 フェーズの合計が約 10 秒（Issue #414 の尺）になる', () => {
     expect(LOADER_TOTAL_MS).toBe(
-      LOADER_TIMELINE_MS.gather + LOADER_TIMELINE_MS.hold + LOADER_TIMELINE_MS.fade,
+      LOADER_TIMELINE_MS.drift +
+        LOADER_TIMELINE_MS.converge +
+        LOADER_TIMELINE_MS.snap +
+        LOADER_TIMELINE_MS.hold +
+        LOADER_TIMELINE_MS.fade,
     );
-    expect(LOADER_FALLBACK_MS).toBeGreaterThan(LOADER_TOTAL_MS);
-    expect(LOADER_FALLBACK_MS).toBeLessThan(5000);
+    expect(LOADER_TOTAL_MS).toBe(10_000);
   });
 
-  it('スタッガーと移動時間の合計が gather と一致する', () => {
-    expect(PARTICLE_STAGGER_MS + PARTICLE_TRAVEL_MS).toBe(LOADER_TIMELINE_MS.gather);
+  it('フォールバックが e2e の待機上限（SSOT）に収まる', () => {
+    // e2e/helpers.ts が LOADER_E2E_TIMEOUT_MS を import して page-loader の消滅を待つ
+    expect(LOADER_FALLBACK_MS).toBeGreaterThan(LOADER_TOTAL_MS);
+    expect(LOADER_FALLBACK_MS).toBeLessThan(LOADER_E2E_TIMEOUT_MS);
+  });
+
+  it('スタッガーは converge フェーズ内に収まり、進捗配分は 0-1 の間にある', () => {
+    expect(PARTICLE_STAGGER_MS).toBeLessThan(LOADER_TIMELINE_MS.converge);
+    expect(CONVERGE_PROGRESS_SHARE).toBeGreaterThan(0);
+    expect(CONVERGE_PROGRESS_SHARE).toBeLessThan(1);
+  });
+});
+
+describe('getLoaderTimeScale', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('window がない（SSR）とき等倍を返す', () => {
+    expect(getLoaderTimeScale()).toBe(1);
+  });
+
+  it('e2e フラグが設定されていればその倍率を返す', () => {
+    vi.stubGlobal('window', { __SHAPE_D_LOADER_TIME_SCALE__: LOADER_FAST_TIME_SCALE });
+    expect(getLoaderTimeScale()).toBe(LOADER_FAST_TIME_SCALE);
+  });
+
+  it('不正値（0 以下・1 超・非数）は等倍にフォールバックする', () => {
+    for (const bad of [0, -1, 1.5, Number.NaN, 'fast']) {
+      vi.stubGlobal('window', { __SHAPE_D_LOADER_TIME_SCALE__: bad });
+      expect(getLoaderTimeScale()).toBe(1);
+    }
   });
 });
