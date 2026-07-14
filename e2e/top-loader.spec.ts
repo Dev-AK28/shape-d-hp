@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import {
+  LOADER_CSS_FAILSAFE_MS,
   LOADER_E2E_TIMEOUT_MS,
   LOADER_SNAP_END_MS,
   LOADER_TIMELINE_MS,
@@ -7,13 +8,28 @@ import {
 } from '../lib/loader/particle-logo';
 
 /**
- * トップページ パーティクルローダーの実時間検証 — Issue #412 / #414 / #418
+ * トップページ パーティクルローダーの実時間検証 — Issue #412 / #414 / #418 / #420
  *
  * このスペックだけは fixtures の高速化フラグを使わず（'@playwright/test' を直接
  * import）、等倍タイムライン（約 10 秒・6 フェーズ）で検証する。
  * 他のスペックは e2e/fixtures.ts 経由で短縮版が適用される。
  */
 test.describe('Top particle loader (#412 / #414 / #418)', () => {
+  test('JS チャンクが落ちても不透明オーバーレイは CSS だけで必ず消える（#419 レビュー対応）', async ({
+    page,
+  }) => {
+    // 消滅経路（framer / フォールバックタイマー / スキップ）はすべて JS 前提。<noscript> は
+    // 「JS 無効」しか救えないため、JS 有効なのにチャンクが 404（デプロイ直後の古い HTML 等）
+    // だと、SSR された不透明オーバーレイが恒久的にページを覆ってしまう
+    await page.route('**/_next/static/chunks/**', (route) => route.abort());
+    await page.goto('/', { waitUntil: 'commit' });
+
+    const loader = page.getByTestId('page-loader');
+    await loader.waitFor({ state: 'attached', timeout: 5000 });
+    // JS が死んでいるので DOM には残り続けるが、CSS アニメーションで不可視になること
+    await expect(loader).toBeHidden({ timeout: LOADER_CSS_FAILSAFE_MS + 4000 });
+  });
+
   test('soft nav（下層 → トップ）でも演出が最初から走る（黒フラッシュ回帰ガード・#419）', async ({
     page,
   }) => {
@@ -52,28 +68,35 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
     expect(background).toBe('rgb(7, 9, 13)');
   });
 
-  test('粒子が集まったあと実ロゴが立ち上がる（handoff・#418）', async ({ page }) => {
+  test('粒子が集まったあと実ロゴが立ち上がる（handoff・#418 / #420）', async ({ page }) => {
     await page.goto('/', { waitUntil: 'commit' });
     const logo = page.getByTestId('loader-logo');
     await logo.waitFor({ state: 'attached', timeout: 5000 });
 
-    // handoff 前はゴースト（薄表示）。framer のアニメーションはハイドレーション後に
-    // 始まるため、ナビゲーション起点の絶対時刻ではなく「まだ薄い」ことだけを見る
-    const ghost = await logo.evaluate((el) => Number(getComputedStyle(el).opacity));
-    expect(ghost).toBeLessThan(0.5);
+    // handoff 前は完全に不可視（#420: 粒子が集まって初めて浮かび上がる）。framer の
+    // アニメーションはハイドレーション後に始まるため、ナビゲーション起点の絶対時刻では
+    // なく「まだ見えていない」ことだけを見る
+    const initial = await logo.evaluate((el) => Number(getComputedStyle(el).opacity));
+    expect(initial).toBeLessThan(0.5);
 
-    // handoff で実ロゴが立ち上がる。unmount 後は null を返して「表示済み」とみなす
-    // （消滅の検証は別テストが担当）
+    // handoff で実ロゴが立ち上がること。**DOM に載ったまま** opacity が上がるのを見る
+    // — unmount を「表示済み」とみなすと、演出中盤でローダーが早期消滅する回帰でも
+    // 緑になってしまう（PR #419 レビュー対応）
     await expect
       .poll(
         () =>
           page.evaluate(() => {
             const el = document.querySelector('[data-testid="loader-logo"]');
-            return el ? Number(getComputedStyle(el).opacity) : 1;
+            return el ? Number(getComputedStyle(el).opacity) : -1;
           }),
         { timeout: LOADER_SNAP_END_MS + LOADER_TIMELINE_MS.handoff + 4000 },
       )
       .toBeGreaterThan(0.9);
+
+    // 立ち上がりが snap 完了より前に起きていないこと（＝粒子が集まる前にロゴが出ない）
+    expect(
+      Number(await page.evaluate(() => performance.now())),
+    ).toBeGreaterThanOrEqual(LOADER_SNAP_END_MS);
   });
 
   test('等倍タイムラインで表示され、drift 中は残り、予算内に消える', async ({ page }) => {

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CONVERGE_PROGRESS_SHARE,
   getLoaderTimeScale,
+  LOADER_CSS_FAILSAFE_MS,
   LOADER_E2E_TIMEOUT_MS,
   LOADER_FADE_START_MS,
   LOADER_FALLBACK_MS,
@@ -88,6 +89,36 @@ describe('sampleLogoParticles', () => {
     expect(targets).toHaveLength(count * 3);
   });
 
+  it('候補が maxCount をわずかに超えても maxCount 個ちょうど使う（間引きの崖ガード・#419）', () => {
+    // 整数 stride（Math.ceil）だと候補が上限を 1 個超えた瞬間に stride=2 へ切り上がり、
+    // 粒子数が半減する崖ができていた（実ロゴで 12,555 候補 → 6,278 個しか出ていなかった）。
+    // 分数間隔の間引きなら常に上限を使い切る
+    const pixels = [];
+    for (let i = 0; i < 101; i += 1) {
+      pixels.push({ x: i % 101, y: 0, rgb: [255, 255, 255] as [number, number, number] });
+    }
+    const image = makeImage(101, 1, pixels);
+    const { count } = sampleLogoParticles(image, { step: 1, maxCount: 100 });
+    expect(count).toBe(100);
+  });
+
+  it('現行ロゴで粒子数の上限（PARTICLE_MAX_COUNT）を満たす（#420 の密度・#419 実測）', () => {
+    // 実アセットの候補数は 12,555（step 1px・輝度 60 以上）。上限 12,000 に届いていること
+    // を「候補数と同じ数の高輝度ピクセル」で再現して担保する（PNG デコードは vitest では
+    // 行わないため、候補数を模したフィクスチャで間引き後の粒子数だけを検証する）
+    const pixels = [];
+    for (let i = 0; i < 12_555; i += 1) {
+      pixels.push({
+        x: i % 360,
+        y: Math.floor(i / 360),
+        rgb: [255, 255, 255] as [number, number, number],
+      });
+    }
+    const image = makeImage(360, 286, pixels);
+    const { count } = sampleLogoParticles(image);
+    expect(count).toBe(PARTICLE_MAX_COUNT);
+  });
+
   it('透過ピクセル（alpha < 128）は高輝度でも除外する', () => {
     const image = makeImage(4, 4, [
       { x: 0, y: 0, rgb: [255, 255, 255], alpha: 0 }, // 透過 → 除外
@@ -126,12 +157,23 @@ describe('LOADER_TIMELINE', () => {
     expect(LOADER_FADE_START_MS + LOADER_TIMELINE_MS.fade).toBe(LOADER_TOTAL_MS);
   });
 
-  it('実ロゴアセットの寸法が LOGO_SOURCE_*_PX と一致する（CSS 幅がこの比から決まる）', () => {
+  it('2 枚のロゴアセットの寸法が LOGO_SOURCE_*_PX と一致する（CSS 幅がこの比から決まる）', () => {
     // 生成スクリプト側の assert と逆向きに閉じる — 定数だけ変えたときもここで落ちる
-    // （PR #419 レビュー対応）。PNG の IHDR は 16-23 バイト目に width/height を持つ
-    const png = readFileSync('public/loader/logo-reveal.png');
-    expect(png.readUInt32BE(16)).toBe(LOGO_SOURCE_WIDTH_PX);
-    expect(png.readUInt32BE(20)).toBe(LOGO_SOURCE_HEIGHT_PX);
+    // （PR #419 レビュー対応）。PNG の IHDR は 16-23 バイト目に width/height を持つ。
+    // 粒子は particle-source の naturalWidth でスケールし、実ロゴの CSS 幅は定数から
+    // アスペクト比を導くため、片方だけ再生成されると handoff で位置がズレる。両方を閉じる
+    for (const asset of ['logo-particle-source.png', 'logo-reveal.png']) {
+      const png = readFileSync(`public/loader/${asset}`);
+      expect(png.readUInt32BE(16), `${asset} の幅`).toBe(LOGO_SOURCE_WIDTH_PX);
+      expect(png.readUInt32BE(20), `${asset} の高さ`).toBe(LOGO_SOURCE_HEIGHT_PX);
+    }
+  });
+
+  it('CSS の最終防衛線はフォールバックの後・e2e 待機上限の前に発火する（#419）', () => {
+    // JS が死んだとき（チャンク 404 等）にだけ効く保険。正常系（JS のフォールバックタイマー）
+    // より後に置かないと演出を途中で殺してしまい、e2e の待機上限より後だと e2e が落ちる
+    expect(LOADER_CSS_FAILSAFE_MS).toBeGreaterThan(LOADER_FALLBACK_MS);
+    expect(LOADER_CSS_FAILSAFE_MS).toBeLessThan(LOADER_E2E_TIMEOUT_MS);
   });
 
   it('演出開始時にロゴは一切見えない（#420: 粒子が集まって初めて浮かび上がる）', () => {

@@ -116,7 +116,7 @@ vi.mock('three', () => {
 });
 
 import TopParticleLoader from '@/components/top/TopParticleLoader';
-import { LOADER_FALLBACK_MS } from '@/lib/loader/particle-logo';
+import { LOADER_CSS_FAILSAFE_MS, LOADER_FALLBACK_MS } from '@/lib/loader/particle-logo';
 
 /** 粒子演出が実際に走る（three.js 初期化まで到達する）ようスタブを整える。 */
 function enableParticles() {
@@ -181,8 +181,17 @@ describe('TopParticleLoader', () => {
     const overlay = getByTestId('page-loader');
     // 半透明スクリムではなくトップページ背景色そのもの
     expect(overlay.style.background).toContain('--ink');
-    // 実ロゴが最初から DOM にある（早期 contentful paint 兼ゴースト表示）
+    // 実ロゴは最初から DOM にある（#420 で開始時の opacity は 0。handoff で立ち上がる）
     expect(getByTestId('loader-logo')).not.toBeNull();
+  });
+
+  it('JS 非依存の最終防衛線を SSR する（チャンク 404 で暗幕が残らない・#419 レビュー対応）', () => {
+    // globals.css の top-loader-failsafe を駆動する animation-delay。これが style 属性として
+    // SSR されるからこそ、JS が一切動かなくてもオーバーレイが消える
+    const { getByTestId } = render(<TopParticleLoader />);
+    expect(getByTestId('page-loader').style.animationDelay).toBe(
+      `${LOADER_CSS_FAILSAFE_MS}ms`,
+    );
   });
 
   it('粒子演出を開始できなくてもフォールバックで必ず消える', async () => {
