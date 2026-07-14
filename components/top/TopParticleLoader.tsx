@@ -8,6 +8,7 @@ import {
   CONVERGE_PROGRESS_SHARE,
   DRIFT_AMPLITUDE_PX,
   getLoaderTimeScale,
+  LOADER_CSS_FAILSAFE_MS,
   LOADER_FADE_START_MS,
   LOADER_FALLBACK_MS,
   LOADER_HANDOFF_END_MS,
@@ -134,24 +135,26 @@ void main() {
 `;
 
 /**
- * トップページ パーティクルローダー — Issue #412 / #414 / #418
+ * トップページ パーティクルローダー — Issue #412 / #414 / #416 / #418 / #420
  *
  * 6 フェーズ・合計約 10 秒: 粒子が漂い（drift）→ 波状に緩収束（converge）→
  * 一気に吸着（snap）してロゴを板厚付きで形成 → 実ロゴ画像へバトンタッチ（handoff）→
  * 実ロゴを見せて（hold）→ フェードアウト（fade）。
  *
- * #418 / #416 の要件を満たすための構成:
+ * 構成と、その理由:
  * - **オーバーレイは SSR される**（`ssr: false` をやめ、three.js だけを `import('three')` で
  *   遅延ロード）。初期 HTML にオーバーレイが存在するため、低速回線でも
  *   「ヒーローが見えてから覆われる」逆順フラッシュが起きない（#416）。
  * - **背景は --ink で完全不透明**。ヒーローは透けない（#418）。
- * - 不透明オーバーレイは Lighthouse の FCP/LCP を演出終了まで遅らせ Performance が 55 まで
- *   落ちる（#414 実測）。WebGL キャンバスは FCP/LCP の候補要素にならないため、
- *   **実ロゴ <img> をゴースト（LOGO_GHOST_OPACITY）として最初から描画**して早期に
- *   contentful paint を成立させ、handoff で 1 まで引き上げる。
+ * - **開始時は実ロゴも不可視**（#420 で LOGO_GHOST_OPACITY = 0）。粒子が集まって初めて
+ *   ロゴが浮かび上がる。⚠️ この結果トップの FCP/LCP は演出の尺そのもの（約 10 秒）になり
+ *   Performance は 55 前後に落ちる — 意図的なトレードオフで、CI の性能ゲートは下層ページ
+ *   （/services）で担保する（詳細: documents/spec/top-particle-loader.md）。
  * - `prefers-reduced-motion` はハイドレーション前から効かせる必要があるため CSS
  *   （globals.css の `[data-top-loader]`）で非表示にする。JS 側でも unmount する。
- * - JS 無効環境では `<noscript>` の CSS（globals.css）でオーバーレイを消す。
+ * - **JS が動かない場合の二重の保険**: JS 無効なら `app/page.tsx` の `<noscript>` が消し、
+ *   JS 有効なのに死んだ場合（チャンク 404 等）は CSS アニメーション（globals.css の
+ *   `top-loader-failsafe` / LOADER_CSS_FAILSAFE_MS）が消す。
  */
 export default function TopParticleLoader() {
   const reduceMotion = useReducedMotion();
@@ -223,6 +226,14 @@ export default function TopParticleLoader() {
     let dispose: (() => void) | undefined;
 
     const start = (THREE: typeof THREE_NS, image: HTMLImageElement) => {
+      // 寸法を取り直す — width/height を捕捉したのはハイドレーション直後だが、ここへ来るのは
+      // three.js チャンクのロード後。低速回線ではその間に画面回転が起こり得て、resize
+      // リスナーもまだ張られていない（下で登録する）ため、そのイベントは失われる。
+      // 取り直さないとレンダラ寸法・カメラ・散開半径が旧寸法のまま演出が最後まで走る
+      // （PR #419 レビュー対応）
+      width = canvas.clientWidth || window.innerWidth;
+      height = canvas.clientHeight || window.innerHeight;
+
       const probe = document.createElement('canvas');
       probe.width = image.naturalWidth;
       probe.height = image.naturalHeight;
@@ -473,8 +484,13 @@ export default function TopParticleLoader() {
       data-top-loader
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-[2000] flex items-center justify-center"
-      // #418: トップページ背景色で完全に塞ぐ（ヒーローを透けさせない）
-      style={{ background: 'var(--ink)' }}
+      style={{
+        // #418: トップページ背景色で完全に塞ぐ（ヒーローを透けさせない）
+        background: 'var(--ink)',
+        // JS が死んでもオーバーレイを必ず消す CSS 専用の最終防衛線（globals.css の
+        // top-loader-failsafe）。この style は SSR されるので JS の実行を一切必要としない
+        animationDelay: `${LOADER_CSS_FAILSAFE_MS}ms`,
+      }}
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       transition={{
@@ -487,8 +503,9 @@ export default function TopParticleLoader() {
       onAnimationComplete={() => setVisible(false)}
     >
       {/* 実ロゴ。粒子は <img> の実測幅からスケールを導くので位置ズレなく重なる。
-          ゴースト（薄表示）から handoff で立ち上げる — 早期の contentful paint も兼ねる（#418）。
-          next/image ではなく素の <img>: SSR 時点で即座に paint させたく、最適化も不要な小サイズのため */}
+          #420 で LOGO_GHOST_OPACITY = 0 になったため開始時は完全に不可視で、handoff で
+          初めて立ち上がる（＝ Lighthouse から見える contentful paint は演出終了まで無い）。
+          next/image ではなく素の <img>: SSR 時点で DOM に載せたく、最適化も不要な小サイズのため */}
       <m.img
         ref={logoRef}
         src={LOADER_LOGO_REVEAL_SRC}

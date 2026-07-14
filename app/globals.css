@@ -272,6 +272,23 @@ button:not(.nav-menu-button):hover {
 /* JS 無効環境では、フェードアウトを駆動する framer-motion が動かず SSR された不透明
    オーバーレイがページを永久に覆う。app/page.tsx の <noscript> が同等の規則を注入して消す。 */
 
+/* JS 有効なのに JS が「死ぬ」ケース（チャンク 404・回線断・ハイドレーションのクラッシュ）
+   では <noscript> が効かず、消滅経路がすべて JS 前提のため不透明オーバーレイが恒久的に
+   ページを覆ってしまう。CSS だけで動く最終防衛線として visibility を落とす（PR #419 レビュー対応）。
+   発火時刻は LOADER_CSS_FAILSAFE_MS が SSOT で、animation-delay を <img> と同じく
+   TopParticleLoader がインライン style で SSR する。正常系ではその前に unmount される。 */
+@keyframes top-loader-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+[data-top-loader] {
+  animation-name: top-loader-failsafe;
+  animation-duration: 0s;
+  animation-fill-mode: forwards;
+}
+
 /* Prevent hydration flash on mobile: during SSR→hydration, isReady transitions
    from false to true and switches [data-timeline-item]/[data-vision-quote] from
    opacity-100 to opacity-0 before GSAP can set up ScrollTrigger.

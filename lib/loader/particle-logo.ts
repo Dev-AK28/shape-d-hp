@@ -69,6 +69,22 @@ export const LOGO_GHOST_OPACITY = 0;
 export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 1000;
 
 /**
+ * CSS だけで動く最終防衛線（PR #419 レビュー対応）。
+ *
+ * オーバーレイの消滅経路（framer の onAnimationComplete / LOADER_FALLBACK_MS のタイマー /
+ * キー・ポインタでのスキップ）は**すべて JS の実行が前提**。`<noscript>` は「JS 無効」しか
+ * 救えず、**JS 有効なのにチャンク取得が失敗する**ケース（デプロイ直後の古い HTML が新しい
+ * チャンクを指して 404・回線断・ハイドレーションのクラッシュ）では、SSR された不透明な
+ * オーバーレイが**恒久的にページを覆う**（ロゴすら見えない真っ黒な画面 — #420 で
+ * LOGO_GHOST_OPACITY = 0 にしたため）。
+ *
+ * そこで JS に一切依存しない CSS アニメーション（globals.css の `top-loader-failsafe`）で
+ * visibility を落とす。正常系ではこの時刻より前に unmount されるため発火しない。
+ * LOADER_FALLBACK_MS より後・LOADER_E2E_TIMEOUT_MS より前に置くこと（tests/loader が検証）。
+ */
+export const LOADER_CSS_FAILSAFE_MS = LOADER_FALLBACK_MS + 500;
+
+/**
  * e2e が page-loader の消滅を待つ上限（e2e/helpers.ts の SSOT）。
  * LOADER_FALLBACK_MS はこの値を必ず下回ること（tests/loader が検証）。
  */
@@ -141,7 +157,7 @@ export const LOGO_DISPLAY_WIDTH_CSS = `min(${LOGO_DISPLAY_WIDTH_RATIO * 100}vw, 
 /**
  * サンプリングの走査間隔。#420 で 2px → 1px。
  * 2px では拾える候補が 3,106 個しかなく上限（6,000）に届いていなかった（実測）。
- * 1px にすると 12,555 個の候補が得られ、上限 12,000 まで使い切れる。
+ * 1px にすると現行ロゴで 12,555 個の候補が得られ、上限 12,000 を満たせる。
  */
 export const SAMPLE_STEP_PX = 1;
 export const SAMPLE_LUMINANCE_THRESHOLD = 60;
@@ -189,12 +205,14 @@ export function sampleLogoParticles(
     }
   }
 
-  const stride = Math.max(1, Math.ceil(picked.length / maxCount));
-  const count = Math.ceil(picked.length / stride);
+  // 間引きは分数間隔で行う。整数 stride（Math.ceil）だと候補が上限を 1 個でも超えた瞬間に
+  // stride=2 へ切り上がり、粒子数が上限の半分まで落ちる崖ができる — 実際 12,555 候補 /
+  // 上限 12,000 で 6,278 個しか出ていなかった（PR #419 レビュー対応）
+  const count = Math.min(picked.length, maxCount);
   const targets = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
   for (let n = 0; n < count; n += 1) {
-    const i = picked[n * stride];
+    const i = picked[Math.floor((n * picked.length) / count)];
     const pixel = i / 4;
     const x = pixel % width;
     const y = (pixel - x) / width;
