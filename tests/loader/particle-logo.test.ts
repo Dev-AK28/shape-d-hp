@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CONVERGE_PROGRESS_SHARE,
   getLoaderTimeScale,
+  handoffRevealOpacity,
   LOADER_CSS_FAILSAFE_MS,
   LOADER_E2E_TIMEOUT_MS,
   LOADER_FADE_START_MS,
@@ -240,6 +241,57 @@ describe('LOADER_TIMELINE', () => {
     // シェーダは share のみ埋め込み補数を GLSL 側で計算するが、埋め込み時の
     // 丸めで share 自体が変わると converge/snap の配分が仕様とずれるため固定する
     expect(Number(CONVERGE_PROGRESS_SHARE.toFixed(4))).toBe(CONVERGE_PROGRESS_SHARE);
+  });
+});
+
+describe('handoffRevealOpacity（#421: 粒子と実ロゴの「両方薄い」谷を防ぐ）', () => {
+  /** 頂点シェーダの uHandoff = smoothstep(elapsed, SNAP_END, HANDOFF_END) と同じ式。 */
+  const shaderHandoff = (elapsedMs: number) => {
+    const t = Math.min(
+      Math.max(
+        (elapsedMs - LOADER_SNAP_END_MS) / (LOADER_HANDOFF_END_MS - LOADER_SNAP_END_MS),
+        0,
+      ),
+      1,
+    );
+    return t * t * (3 - 2 * t);
+  };
+
+  it('handoff 前は不可視（#420: 粒子が集まって初めて浮かび上がる）', () => {
+    expect(handoffRevealOpacity(0)).toBe(LOGO_GHOST_OPACITY);
+    expect(handoffRevealOpacity(LOADER_SNAP_END_MS)).toBe(LOGO_GHOST_OPACITY);
+  });
+
+  it('handoff 完了以降は完全表示', () => {
+    expect(handoffRevealOpacity(LOADER_HANDOFF_END_MS)).toBe(1);
+    expect(handoffRevealOpacity(LOADER_TOTAL_MS)).toBe(1);
+  });
+
+  it('handoff 中は単調増加する', () => {
+    let previous = -1;
+    for (let t = LOADER_SNAP_END_MS; t <= LOADER_HANDOFF_END_MS; t += 50) {
+      const opacity = handoffRevealOpacity(t);
+      expect(opacity).toBeGreaterThanOrEqual(previous);
+      previous = opacity;
+    }
+  });
+
+  it('シェーダの uHandoff と同じ曲線なので、粒子の減衰分をちょうど埋める（谷ができない）', () => {
+    // 粒子の alpha は (1 - uHandoff)。実ロゴがこの関数の値なら合計は常に 1 で、
+    // 「粒子も実ロゴも薄い」区間が生まれない。0 から立ち上げていた頃は、
+    // ハイドレーションが handoff 途中に食い込むとここが 1 を割り込んでいた（#421）
+    for (let t = LOADER_SNAP_END_MS; t <= LOADER_HANDOFF_END_MS; t += 50) {
+      const particles = 1 - shaderHandoff(t);
+      expect(particles + handoffRevealOpacity(t)).toBeCloseTo(1, 6);
+    }
+  });
+
+  it('0〜1 の範囲を外れない（負の経過時刻・演出後も含む）', () => {
+    for (const t of [-5000, 0, LOADER_SNAP_END_MS - 1, LOADER_HANDOFF_END_MS + 1, 60_000]) {
+      const opacity = handoffRevealOpacity(t);
+      expect(opacity).toBeGreaterThanOrEqual(0);
+      expect(opacity).toBeLessThanOrEqual(1);
+    }
   });
 });
 

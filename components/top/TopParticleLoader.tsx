@@ -1,6 +1,6 @@
 'use client';
 
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useAnimationControls, useReducedMotion } from 'framer-motion';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import type * as THREE_NS from 'three';
 import { detectWebGLSupport } from '@/lib/webgl/support';
@@ -8,6 +8,7 @@ import {
   CONVERGE_PROGRESS_SHARE,
   DRIFT_AMPLITUDE_PX,
   getLoaderTimeScale,
+  handoffRevealOpacity,
   LOADER_CSS_FAILSAFE_MS,
   LOADER_FADE_START_MS,
   LOADER_FALLBACK_MS,
@@ -195,6 +196,40 @@ export default function TopParticleLoader() {
     Math.max(0, budgetMs * timeScale - (elapsedAtMount - originMs));
   /** framer の duration も delay と同じ物差しで導く（切り詰めた分だけ縮める）。 */
   const spanMs = (fromMs: number, toMs: number) => remaining(toMs) - remaining(fromMs);
+  const revealControls = useAnimationControls();
+
+  /**
+   * 実ロゴの立ち上がり（handoff）— Issue #421。
+   *
+   * 粒子は**シェーダのクロック（絶対時刻）**で `1 - uHandoff` に減衰するため、
+   * ハイドレーションが handoff の途中（8.0〜9.0 秒）に食い込むと、マウント時点で
+   * 粒子は既に半分消えている。実ロゴを常に 0 から立ち上げると、その差分だけ
+   * **「粒子も実ロゴも薄い」数百 ms の谷**ができる。
+   *
+   * そこで「その時刻にあるべき不透明度」（`handoffRevealOpacity` — シェーダと同じ
+   * Hermite 曲線）を開始値として **imperative に set してから** 1 へ向かわせる。
+   * `initial` prop に入れると SSR HTML にも出力されてハイドレーション不一致になるため、
+   * 必ず effect（＝ハイドレーション後）で行うこと。
+   */
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+    // シェーダと同じ物差し（timeScale で割った基準 ms）に揃える
+    const elapsedOnShaderClock = (elapsedAtMount - originMs) / timeScale;
+    revealControls.set({ opacity: handoffRevealOpacity(elapsedOnShaderClock) });
+    void revealControls.start({
+      opacity: 1,
+      transition: {
+        // 粒子の uHandoff と同じ区間を共有する（残り時間だけ動かす）
+        duration: spanMs(LOADER_SNAP_END_MS, LOADER_HANDOFF_END_MS) / 1000,
+        delay: remaining(LOADER_SNAP_END_MS) / 1000,
+        ease: 'easeInOut',
+      },
+    });
+    // elapsedAtMount / originMs / timeScale はマウント時に固定される
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, revealControls]);
 
   useEffect(() => {
     if (reduceMotion || !detectWebGLSupport()) {
@@ -547,14 +582,10 @@ export default function TopParticleLoader() {
         data-testid="loader-logo"
         className="absolute h-auto"
         style={{ width: LOGO_DISPLAY_WIDTH_CSS }}
+        // initial は SSR にも出力される値なので、クロックに依存させるとハイドレーション
+        // 不一致になる。開始値の補正（#421）は下の effect から imperative に行う
         initial={{ opacity: LOGO_GHOST_OPACITY }}
-        animate={{ opacity: 1 }}
-        transition={{
-          // 粒子の uHandoff（シェーダ時計）と同じ区間を共有する
-          duration: spanMs(LOADER_SNAP_END_MS, LOADER_HANDOFF_END_MS) / 1000,
-          delay: remaining(LOADER_SNAP_END_MS) / 1000,
-          ease: 'easeInOut',
-        }}
+        animate={revealControls}
       />
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
     </m.div>
