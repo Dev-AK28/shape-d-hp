@@ -91,6 +91,10 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
     // 400ms 相当）を CDP でエミュレートし、commit 直後から一定時間サンプリングしても
     // 常に不透明であることを確かめる — 修正後は inline style にリテラル値が直接
     // 埋め込まれるため、外部 CSS の到着タイミングに依存しなくなる。
+    // ⚠️ `context.newCDPSession` は Chromium 専用の API（CDP = Chrome DevTools Protocol）。
+    // `playwright.config.ts` は現状 chromium プロジェクトのみのため問題ないが、将来
+    // firefox / webkit を追加する場合はこのテストを chromium 限定にする必要がある
+    // （PR #434 レビュー対応）。
     const client = await context.newCDPSession(page);
     await client.send('Network.enable');
     await client.send('Network.emulateNetworkConditions', {
