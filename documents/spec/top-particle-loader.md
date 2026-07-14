@@ -1,32 +1,38 @@
 # トップページ パーティクルローダー
 
-Issue: #412 / #414
+Issue: #412 / #414 / #416 / #418
 
 ## 概要
 
-トップページ（`/`）表示時に毎回、散らばった粒子が 5 フェーズ・**合計約 10 秒**（Issue #414 で 2.7 秒から延長）でブランドロゴ（SHAPE∞D）を**板厚付きの立体**として形成し、静止（マウス反発 + 視差）を経てフェードアウトするローディング演出。参照実装は [Interactive particles text create with three.js（CodePen / sanprieto）](https://codepen.io/sanprieto/pen/XWNjBdb)。
+トップページ（`/`）表示時に毎回、散らばった粒子が 6 フェーズ・**合計約 10 秒**でブランドロゴ（SHAPE∞D）を**板厚付きの立体**として形成し、**実ロゴ画像へバトンタッチ**してからフェードアウトするローディング演出。参照実装は [Interactive particles text create with three.js（CodePen / sanprieto）](https://codepen.io/sanprieto/pen/XWNjBdb)。
 
-**#312「トップはローダーなし」の決定を本 Issue で変更**（2026-07-13 確定）。下層ページの `PageLoader` / `SubPageEffects` は従来どおりで、本演出はトップ専用コンポーネントとして分離する。
+**#312「トップはローダーなし」の決定を #412 で変更**（2026-07-13 確定）。下層ページの `PageLoader` / `SubPageEffects` は従来どおりで、本演出はトップ専用コンポーネントとして分離する。
 
-## 決定事項（2026-07-13）
+## 決定事項
 
 | 項目 | 決定 |
 |------|------|
 | 描画技術 | three.js + カスタム GLSL シェーダ（`THREE.Points` + `BufferGeometry` 属性） |
 | 表示対象 | トップページで毎回（下層は現行テキストローダー維持） |
-| マウス反発 | ロゴ完成後のみ有効（hold 中） |
+| マウス反発 | ロゴ完成後のみ有効 |
 | 粒子色 | ロゴのシルバーを再現（元画像のピクセル RGB をそのまま粒子色に写す）+ 深度シェーディング |
-| 立体感（#414） | ロゴに z 方向の板厚（±22px）を持たせ、PerspectiveCamera + 深度陰影 + hold 中のマウス視差で立体を見せる |
-| 尺（#414） | 5 フェーズ合成の抑揚付きで合計 10 秒（下表） |
+| 立体感（#414） | ロゴに z 方向の板厚（±22px）を持たせ、PerspectiveCamera + 深度陰影 + マウス視差で立体を見せる |
+| 尺（#414） | フェーズ合成の抑揚付きで合計 10 秒（下表） |
+| **SSR（#416 / #418）** | **オーバーレイは SSR する**（`ssr: false` を廃止し three.js のみ `import('three')` で遅延ロード）。初期 HTML に載るため低速回線でも「ヒーローが見えてから覆われる」逆順フラッシュが起きない |
+| **背景（#418）** | **`--ink`（#07090d）で完全不透明**。ヒーローは透けない |
+| **実ロゴ（#418）** | 粒子が形を作ったあと **handoff フェーズで実ロゴ画像（`logo-reveal.png`）を立ち上げる**。粒子と同一クロップ・同一サイズ計算のため位置ズレなし |
 
 ## 実装
 
-- **コンポーネント**: `components/top/TopParticleLoader.tsx`（three.js 描画本体）
-- **遅延ロード**: `components/top/DeferredTopParticleLoader.tsx` — `next/dynamic` + `ssr: false`。three.js を含むチャンクはトップページ表示時のみロードされる（#402 バンドル配慮）
-- **組み込み**: `app/page.tsx`（`TopShell` 直下）
+- **コンポーネント**: `components/top/TopParticleLoader.tsx`（SSR されるクライアントコンポーネント。オーバーレイ + 実ロゴ `<img>` + 粒子 Canvas）
+- **遅延ロード**: three.js は `import('three')` を `useEffect` 内で呼ぶことでトップページ表示時のみロードされる（#402 バンドル配慮）。**`ssr: false` は使わない** — オーバーレイ自体は初期 HTML に載せる必要があるため（#416 / #418）
+- **組み込み**: `app/page.tsx`（`TopShell` 直下。JS 無効時用の `<noscript><style>` も同所）
 - **サンプリングロジック**: `lib/loader/particle-logo.ts` — タイムライン定数と `sampleLogoParticles()`（純粋関数・vitest 対象）
 - **粒子の目標座標**: サンプリング用ロゴ画像の輝度 60 以上かつ alpha ≥ 128 のピクセルを step 2px で走査し、最大 6,000 粒子に等間隔で間引く。座標は画像中心原点・y 上向きに変換し、表示幅 `min(vw × 0.78, 520px, vh × 0.7 × アスペクト比)` にスケール（高さ側のクランプはスマホ横持ちでの上下クリップ防止 — PR #413 レビュー対応）
-- **ロゴアセット**: `public/loader/logo-particle-source.png`（360×286・約 29KB）。`public/image_2.png` から `node scripts/generate-loader-logo.mjs` で生成（中央領域の輝度バウンディングボックスを切り出し。右下の装飾✦は走査範囲外として除外）
+- **ロゴアセット**（いずれも `public/image_2.png` から `node scripts/generate-loader-logo.mjs` で生成。中央領域の輝度バウンディングボックスを切り出し、右下の装飾✦は走査範囲外として除外）
+  - `public/loader/logo-particle-source.png`（360×286・約 29KB）— 粒子サンプリング元（不透過・ダーク地）
+  - `public/loader/logo-reveal.png`（360×286・約 18KB）— **handoff で立ち上げる表示用ロゴ**（#418）。同一クロップ・同一寸法なので粒子と位置が一致する。元画像のダークなテクスチャ背景をそのまま重ねると矩形の枠に見えるため、輝度からアルファを起こして透過させている
+- **実ロゴの配置**: `<img>` の CSS 幅は `LOGO_DISPLAY_WIDTH_CSS`（`min(78vw, 520px, 88.11vh)`）。**粒子側のスケール計算と同じ式** — 一致していないと handoff で位置がズレる（`tests/loader` が式の 3 条件を検証）
 - **シェーダ**: 収束進捗は converge（easeInOutSine・粒子ごと 0〜1200ms のスタッガー）が 55% まで、snap（easeOutQuart）が残り 45% を受け持つ 2 段合成。drift 中は出発位置の周囲を漂い（振幅 26px、収束に応じ減衰）、完成後は微小ゆらぎになる。目標座標は z=±22px の板厚を持ち、手前ほど明るい深度シェーディング（0.72〜1.0）。マウス反発は `uInteract`（snap 完了後 300ms で 0→1）× `1 - smoothstep(0, 110, dist)` で最大 46px の変位（GLSL の smoothstep は edge0 < edge1 のみ定義 — PR #413 レビュー対応）。フラグメントは `gl_PointCoord` による円形ソフトドット + 加算ブレンド
 - **カメラ / 視差**: PerspectiveCamera（fov 35°）を z=0 平面で 1 world unit = 1 CSS px となる距離に配置。hold 中はマウス NDC に応じて点群を最大 y ±0.12rad / x ±0.06rad 傾け、板厚を視差で見せる。マウス反発が有効なのはロゴ完成後〜消灯（fade 終了）まで
 - **リサイズ / 画面回転**: レンダラサイズ・カメラ距離（1 unit = 1 CSS px を維持）・uMouse 座標基準を追従更新する。粒子の目標座標（ロゴサイズ）はマウント時確定のまま — 演出中の全レイアウト再構築より歪みゼロを優先（PR #415 レビュー対応）
@@ -36,11 +42,12 @@ Issue: #412 / #414
 
 | フェーズ | 長さ | 内容 |
 |---------|------|------|
-| drift | 2500ms | 粒子が散開位置で浮遊（まだ収束しない） |
+| drift | 2500ms | 粒子が散開位置で浮遊（まだ収束しない）。実ロゴはゴースト表示（opacity 0.08） |
 | converge | 4000ms | 波状スタッガーで緩やかに収束（進捗 55% まで） |
 | snap | 1500ms | 一気に加速してロゴへ吸着（残り 45%） |
-| hold | 1200ms | ロゴ静止・微小ゆらぎ・マウス反発 + 視差 |
-| fade | 800ms | オーバーレイ全体をフェードアウトし unmount |
+| **handoff（#418）** | **1000ms** | **粒子（`uHandoff` で alpha 減衰）が薄れ、実ロゴ `<img>` が opacity 0.08 → 1 へ立ち上がる** |
+| hold | 300ms | 実ロゴを見せる |
+| fade | 700ms | オーバーレイ全体をフェードアウトし unmount |
 
 - 合計 10000ms + フォールバックタイマー 1000ms = 11000ms < **`LOADER_E2E_TIMEOUT_MS`（12000ms・SSOT）**（e2e が `data-testid="page-loader"` の消滅を待つ上限。`e2e/helpers.ts` の `expectPageLoaderGone()` が参照。出現待ちも `LOADER_E2E_ATTACH_TIMEOUT_MS`（3000ms）で SSOT 化）
 - タイムライン変更時はこの予算を超えないこと（`tests/loader/particle-logo.test.ts` が検証）
@@ -51,35 +58,59 @@ Issue: #412 / #414
 - 等倍（実時間 10 秒）の検証は `e2e/top-loader.spec.ts` のみが `'@playwright/test'` を直接 import して行う
 - このフラグは e2e 専用で、実ユーザーでは常に等倍（`getLoaderTimeScale()` が不正値を弾く）
 
-## Lighthouse Performance 予算との両立（Issue #414 実測）
+## Lighthouse Performance 予算との両立（⚠️ 触る前に必ず読むこと）
 
-CI は Performance ≥ 0.9 を強制する（#326）。10 秒演出との両立のため以下の構成に確定:
+CI は Performance ≥ 0.9 を強制する（#326）。**不透明な 10 秒スプラッシュはこの基準と真っ向から衝突する**ため、以下の構成でのみ成立している。**構造を変える際は必ず `lighthouse:check` で回帰確認すること。**
 
-- **オーバーレイ背景は半透明スクリム `rgba(7, 9, 13, 0.6)` 固定**。不透明にするとページ本体のペイントが演出終了まで計上されず FCP 9.4s / LCP 12.5s / Performance 55 まで低下する（実測）
-- 「snap 以降だけ背景を濃くする」二段構成も試したが、Lighthouse のシミュレーション（lantern）が FCP/SI を演出終了側へ倒し 54 点に低下したため**禁止**
-- 粒子のフェードインは **250ms** に保つ。長くすると初回描画が「ほぼ透明」になり FCP 計上が約 +0.9s 遅れる（900ms で実測）
-- ローカル計測の目安: `node scripts/lighthouse-check.mjs http://127.0.0.1:<port>/` — 本構成で 84（親 #413 と同点。CI 環境はローカルより約 6 点高く出る）
-- 副作用: スクリムのためロゴ形成時に背後のヒーロー文字が薄く透ける（演出とヒーローの重なりは既知のトレードオフ — 質問リスト参照）
+### なぜ不透明だと落ちるのか（#414 実測）
+
+不透明オーバーレイはページ本体のペイントを覆い隠すため、Lighthouse の FCP/LCP が「演出が終わってヒーローが見えた時刻」になる（FCP 9.4s / LCP 12.5s / **Performance 55**）。
+
+**WebGL キャンバスは FCP/LCP の候補要素にならない**ため、粒子をいくら描いてもこの問題は解決しない。これが 55 点の根本原因。
+
+### 解決策（#418）
+
+**実ロゴ `<img>` をオーバーレイ内に最初から描画する**（`LOGO_GHOST_OPACITY = 0.08` のゴースト表示）。`<img>` は FCP/LCP の候補要素なので、早期に contentful paint が成立し **FCP 2.0s / Performance 84**（＝半透明スクリム時と同点・CI では 90+ で合格）まで回復する。演出面でも「粒子が集まる先を暗示する薄いロゴ」として機能し、handoff で opacity 1 へ引き上げられる。
+
+### 禁止事項（試して失敗した構成）
+
+- **ゴーストの opacity を 0 にする** → Chromium が paint 対象外にするため FCP/LCP が演出終了まで遅れ、55 点に逆戻りする
+- **「snap 以降だけ背景を濃くする」二段構成** → Lighthouse のシミュレーション（lantern）が FCP/SI を演出終了側へ倒し 54 点に低下
+- **粒子のフェードインを長くする** → 初回描画が「ほぼ透明」になり FCP 計上が約 +0.9s 遅れる（900ms で実測）。**250ms に保つこと**
+
+### 計測方法
+
+`node scripts/lighthouse-check.mjs http://127.0.0.1:<port>/` — 現構成でローカル 84 点（CI 環境はローカルより高く出る）。高負荷時は 54 点等の外れ値が出るため、疑わしいときは複数回計測すること。
 
 ## アクセシビリティ / フォールバック
 
-- `prefers-reduced-motion` 有効時はローダー自体を描画しない（下層 PageLoader と同方針）
-- WebGL 非対応・画像ロード失敗・粒子 0 件時は即座に非表示
+- `prefers-reduced-motion`: **CSS（`globals.css` の `[data-top-loader]`）で非表示にする**。オーバーレイは SSR されるため、JS のハイドレーションを待つと一瞬フル画面の暗幕が見えてしまう。JS 側でも unmount する（rAF を回さないため）
+- **JS 無効環境**: `app/page.tsx` の `<noscript><style>` がオーバーレイを消す。SSR された不透明オーバーレイが永久にページを覆うのを防ぐ保険
+- WebGL 非対応: JS が unmount する（粒子は出ないがオーバーレイ自体も残さない）
+- three.js のロード失敗・画像 decode 失敗: 粒子演出は始まらないが、**実ロゴは表示されたままフェードで消える**（オーバーレイ + 実ロゴは SSR 済みのため）。フォールバックタイマーでも必ず消える
 - オーバーレイは `pointer-events-none` + `aria-hidden`。表示中も背後の操作をブロックしない
 
 ## 受け入れ基準（Given-When-Then）
 
 - **Given** 通常のブラウザ（reduced-motion なし・WebGL あり）でトップページを開く
 - **When** ページがロードされる
-- **Then** 粒子が drift → converge → snap の抑揚で集まり板厚付きのロゴを形成し、約 10 秒でローダーが消える。演出中も背後の操作はブロックされない
+- **Then** 粒子が drift → converge → snap の抑揚で集まり板厚付きのロゴを形成し、**続けて実ロゴが立ち上がって（handoff）**約 10 秒でローダーが消える。演出中も背後の操作はブロックされない
 
-- **Given** ロゴ完成後（hold 中）にマウスを動かす
+- **Given** ローダー表示中に背面を見る（#418）
+- **When** 演出のどのフェーズであっても
+- **Then** トップページ背景色（`--ink`）で完全に塞がれており、ヒーローのテキスト等は透けて見えない
+
+- **Given** 低速回線でトップページを開く（#416）
+- **When** ページがロードされる
+- **Then** 初期 HTML の時点でオーバーレイが存在するため、「ヒーローが見えてから覆われる」逆順フラッシュは起きない
+
+- **Given** ロゴ完成後にマウスを動かす
 - **When** カーソルがロゴ付近を通る
 - **Then** 近傍の粒子が押しのけられ、点群がマウス方向へわずかに傾いて板厚が見える
 
 - **Given** `prefers-reduced-motion: reduce` の環境でトップページを開く
 - **When** ページがロードされる
-- **Then** ローダーは描画されない
+- **Then** ローダーは（SSR されるが CSS で即座に）見えず、ハイドレーション後は DOM からも消える
 
 - **Given** トップページでローダー表示中
 - **When** `LOADER_E2E_TIMEOUT_MS`（12000ms）経過する
