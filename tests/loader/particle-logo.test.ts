@@ -3,10 +3,17 @@ import {
   CONVERGE_PROGRESS_SHARE,
   getLoaderTimeScale,
   LOADER_E2E_TIMEOUT_MS,
+  LOADER_FADE_START_MS,
   LOADER_FALLBACK_MS,
   LOADER_FAST_TIME_SCALE,
+  LOADER_HANDOFF_END_MS,
+  LOADER_SNAP_END_MS,
   LOADER_TIMELINE_MS,
   LOADER_TOTAL_MS,
+  LOGO_DISPLAY_WIDTH_CSS,
+  LOGO_DISPLAY_WIDTH_MAX_PX,
+  LOGO_DISPLAY_WIDTH_RATIO,
+  LOGO_GHOST_OPACITY,
   PARTICLE_STAGGER_MS,
   sampleLogoParticles,
   type ImageDataLike,
@@ -94,15 +101,36 @@ describe('sampleLogoParticles', () => {
 });
 
 describe('LOADER_TIMELINE', () => {
-  it('5 フェーズの合計が約 10 秒（Issue #414 の尺）になる', () => {
+  it('6 フェーズの合計が約 10 秒（#414 の尺 / #418 で handoff 追加）になる', () => {
     expect(LOADER_TOTAL_MS).toBe(
       LOADER_TIMELINE_MS.drift +
         LOADER_TIMELINE_MS.converge +
         LOADER_TIMELINE_MS.snap +
+        LOADER_TIMELINE_MS.handoff +
         LOADER_TIMELINE_MS.hold +
         LOADER_TIMELINE_MS.fade,
     );
     expect(LOADER_TOTAL_MS).toBe(10_000);
+  });
+
+  it('フェーズの節目（snap 終了 → handoff 終了 → fade 開始）が順に並ぶ', () => {
+    // 粒子（uHandoff）と実ロゴ <img>（framer）は同じ節目を共有する必要がある
+    expect(LOADER_SNAP_END_MS).toBeLessThan(LOADER_HANDOFF_END_MS);
+    expect(LOADER_HANDOFF_END_MS).toBeLessThanOrEqual(LOADER_FADE_START_MS);
+    expect(LOADER_FADE_START_MS + LOADER_TIMELINE_MS.fade).toBe(LOADER_TOTAL_MS);
+  });
+
+  it('実ロゴのゴースト不透明度は 0 より大きい（早期 contentful paint の担保・#418）', () => {
+    // 0 にすると Chromium が paint 対象外にし、FCP/LCP が演出終了まで遅れる
+    expect(LOGO_GHOST_OPACITY).toBeGreaterThan(0);
+    expect(LOGO_GHOST_OPACITY).toBeLessThan(1);
+  });
+
+  it('実ロゴ <img> の CSS 幅が粒子スケールと同じ 3 条件のクランプになっている', () => {
+    // ズレると handoff で粒子と実ロゴの位置が食い違う
+    expect(LOGO_DISPLAY_WIDTH_CSS).toContain(`${LOGO_DISPLAY_WIDTH_RATIO * 100}vw`);
+    expect(LOGO_DISPLAY_WIDTH_CSS).toContain(`${LOGO_DISPLAY_WIDTH_MAX_PX}px`);
+    expect(LOGO_DISPLAY_WIDTH_CSS).toContain('vh');
   });
 
   it('フォールバックが e2e の待機上限（SSOT）に収まる', () => {
