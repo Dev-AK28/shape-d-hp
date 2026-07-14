@@ -164,17 +164,28 @@ export default function TopParticleLoader() {
   const [timeScale] = useState(() => getLoaderTimeScale());
   // タイムラインの起点はマウント（＝ハイドレーション完了）だが、オーバーレイ自体は
   // SSR で早く描かれている。低速回線でハイドレーションが遅れた分だけ暗転が伸びないよう、
-  // ナビゲーション起点の経過を差し引いて残り時間を切る（PR #419 レビュー対応）
+  // ナビゲーション起点の経過を差し引いて残り時間を切る（PR #419 レビュー対応）。
+  // SSR では 0（performance.now() はプロセス起動起点の巨大な値になるため使わない）
   const [elapsedAtMount] = useState(() =>
-    typeof performance === 'undefined' ? 0 : performance.now(),
+    typeof window === 'undefined' ? 0 : performance.now(),
   );
+  // ただし e2e 高速モード（timeScale < 1）は全予算が 1.65 秒しかなく、
+  // ハイドレーションがそれを超えると全フェーズが 0 に潰れて演出が一度も走らなくなる
+  // （テストは緑のままカバレッジだけ失われる）。高速モードではマウント起点に戻す
+  const originMs = timeScale === 1 ? 0 : elapsedAtMount;
   const remaining = (budgetMs: number) =>
-    Math.max(0, budgetMs * timeScale - elapsedAtMount);
+    Math.max(0, budgetMs * timeScale - (elapsedAtMount - originMs));
 
   useEffect(() => {
     if (reduceMotion || !detectWebGLSupport()) {
       // reduced-motion は CSS でも隠しているが、DOM からも外して rAF を回さない
       setVisible(false);
+      return;
+    }
+    // 演出が終わって消えたあとの再実行では何もしない（visible は true → false の
+    // 一方向にしか遷移しないので二重初期化にはならない）。deps に visible を含めるのは
+    // 「消滅時にクリーンアップを走らせて WebGL / リスナーを解放する」ため（PR #419 レビュー対応）
+    if (!visible) {
       return;
     }
 
@@ -342,12 +353,12 @@ export default function TopParticleLoader() {
       disposers.push(() => window.removeEventListener('resize', handleResize));
 
       const draw = () => {
-        // 全てのクロックをナビゲーション起点に揃える（performance.now() がそれ）。
-        // オーバーレイの fade / フォールバックも同じ起点で残り時間を切っているため、
-        // three.js のロードが遅れた場合は演出を「途中から」始めて予算内に収める
-        // （マウント起点にすると低速回線ほど暗転が伸びる — PR #419 レビュー対応）。
-        // timeScale で割ることで、高速化時もシェーダは基準 ms で動く
-        const elapsed = performance.now() / timeScale;
+        // クロックの起点は framer 側（remaining）と同じ originMs に揃える。
+        // 等倍ではナビゲーション起点なので、three.js のロードが遅れた場合は演出を
+        // 「途中から」始めて 10 秒の予算内に収める（マウント起点にすると低速回線ほど
+        // 暗転が伸びる — PR #419 レビュー対応）。timeScale で割ることで高速化時も
+        // シェーダは基準 ms で動く
+        const elapsed = (performance.now() - originMs) / timeScale;
         shaderUniforms.uTime.value = elapsed;
         const interact = THREE.MathUtils.smoothstep(
           elapsed,
@@ -404,9 +415,21 @@ export default function TopParticleLoader() {
       window.cancelAnimationFrame(rafId);
       dispose?.();
     };
-    // timeScale / elapsedAtMount / remaining はマウント時に固定される（再実行しない）
+    // timeScale / elapsedAtMount / originMs / remaining はマウント時に固定される。
+    // visible は「false になったらクリーンアップで解放する」ために依存させている
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reduceMotion]);
+  }, [reduceMotion, visible]);
+
+  // a11y: 演出中はヒーローが不可視のためフォーカスリングが見えない（WCAG 2.4.7）。
+  // キーボード操作を検知したら演出を即スキップして本体を見せる（PR #419 レビュー対応）
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+    const skip = () => setVisible(false);
+    window.addEventListener('keydown', skip, { once: true });
+    return () => window.removeEventListener('keydown', skip);
+  }, [visible]);
 
   if (!visible) {
     return null;
