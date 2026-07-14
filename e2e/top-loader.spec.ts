@@ -20,8 +20,10 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
   }) => {
     // 消滅経路（framer / フォールバックタイマー / スキップ）はすべて JS 前提。<noscript> は
     // 「JS 無効」しか救えないため、JS 有効なのにチャンクが 404（デプロイ直後の古い HTML 等）
-    // だと、SSR された不透明オーバーレイが恒久的にページを覆ってしまう
-    await page.route('**/_next/static/chunks/**', (route) => route.abort());
+    // だと、SSR された不透明オーバーレイが恒久的にページを覆ってしまう。
+    // ⚠️ Next.js は CSS も /_next/static/chunks/ 配下に置くため、JS だけを落とすこと
+    // （まとめて落とすとフェイルセーフの CSS 自体が届かず、テストの意味がなくなる）
+    await page.route('**/_next/static/chunks/**.js', (route) => route.abort());
     await page.goto('/', { waitUntil: 'commit' });
 
     const loader = page.getByTestId('page-loader');
