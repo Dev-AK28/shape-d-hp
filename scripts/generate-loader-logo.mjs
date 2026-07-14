@@ -69,15 +69,21 @@ const cropHeight = Math.min(height, maxY + PADDING_PX) - top;
 
 await mkdir(path.dirname(OUTPUT), { recursive: true });
 
+// サンプリング元と表示用ロゴは同一クロップ・同一寸法（粒子と実ロゴの位置を一致させる
+// ための SSOT — #418 以来の要件）。crop + resize は一度だけ行い、以降は encode 設定
+// だけを変えて 2 通りに出力する（重複処理の排除・PR #427 レビュー対応）。
+const cropped = sharp(SOURCE).extract({ left, top, width: cropWidth, height: cropHeight }).resize({
+  width: OUTPUT_WIDTH,
+});
+const croppedBuffer = await cropped.clone().png().toBuffer();
+
 // サンプリング元。alpha は加工せずそのまま保持する — sampleLogoParticles()
 // (lib/loader/particle-logo.ts) が実行時に alpha >= 128 を安全フィルタとして
 // 適用するため、透明な背景ピクセルはここで潰さなくても自動的に除外される。
 // SAMPLE_LUMINANCE_THRESHOLD と組み合わせることで、ロゴのうち明るい銀色の
 // ハイライト部分だけが粒子候補になる（暗い縁取り部分をそのまま粒子色にすると
 // --ink 背景上でほぼ見えなくなるため除外する）。
-await sharp(SOURCE)
-  .extract({ left, top, width: cropWidth, height: cropHeight })
-  .resize({ width: OUTPUT_WIDTH })
+await sharp(croppedBuffer)
   .png({ compressionLevel: 9, palette: true, quality: 80 })
   .toFile(OUTPUT);
 
@@ -90,9 +96,7 @@ console.log(
 // 新画像は既に正しい透過マスクを持っているため、旧スクリプトのような
 // 「輝度からアルファを起こす」変換（un-premultiply 含む）は不要。
 // crop + resize のみでネイティブの alpha をそのまま活かす。
-await sharp(SOURCE)
-  .extract({ left, top, width: cropWidth, height: cropHeight })
-  .resize({ width: OUTPUT_WIDTH })
+await sharp(croppedBuffer)
   .png({ compressionLevel: 9, palette: true, quality: 90, dither: 1.0 })
   .toFile(REVEAL_OUTPUT);
 
