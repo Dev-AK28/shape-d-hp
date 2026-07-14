@@ -29,7 +29,9 @@ Issue: #412 / #414 / #416 / #418
 - **組み込み**: `app/page.tsx`（`TopShell` 直下。JS 無効時用の `<noscript><style>` も同所）
 - **サンプリングロジック**: `lib/loader/particle-logo.ts` — タイムライン定数と `sampleLogoParticles()`（純粋関数・vitest 対象）
 - **粒子の目標座標**: サンプリング用ロゴ画像の輝度 60 以上かつ alpha ≥ 128 のピクセルを **step 1px** で走査し、**最大 12,000 粒子**に等間隔で間引く（#420 で密度を上げた。step 2px では候補が 3,106 個しか拾えず上限に届いていなかった — 実測）。座標は画像中心原点・y 上向きに変換し、表示幅 `min(vw × 0.78, 520px, vh × 0.7 × アスペクト比)` にスケール（高さ側のクランプはスマホ横持ちでの上下クリップ防止 — PR #413 レビュー対応）
-  - ⚠️ **間引きは分数間隔で行う**（PR #419 レビュー対応）。整数 stride（`Math.ceil(候補数 / 上限)`）だと候補が上限を 1 個でも超えた瞬間に stride が 2 へ切り上がり、**粒子数が上限の半分まで落ちる崖**ができる。現行ロゴは候補 12,555 個で、この崖により実際には 6,278 個しか出ていなかった（＝ #420 の密度向上が効いていなかった）。`tests/loader/particle-logo.test.ts` が「候補が上限をわずかに超えても上限ちょうど使う」ことを検証する
+  - ⚠️ **間引きは分数間隔で行う**（PR #419 レビュー対応）。整数 stride（`Math.ceil(候補数 / 上限)`）だと候補が上限を 1 個でも超えた瞬間に stride が 2 へ切り上がり、**粒子数が上限の半分まで落ちる崖**ができる。現行ロゴは候補 12,555 個で、この崖により実際には 6,278 個しか出ていなかった（＝ #420 の密度向上が効いていなかった）
+  - 各区間の**中央**を採る（半ステップずらし・2 巡目レビュー対応）。単純な `Math.floor` だと区間の先頭に寄るため、候補数が上限のちょうど整数倍になるアセットに差し替わったとき位相が固定され、候補が row-major 順である都合上あからさまな**縦縞（moiré）**になる（最後の候補も拾えなくなる）
+  - `tests/loader/particle-logo.test.ts` が「候補が上限をわずかに超えても上限ちょうど使う」ことと、**実アセットを sharp でデコードして上限を満たす**ことを検証する（合成フィクスチャだけだと、ロゴ再生成で明ピクセルが減っても密度が静かに落ちるだけでテストは緑のままになる）
 - **ロゴアセット**（いずれも `public/image_2.png` から `node scripts/generate-loader-logo.mjs` で生成。中央領域の輝度バウンディングボックスを切り出し、右下の装飾✦は走査範囲外として除外）
   - `public/loader/logo-particle-source.png`（360×286・約 29KB）— 粒子サンプリング元（不透過・ダーク地）
   - `public/loader/logo-reveal.png`（360×286・約 21KB）— **handoff で立ち上げる表示用ロゴ**（#418）。同一クロップ・同一寸法なので粒子と位置が一致する（`tests/loader` が PNG ヘッダを読んで `LOGO_SOURCE_*_PX` との一致を検証）。元画像のダークなテクスチャ背景をそのまま重ねると矩形の枠に見えるため、輝度からアルファを起こして透過させ、その分 RGB を持ち上げている（un-premultiply）
@@ -80,7 +82,7 @@ Issue: #412 / #414 / #416 / #418
 ### CI の Performance ゲート（`.github/workflows/ci.yml`）
 
 - **`/services`（下層）で Performance ≥ 0.9 を強制**する。ローダーが軽量なため、バンドル肥大やレンダリング回帰はここで検知できる
-- **トップ（`/`）は演出込みの実測値を記録するだけ**（閾値 0.4 で極端な劣化のみ検知）
+- **トップ（`/`）は演出込みの実測値を記録するだけ**で、**ゲートではない**。`continue-on-error: true` を必ず付けること（PR #419 2 巡目レビュー対応）— `scripts/lighthouse-check.mjs` は閾値未満で `exit 1` するため、これが無いと宣言に反してハードゲートになる。トップの実測は 55 前後なので、混雑した runner で閾値（0.4）を割ると「ゲート対象外」と決めたページのスコアで無関係な PR がブロックされてしまう
 
 ### 禁止事項（試して失敗した構成）
 
@@ -96,8 +98,10 @@ Issue: #412 / #414 / #416 / #418
 - `prefers-reduced-motion`: **CSS（`globals.css` の `[data-top-loader]`）で非表示にする**。オーバーレイは SSR されるため、JS のハイドレーションを待つと一瞬フル画面の暗幕が見えてしまう。JS 側でも unmount する（rAF を回さないため）
 - **JS 無効環境**: `app/page.tsx` の `<noscript><style>` がオーバーレイを消す。SSR された不透明オーバーレイが永久にページを覆うのを防ぐ保険
 - **JS 有効なのに JS が「死ぬ」環境**（⚠️ SSR 化で新たに生まれた故障モード・PR #419 レビュー対応）: オーバーレイの消滅経路（framer の `onAnimationComplete` / `LOADER_FALLBACK_MS` のタイマー / ユーザー操作でのスキップ）は**すべて JS の実行が前提**で、`<noscript>` は「JS 無効」しか救えない。**チャンクの 404（デプロイ直後の古い HTML が新しいチャンクを指す）・回線断・ハイドレーションのクラッシュ**では、不透明オーバーレイが恒久的にページを覆ってしまう（#420 で `LOGO_GHOST_OPACITY = 0` にしたため、ロゴすら見えない真っ黒な画面になる）。
-  - 対策として **JS に一切依存しない CSS アニメーション**（`globals.css` の `top-loader-failsafe`）で `visibility: hidden` にする。発火時刻の SSOT は **`LOADER_CSS_FAILSAFE_MS`**（= `LOADER_FALLBACK_MS` + 500ms = 11,500ms）で、`animation-delay` を `TopParticleLoader` がインライン style として **SSR する**（だからこそ JS の実行を必要としない）
-  - この時刻は**フォールバックタイマーより後・`LOADER_E2E_TIMEOUT_MS` より前**でなければならない（前に置くと正常系の演出を途中で殺し、後ろに置くと e2e が落ちる）。`tests/loader/particle-logo.test.ts` が検証し、`e2e/top-loader.spec.ts` がチャンクを 404 にして実際に消えることを検証する
+  - 対策として **JS に一切依存しない CSS アニメーション**（`globals.css` の `top-loader-failsafe`）で `visibility: hidden` にする。発火時刻の SSOT は **`LOADER_CSS_FAILSAFE_MS`**（= `LOADER_FALLBACK_MS` + 500ms = 11,500ms）で、`TopParticleLoader` が CSS 変数 `--top-loader-failsafe-delay` としてインライン style で **SSR する**（だからこそ JS の実行を必要としない）
+  - ⚠️ **保険の既定値は必ず「発火しない」側に倒すこと**（PR #419 2 巡目レビュー対応）。`animation-delay` を CSS に直接書かず変数にしているのは、**インライン style が失われた場合に `globals.css` 側のフォールバック（10 年 = 実質無限）が効くようにするため**。変数を使わず既定が `0s` のままだと、style を落とした瞬間に `delay 0s` + `duration 0s` + `fill: forwards` で**オーバーレイが初回フレームから `hidden` になり、10 秒の演出が本番で丸ごと消える**（＝ 保険が本体を殺す）。`e2e/top-loader.spec.ts` が「発火前は `toBeVisible()`」でこの回帰を検知する
+  - この時刻は**フォールバックタイマーより後・`LOADER_E2E_TIMEOUT_MS` より前**でなければならない（前に置くと正常系の演出を途中で殺し、後ろに置くと e2e が落ちる）。`tests/loader/particle-logo.test.ts` が検証し、`e2e/top-loader.spec.ts` がチャンクを 404 にして実際に消えることを検証する（`toBeHidden` は要素の消滅でも通るため、**attached のまま hidden** であることまで確かめる）
+- **bfcache 復帰**（PR #419 2 巡目レビュー対応）: シェーダの時計は `performance.now()`（実時間）で進むのに、消滅経路 3 つ（framer の WAAPI / `setTimeout` / CSS の最終防衛線）は**すべて bfcache 凍結中に停止する**。そのため「演出中に戻る → しばらくして進む」と、復帰直後の rAF で `uHandoff = 1` となり粒子だけ即消滅する一方、framer と `setTimeout` は残り時間を待つため、**粒子もロゴも無い不透明な黒画面**が数秒残る。`pageshow` の `persisted` を検知して即座に unmount する
 - WebGL 非対応: JS が unmount する（粒子は出ないがオーバーレイ自体も残さない）。オーバーレイは SSR されるため、**ハイドレーションまでの一瞬だけ暗幕が見える**（ロゴは `LOGO_GHOST_OPACITY = 0` なので見えない）
 - **タイムラインの起点（3 分岐・PR #419 レビュー対応）**: `originMs` が決める。framer の delay / duration もシェーダのクロックも同じ起点を共有する
   - **初回ロード（SSR された HTML がトップ）** → ナビゲーション起点。オーバーレイは SSR で早く描かれるのに、フェードをマウント起点にすると低速回線ほど暗転が伸びる（ハイドレーション 5 秒 + 演出 10 秒 = 15 秒）。ハイドレーションまでの経過を差し引き、three.js のロードが遅れた場合は演出を「途中から」始めて 10 秒の予算内に収める

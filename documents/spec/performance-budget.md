@@ -47,6 +47,8 @@ Issue: #214 / Part of #210
 
 ## Web Vitals 目標値
 
+**⚠️ 目標値の対象は下層ページ（`/services` 等）です。トップ（`/`）は対象外**（#420）— 10 秒のパーティクルローダーが不透明オーバーレイでページを覆うため、**FCP/LCP は演出の尺そのもの（約 10 秒）になります**。これはユーザーが実際に体験する時間と一致する正しい計測値であり、意図的なトレードオフです（根拠と禁止事項: [top-particle-loader.md](./top-particle-loader.md)）。
+
 | 指標 | モバイル目標 | デスクトップ目標 | 備考 |
 |------|------------|----------------|------|
 | **LCP** | ≤ 3.5 s | ≤ 2.5 s | Hero h1 は Server Component で LCP ブロックなし |
@@ -54,7 +56,8 @@ Issue: #214 / Part of #210
 | **INP** | ≤ 200 ms | ≤ 200 ms | GSAP ピン・スクラブは pointer イベントを消費しない |
 | **FCP** | ≤ 2.5 s | ≤ 1.8 s | PageLoader は LCP 非ブロック設計 |
 
-> Lighthouse モバイル計測: `npm run build && npx lighthouse http://localhost:3000 --preset=perf`
+> Lighthouse モバイル計測（**計測先は下層ページ**）: `npm run build && npm run lighthouse:check`
+> （`scripts/lighthouse-check.mjs` の既定 URL が `/services`。トップを測ると演出の尺のせいで必ず閾値を割ります）
 
 ---
 
