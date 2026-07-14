@@ -10,10 +10,13 @@ import {
   LOADER_SNAP_END_MS,
   LOADER_TIMELINE_MS,
   LOADER_TOTAL_MS,
+  LOGO_DISPLAY_HEIGHT_RATIO,
   LOGO_DISPLAY_WIDTH_CSS,
   LOGO_DISPLAY_WIDTH_MAX_PX,
   LOGO_DISPLAY_WIDTH_RATIO,
   LOGO_GHOST_OPACITY,
+  LOGO_SOURCE_HEIGHT_PX,
+  LOGO_SOURCE_WIDTH_PX,
   PARTICLE_STAGGER_MS,
   sampleLogoParticles,
   type ImageDataLike,
@@ -126,11 +129,38 @@ describe('LOADER_TIMELINE', () => {
     expect(LOGO_GHOST_OPACITY).toBeLessThan(1);
   });
 
-  it('実ロゴ <img> の CSS 幅が粒子スケールと同じ 3 条件のクランプになっている', () => {
-    // ズレると handoff で粒子と実ロゴの位置が食い違う
-    expect(LOGO_DISPLAY_WIDTH_CSS).toContain(`${LOGO_DISPLAY_WIDTH_RATIO * 100}vw`);
-    expect(LOGO_DISPLAY_WIDTH_CSS).toContain(`${LOGO_DISPLAY_WIDTH_MAX_PX}px`);
-    expect(LOGO_DISPLAY_WIDTH_CSS).toContain('vh');
+  it('実ロゴ <img> の CSS 幅は JS 側のクランプ式と同じ値を返す（同一ビューポート前提）', () => {
+    // 粒子スケールは実際にレイアウトされた <img> の実測値から導くのが正だが、
+    // <img> を測れない場合のフォールバック式は CSS と同値でなければならない。
+    // ※ 実機のモバイルでは vh（large viewport）と innerHeight（visual viewport）が
+    //    一致しないため、この同値性は「同じ w/h を入れたとき」に限る（PR #419 レビュー）
+    const evalCss = (vw: number, vh: number) => {
+      const terms = LOGO_DISPLAY_WIDTH_CSS.replace(/^min\(|\)$/g, '')
+        .split(',')
+        .map((raw) => {
+          const t = raw.trim();
+          const value = Number.parseFloat(t);
+          if (t.endsWith('vw')) return (value / 100) * vw;
+          if (t.endsWith('vh')) return (value / 100) * vh;
+          return value; // px
+        });
+      return Math.min(...terms);
+    };
+    const evalJs = (w: number, h: number) =>
+      Math.min(
+        w * LOGO_DISPLAY_WIDTH_RATIO,
+        LOGO_DISPLAY_WIDTH_MAX_PX,
+        (h * LOGO_DISPLAY_HEIGHT_RATIO * LOGO_SOURCE_WIDTH_PX) / LOGO_SOURCE_HEIGHT_PX,
+      );
+
+    // 幅クランプが効く縦長 / 上限 520px が効く大画面 / 高さクランプが効く横持ち
+    for (const [w, h] of [
+      [390, 844],
+      [1280, 800],
+      [844, 390],
+    ]) {
+      expect(evalCss(w, h)).toBeCloseTo(evalJs(w, h), 1);
+    }
   });
 
   it('フォールバックが e2e の待機上限（SSOT）に収まる', () => {
