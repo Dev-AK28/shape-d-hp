@@ -71,6 +71,12 @@ vi.mock('@/lib/webgl/support', () => ({
  */
 const { threeSpies } = vi.hoisted(() => ({
   threeSpies: {
+    // three.js の動的 import は fake timers の仮想時刻とは独立した「本物の」非同期処理
+    // （Promise 解決）のため、固定 ms の advanceTimersByTimeAsync だけでは
+    // start() が実行済みかどうかを保証できない（CI 環境ではフレーク要因になっていた）。
+    // コンストラクタ呼び出しをスパイし、`vi.waitFor` で実際に start() が three.js の
+    // 初期化まで到達したことを確認してから後続の検証に進む。
+    rendererConstructed: vi.fn(),
     rendererDispose: vi.fn(),
     forceContextLoss: vi.fn(),
     geometryDispose: vi.fn(),
@@ -89,6 +95,9 @@ vi.mock('three', () => {
   }
   return {
     WebGLRenderer: class {
+      constructor() {
+        threeSpies.rendererConstructed();
+      }
       setPixelRatio = vi.fn();
       setSize = vi.fn();
       render = vi.fn();
@@ -353,8 +362,14 @@ describe('TopParticleLoader', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
     const { queryByTestId } = render(<TopParticleLoader />);
-    // three.js の動的 import と decode の解決を待つ（初期化まで到達させる）
-    await vi.advanceTimersByTimeAsync(50);
+    // three.js の動的 import と image.decode() の解決は fake timers の仮想時刻とは
+    // 独立した「本物の」Promise 解決であるため、固定 ms の advanceTimersByTimeAsync
+    // だけでは start() が実際に到達したか保証できない（CI 負荷時にフレークしていた
+    // 原因）。vi.waitFor はレンダラのコンストラクタ呼び出し（= start() 到達）を
+    // 実際に観測できるまでポーリングするため、実行環境の速度に依存しない。
+    await vi.waitFor(() => {
+      expect(threeSpies.rendererConstructed).toHaveBeenCalled();
+    });
     expect(threeSpies.rendererDispose).not.toHaveBeenCalled();
 
     // 演出終了（フォールバック）→ unmount されないが、リソースは解放されること
