@@ -142,6 +142,7 @@ vi.mock('three', () => {
 });
 
 import TopParticleLoader from '@/components/top/TopParticleLoader';
+import { topColors } from '@/lib/design/tokens';
 import {
   handoffRevealOpacity,
   LOADER_CSS_FAILSAFE_MS,
@@ -198,6 +199,17 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+/** #428: jsdom は style から hex を読み出す際 rgb() へ正規化するため、topColors.ink（hex）を
+ *  同じ表記へ変換して比較する。 */
+function hexToRgb(hex: string): string {
+  const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+  if (!match) {
+    throw new Error(`hexToRgb: unsupported hex value "${hex}"`);
+  }
+  const [r, g, b] = match.slice(1).map((part) => parseInt(part, 16));
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 /**
  * 「初回ロード」（＝ SSR 済みオーバーレイが初期 HTML にある）状況を再現する。
  * コンポーネントはこの有無でタイムラインの起点を切り替える（ナビ起点 / マウント起点）ため、
@@ -226,8 +238,12 @@ describe('TopParticleLoader', () => {
   it('オーバーレイは不透明背景で実ロゴを含む（#418: ヒーローを透けさせない）', () => {
     const { getByTestId } = render(<TopParticleLoader />);
     const overlay = getByTestId('page-loader');
-    // 半透明スクリムではなくトップページ背景色そのもの
-    expect(overlay.style.background).toContain('--ink');
+    // #428: 外部スタイルシート依存の var(--ink) ではなく、SSR HTML にそのまま載る
+    // リテラル値（topColors.ink の SSOT）を直接埋め込む — 低速回線で CSS 到着前に
+    // getComputedStyle が透明を返す回帰を防ぐ。jsdom は style.background の読み出し時に
+    // hex を rgb() へ正規化するため、topColors.ink をブラウザと同じ形へ変換して比較する
+    expect(overlay.style.background).toBe(hexToRgb(topColors.ink));
+    expect(overlay.style.background).not.toContain('var(');
     // 実ロゴは最初から DOM にある（#420 で開始時の opacity は 0。handoff で立ち上がる）
     expect(getByTestId('loader-logo')).not.toBeNull();
   });

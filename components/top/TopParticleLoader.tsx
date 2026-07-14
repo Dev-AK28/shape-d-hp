@@ -3,6 +3,7 @@
 import { m, useAnimationControls, useReducedMotion } from 'framer-motion';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import type * as THREE_NS from 'three';
+import { topColors } from '@/lib/design/tokens';
 import { detectWebGLSupport } from '@/lib/webgl/support';
 import {
   CONVERGE_PROGRESS_SHARE,
@@ -546,8 +547,15 @@ export default function TopParticleLoader() {
       className="pointer-events-none fixed inset-0 z-[2000] flex items-center justify-center"
       style={
         {
-          // #418: トップページ背景色で完全に塞ぐ（ヒーローを透けさせない）
-          background: 'var(--ink)',
+          // #418: トップページ背景色で完全に塞ぐ（ヒーローを透けさせない）。
+          // #428: `var(--ink)` は外部スタイルシート（globals.css）到着後にしか解決できず、
+          // 低速回線では commit 直後の数百ms〜数秒、getComputedStyle が透明を返しうる
+          // （実ユーザーにも一瞬の透明フラッシュとして見える可能性がある）。この style は
+          // SSR された初期 HTML にそのまま載るため、リテラル値を直接埋め込み外部 CSS の
+          // 到着を待たずに不透明にする。topColors.ink は app/globals.css の `--ink` の SSOT
+          // （lib/design/tokens.ts、tests/design/css-token-sync.test.ts で同期を検証）なので、
+          // globals.css 側の値だけ変えて同期を忘れると同テストが落ちる。
+          background: topColors.ink,
           // JS が死んでもオーバーレイを必ず消す CSS 専用の最終防衛線（globals.css の
           // top-loader-failsafe）。この style は SSR されるので JS の実行を一切必要としない。
           // animation-delay を直接ではなく CSS 変数で渡すのは、この style が失われても
