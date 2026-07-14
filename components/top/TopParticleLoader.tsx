@@ -156,13 +156,20 @@ export default function TopParticleLoader() {
   const reduceMotion = useReducedMotion();
   const [visible, setVisible] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // e2e 高速化フラグ（実ユーザーは常に 1）。SSR とクライアント初回描画を一致させるため
-  // マウント後に読み直す（SSR 時は window がないので 1）
-  const [timeScale, setTimeScale] = useState(1);
-
-  useEffect(() => {
-    setTimeScale(getLoaderTimeScale());
-  }, []);
+  const logoRef = useRef<HTMLImageElement>(null);
+  // e2e 高速化フラグ（実ユーザーは常に 1）。timeScale は framer の transition にしか
+  // 使われず SSR HTML に出力されないためハイドレーション不一致は起きない。
+  // setState で後から変えると effect が再実行され three.js の初期化が 2 周するため、
+  // 初期化時に一度だけ固定する（PR #419 レビュー対応）
+  const [timeScale] = useState(() => getLoaderTimeScale());
+  // タイムラインの起点はマウント（＝ハイドレーション完了）だが、オーバーレイ自体は
+  // SSR で早く描かれている。低速回線でハイドレーションが遅れた分だけ暗転が伸びないよう、
+  // ナビゲーション起点の経過を差し引いて残り時間を切る（PR #419 レビュー対応）
+  const [elapsedAtMount] = useState(() =>
+    typeof performance === 'undefined' ? 0 : performance.now(),
+  );
+  const remaining = (budgetMs: number) =>
+    Math.max(0, budgetMs * timeScale - elapsedAtMount);
 
   useEffect(() => {
     if (reduceMotion || !detectWebGLSupport()) {
@@ -173,16 +180,16 @@ export default function TopParticleLoader() {
 
     const fallback = window.setTimeout(
       () => setVisible(false),
-      LOADER_FALLBACK_MS * timeScale,
+      remaining(LOADER_FALLBACK_MS),
     );
     const canvas = canvasRef.current;
     if (!canvas) {
       return () => window.clearTimeout(fallback);
     }
 
-    // リサイズ・画面回転時にレンダラ/カメラ側だけ追従させるため let（下の handleResize 参照）
-    let width = window.innerWidth;
-    let height = window.innerHeight;
+    // レンダラ / カメラ / 粒子スケールをリサイズ・画面回転に追従させるため let
+    let width = canvas.clientWidth || window.innerWidth;
+    let height = canvas.clientHeight || window.innerHeight;
     let cancelled = false;
     let rafId = 0;
     let dispose: (() => void) | undefined;
@@ -229,26 +236,33 @@ export default function TopParticleLoader() {
       );
       camera.position.z = cameraDistance;
 
-      // 目標座標（画像 px）を表示サイズへスケールし、z に板厚を与える。
-      // 幅だけでなく高さ側でもクランプする — 幅基準のみだとスマホ横持ち
-      // （844x390 等）でロゴが上下クリップする（PR #413 レビュー対応）。
-      // この式は LOGO_DISPLAY_WIDTH_CSS（実ロゴ <img> の CSS 幅）と一致させること —
-      // ズレると handoff で粒子と実ロゴの位置が食い違う
-      const displayWidth = Math.min(
-        width * LOGO_DISPLAY_WIDTH_RATIO,
-        LOGO_DISPLAY_WIDTH_MAX_PX,
-        (height * LOGO_DISPLAY_HEIGHT_RATIO * image.naturalWidth) / image.naturalHeight,
-      );
-      const scale = displayWidth / image.naturalWidth;
+      // 粒子の目標サイズは、実際にレイアウトされた実ロゴ <img> の実測値から導く。
+      // CSS（LOGO_DISPLAY_WIDTH_CSS）を SSOT にすることで handoff の位置ズレを原理的に防ぐ
+      // — 式を JS 側にも書くと `vh` と window.innerHeight の非等価（モバイルの URL バー）で
+      // 2 割ほど食い違う（PR #419 レビュー対応）。<img> 未測定時のみ式でフォールバックする
+      const measureDisplayWidth = () =>
+        logoRef.current?.getBoundingClientRect().width ||
+        Math.min(
+          width * LOGO_DISPLAY_WIDTH_RATIO,
+          LOGO_DISPLAY_WIDTH_MAX_PX,
+          (height * LOGO_DISPLAY_HEIGHT_RATIO * image.naturalWidth) / image.naturalHeight,
+        );
+
       const positions = new Float32Array(count * 3);
       const starts = new Float32Array(count * 3);
       const delays = new Float32Array(count);
       const sizes = new Float32Array(count);
       const rands = new Float32Array(count);
       const spread = Math.max(width, height) * 0.75;
+      // targets（画像中心原点・画像 px）→ ワールド座標。リサイズでも同じ変換を掛け直す
+      const applyScale = () => {
+        const scale = measureDisplayWidth() / image.naturalWidth;
+        for (let i = 0; i < count; i += 1) {
+          positions[i * 3] = targets[i * 3] * scale;
+          positions[i * 3 + 1] = targets[i * 3 + 1] * scale;
+        }
+      };
       for (let i = 0; i < count; i += 1) {
-        positions[i * 3] = targets[i * 3] * scale;
-        positions[i * 3 + 1] = targets[i * 3 + 1] * scale;
         positions[i * 3 + 2] = (Math.random() - 0.5) * LOGO_DEPTH_PX;
         const angle = Math.random() * Math.PI * 2;
         const dist = spread * (0.35 + Math.random() * 0.65);
@@ -259,6 +273,7 @@ export default function TopParticleLoader() {
         sizes[i] = (1.7 + Math.random() * 1.7) * dpr;
         rands[i] = Math.random();
       }
+      applyScale();
 
       const geometry = new THREE.BufferGeometry();
       disposers.push(() => geometry.dispose());
@@ -306,12 +321,12 @@ export default function TopParticleLoader() {
       window.addEventListener('pointermove', handlePointerMove);
       disposers.push(() => window.removeEventListener('pointermove', handlePointerMove));
 
-      // リサイズ・画面回転への追従（PR #415 レビュー対応）: レンダラとカメラ、
-      // uMouse の座標基準だけ更新する。粒子の目標座標（ロゴのサイズ）はマウント時
-      // 確定のまま — 10 秒の演出中に全レイアウトを組み直すより歪みゼロを優先する
+      // リサイズ・画面回転への追従: レンダラ・カメラ・uMouse の座標基準に加え、
+      // 粒子の目標座標も <img> の新しい実測値で組み直す — <img> は vw/vh で
+      // 追従するので、粒子を固定したままだと handoff でズレる（PR #419 レビュー対応）
       const handleResize = () => {
-        width = window.innerWidth;
-        height = window.innerHeight;
+        width = canvas.clientWidth || window.innerWidth;
+        height = canvas.clientHeight || window.innerHeight;
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         // カメラ距離も追従させ「z=0 で 1 world unit = 1 CSS px」を維持する
@@ -320,14 +335,19 @@ export default function TopParticleLoader() {
         camera.far = distance * 3;
         camera.updateProjectionMatrix();
         shaderUniforms.uPointScale.value = distance;
+        applyScale();
+        geometry.attributes.position.needsUpdate = true;
       };
       window.addEventListener('resize', handleResize);
       disposers.push(() => window.removeEventListener('resize', handleResize));
 
-      const startedAt = performance.now();
-      const draw = (now: number) => {
-        // タイムスケール補正: 高速化時もシェーダは基準 ms で動く
-        const elapsed = (now - startedAt) / timeScale;
+      const draw = () => {
+        // 全てのクロックをナビゲーション起点に揃える（performance.now() がそれ）。
+        // オーバーレイの fade / フォールバックも同じ起点で残り時間を切っているため、
+        // three.js のロードが遅れた場合は演出を「途中から」始めて予算内に収める
+        // （マウント起点にすると低速回線ほど暗転が伸びる — PR #419 レビュー対応）。
+        // timeScale で割ることで、高速化時もシェーダは基準 ms で動く
+        const elapsed = performance.now() / timeScale;
         shaderUniforms.uTime.value = elapsed;
         const interact = THREE.MathUtils.smoothstep(
           elapsed,
@@ -348,6 +368,12 @@ export default function TopParticleLoader() {
         points.rotation.x +=
           (mouseNdc.y * PARALLAX_MAX_RAD.x * interact - points.rotation.x) * PARALLAX_LERP;
         renderer.render(scene, camera);
+        // handoff 完了後は粒子が完全に消えている（uHandoff=1）。以降は実ロゴだけが
+        // 主役なので rAF を止める（PR #419 レビュー対応）
+        if (elapsed >= LOADER_HANDOFF_END_MS) {
+          rafId = 0;
+          return;
+        }
         rafId = window.requestAnimationFrame(draw);
       };
       rafId = window.requestAnimationFrame(draw);
@@ -378,7 +404,9 @@ export default function TopParticleLoader() {
       window.cancelAnimationFrame(rafId);
       dispose?.();
     };
-  }, [reduceMotion, timeScale]);
+    // timeScale / elapsedAtMount / remaining はマウント時に固定される（再実行しない）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduceMotion]);
 
   if (!visible) {
     return null;
@@ -396,14 +424,16 @@ export default function TopParticleLoader() {
       animate={{ opacity: 0 }}
       transition={{
         duration: (LOADER_TIMELINE_MS.fade * timeScale) / 1000,
-        delay: (LOADER_FADE_START_MS * timeScale) / 1000,
+        // ハイドレーションが遅れた分を差し引く（低速回線で暗転が伸びないように）
+        delay: remaining(LOADER_FADE_START_MS) / 1000,
       }}
       onAnimationComplete={() => setVisible(false)}
     >
-      {/* 実ロゴ。粒子のサンプリング元と同一画像・同一サイズ計算なので位置ズレなく重なる。
+      {/* 実ロゴ。粒子は <img> の実測幅からスケールを導くので位置ズレなく重なる。
           ゴースト（薄表示）から handoff で立ち上げる — 早期の contentful paint も兼ねる（#418）。
           next/image ではなく素の <img>: SSR 時点で即座に paint させたく、最適化も不要な小サイズのため */}
       <m.img
+        ref={logoRef}
         src={LOADER_LOGO_REVEAL_SRC}
         alt=""
         width={LOGO_SOURCE_WIDTH_PX}
@@ -417,7 +447,7 @@ export default function TopParticleLoader() {
         animate={{ opacity: 1 }}
         transition={{
           duration: (LOADER_TIMELINE_MS.handoff * timeScale) / 1000,
-          delay: (LOADER_SNAP_END_MS * timeScale) / 1000,
+          delay: remaining(LOADER_SNAP_END_MS) / 1000,
           ease: 'easeInOut',
         }}
       />

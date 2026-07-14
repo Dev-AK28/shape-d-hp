@@ -59,8 +59,13 @@ export const LOADER_FADE_START_MS = LOADER_HANDOFF_END_MS + LOADER_TIMELINE_MS.h
  * そこでオーバーレイ内に実ロゴ <img> を「ゴースト」として最初から薄く描画し、
  * 早期に contentful paint を成立させる（粒子が集まる先を暗示する演出も兼ねる）。
  * handoff フェーズでこの値から 1 まで引き上げ、実ロゴを立ち上げる。
+ *
+ * 値は「実際に目視できる」水準に保つこと（PR #419 レビュー対応）。0.08 では人間には
+ * ほぼ不可視で、メトリクスのためだけに置いた要素と解釈される余地があった。可視であれば
+ * 計測値がユーザー知覚と一致し、将来 Chromium が不可視要素を paint 対象外にしても壊れない。
+ * 0 にすると Chromium が paint 対象外にし、FCP/LCP が演出終了まで遅れる（禁止）。
  */
-export const LOGO_GHOST_OPACITY = 0.08;
+export const LOGO_GHOST_OPACITY = 0.16;
 
 /** 画像ロード遅延等で演出が始まらなくても必ず消えるための保険。 */
 export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 1000;
