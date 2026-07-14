@@ -186,12 +186,39 @@ describe('TopParticleLoader', () => {
   });
 
   it('JS 非依存の最終防衛線を SSR する（チャンク 404 で暗幕が残らない・#419 レビュー対応）', () => {
-    // globals.css の top-loader-failsafe を駆動する animation-delay。これが style 属性として
-    // SSR されるからこそ、JS が一切動かなくてもオーバーレイが消える
+    // globals.css の top-loader-failsafe を駆動する発火時刻。これが style 属性として
+    // SSR されるからこそ、JS が一切動かなくてもオーバーレイが消える。
+    // animation-delay 直書きではなく CSS 変数で渡す — この style が失われても globals.css
+    // 側のフォールバック（実質無限）が効き、保険が演出を殺さない（2 巡目レビュー対応）
     const { getByTestId } = render(<TopParticleLoader />);
-    expect(getByTestId('page-loader').style.animationDelay).toBe(
+    const overlay = getByTestId('page-loader');
+    expect(overlay.style.getPropertyValue('--top-loader-failsafe-delay')).toBe(
       `${LOADER_CSS_FAILSAFE_MS}ms`,
     );
+    expect(overlay.style.animationDelay).toBe('');
+  });
+
+  it('bfcache 復帰では演出を即座に畳む（黒画面回帰ガード・#419 2 巡目レビュー対応）', async () => {
+    // シェーダ時計は実時間で進むのに消滅経路（framer / setTimeout / CSS）は凍結中に止まる。
+    // 復帰時にそのまま続けると「粒子もロゴも無い不透明な黒画面」が数秒残る
+    const { queryByTestId } = render(<TopParticleLoader />);
+    expect(queryByTestId('page-loader')).not.toBeNull();
+
+    const pageShow = new Event('pageshow') as Event & { persisted?: boolean };
+    Object.defineProperty(pageShow, 'persisted', { value: true });
+    window.dispatchEvent(pageShow);
+
+    await waitFor(() => expect(queryByTestId('page-loader')).toBeNull());
+  });
+
+  it('通常のページ表示（persisted=false）では演出を畳まない', async () => {
+    const { queryByTestId } = render(<TopParticleLoader />);
+    const pageShow = new Event('pageshow') as Event & { persisted?: boolean };
+    Object.defineProperty(pageShow, 'persisted', { value: false });
+    window.dispatchEvent(pageShow);
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(queryByTestId('page-loader')).not.toBeNull();
   });
 
   it('粒子演出を開始できなくてもフォールバックで必ず消える', async () => {

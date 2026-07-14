@@ -28,18 +28,30 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
 
     const loader = page.getByTestId('page-loader');
     await loader.waitFor({ state: 'attached', timeout: 5000 });
-    // JS が死んでいるので DOM には残り続けるが、CSS アニメーションで不可視になること
+    // 発火前は必ず「見えている」こと。CSS 側の delay 既定値が安全側（実質無限）でないと
+    // 初回フレームから hidden になり演出が丸ごと消えるが、toBeHidden だけではその回帰を
+    // 検知できない（PR #419 2 巡目レビュー対応）
+    await expect(loader).toBeVisible();
+
+    // JS が死んでいるので DOM には残り続けるが、CSS アニメーションで不可視になること。
+    // ⚠️ toBeHidden は「要素が DOM から消えた」場合もパスする。abort が将来効かなくなると
+    // JS が正常に動いて 10 秒で unmount し、何も検証しないまま緑になるため、
+    // 「attached のまま hidden」であることを明示的に確かめる
     await expect(loader).toBeHidden({ timeout: LOADER_CSS_FAILSAFE_MS + 4000 });
+    await expect(loader).toHaveCount(1);
   });
 
   test('soft nav（下層 → トップ）でも演出が最初から走る（黒フラッシュ回帰ガード・#419）', async ({
     page,
   }) => {
+    // 待ち時間の合計が既定のテストタイムアウト（30 秒）に迫るため余裕を持たせる
+    test.slow();
     // performance.now() はドキュメントの timeOrigin 起点で soft nav ではリセットされない。
     // 下層を演出の全予算より長く見てからトップへ戻ると、ナビ起点のままでは残り時間が
-    // すべて 0 になり「オーバーレイが 1 フレームだけ描かれて即消える」黒フラッシュになる
+    // すべて 0 になり「オーバーレイが 1 フレームだけ描かれて即消える」黒フラッシュになる。
+    // 「マウント時の performance.now() が LOADER_TOTAL_MS を超えている」状況を作れば十分
     await page.goto('/services');
-    await page.waitForTimeout(LOADER_E2E_TIMEOUT_MS);
+    await page.waitForTimeout(LOADER_TOTAL_MS + 500);
 
     await page.locator('nav a[href="/"]').first().click();
     const loader = page.getByTestId('page-loader');

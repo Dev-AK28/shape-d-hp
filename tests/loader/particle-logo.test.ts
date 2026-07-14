@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import sharp from 'sharp';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CONVERGE_PROGRESS_SHARE,
@@ -102,20 +103,20 @@ describe('sampleLogoParticles', () => {
     expect(count).toBe(100);
   });
 
-  it('現行ロゴで粒子数の上限（PARTICLE_MAX_COUNT）を満たす（#420 の密度・#419 実測）', () => {
-    // 実アセットの候補数は 12,555（step 1px・輝度 60 以上）。上限 12,000 に届いていること
-    // を「候補数と同じ数の高輝度ピクセル」で再現して担保する（PNG デコードは vitest では
-    // 行わないため、候補数を模したフィクスチャで間引き後の粒子数だけを検証する）
-    const pixels = [];
-    for (let i = 0; i < 12_555; i += 1) {
-      pixels.push({
-        x: i % 360,
-        y: Math.floor(i / 360),
-        rgb: [255, 255, 255] as [number, number, number],
-      });
-    }
-    const image = makeImage(360, 286, pixels);
-    const { count } = sampleLogoParticles(image);
+  it('実アセットを実際にデコードして粒子数の上限（PARTICLE_MAX_COUNT）を満たす（#420 の密度）', async () => {
+    // 合成フィクスチャではなく **本物の PNG** をデコードして通す（PR #419 2 巡目レビュー対応）。
+    // 合成フィクスチャだと、ロゴを再生成して明ピクセルが減っても実密度が静かに落ちるだけで
+    // テストは緑のままになる。実アセットを読めば「クロップや閾値を変えたら落ちる」形で閉じる
+    const { data, info } = await sharp('public/loader/logo-particle-source.png')
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    const { count } = sampleLogoParticles({
+      data: new Uint8ClampedArray(data),
+      width: info.width,
+      height: info.height,
+    });
     expect(count).toBe(PARTICLE_MAX_COUNT);
   });
 
