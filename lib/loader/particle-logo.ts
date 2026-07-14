@@ -207,12 +207,15 @@ export function sampleLogoParticles(
 
   // 間引きは分数間隔で行う。整数 stride（Math.ceil）だと候補が上限を 1 個でも超えた瞬間に
   // stride=2 へ切り上がり、粒子数が上限の半分まで落ちる崖ができる — 実際 12,555 候補 /
-  // 上限 12,000 で 6,278 個しか出ていなかった（PR #419 レビュー対応）
+  // 上限 12,000 で 6,278 個しか出ていなかった（PR #419 レビュー対応）。
+  // 各区間の「中央」を採る（半ステップずらし）— 単純な floor だと区間の先頭に寄るため、
+  // 候補数が上限のちょうど整数倍になるアセットで位相が固定され、picked が row-major 順で
+  // ある都合上あからさまな縦縞（moiré）になる。最後の候補も拾えなくなる（2 巡目レビュー対応）
   const count = Math.min(picked.length, maxCount);
   const targets = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
   for (let n = 0; n < count; n += 1) {
-    const i = picked[Math.floor((n * picked.length) / count)];
+    const i = picked[Math.min(picked.length - 1, Math.floor(((n + 0.5) * picked.length) / count))];
     const pixel = i / 4;
     const x = pixel % width;
     const y = (pixel - x) / width;

@@ -1,7 +1,7 @@
 'use client';
 
 import { m, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import type * as THREE_NS from 'three';
 import { detectWebGLSupport } from '@/lib/webgl/support';
 import {
@@ -218,9 +218,10 @@ export default function TopParticleLoader() {
       return () => window.clearTimeout(fallback);
     }
 
-    // レンダラ / カメラ / 粒子スケールをリサイズ・画面回転に追従させるため let
-    let width = canvas.clientWidth || window.innerWidth;
-    let height = canvas.clientHeight || window.innerHeight;
+    // レンダラ / カメラ / 粒子スケールをリサイズ・画面回転に追従させるため let。
+    // 実値は start() 冒頭で取る（three.js のロード完了後でないと古い寸法になるため）
+    let width = 0;
+    let height = 0;
     let cancelled = false;
     let rafId = 0;
     let dispose: (() => void) | undefined;
@@ -385,6 +386,11 @@ export default function TopParticleLoader() {
         shaderUniforms.uPointScale.value = distance;
         applyScale();
         geometry.attributes.position.needsUpdate = true;
+        // handoff 完了後は draw() が rAF を止めているため、ここで描き直さないと更新が
+        // 画面に反映されない。今は uHandoff=1 で粒子が全て discard されるので見た目は
+        // 変わらないが、handoff の終端を前倒しすると「hold 中の回転で粒子が固まる」形で
+        // 表面化する。1 フレーム分のコストなので常に描いておく（PR #419 2 巡目レビュー対応）
+        renderer.render(scene, camera);
       };
       window.addEventListener('resize', handleResize);
       disposers.push(() => window.removeEventListener('resize', handleResize));
@@ -468,9 +474,28 @@ export default function TopParticleLoader() {
     const skip = () => setVisible(false);
     window.addEventListener('keydown', skip, { once: true });
     window.addEventListener('pointerdown', skip, { once: true });
+
+    /**
+     * bfcache 復帰でも演出を打ち切る（PR #419 2 巡目レビュー対応）。
+     *
+     * シェーダの時計は performance.now()（＝ timeOrigin 起点の実時間）で進むのに対し、
+     * 消滅経路 3 つ（framer の WAAPI / LOADER_FALLBACK_MS の setTimeout / CSS の最終防衛線）は
+     * **すべて bfcache 凍結中に停止する**。そのため「演出中に戻る → しばらくして進む」と、
+     * 復帰直後の rAF 1 発目で elapsed が跳ねて uHandoff=1 となり粒子だけ即座に全消滅する一方、
+     * framer と setTimeout は残り時間を待つため、**粒子もロゴも無い不透明な黒画面**が数秒残る
+     * （LOGO_GHOST_OPACITY = 0 のためロゴも見えない）。復帰を検知したら即座に畳む。
+     */
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setVisible(false);
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+
     return () => {
       window.removeEventListener('keydown', skip);
       window.removeEventListener('pointerdown', skip);
+      window.removeEventListener('pageshow', handlePageShow);
     };
   }, [visible]);
 
@@ -484,13 +509,18 @@ export default function TopParticleLoader() {
       data-top-loader
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-[2000] flex items-center justify-center"
-      style={{
-        // #418: トップページ背景色で完全に塞ぐ（ヒーローを透けさせない）
-        background: 'var(--ink)',
-        // JS が死んでもオーバーレイを必ず消す CSS 専用の最終防衛線（globals.css の
-        // top-loader-failsafe）。この style は SSR されるので JS の実行を一切必要としない
-        animationDelay: `${LOADER_CSS_FAILSAFE_MS}ms`,
-      }}
+      style={
+        {
+          // #418: トップページ背景色で完全に塞ぐ（ヒーローを透けさせない）
+          background: 'var(--ink)',
+          // JS が死んでもオーバーレイを必ず消す CSS 専用の最終防衛線（globals.css の
+          // top-loader-failsafe）。この style は SSR されるので JS の実行を一切必要としない。
+          // animation-delay を直接ではなく CSS 変数で渡すのは、この style が失われても
+          // globals.css 側のフォールバック（10 年）が効いて「保険が演出を殺す」事故を
+          // 防ぐため（PR #419 2 巡目レビュー対応）
+          '--top-loader-failsafe-delay': `${LOADER_CSS_FAILSAFE_MS}ms`,
+        } as CSSProperties
+      }
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       transition={{
