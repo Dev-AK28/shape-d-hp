@@ -15,6 +15,22 @@ const { mockUseReducedMotion } = vi.hoisted(() => ({
   mockUseReducedMotion: vi.fn<() => boolean | null>(),
 }));
 
+/**
+ * useAnimationControls のスタブ。実ロゴの立ち上がり（#421）は `set()` で開始値を
+ * 補正してから `start()` する仕様なので、その呼び出しを記録して検証できるようにする。
+ */
+type RevealTarget = {
+  opacity: number;
+  transition: { delay: number; duration: number; ease?: string };
+};
+
+const { revealControls } = vi.hoisted(() => ({
+  revealControls: {
+    set: vi.fn<(values: { opacity: number }) => void>(),
+    start: vi.fn<(target: RevealTarget) => Promise<void>>(() => Promise.resolve()),
+  },
+}));
+
 /** framer 固有 prop を DOM に流さないよう剥がす最小スタブ。 */
 function stripMotionProps<T extends object>(props: T): T {
   const { initial, animate, transition, onAnimationComplete, ...rest } = props as T &
@@ -28,6 +44,7 @@ function stripMotionProps<T extends object>(props: T): T {
 
 vi.mock('framer-motion', () => ({
   useReducedMotion: mockUseReducedMotion,
+  useAnimationControls: () => revealControls,
   m: {
     div: ({ children, ...props }: { children?: ReactNode } & ComponentProps<'div'>) => (
       <div {...stripMotionProps(props)}>{children}</div>
@@ -116,7 +133,14 @@ vi.mock('three', () => {
 });
 
 import TopParticleLoader from '@/components/top/TopParticleLoader';
-import { LOADER_CSS_FAILSAFE_MS, LOADER_FALLBACK_MS } from '@/lib/loader/particle-logo';
+import {
+  handoffRevealOpacity,
+  LOADER_CSS_FAILSAFE_MS,
+  LOADER_FALLBACK_MS,
+  LOADER_HANDOFF_END_MS,
+  LOADER_SNAP_END_MS,
+  LOGO_GHOST_OPACITY,
+} from '@/lib/loader/particle-logo';
 
 /** 粒子演出が実際に走る（three.js 初期化まで到達する）ようスタブを整える。 */
 function enableParticles() {
@@ -152,6 +176,8 @@ beforeEach(() => {
   (window.Image.prototype as { decode?: () => Promise<void> }).decode = () =>
     Promise.reject(new Error('decode failed (test)'));
   vi.spyOn(console, 'warn').mockImplementation(() => {});
+  revealControls.set.mockClear();
+  revealControls.start.mockClear();
 });
 
 afterEach(() => {
@@ -162,6 +188,18 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
+
+/**
+ * 「初回ロード」（＝ SSR 済みオーバーレイが初期 HTML にある）状況を再現する。
+ * コンポーネントはこの有無でタイムラインの起点を切り替える（ナビ起点 / マウント起点）ため、
+ * これが無いと jsdom では常に soft nav 扱いになり、遅延ハイドレーションを再現できない。
+ */
+function mountSsrOverlay() {
+  const ssrOverlay = document.createElement('div');
+  ssrOverlay.setAttribute('data-top-loader', '');
+  document.body.appendChild(ssrOverlay);
+  return ssrOverlay;
+}
 
 describe('TopParticleLoader', () => {
   it('reduced-motion 時はローダーを描画しない', () => {
@@ -183,6 +221,62 @@ describe('TopParticleLoader', () => {
     expect(overlay.style.background).toContain('--ink');
     // 実ロゴは最初から DOM にある（#420 で開始時の opacity は 0。handoff で立ち上がる）
     expect(getByTestId('loader-logo')).not.toBeNull();
+  });
+
+  it('通常のハイドレーション（handoff 前）では実ロゴを 0 から立ち上げる（#421）', () => {
+    // Given: 初回ロード（SSR 済みオーバーレイが DOM にある = ナビゲーション起点）で、
+    // ハイドレーションが handoff（8.0〜9.0 秒）より前に完了する通常のケース
+    const ssrOverlay = mountSsrOverlay();
+    vi.spyOn(performance, 'now').mockReturnValue(1_000);
+    render(<TopParticleLoader />);
+
+    // Then: 開始値の補正は不要（従来どおり 0 から）で、残りの delay を待って立ち上げる
+    expect(revealControls.set).toHaveBeenCalledWith({ opacity: LOGO_GHOST_OPACITY });
+    const [target] = revealControls.start.mock.calls[0];
+    expect(target.opacity).toBe(1);
+    expect(target.transition.delay).toBeCloseTo((LOADER_SNAP_END_MS - 1_000) / 1000, 3);
+    ssrOverlay.remove();
+  });
+
+  it('ハイドレーションが handoff 途中に食い込んでも「両方薄い」谷を作らない（#421）', () => {
+    // Given: 初回ロード（ナビゲーション起点）で、低速回線のためハイドレーションが
+    // handoff のちょうど中間（8.5 秒）にずれ込む
+    const ssrOverlay = mountSsrOverlay();
+    const midHandoff = (LOADER_SNAP_END_MS + LOADER_HANDOFF_END_MS) / 2;
+    vi.spyOn(performance, 'now').mockReturnValue(midHandoff);
+
+    // When: ローダーがマウントされる
+    render(<TopParticleLoader />);
+
+    // Then: 実ロゴは 0 ではなく「その時刻にあるべき不透明度」から立ち上がる。
+    // 粒子は既に (1 - uHandoff) まで減衰しているため、0 から始めると合計が 1 を割り込む
+    expect(revealControls.set).toHaveBeenCalledWith({
+      opacity: handoffRevealOpacity(midHandoff),
+    });
+    expect(handoffRevealOpacity(midHandoff)).toBeGreaterThan(0);
+
+    // 残り時間（0.5 秒）だけで 1 まで到達する
+    const [target] = revealControls.start.mock.calls[0];
+    expect(target.transition.delay).toBe(0);
+    expect(target.transition.duration).toBeCloseTo(
+      (LOADER_HANDOFF_END_MS - midHandoff) / 1000,
+      3,
+    );
+    ssrOverlay.remove();
+  });
+
+  it('initial には固定値のみを渡す（クロック依存だとハイドレーション不一致になる・#421）', () => {
+    // 開始値の補正は effect（ハイドレーション後）で行う必要がある。initial に入れると
+    // SSR HTML にも出力され、サーバー（0）とクライアント（補正値）が食い違う
+    const ssrOverlay = mountSsrOverlay();
+    vi.spyOn(performance, 'now').mockReturnValue(
+      (LOADER_SNAP_END_MS + LOADER_HANDOFF_END_MS) / 2,
+    );
+    const { getByTestId } = render(<TopParticleLoader />);
+    // スタブは initial を DOM に流さないため、style に opacity が焼き付いていないこと＝
+    // 「initial は固定値（0）のまま」であることを確認する
+    expect(getByTestId('loader-logo').style.opacity).toBe('');
+    ssrOverlay.remove();
   });
 
   it('JS 非依存の最終防衛線を SSR する（チャンク 404 で暗幕が残らない・#419 レビュー対応）', () => {

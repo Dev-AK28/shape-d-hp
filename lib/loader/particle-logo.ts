@@ -65,6 +65,27 @@ export const LOADER_FADE_START_MS = LOADER_HANDOFF_END_MS + LOADER_TIMELINE_MS.h
  */
 export const LOGO_GHOST_OPACITY = 0;
 
+/**
+ * 指定時刻（シェーダのクロック基準 ms）に実ロゴが持つべき不透明度 — Issue #421。
+ *
+ * 粒子の alpha は頂点シェーダで `1 - uHandoff` に減衰し、`uHandoff` は
+ * `smoothstep(elapsed, LOADER_SNAP_END_MS, LOADER_HANDOFF_END_MS)` で求まる。
+ * **実ロゴがこの関数の値と一致していないと、粒子と実ロゴの合計が 1 を割り込み
+ * 「両方薄い」谷ができる**（#421 の症状）。両者が同じ曲線を共有するための SSOT。
+ *
+ * ハイドレーションが handoff の途中に食い込んだとき、実ロゴを 0 からではなく
+ * 「その時刻にあるべき値」から立ち上げるのに使う。
+ */
+export function handoffRevealOpacity(elapsedMs: number): number {
+  const t = Math.min(
+    Math.max((elapsedMs - LOADER_SNAP_END_MS) / LOADER_TIMELINE_MS.handoff, 0),
+    1,
+  );
+  // GLSL の smoothstep と同じ Hermite 補間（3t² - 2t³）
+  const eased = t * t * (3 - 2 * t);
+  return Math.max(LOGO_GHOST_OPACITY, eased);
+}
+
 /** 画像ロード遅延等で演出が始まらなくても必ず消えるための保険。 */
 export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 1000;
 
