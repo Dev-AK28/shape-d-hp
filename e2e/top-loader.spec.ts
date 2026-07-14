@@ -74,12 +74,20 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
     expect(html).toContain('data-top-loader');
     expect(html).toContain('data-testid="loader-logo"');
 
-    // 背景は半透明スクリムではなくトップページ背景色そのもの（透けない）
+    // 背景は半透明スクリムではなくトップページ背景色そのもの（透けない）。
+    // #431: `waitUntil: 'commit'` はナビゲーション確定の最速タイミングで、外部
+    // スタイルシート（`--ink` を定義する globals.css）がまだ適用されていない可能性がある。
+    // localhost / CI ではほぼ 0ms レイテンシで commit と CSS 適用がほぼ同時に起こるため
+    // 顕在化しないが、実ネットワーク越し（本番ドメイン等）では CSS 到着が commit 後に
+    // ずれ込みやすく、`getComputedStyle` が一時的に初期値（透明）を返すことがある。
+    // マークアップ自体は正しい（SSR 済み）前提のもと、スタイル適用を expect.poll で待つ
     const loader = page.getByTestId('page-loader');
-    const background = await loader.evaluate(
-      (el) => getComputedStyle(el).backgroundColor,
-    );
-    expect(background).toBe('rgb(7, 9, 13)');
+    await expect
+      .poll(
+        () => loader.evaluate((el) => getComputedStyle(el).backgroundColor),
+        { timeout: 5000 },
+      )
+      .toBe('rgb(7, 9, 13)');
   });
 
   test('粒子が集まったあと実ロゴが立ち上がる（handoff・#418 / #420）', async ({ page }) => {
