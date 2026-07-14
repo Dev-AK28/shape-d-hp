@@ -289,9 +289,9 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
     const block = reducedBlocks.find((b) => b.includes('.top-scope .svc-panel'));
     expect(block, 'services reduced-motion fallback block').toBeDefined();
-    // 各パネルを relative + min-height 100vh で縦積み、全表示
+    // 各パネルを relative + min-height 100svh で縦積み、全表示（#425: URL バー伸縮対策で svh 固定）
     expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*position:\s*relative/);
-    expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*min-height:\s*100vh/);
+    expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*min-height:\s*100svh/);
     expect(block).toContain('visibility: visible !important');
   });
 

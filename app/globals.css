@@ -359,7 +359,9 @@ button:not(.nav-menu-button):hover {
   top: 0;
   left: 50%;
   width: 1px;
-  height: 100vh;
+  /* #425: 100vh は iOS Safari の URL バー伸縮でスクロールのたびに値が変わり、fixed 要素が
+     縦にガタつく原因になる。100svh（URL バー表示状態の最小値）で固定し、伸縮に追従させない。 */
+  height: 100svh;
   background: linear-gradient(to bottom, transparent, var(--rain) 30%, var(--rain) 70%, transparent);
   opacity: 0.28;
   transform-origin: top center;
@@ -536,7 +538,9 @@ button:not(.nav-menu-button):hover {
 }
 
 .top-scope .stage {
-  min-height: 100vh;
+  /* #425: URL バー伸縮で 100vh の値がスクロールごとに変わり縦ブレの原因になるため
+     100svh（最小ビューポート）に固定する。 */
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -618,8 +622,9 @@ button:not(.nav-menu-button):hover {
 /* ---------- 01 hero — 参照HTML L125-L200, L611-L617 ---------- */
 .top-scope .top-hero {
   position: relative;
-  height: 100vh;
-  min-height: 100svh;
+  /* #425: height:100vh は min-height:100svh より常に大きいか同値のため実質 100vh が採用され、
+     URL バー伸縮のたびに高さが変わって縦ブレする。100svh 単独に統一して固定する。 */
+  height: 100svh;
   overflow: hidden;
   /* cosmic 背景（#312 で無効化予定）がヒーロー内で透けないよう自前の ink 背景を敷く */
   background: var(--ink);
@@ -834,8 +839,9 @@ button:not(.nav-menu-button):hover {
 }
 
 .top-scope .theory-stage {
-  height: 100vh;
-  min-height: 100svh;
+  /* #425: pin されるセクションは URL バー伸縮に高さが追従しない 100svh で固定する
+     （height:100vh + min-height:100svh の組み合わせは 100vh が常に優先され無効だった）。 */
+  height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -945,8 +951,9 @@ button:not(.nav-menu-button):hover {
 }
 
 .top-scope .svc-stage {
-  height: 100vh;
-  min-height: 100svh;
+  /* #425: pin されるセクションは URL バー伸縮に高さが追従しない 100svh で固定する
+     （height:100vh + min-height:100svh の組み合わせは 100vh が常に優先され無効だった）。 */
+  height: 100svh;
   position: relative;
   overflow: hidden;
 }
@@ -1340,7 +1347,7 @@ button:not(.nav-menu-button):hover {
     opacity: 1 !important;
   }
 
-  /* #services: pin なしで 4 パネルを縦積み（各 min-height 100vh）表示（#308 受け入れ条件） */
+  /* #services: pin なしで 4 パネルを縦積み（各 min-height 100svh、#425 対応）表示（#308 受け入れ条件） */
   .top-scope .svc-stage {
     height: auto;
     min-height: 0;
@@ -1350,7 +1357,8 @@ button:not(.nav-menu-button):hover {
   .top-scope .svc-panel {
     position: relative;
     inset: auto;
-    min-height: 100vh;
+    /* #425: 静的スタック表示でも URL バー伸縮による縦ブレを避けるため 100svh に統一する。 */
+    min-height: 100svh;
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;

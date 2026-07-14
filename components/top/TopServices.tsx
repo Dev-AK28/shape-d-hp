@@ -38,7 +38,7 @@ const PANELS = [
  * セクションを pin し、scrub で 01→04 のパネルを順次クロスフェード。プログレスドットが
  * 現在パネルに同期。pinType='transform'（#307 と同理由）。トゥイーンは全て duration 明示。
  * reduced-motion 時は useGsapContext が setup を実行せず、CSS フォールバックで 4 パネルを
- * 縦積み（各 min-height 100vh）表示する。
+ * 縦積み（各 min-height 100svh、#425: iOS URL バー伸縮対策）表示する。
  */
 export default function TopServices() {
   useGsapContext(() => {
