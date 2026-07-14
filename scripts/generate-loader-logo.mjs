@@ -103,10 +103,26 @@ for (let i = 0; i < px.length; i += 4) {
   }
 }
 
+// palette（8-bit colormap）は輝度由来のアルファ勾配を量子化するため、バンディングを
+// 実測して採用可否を判断した（PR #419 レビュー対応）。true color 版との差は
+// アルファ最大 11/255・平均 0.24/255、可視領域の RGB も平均 1.9/255 で目視不可能な一方、
+// サイズは 180KB → 21KB と大きく効く。実ロゴは LCP 候補要素なので軽さを優先する
 await sharp(px, {
   raw: { width: reveal.info.width, height: reveal.info.height, channels: 4 },
 })
-  .png({ compressionLevel: 9, palette: true, quality: 85 })
+  .png({ compressionLevel: 9, palette: true, quality: 90, dither: 1.0 })
   .toFile(REVEAL_OUTPUT);
 
 console.log(`wrote ${REVEAL_OUTPUT} (transparent reveal logo)`);
+
+// 生成結果の寸法は lib/loader/particle-logo.ts の LOGO_SOURCE_*_PX と一致していなければ
+// ならない（実ロゴ <img> の CSS 幅がこの定数からアスペクト比を導くため）。
+// クロップ条件を変えて寸法が変わったら、定数も更新すること
+const revealMeta = await sharp(REVEAL_OUTPUT).metadata();
+const expected = { width: 360, height: 286 }; // = LOGO_SOURCE_WIDTH_PX / LOGO_SOURCE_HEIGHT_PX
+if (revealMeta.width !== expected.width || revealMeta.height !== expected.height) {
+  throw new Error(
+    `寸法が LOGO_SOURCE_*_PX と一致しません: ${revealMeta.width}x${revealMeta.height} ` +
+      `(期待 ${expected.width}x${expected.height})。lib/loader/particle-logo.ts の定数を更新してください`,
+  );
+}
