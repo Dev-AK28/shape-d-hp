@@ -105,8 +105,13 @@ jobs:
           LIGHTHOUSE_MIN_PERFORMANCE: '0.9'
           LIGHTHOUSE_WARMUP_PASSES: '3'
 
-      # トップは演出込みの実測値を記録するだけ（閾値は緩く、極端な劣化のみ検知）
-      - name: Lighthouse mobile performance (トップ・演出込みの参考値)
+      # トップは演出込みの実測値を「記録するだけ」。continue-on-error が必須 —
+      # lighthouse-check.mjs は閾値未満で exit 1 するため、これが無いと宣言に反して
+      # ハードゲートになる。トップの実測は 55 前後で、混雑した runner で 40 を割ると
+      # 「ゲート対象外」と決めたページのスコアで無関係な PR がブロックされてしまう
+      # （PR #419 2 巡目レビュー対応）。
+      - name: Lighthouse mobile performance (トップ・演出込みの参考値／ゲートではない)
+        continue-on-error: true
         run: node scripts/lighthouse-check.mjs http://127.0.0.1:3000/
         env:
           LIGHTHOUSE_MIN_PERFORMANCE: '0.4'
