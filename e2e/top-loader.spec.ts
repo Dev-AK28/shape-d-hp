@@ -60,14 +60,26 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
     const loader = page.getByTestId('page-loader');
     await loader.waitFor({ state: 'attached', timeout: 5000 });
 
-    // マウント起点で約 5 秒後もまだ表示されている（約 10 秒演出の担保）。
-    // 粒子タイムラインは画像 decode 起点だが、消滅は framer のマウント起点
-    // ディレイ（10s）に対するものなのでマージン約 5 秒があり安定
+    // 等倍では全クロックがナビゲーション起点（#419）。ナビゲーションから約 5 秒後は
+    // まだ drift/converge の途中なので表示が残っている（約 10 秒演出の担保）
     await page.waitForTimeout(LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge - 1500);
     await expect(loader).toHaveCount(1);
 
     // 全演出 + フォールバックの予算内に必ず消える
     await expect(loader).toHaveCount(0, { timeout: LOADER_E2E_TIMEOUT_MS });
+  });
+
+  test('キーボード操作で演出を即スキップする（WCAG 2.4.7 の緩和・#419）', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'commit' });
+    const loader = page.getByTestId('page-loader');
+    await loader.waitFor({ state: 'attached', timeout: 5000 });
+
+    // ハイドレーション完了を待ってから Tab（ローダーが keydown を購読するのは effect 内）
+    await expect(page.locator('#hero .hero-mark')).toBeVisible({ timeout: 15_000 });
+    await page.keyboard.press('Tab');
+
+    // 10 秒待たずに消える（演出の残り時間を待たない）
+    await expect(loader).toHaveCount(0, { timeout: 3000 });
   });
 
   test('演出中も pointer-events を奪わず背後の操作をブロックしない', async ({ page }) => {

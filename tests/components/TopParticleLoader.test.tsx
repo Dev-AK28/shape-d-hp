@@ -47,11 +47,99 @@ vi.mock('@/lib/webgl/support', () => ({
   detectWebGLSupport: mockDetectWebGLSupport,
 }));
 
-// three.js の実ロードは jsdom では不要かつ重い。動的 import を軽量スタブに差し替える
-vi.mock('three', () => ({}));
+/**
+ * three.js の実ロードは jsdom では不要かつ重い。描画に必要な最小 API だけをスタブし、
+ * 「演出終了時に WebGL リソースが解放されるか」（PR #419 レビューで見つかったリーク）を
+ * 検証できるようにする。
+ */
+const { threeSpies } = vi.hoisted(() => ({
+  threeSpies: {
+    rendererDispose: vi.fn(),
+    forceContextLoss: vi.fn(),
+    geometryDispose: vi.fn(),
+    materialDispose: vi.fn(),
+  },
+}));
+
+vi.mock('three', () => {
+  class Vector2 {
+    x = 0;
+    y = 0;
+    set(x: number, y: number) {
+      this.x = x;
+      this.y = y;
+    }
+  }
+  return {
+    WebGLRenderer: class {
+      setPixelRatio = vi.fn();
+      setSize = vi.fn();
+      render = vi.fn();
+      dispose = threeSpies.rendererDispose;
+      forceContextLoss = threeSpies.forceContextLoss;
+    },
+    Scene: class {
+      add = vi.fn();
+    },
+    PerspectiveCamera: class {
+      position = { z: 0 };
+      aspect = 1;
+      far = 0;
+      updateProjectionMatrix = vi.fn();
+    },
+    BufferGeometry: class {
+      attributes: Record<string, { needsUpdate: boolean }> = {};
+      setAttribute = vi.fn((name: string) => {
+        this.attributes[name] = { needsUpdate: false };
+      });
+      dispose = threeSpies.geometryDispose;
+    },
+    BufferAttribute: class {},
+    ShaderMaterial: class {
+      uniforms: Record<string, { value: unknown }>;
+      constructor({ uniforms }: { uniforms: Record<string, { value: unknown }> }) {
+        this.uniforms = uniforms;
+      }
+      dispose = threeSpies.materialDispose;
+    },
+    Points: class {
+      rotation = { x: 0, y: 0 };
+    },
+    Vector2,
+    MathUtils: {
+      degToRad: (deg: number) => (deg * Math.PI) / 180,
+      smoothstep: (x: number, min: number, max: number) =>
+        Math.min(Math.max((x - min) / (max - min), 0), 1),
+    },
+    AdditiveBlending: 2,
+  };
+});
 
 import TopParticleLoader from '@/components/top/TopParticleLoader';
 import { LOADER_FALLBACK_MS } from '@/lib/loader/particle-logo';
+
+/** 粒子演出が実際に走る（three.js 初期化まで到達する）ようスタブを整える。 */
+function enableParticles() {
+  (window.Image.prototype as { decode?: () => Promise<void> }).decode = () =>
+    Promise.resolve();
+  Object.defineProperty(window.Image.prototype, 'naturalWidth', {
+    configurable: true,
+    get: () => 360,
+  });
+  Object.defineProperty(window.Image.prototype, 'naturalHeight', {
+    configurable: true,
+    get: () => 286,
+  });
+  // probe canvas（サンプリング用）: 高輝度ピクセルを 1 つだけ返す
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+    drawImage: vi.fn(),
+    getImageData: () => ({
+      data: new Uint8ClampedArray([255, 255, 255, 255]),
+      width: 1,
+      height: 1,
+    }),
+  } as unknown as CanvasRenderingContext2D);
+}
 
 beforeEach(() => {
   mockUseReducedMotion.mockReturnValue(false);
@@ -98,5 +186,35 @@ describe('TopParticleLoader', () => {
 
     await vi.advanceTimersByTimeAsync(LOADER_FALLBACK_MS + 100);
     await waitFor(() => expect(queryByTestId('page-loader')).toBeNull());
+  });
+
+  it('キーボード操作で演出を即スキップする（WCAG 2.4.7 の緩和・#419 レビュー対応）', async () => {
+    const { queryByTestId } = render(<TopParticleLoader />);
+    expect(queryByTestId('page-loader')).not.toBeNull();
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+    await waitFor(() => expect(queryByTestId('page-loader')).toBeNull());
+  });
+
+  it('消滅時に WebGL リソースとリスナーを解放する（リーク回帰ガード・#419 レビュー対応）', async () => {
+    enableParticles();
+    const removeSpy = vi.spyOn(window, 'removeEventListener');
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const { queryByTestId } = render(<TopParticleLoader />);
+    // three.js の動的 import と decode の解決を待つ（初期化まで到達させる）
+    await vi.advanceTimersByTimeAsync(50);
+    expect(threeSpies.rendererDispose).not.toHaveBeenCalled();
+
+    // 演出終了（フォールバック）→ unmount されないが、リソースは解放されること
+    await vi.advanceTimersByTimeAsync(LOADER_FALLBACK_MS + 100);
+    await waitFor(() => expect(queryByTestId('page-loader')).toBeNull());
+
+    expect(threeSpies.rendererDispose).toHaveBeenCalled();
+    expect(threeSpies.forceContextLoss).toHaveBeenCalled();
+    expect(threeSpies.geometryDispose).toHaveBeenCalled();
+    expect(threeSpies.materialDispose).toHaveBeenCalled();
+    expect(removeSpy).toHaveBeenCalledWith('pointermove', expect.any(Function));
+    expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
   });
 });
