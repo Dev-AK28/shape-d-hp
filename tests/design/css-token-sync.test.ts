@@ -156,6 +156,30 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     expect(globalsCss).toMatch(/#thread\s*\{[^}]*transform-origin:\s*top center/);
   });
 
+  it('locks full-bleed / pinned top sections to 100svh instead of 100vh (#425 regression guard)', () => {
+    // iOS Safari は URL バー伸縮でビューポート高さが変わるため、100vh を使う要素は
+    // スクロールのたびに高さが変わり縦ブレの原因になる。フルブリード/pin セクションは
+    // 伸縮に追従しない 100svh に固定している。`height:100vh; min-height:100svh;` の
+    // 組み合わせは min-height 側が effect を持たず実質 100vh のままだった実装漏れが
+    // 過去にあったため、各セレクタのブロックを個別に抽出して 100vh の再混入も検証する。
+    const guardedSelectors = [
+      '#thread',
+      String.raw`\.top-scope \.stage`,
+      String.raw`\.top-scope \.top-hero`,
+      String.raw`\.top-scope \.theory-stage`,
+      String.raw`\.top-scope \.svc-stage`,
+    ];
+
+    for (const selector of guardedSelectors) {
+      const block = globalsCss.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`));
+      expect(block, `${selector} block should exist`).not.toBeNull();
+      // コメント（説明文に "100vh" という文字列そのものが登場する）を除いた実コードのみを検査する。
+      const body = (block?.[1] ?? '').replace(/\/\*[\s\S]*?\*\//g, '');
+      expect(body, `${selector} should use 100svh`).toMatch(/100svh/);
+      expect(body, `${selector} should not use bare 100vh`).not.toContain('100vh');
+    }
+  });
+
   it('defines top nav shrink styles with blur + hairline border', () => {
     expect(globalsCss).toContain('.top-nav.scrolled');
     expect(globalsCss).toMatch(/\.top-nav\.scrolled\s*\{[^}]*backdrop-filter:\s*blur\(14px\)/);
@@ -289,9 +313,9 @@ describe('top page renewal tokens ↔ globals.css sync (#303)', () => {
     const reducedBlocks = globalsCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\}/g) ?? [];
     const block = reducedBlocks.find((b) => b.includes('.top-scope .svc-panel'));
     expect(block, 'services reduced-motion fallback block').toBeDefined();
-    // 各パネルを relative + min-height 100vh で縦積み、全表示
+    // 各パネルを relative + min-height 100svh で縦積み、全表示（#425: URL バー伸縮対策で svh 固定）
     expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*position:\s*relative/);
-    expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*min-height:\s*100vh/);
+    expect(block).toMatch(/\.top-scope \.svc-panel\s*\{[^}]*min-height:\s*100svh/);
     expect(block).toContain('visibility: visible !important');
   });
 
