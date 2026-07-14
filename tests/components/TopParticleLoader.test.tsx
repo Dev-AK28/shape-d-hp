@@ -376,11 +376,18 @@ describe('TopParticleLoader', () => {
     await vi.advanceTimersByTimeAsync(LOADER_FALLBACK_MS + 100);
     await waitFor(() => expect(queryByTestId('page-loader')).toBeNull());
 
-    expect(threeSpies.rendererDispose).toHaveBeenCalled();
-    expect(threeSpies.forceContextLoss).toHaveBeenCalled();
-    expect(threeSpies.geometryDispose).toHaveBeenCalled();
-    expect(threeSpies.materialDispose).toHaveBeenCalled();
-    expect(removeSpy).toHaveBeenCalledWith('pointermove', expect.any(Function));
-    expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+    // #429: `page-loader` の DOM 消滅（state 更新による再レンダー）と
+    // useEffect クリーンアップ（dispose 系呼び出し）は同一トリックで完全同期する
+    // 保証がない。CI 高負荷時は前者の waitFor 解決直後にまだ後者が反映されて
+    // いないことがあり、直後の同期 expect がフレークしていた。dispose 系の
+    // アサーションも waitFor でポーリングし、実行環境の速度に依存しないようにする。
+    await waitFor(() => {
+      expect(threeSpies.rendererDispose).toHaveBeenCalled();
+      expect(threeSpies.forceContextLoss).toHaveBeenCalled();
+      expect(threeSpies.geometryDispose).toHaveBeenCalled();
+      expect(threeSpies.materialDispose).toHaveBeenCalled();
+      expect(removeSpy).toHaveBeenCalledWith('pointermove', expect.any(Function));
+      expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+    });
   });
 });
