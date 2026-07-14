@@ -18,6 +18,11 @@ import path from 'node:path';
 
 const SOURCE = 'public/image_2.png';
 const OUTPUT = 'public/loader/logo-particle-source.png';
+/** handoff で立ち上げる表示用ロゴ（背景透過・Issue #418）。粒子と同じクロップ・寸法。 */
+const REVEAL_OUTPUT = 'public/loader/logo-reveal.png';
+/** 輝度 → アルファの変換域。この下は完全透過、上は完全不透過。 */
+const ALPHA_FLOOR = 28;
+const ALPHA_CEIL = 150;
 const OUTPUT_WIDTH = 360;
 const LUMINANCE_THRESHOLD = 60;
 // ✦（右下 x≈95% / y≈92%）を除外しつつロゴ全体が収まる走査範囲。
@@ -71,3 +76,29 @@ await sharp(SOURCE)
 console.log(
   `wrote ${OUTPUT} (crop ${cropWidth}x${cropHeight} @ ${left},${top} -> width ${OUTPUT_WIDTH})`,
 );
+
+// 表示用（handoff で立ち上げる実ロゴ・Issue #418）。
+// サンプリング元と同じクロップ・同じ寸法にすることで、粒子と実ロゴの位置が一致する。
+// 元画像はダークなテクスチャ背景を持つため、そのまま重ねると矩形の枠として見えてしまう。
+// 輝度からアルファを起こして背景を透過させ、--ink のオーバーレイに溶け込ませる。
+const reveal = await sharp(SOURCE)
+  .extract({ left, top, width: cropWidth, height: cropHeight })
+  .resize({ width: OUTPUT_WIDTH })
+  .ensureAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+
+const px = reveal.data;
+for (let i = 0; i < px.length; i += 4) {
+  const lum = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+  const alpha = (lum - ALPHA_FLOOR) / (ALPHA_CEIL - ALPHA_FLOOR);
+  px[i + 3] = Math.round(Math.min(Math.max(alpha, 0), 1) * 255);
+}
+
+await sharp(px, {
+  raw: { width: reveal.info.width, height: reveal.info.height, channels: 4 },
+})
+  .png({ compressionLevel: 9, palette: true, quality: 85 })
+  .toFile(REVEAL_OUTPUT);
+
+console.log(`wrote ${REVEAL_OUTPUT} (transparent reveal logo)`);
