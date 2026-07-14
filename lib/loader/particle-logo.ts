@@ -51,21 +51,19 @@ export const LOADER_HANDOFF_END_MS = LOADER_SNAP_END_MS + LOADER_TIMELINE_MS.han
 export const LOADER_FADE_START_MS = LOADER_HANDOFF_END_MS + LOADER_TIMELINE_MS.hold;
 
 /**
- * 実ロゴ画像の初期不透明度（#418）。
+ * 実ロゴ画像の初期不透明度（#418 → #420 で 0 に変更）。
  *
- * オーバーレイを完全不透明にすると、ページ本体のペイントが演出終了まで計上されず
- * Lighthouse の FCP/LCP が約 10 秒になり Performance が 55 まで落ちる（#414 実測）。
- * WebGL キャンバスは FCP/LCP の候補要素にならないため、キャンバスだけでは救えない。
- * そこでオーバーレイ内に実ロゴ <img> を「ゴースト」として最初から薄く描画し、
- * 早期に contentful paint を成立させる（粒子が集まる先を暗示する演出も兼ねる）。
- * handoff フェーズでこの値から 1 まで引き上げ、実ロゴを立ち上げる。
+ * **0 = 演出開始時はロゴを一切見せない**。粒子が集まって handoff に入ったとき初めて
+ * ロゴが浮かび上がる（2026-07-14 のオーナー判断: 視覚的に理想な演出を優先）。
  *
- * 値は「実際に目視できる」水準に保つこと（PR #419 レビュー対応）。0.08 では人間には
- * ほぼ不可視で、メトリクスのためだけに置いた要素と解釈される余地があった。可視であれば
- * 計測値がユーザー知覚と一致し、将来 Chromium が不可視要素を paint 対象外にしても壊れない。
- * 0 にすると Chromium が paint 対象外にし、FCP/LCP が演出終了まで遅れる（禁止）。
+ * ⚠️ トレードオフ: 不透明オーバーレイ + 不可視ロゴでは、Lighthouse が計上できる
+ * contentful paint が演出終了まで存在しない（WebGL キャンバスは FCP/LCP の候補要素に
+ * ならない）。そのためトップページの FCP/LCP は演出の尺そのもの（約 10 秒）になり、
+ * Performance は 55 前後に落ちる。**これはユーザーが実際に体験する時間と一致する正しい
+ * 計測値**であり、小手先の対策で誤魔化さない。CI の Performance ゲートは
+ * `.github/workflows/ci.yml` でトップを対象外とし、下層ページで担保する。
  */
-export const LOGO_GHOST_OPACITY = 0.16;
+export const LOGO_GHOST_OPACITY = 0;
 
 /** 画像ロード遅延等で演出が始まらなくても必ず消えるための保険。 */
 export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 1000;
@@ -140,9 +138,15 @@ export const LOGO_DISPLAY_WIDTH_CSS = `min(${LOGO_DISPLAY_WIDTH_RATIO * 100}vw, 
   (LOGO_SOURCE_WIDTH_PX / LOGO_SOURCE_HEIGHT_PX)
 ).toFixed(2)}vh)`;
 
-export const SAMPLE_STEP_PX = 2;
+/**
+ * サンプリングの走査間隔。#420 で 2px → 1px。
+ * 2px では拾える候補が 3,106 個しかなく上限（6,000）に届いていなかった（実測）。
+ * 1px にすると 12,555 個の候補が得られ、上限 12,000 まで使い切れる。
+ */
+export const SAMPLE_STEP_PX = 1;
 export const SAMPLE_LUMINANCE_THRESHOLD = 60;
-export const PARTICLE_MAX_COUNT = 6000;
+/** 粒子数の上限。#420 で 6,000 → 12,000（密度を上げてロゴの線をはっきり出す）。 */
+export const PARTICLE_MAX_COUNT = 12_000;
 
 /** getImageData 互換の入力（テストでは素の配列で偽装できる）。 */
 export type ImageDataLike = {

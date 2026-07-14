@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CONVERGE_PROGRESS_SHARE,
@@ -17,7 +18,9 @@ import {
   LOGO_GHOST_OPACITY,
   LOGO_SOURCE_HEIGHT_PX,
   LOGO_SOURCE_WIDTH_PX,
+  PARTICLE_MAX_COUNT,
   PARTICLE_STAGGER_MS,
+  SAMPLE_STEP_PX,
   sampleLogoParticles,
   type ImageDataLike,
 } from '@/lib/loader/particle-logo';
@@ -123,10 +126,25 @@ describe('LOADER_TIMELINE', () => {
     expect(LOADER_FADE_START_MS + LOADER_TIMELINE_MS.fade).toBe(LOADER_TOTAL_MS);
   });
 
-  it('実ロゴのゴースト不透明度は 0 より大きい（早期 contentful paint の担保・#418）', () => {
-    // 0 にすると Chromium が paint 対象外にし、FCP/LCP が演出終了まで遅れる
-    expect(LOGO_GHOST_OPACITY).toBeGreaterThan(0);
-    expect(LOGO_GHOST_OPACITY).toBeLessThan(1);
+  it('実ロゴアセットの寸法が LOGO_SOURCE_*_PX と一致する（CSS 幅がこの比から決まる）', () => {
+    // 生成スクリプト側の assert と逆向きに閉じる — 定数だけ変えたときもここで落ちる
+    // （PR #419 レビュー対応）。PNG の IHDR は 16-23 バイト目に width/height を持つ
+    const png = readFileSync('public/loader/logo-reveal.png');
+    expect(png.readUInt32BE(16)).toBe(LOGO_SOURCE_WIDTH_PX);
+    expect(png.readUInt32BE(20)).toBe(LOGO_SOURCE_HEIGHT_PX);
+  });
+
+  it('演出開始時にロゴは一切見えない（#420: 粒子が集まって初めて浮かび上がる）', () => {
+    // 0 より大きくすると開始時点でロゴが透けて見えてしまう。
+    // Lighthouse の FCP/LCP は演出の尺そのものになるが、それが実体験と一致する値であり、
+    // CI の Performance ゲートは下層ページで担保する（.github/workflows/ci.yml）
+    expect(LOGO_GHOST_OPACITY).toBe(0);
+  });
+
+  it('粒子数の上限とサンプリング間隔が #420 の密度になっている', () => {
+    // step 2px では候補が 3,106 個しか拾えず上限に届かなかった（実測）
+    expect(SAMPLE_STEP_PX).toBe(1);
+    expect(PARTICLE_MAX_COUNT).toBe(12_000);
   });
 
   it('実ロゴ <img> の CSS 幅は JS 側のクランプ式と同じ値を返す（同一ビューポート前提）', () => {
