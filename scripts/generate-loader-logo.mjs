@@ -18,6 +18,11 @@ import path from 'node:path';
 
 const SOURCE = 'public/image_2.png';
 const OUTPUT = 'public/loader/logo-particle-source.png';
+/** handoff で立ち上げる表示用ロゴ（背景透過・Issue #418）。粒子と同じクロップ・寸法。 */
+const REVEAL_OUTPUT = 'public/loader/logo-reveal.png';
+/** 輝度 → アルファの変換域。この下は完全透過、上は完全不透過。 */
+const ALPHA_FLOOR = 28;
+const ALPHA_CEIL = 150;
 const OUTPUT_WIDTH = 360;
 const LUMINANCE_THRESHOLD = 60;
 // ✦（右下 x≈95% / y≈92%）を除外しつつロゴ全体が収まる走査範囲。
@@ -70,4 +75,58 @@ await sharp(SOURCE)
 
 console.log(
   `wrote ${OUTPUT} (crop ${cropWidth}x${cropHeight} @ ${left},${top} -> width ${OUTPUT_WIDTH})`,
+);
+
+// 表示用（handoff で立ち上げる実ロゴ・Issue #418）。
+// サンプリング元と同じクロップ・同じ寸法にすることで、粒子と実ロゴの位置が一致する。
+// 元画像はダークなテクスチャ背景を持つため、そのまま重ねると矩形の枠として見えてしまう。
+// 輝度からアルファを起こして背景を透過させ、--ink のオーバーレイに溶け込ませる。
+const reveal = await sharp(SOURCE)
+  .extract({ left, top, width: cropWidth, height: cropHeight })
+  .resize({ width: OUTPUT_WIDTH })
+  .ensureAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+
+const px = reveal.data;
+for (let i = 0; i < px.length; i += 4) {
+  const lum = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+  const alpha = Math.min(Math.max((lum - ALPHA_FLOOR) / (ALPHA_CEIL - ALPHA_FLOOR), 0), 1);
+  px[i + 3] = Math.round(alpha * 255);
+  // アルファを起こした分だけ RGB を持ち上げる（un-premultiply 相当）。
+  // 据え置きにすると「暗い RGB × 低アルファ」で二重に沈み、ダーク地に合成したとき
+  // 元より暗くなる（粒子は加算ブレンドで明るいため handoff で明度が跳ねる）
+  if (alpha > 0) {
+    for (let c = 0; c < 3; c += 1) {
+      px[i + c] = Math.round(Math.min(px[i + c] / alpha, 255));
+    }
+  }
+}
+
+// palette（8-bit colormap）は輝度由来のアルファ勾配を量子化するため、バンディングを
+// 実測して採用可否を判断した（PR #419 レビュー対応）。true color 版との差は
+// アルファ最大 11/255・平均 0.24/255、可視領域の RGB も平均 1.9/255 で目視不可能な一方、
+// サイズは 180KB → 21KB と大きく効く。実ロゴは LCP 候補要素なので軽さを優先する
+await sharp(px, {
+  raw: { width: reveal.info.width, height: reveal.info.height, channels: 4 },
+})
+  .png({ compressionLevel: 9, palette: true, quality: 90, dither: 1.0 })
+  .toFile(REVEAL_OUTPUT);
+
+console.log(`wrote ${REVEAL_OUTPUT} (transparent reveal logo)`);
+
+// 生成結果の寸法は lib/loader/particle-logo.ts の LOGO_SOURCE_*_PX と一致していなければ
+// ならない（実ロゴ <img> の CSS 幅がこの定数からアスペクト比を導くため）。
+// クロップ条件を変えて寸法が変わったら、定数も更新すること
+// 幅は OUTPUT_WIDTH で決まる。高さはクロップ比から決まるため、変わったら定数側の更新が必要。
+// 逆向き（定数を変えたら落ちる）は tests/loader/particle-logo.test.ts が PNG ヘッダを読んで担保する
+const revealMeta = await sharp(REVEAL_OUTPUT).metadata();
+if (revealMeta.width !== OUTPUT_WIDTH) {
+  throw new Error(
+    `幅が OUTPUT_WIDTH と一致しません: ${revealMeta.width} (期待 ${OUTPUT_WIDTH})`,
+  );
+}
+console.log(
+  `reveal size: ${revealMeta.width}x${revealMeta.height} ` +
+    '(lib/loader/particle-logo.ts の LOGO_SOURCE_*_PX と一致していること)',
 );

@@ -148,7 +148,7 @@ Then 進捗ドットが対応セクションに追従する
 | トップページ演出（#302 刷新） | `e2e/top-*.spec.ts`（TopHero / TopShell / TopTheory ほか）、`tests/components/TopHero.test.tsx`、`tests/scroll/lenis-config.test.ts`、`tests/design/css-token-sync.test.ts` |
 | Typography cosmic blend（下層 PageHeader） | `tests/design/typography-blend.test.ts`（`PageHeader.tsx`）, `e2e/page-headers.spec.ts`（starBackground + `/services` / `/works` solid） |
 | easing ↔ tokens 連鎖 | `tests/scroll/easing.test.ts` |
-| Lighthouse Performance >= 90（#326） | `npm run lighthouse:check` + CI `lighthouse` job（`LIGHTHOUSE_MIN_PERFORMANCE=0.9`） |
+| Lighthouse Performance >= 90（#326） | `npm run lighthouse:check` + CI `lighthouse` job（`LIGHTHOUSE_MIN_PERFORMANCE=0.9`）。**計測対象は `/services`（下層ページ）**。トップ（`/`）は 10 秒のローディング演出そのものが FCP/LCP になるためゲート対象外で、極端な劣化検知のみの参考値（閾値 0.4）として別ステップで計測する（#420 / 根拠は [top-particle-loader.md](./top-particle-loader.md)） |
 | Redis Lua acquire/release | `tests/contact/rate-limit-redis.test.ts` |
 | 横スクロール pin キーボードフォーカス追従（#247 / #260）| `tests/a11y/use-horizontal-focus-sync.test.ts`（`computePanelScrollTarget` 純粋関数）+ `tests/a11y/use-horizontal-focus-sync-lenis.test.tsx`（#260: Lenis active 時は `lenis.scrollTo(target,{immediate:false})`、inactive 時は `window.scrollTo` フォールバックの分岐を jsdom で検証）。Lenis インスタンスは `SmoothScrollProvider` が `LenisContext`（`lib/scroll/lenis-context.ts`）で公開 |
 | サービス個別アンカー遷移（#248）| `ServicesContent` の各カードに `id={service.id}` を付与し `/services#${service.id}` へハッシュ遷移。CTA 発火元だった旧 `ShowcaseSection` は #316 で撤去済み（アンカー先の `/services` セクション id 付与は現存） |

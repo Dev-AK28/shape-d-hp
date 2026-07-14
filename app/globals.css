@@ -260,6 +260,41 @@ button:not(.nav-menu-button):hover {
   }
 }
 
+/* トップページ パーティクルローダー（#418 / #416）
+   オーバーレイは SSR されるため、reduced-motion では JS のハイドレーションを待たずに
+   CSS で消す必要がある（待つと一瞬フル画面の暗幕が見えてしまう）。 */
+@media (prefers-reduced-motion: reduce) {
+  [data-top-loader] {
+    display: none !important;
+  }
+}
+
+/* JS 無効環境では、フェードアウトを駆動する framer-motion が動かず SSR された不透明
+   オーバーレイがページを永久に覆う。app/page.tsx の <noscript> が同等の規則を注入して消す。 */
+
+/* JS 有効なのに JS が「死ぬ」ケース（チャンク 404・回線断・ハイドレーションのクラッシュ）
+   では <noscript> が効かず、消滅経路がすべて JS 前提のため不透明オーバーレイが恒久的に
+   ページを覆ってしまう。CSS だけで動く最終防衛線として visibility を落とす（PR #419 レビュー対応）。
+   発火時刻は LOADER_CSS_FAILSAFE_MS が SSOT で、TopParticleLoader が
+   --top-loader-failsafe-delay としてインライン style で SSR する。
+
+   ⚠️ フォールバック値は「実質発火しない」10 年にしてある（PR #419 2 巡目レビュー対応）。
+   delay を CSS に直書きせず変数の既定値も 0s にすると、インライン style が失われた瞬間に
+   （duration 0s + fill forwards で）オーバーレイが初回フレームから hidden になり、
+   10 秒の演出が本番で丸ごと消える — 保険が本体を殺す。既定は必ず安全側に倒すこと。 */
+@keyframes top-loader-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+[data-top-loader] {
+  animation-name: top-loader-failsafe;
+  animation-duration: 0s;
+  animation-delay: var(--top-loader-failsafe-delay, 315360000s);
+  animation-fill-mode: forwards;
+}
+
 /* Prevent hydration flash on mobile: during SSR→hydration, isReady transitions
    from false to true and switches [data-timeline-item]/[data-vision-quote] from
    opacity-100 to opacity-0 before GSAP can set up ScrollTrigger.

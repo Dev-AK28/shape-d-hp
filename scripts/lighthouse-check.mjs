@@ -2,7 +2,11 @@
 /**
  * Runs Lighthouse mobile audit against a running Next.js server.
  * Usage: node scripts/lighthouse-check.mjs [url]
- * Default URL: http://127.0.0.1:3000/
+ *
+ * Default URL: http://127.0.0.1:3000/services — the Performance >= 0.9 gate (#326) lives on
+ * a lower page, not the top page: the top page's 10s particle loader IS its FCP/LCP by design
+ * (#420), so auditing `/` with the default threshold would always fail. See
+ * documents/spec/top-particle-loader.md.
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -11,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const targetUrl = process.argv[2] ?? 'http://127.0.0.1:3000/';
+const targetUrl = process.argv[2] ?? 'http://127.0.0.1:3000/services';
 const minPerformance = Number(process.env.LIGHTHOUSE_MIN_PERFORMANCE ?? '0.7');
 const warmupPasses = Number(process.env.LIGHTHOUSE_WARMUP_PASSES ?? '2');
 const outputDir = path.join(__dirname, '../.lighthouse');

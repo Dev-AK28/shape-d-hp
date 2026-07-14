@@ -1,5 +1,5 @@
 import TopShell from '@/components/top/TopShell';
-import DeferredTopParticleLoader from '@/components/top/DeferredTopParticleLoader';
+import TopParticleLoader from '@/components/top/TopParticleLoader';
 import TopHero from '@/components/top/TopHero';
 import TopPhilosophy from '@/components/top/TopPhilosophy';
 import TopPain from '@/components/top/TopPain';
@@ -16,8 +16,15 @@ export default function Home() {
     // CustomCursor / PageLoader をトップページで無効化した。
     // #412: パーティクルローダーのみトップで有効化（#312 の「トップはローダーなし」を変更。
     // 下層の PageLoader / SubPageEffects は従来どおり）。
+    // #418/#416: ローダーは SSR する（three.js のみ実行時に import）。初期 HTML に
+    // オーバーレイが載るため逆順フラッシュが起きず、不透明背景でもヒーローが透けない。
     <TopShell>
-      <DeferredTopParticleLoader />
+      {/* JS 無効環境では framer-motion のフェードが動かず、SSR された不透明オーバーレイが
+          ページを覆ったままになる。noscript の style で確実に消す（#418）。 */}
+      <noscript>
+        <style>{`[data-top-loader]{display:none !important}`}</style>
+      </noscript>
+      <TopParticleLoader />
       <main className="relative min-h-screen">
         <TopHero />
         <TopPhilosophy />
