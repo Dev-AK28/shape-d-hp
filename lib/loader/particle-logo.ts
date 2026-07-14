@@ -6,27 +6,61 @@
  * 分離した純粋ロジックで、vitest で単体テストする。
  */
 
+/** 粒子サンプリング元（不透過・ダーク地）。 */
 export const LOADER_LOGO_SRC = '/loader/logo-particle-source.png';
 
 /**
- * 演出タイムライン（5 フェーズ・合計約 10 秒 — Issue #414）。
+ * handoff で立ち上げる表示用ロゴ（背景透過・Issue #418）。
+ * サンプリング元と同一クロップ・同一寸法なので、粒子と位置がズレない。
+ * 元画像はダークなテクスチャ背景を持つため、そのまま重ねると矩形の枠として見えてしまう
+ * — `scripts/generate-loader-logo.mjs` が輝度からアルファを起こして透過版を生成する。
+ */
+export const LOADER_LOGO_REVEAL_SRC = '/loader/logo-reveal.png';
+
+/**
+ * 演出タイムライン（6 フェーズ・合計約 10 秒 — Issue #414 / #418）。
  * drift: 粒子が散開位置で浮遊 / converge: 波状スタッガーで緩やかに収束 /
- * snap: 一気に加速してロゴへ吸着 / hold: 静止・マウス反発・視差 / fade: フェードアウト。
+ * snap: 一気に加速してロゴへ吸着 / handoff: 粒子が薄れ実ロゴが立ち上がる（#418）/
+ * hold: 実ロゴを見せる / fade: フェードアウト。
  */
 export const LOADER_TIMELINE_MS = {
   drift: 2500,
   converge: 4000,
   snap: 1500,
-  hold: 1200,
-  fade: 800,
+  handoff: 1000,
+  hold: 300,
+  fade: 700,
 } as const;
 
 export const LOADER_TOTAL_MS =
   LOADER_TIMELINE_MS.drift +
   LOADER_TIMELINE_MS.converge +
   LOADER_TIMELINE_MS.snap +
+  LOADER_TIMELINE_MS.handoff +
   LOADER_TIMELINE_MS.hold +
   LOADER_TIMELINE_MS.fade;
+
+/** 粒子が吸着し終わる時刻（= handoff の開始時刻）。 */
+export const LOADER_SNAP_END_MS =
+  LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge + LOADER_TIMELINE_MS.snap;
+
+/** 実ロゴが完全表示になる時刻（= hold の開始時刻）。 */
+export const LOADER_HANDOFF_END_MS = LOADER_SNAP_END_MS + LOADER_TIMELINE_MS.handoff;
+
+/** オーバーレイのフェードが始まる時刻。 */
+export const LOADER_FADE_START_MS = LOADER_HANDOFF_END_MS + LOADER_TIMELINE_MS.hold;
+
+/**
+ * 実ロゴ画像の初期不透明度（#418）。
+ *
+ * オーバーレイを完全不透明にすると、ページ本体のペイントが演出終了まで計上されず
+ * Lighthouse の FCP/LCP が約 10 秒になり Performance が 55 まで落ちる（#414 実測）。
+ * WebGL キャンバスは FCP/LCP の候補要素にならないため、キャンバスだけでは救えない。
+ * そこでオーバーレイ内に実ロゴ <img> を「ゴースト」として最初から薄く描画し、
+ * 早期に contentful paint を成立させる（粒子が集まる先を暗示する演出も兼ねる）。
+ * handoff フェーズでこの値から 1 まで引き上げ、実ロゴを立ち上げる。
+ */
+export const LOGO_GHOST_OPACITY = 0.08;
 
 /** 画像ロード遅延等で演出が始まらなくても必ず消えるための保険。 */
 export const LOADER_FALLBACK_MS = LOADER_TOTAL_MS + 1000;
@@ -39,8 +73,8 @@ export const LOADER_E2E_TIMEOUT_MS = 12_000;
 
 /**
  * e2e がローダーの「出現」を待つ上限（e2e/helpers.ts の SSOT）。
- * ローダーは ssr:false のためハイドレーション + three.js チャンク評価後に
- * 出現する。遅い CI でもマウント前に消滅チェックが成立しないよう余裕を持たせる。
+ * #418 以降オーバーレイは SSR されるため初期 HTML に存在するが、下層ページの
+ * PageLoader は依然 ssr:false であり、そちらのマウント待ちに余裕を持たせる。
  */
 export const LOADER_E2E_ATTACH_TIMEOUT_MS = 3_000;
 
@@ -86,6 +120,20 @@ export const LOGO_DISPLAY_WIDTH_MAX_PX = 520;
  * スマホ横持ち（844x390 等）でロゴが上下クリップするため高さ側でもクランプする。
  */
 export const LOGO_DISPLAY_HEIGHT_RATIO = 0.7;
+
+/** サンプリング元 = 実ロゴ画像の原寸（public/loader/logo-particle-source.png）。 */
+export const LOGO_SOURCE_WIDTH_PX = 360;
+export const LOGO_SOURCE_HEIGHT_PX = 286;
+
+/**
+ * 実ロゴ <img> の CSS 幅。粒子側のスケール計算（TopParticleLoader）と同じ式を
+ * CSS で表現したもの — 一致していないと粒子から実ロゴへの切り替えで位置がズレる。
+ */
+export const LOGO_DISPLAY_WIDTH_CSS = `min(${LOGO_DISPLAY_WIDTH_RATIO * 100}vw, ${LOGO_DISPLAY_WIDTH_MAX_PX}px, ${(
+  LOGO_DISPLAY_HEIGHT_RATIO *
+  100 *
+  (LOGO_SOURCE_WIDTH_PX / LOGO_SOURCE_HEIGHT_PX)
+).toFixed(2)}vh)`;
 
 export const SAMPLE_STEP_PX = 2;
 export const SAMPLE_LUMINANCE_THRESHOLD = 60;

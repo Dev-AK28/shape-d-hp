@@ -2,19 +2,27 @@
 
 import { m, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import type * as THREE_NS from 'three';
 import { detectWebGLSupport } from '@/lib/webgl/support';
 import {
   CONVERGE_PROGRESS_SHARE,
   DRIFT_AMPLITUDE_PX,
   getLoaderTimeScale,
+  LOADER_FADE_START_MS,
   LOADER_FALLBACK_MS,
+  LOADER_HANDOFF_END_MS,
+  LOADER_LOGO_REVEAL_SRC,
   LOADER_LOGO_SRC,
+  LOADER_SNAP_END_MS,
   LOADER_TIMELINE_MS,
   LOGO_DEPTH_PX,
   LOGO_DISPLAY_HEIGHT_RATIO,
+  LOGO_DISPLAY_WIDTH_CSS,
   LOGO_DISPLAY_WIDTH_MAX_PX,
   LOGO_DISPLAY_WIDTH_RATIO,
+  LOGO_GHOST_OPACITY,
+  LOGO_SOURCE_HEIGHT_PX,
+  LOGO_SOURCE_WIDTH_PX,
   PARTICLE_STAGGER_MS,
   sampleLogoParticles,
 } from '@/lib/loader/particle-logo';
@@ -34,11 +42,12 @@ const PARALLAX_MAX_RAD = { x: 0.06, y: 0.12 } as const;
 const PARALLAX_LERP = 0.06;
 
 /**
- * 頂点シェーダ — 5 フェーズ演出（Issue #414）
+ * 頂点シェーダ — 6 フェーズ演出（Issue #414 / #418）
  *
  * 収束進捗 p は converge（緩・easeInOutSine）が CONVERGE_PROGRESS_SHARE まで、
  * snap（急・easeOutQuart）が残りを受け持つ 2 段合成。drift 中は p=0 のまま
  * 出発位置の周囲を漂う（振幅は p が進むほど減衰）。
+ * handoff（uHandoff 0→1）では粒子を薄れさせ、実ロゴ <img> にバトンタッチする。
  * z 方向は目標座標が ±LOGO_DEPTH_PX/2 の板厚を持ち、奥の粒子ほど暗くする。
  */
 const VERT_SRC = /* glsl */ `
@@ -54,6 +63,7 @@ uniform float uConverge;    // converge フェーズ長 ms
 uniform float uSnap;        // snap フェーズ長 ms
 uniform float uStagger;     // converge 内の出発ばらつき幅 ms
 uniform float uHalfDepth;   // 板厚の半分（CSS px）
+uniform float uHandoff;     // 0..1 実ロゴへのバトンタッチ進捗（1 で粒子は消える）
 uniform vec2 uMouse;        // ワールド座標（CSS px・中心原点・y 上向き）
 uniform float uInteract;    // 0..1 ロゴ完成後に 1 へ
 uniform float uPointScale;  // 遠近サイズ減衰の係数（カメラ距離）
@@ -82,8 +92,8 @@ void main() {
   pos.z += sin(uTime * 0.00047 + aRand * 9.4248) * wobble * 0.5;
 
   // マウス反発（ロゴ完成後のみ）。smoothstep は edge0 < edge1 のみ定義（PR #413 レビュー対応）。
-  // 視差回転（最大 0.12rad）はこの後段の modelViewMatrix で掛かるため、hold 中の反発中心は
-  // スクリーンから最大数 px ずれる近似（半径 110px に対し誤差 ~7px で許容。回転量を増やす場合は要見直し）
+  // 視差回転（最大 0.12rad）はこの後段の modelViewMatrix で掛かるため、反発中心は
+  // スクリーンから最大数 px ずれる近似（半径 110px に対し誤差 ~7px で許容）
   vec2 d = pos.xy - uMouse;
   float dist = length(d) + 0.0001;
   float force = (1.0 - smoothstep(0.0, ${REPEL_RADIUS_PX.toFixed(1)}, dist))
@@ -95,10 +105,9 @@ void main() {
   float shade = 0.72 + 0.28 * smoothstep(-uHalfDepth, uHalfDepth, pos.z);
   vColor = aColor * shade;
 
-  // drift 序盤でフェードイン。長くすると初回描画が「ほぼ透明」になり
-  // Lighthouse の FCP 計上が遅れる（900ms で FCP +0.9s を実測）ため短く保つ
+  // 序盤でフェードイン → handoff で退場（実ロゴに主役を譲る）
   float fadeIn = clamp(uTime / 250.0, 0.0, 1.0);
-  vAlpha = fadeIn * (0.55 + 0.45 * p) * (0.85 + 0.15 * aRand);
+  vAlpha = fadeIn * (1.0 - uHandoff) * (0.55 + 0.45 * p) * (0.85 + 0.15 * aRand);
 
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mvPosition;
@@ -124,30 +133,41 @@ void main() {
 `;
 
 /**
- * トップページ パーティクルローダー — Issue #412 / #414
+ * トップページ パーティクルローダー — Issue #412 / #414 / #418
  *
- * 5 フェーズ・合計約 10 秒: 粒子が漂い（drift）→ 波状に緩収束（converge）→
- * 一気に吸着（snap）してロゴ（public/loader/logo-particle-source.png）を板厚付きで形成し、
- * 静止（hold: マウス反発 + 視差）を経てフェードアウトする。
- * three.js はこのモジュールごと dynamic import されるためトップページ表示時のみロードされる。
+ * 6 フェーズ・合計約 10 秒: 粒子が漂い（drift）→ 波状に緩収束（converge）→
+ * 一気に吸着（snap）してロゴを板厚付きで形成 → 実ロゴ画像へバトンタッチ（handoff）→
+ * 実ロゴを見せて（hold）→ フェードアウト（fade）。
  *
- * - タイムラインの SSOT は lib/loader/particle-logo.ts。e2e は LOADER_E2E_TIMEOUT_MS で
- *   消滅を待ち、一括実行時は fixtures の __SHAPE_D_LOADER_TIME_SCALE__ で短縮される
- *   （等倍の実時間検証は e2e/top-loader.spec.ts）。
- * - フェード/フォールバックはマウント起点、粒子タイムラインは画像 decode 完了起点。
- *   画像ロードが遅い場合は演出を延ばさず途中で切り上げる（時間予算優先の意図的トレードオフ）。
- * - prefers-reduced-motion 時と WebGL 非対応時は描画しない。
+ * #418 / #416 の要件を満たすための構成:
+ * - **オーバーレイは SSR される**（`ssr: false` をやめ、three.js だけを `import('three')` で
+ *   遅延ロード）。初期 HTML にオーバーレイが存在するため、低速回線でも
+ *   「ヒーローが見えてから覆われる」逆順フラッシュが起きない（#416）。
+ * - **背景は --ink で完全不透明**。ヒーローは透けない（#418）。
+ * - 不透明オーバーレイは Lighthouse の FCP/LCP を演出終了まで遅らせ Performance が 55 まで
+ *   落ちる（#414 実測）。WebGL キャンバスは FCP/LCP の候補要素にならないため、
+ *   **実ロゴ <img> をゴースト（LOGO_GHOST_OPACITY）として最初から描画**して早期に
+ *   contentful paint を成立させ、handoff で 1 まで引き上げる。
+ * - `prefers-reduced-motion` はハイドレーション前から効かせる必要があるため CSS
+ *   （globals.css の `[data-top-loader]`）で非表示にする。JS 側でも unmount する。
+ * - JS 無効環境では `<noscript>` の CSS（globals.css）でオーバーレイを消す。
  */
 export default function TopParticleLoader() {
   const reduceMotion = useReducedMotion();
-  // WebGL 非対応環境では最初から描画しない（detectWebGLSupport はキャッシュ付きで冪等）
-  const [visible, setVisible] = useState(() => detectWebGLSupport());
+  const [visible, setVisible] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // e2e 高速化フラグ（実ユーザーは常に 1）。レンダー中に読むため ref ではなく初期化時に固定
-  const [timeScale] = useState(() => getLoaderTimeScale());
+  // e2e 高速化フラグ（実ユーザーは常に 1）。SSR とクライアント初回描画を一致させるため
+  // マウント後に読み直す（SSR 時は window がないので 1）
+  const [timeScale, setTimeScale] = useState(1);
 
   useEffect(() => {
-    if (reduceMotion || !visible) {
+    setTimeScale(getLoaderTimeScale());
+  }, []);
+
+  useEffect(() => {
+    if (reduceMotion || !detectWebGLSupport()) {
+      // reduced-motion は CSS でも隠しているが、DOM からも外して rAF を回さない
+      setVisible(false);
       return;
     }
 
@@ -167,13 +187,12 @@ export default function TopParticleLoader() {
     let rafId = 0;
     let dispose: (() => void) | undefined;
 
-    const start = (image: HTMLImageElement) => {
+    const start = (THREE: typeof THREE_NS, image: HTMLImageElement) => {
       const probe = document.createElement('canvas');
       probe.width = image.naturalWidth;
       probe.height = image.naturalHeight;
       const probeCtx = probe.getContext('2d', { willReadFrequently: true });
       if (!probeCtx) {
-        setVisible(false);
         return;
       }
       probeCtx.drawImage(image, 0, 0);
@@ -181,7 +200,6 @@ export default function TopParticleLoader() {
         probeCtx.getImageData(0, 0, probe.width, probe.height),
       );
       if (count === 0) {
-        setVisible(false);
         return;
       }
 
@@ -213,7 +231,9 @@ export default function TopParticleLoader() {
 
       // 目標座標（画像 px）を表示サイズへスケールし、z に板厚を与える。
       // 幅だけでなく高さ側でもクランプする — 幅基準のみだとスマホ横持ち
-      // （844x390 等）でロゴが上下クリップする（PR #413 レビュー対応）
+      // （844x390 等）でロゴが上下クリップする（PR #413 レビュー対応）。
+      // この式は LOGO_DISPLAY_WIDTH_CSS（実ロゴ <img> の CSS 幅）と一致させること —
+      // ズレると handoff で粒子と実ロゴの位置が食い違う
       const displayWidth = Math.min(
         width * LOGO_DISPLAY_WIDTH_RATIO,
         LOGO_DISPLAY_WIDTH_MAX_PX,
@@ -259,6 +279,7 @@ export default function TopParticleLoader() {
           uSnap: { value: LOADER_TIMELINE_MS.snap },
           uStagger: { value: PARTICLE_STAGGER_MS },
           uHalfDepth: { value: LOGO_DEPTH_PX / 2 },
+          uHandoff: { value: 0 },
           // 初期値は画面外に置き、ポインタが動くまで反発を発生させない
           uMouse: { value: new THREE.Vector2(1e6, 1e6) },
           uInteract: { value: 0 },
@@ -272,7 +293,7 @@ export default function TopParticleLoader() {
       const points = new THREE.Points(geometry, material);
       scene.add(points);
 
-      // hold 中の視差用に正規化マウス座標（-1..1）も保持する
+      // 視差用に正規化マウス座標（-1..1）も保持する
       const mouseNdc = new THREE.Vector2(0, 0);
       const shaderUniforms = material.uniforms;
       const handlePointerMove = (event: PointerEvent) => {
@@ -280,10 +301,7 @@ export default function TopParticleLoader() {
           event.clientX - width / 2,
           height / 2 - event.clientY,
         );
-        mouseNdc.set(
-          (event.clientX / width) * 2 - 1,
-          (event.clientY / height) * 2 - 1,
-        );
+        mouseNdc.set((event.clientX / width) * 2 - 1, (event.clientY / height) * 2 - 1);
       };
       window.addEventListener('pointermove', handlePointerMove);
       disposers.push(() => window.removeEventListener('pointermove', handlePointerMove));
@@ -297,7 +315,6 @@ export default function TopParticleLoader() {
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         // カメラ距離も追従させ「z=0 で 1 world unit = 1 CSS px」を維持する
-        // （uMouse の座標基準・gl_PointSize の等倍条件と整合させるため）
         const distance = height / 2 / Math.tan(fovRad / 2);
         camera.position.z = distance;
         camera.far = distance * 3;
@@ -307,8 +324,6 @@ export default function TopParticleLoader() {
       window.addEventListener('resize', handleResize);
       disposers.push(() => window.removeEventListener('resize', handleResize));
 
-      const formationEndMs =
-        LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge + LOADER_TIMELINE_MS.snap;
       const startedAt = performance.now();
       const draw = (now: number) => {
         // タイムスケール補正: 高速化時もシェーダは基準 ms で動く
@@ -316,10 +331,16 @@ export default function TopParticleLoader() {
         shaderUniforms.uTime.value = elapsed;
         const interact = THREE.MathUtils.smoothstep(
           elapsed,
-          formationEndMs,
-          formationEndMs + INTERACT_RAMP_MS,
+          LOADER_SNAP_END_MS,
+          LOADER_SNAP_END_MS + INTERACT_RAMP_MS,
         );
         shaderUniforms.uInteract.value = interact;
+        // handoff: 粒子を薄れさせ、実ロゴ <img>（framer 側でフェードイン）へ主役を渡す
+        shaderUniforms.uHandoff.value = THREE.MathUtils.smoothstep(
+          elapsed,
+          LOADER_SNAP_END_MS,
+          LOADER_HANDOFF_END_MS,
+        );
         // 視差: ロゴ完成後、マウス位置に向けて緩やかに傾けて板厚を見せる。
         // PARALLAX_LERP はフレームレート依存（30fps では追従が約半分）だが演出品質のみの影響
         points.rotation.y +=
@@ -332,20 +353,23 @@ export default function TopParticleLoader() {
       rafId = window.requestAnimationFrame(draw);
     };
 
+    // three.js はここで初めてロードする（トップページ表示時のみ・#402 バンドル配慮）。
+    // 失敗してもオーバーレイと実ロゴは SSR 済みで、fade / フォールバックで必ず消える
     const image = new Image();
     image.src = LOADER_LOGO_SRC;
-    image
-      .decode()
-      .then(() => {
+    Promise.all([import('three'), image.decode()])
+      .then(([three]) => {
         if (!cancelled) {
-          start(image);
+          start(three, image);
         }
       })
       .catch((error) => {
         if (process.env.NODE_ENV !== 'production') {
-          console.warn('TopParticleLoader: 演出を開始できないため即時終了します', error);
+          console.warn(
+            'TopParticleLoader: 粒子演出を開始できません（実ロゴのみ表示して終了します）',
+            error,
+          );
         }
-        setVisible(false);
       });
 
     return () => {
@@ -354,36 +378,50 @@ export default function TopParticleLoader() {
       window.cancelAnimationFrame(rafId);
       dispose?.();
     };
-  }, [reduceMotion, visible, timeScale]);
+  }, [reduceMotion, timeScale]);
 
-  if (reduceMotion || !visible) {
+  if (!visible) {
     return null;
   }
-
-  const snapStartMs = LOADER_TIMELINE_MS.drift + LOADER_TIMELINE_MS.converge;
-  const holdEndMs = snapStartMs + LOADER_TIMELINE_MS.snap + LOADER_TIMELINE_MS.hold;
 
   return (
     <m.div
       data-testid="page-loader"
+      data-top-loader
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[2000]"
-      // 不透明にするとページ本体のペイントが演出終了まで Lighthouse に計上されず
-      // FCP/LCP が約 10 秒になる（Performance 55 まで低下・#414 で実測）。
-      // 半透明スクリムなら背後のヒーローが描画として成立し、粒子の視認性も保てる。
-      style={{ background: 'rgba(7, 9, 13, 0.6)' }}
+      className="pointer-events-none fixed inset-0 z-[2000] flex items-center justify-center"
+      // #418: トップページ背景色で完全に塞ぐ（ヒーローを透けさせない）
+      style={{ background: 'var(--ink)' }}
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       transition={{
         duration: (LOADER_TIMELINE_MS.fade * timeScale) / 1000,
-        delay: (holdEndMs * timeScale) / 1000,
+        delay: (LOADER_FADE_START_MS * timeScale) / 1000,
       }}
       onAnimationComplete={() => setVisible(false)}
     >
-      {/* 「snap 以降だけ背景を濃くする」方式は試したが、Lighthouse のシミュレーション
-          （lantern）が FCP/SI を演出終了側（9.4s）へ倒し 54 点まで低下したため断念（#414 実測）。
-          スクリムは一定の 0.6 に保つこと */}
-      <canvas ref={canvasRef} className="relative h-full w-full" />
+      {/* 実ロゴ。粒子のサンプリング元と同一画像・同一サイズ計算なので位置ズレなく重なる。
+          ゴースト（薄表示）から handoff で立ち上げる — 早期の contentful paint も兼ねる（#418）。
+          next/image ではなく素の <img>: SSR 時点で即座に paint させたく、最適化も不要な小サイズのため */}
+      <m.img
+        src={LOADER_LOGO_REVEAL_SRC}
+        alt=""
+        width={LOGO_SOURCE_WIDTH_PX}
+        height={LOGO_SOURCE_HEIGHT_PX}
+        fetchPriority="high"
+        decoding="sync"
+        data-testid="loader-logo"
+        className="absolute h-auto"
+        style={{ width: LOGO_DISPLAY_WIDTH_CSS }}
+        initial={{ opacity: LOGO_GHOST_OPACITY }}
+        animate={{ opacity: 1 }}
+        transition={{
+          duration: (LOADER_TIMELINE_MS.handoff * timeScale) / 1000,
+          delay: (LOADER_SNAP_END_MS * timeScale) / 1000,
+          ease: 'easeInOut',
+        }}
+      />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
     </m.div>
   );
 }

@@ -260,6 +260,18 @@ button:not(.nav-menu-button):hover {
   }
 }
 
+/* トップページ パーティクルローダー（#418 / #416）
+   オーバーレイは SSR されるため、reduced-motion では JS のハイドレーションを待たずに
+   CSS で消す必要がある（待つと一瞬フル画面の暗幕が見えてしまう）。 */
+@media (prefers-reduced-motion: reduce) {
+  [data-top-loader] {
+    display: none !important;
+  }
+}
+
+/* JS 無効環境では、フェードアウトを駆動する framer-motion が動かず SSR された不透明
+   オーバーレイがページを永久に覆う。app/page.tsx の <noscript> が同等の規則を注入して消す。 */
+
 /* Prevent hydration flash on mobile: during SSR→hydration, isReady transitions
    from false to true and switches [data-timeline-item]/[data-vision-quote] from
    opacity-100 to opacity-0 before GSAP can set up ScrollTrigger.
