@@ -90,6 +90,43 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
       .toBe('rgb(7, 9, 13)');
   });
 
+  test('低速回線でも初期 HTML の時点でオーバーレイ背景が透明にならない（#428 回帰ガード）', async ({
+    page,
+    context,
+  }) => {
+    // #428: 背景が `var(--ink)`（外部スタイルシート依存）だと、CSS 到着前は
+    // getComputedStyle が初期値（透明）を返しうる。低速回線（下り約 400kbps・遅延
+    // 400ms 相当）を CDP でエミュレートし、commit 直後から一定時間サンプリングしても
+    // 常に不透明であることを確かめる — 修正後は inline style にリテラル値が直接
+    // 埋め込まれるため、外部 CSS の到着タイミングに依存しなくなる。
+    // ⚠️ `context.newCDPSession` は Chromium 専用の API（CDP = Chrome DevTools Protocol）。
+    // `playwright.config.ts` は現状 chromium プロジェクトのみのため問題ないが、将来
+    // firefox / webkit を追加する場合はこのテストを chromium 限定にする必要がある
+    // （PR #434 レビュー対応）。
+    const client = await context.newCDPSession(page);
+    await client.send('Network.enable');
+    await client.send('Network.emulateNetworkConditions', {
+      offline: false,
+      latency: 400,
+      downloadThroughput: (400 * 1024) / 8,
+      uploadThroughput: (400 * 1024) / 8,
+    });
+
+    await page.goto('/', { waitUntil: 'commit' });
+    const loader = page.getByTestId('page-loader');
+    await loader.waitFor({ state: 'attached', timeout: 5000 });
+
+    const deadline = Date.now() + 2000;
+    let samples = 0;
+    while (Date.now() < deadline) {
+      const background = await loader.evaluate((el) => getComputedStyle(el).backgroundColor);
+      expect(background, 'overlay background must never be transparent').toBe('rgb(7, 9, 13)');
+      samples += 1;
+      await page.waitForTimeout(100);
+    }
+    expect(samples).toBeGreaterThan(0);
+  });
+
   test('粒子が集まったあと実ロゴが立ち上がる（handoff・#418 / #420）', async ({ page }) => {
     await page.goto('/', { waitUntil: 'commit' });
     const logo = page.getByTestId('loader-logo');
