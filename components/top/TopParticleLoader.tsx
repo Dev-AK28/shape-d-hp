@@ -15,6 +15,7 @@ import {
   LOADER_LOGO_SRC,
   LOADER_SNAP_END_MS,
   LOADER_TIMELINE_MS,
+  LOADER_TOTAL_MS,
   LOGO_DEPTH_PX,
   LOGO_DISPLAY_HEIGHT_RATIO,
   LOGO_DISPLAY_WIDTH_CSS,
@@ -162,19 +163,35 @@ export default function TopParticleLoader() {
   // setState で後から変えると effect が再実行され three.js の初期化が 2 周するため、
   // 初期化時に一度だけ固定する（PR #419 レビュー対応）
   const [timeScale] = useState(() => getLoaderTimeScale());
-  // タイムラインの起点はマウント（＝ハイドレーション完了）だが、オーバーレイ自体は
-  // SSR で早く描かれている。低速回線でハイドレーションが遅れた分だけ暗転が伸びないよう、
-  // ナビゲーション起点の経過を差し引いて残り時間を切る（PR #419 レビュー対応）。
   // SSR では 0（performance.now() はプロセス起動起点の巨大な値になるため使わない）
   const [elapsedAtMount] = useState(() =>
     typeof window === 'undefined' ? 0 : performance.now(),
   );
-  // ただし e2e 高速モード（timeScale < 1）は全予算が 1.65 秒しかなく、
-  // ハイドレーションがそれを超えると全フェーズが 0 に潰れて演出が一度も走らなくなる
-  // （テストは緑のままカバレッジだけ失われる）。高速モードではマウント起点に戻す
-  const originMs = timeScale === 1 ? 0 : elapsedAtMount;
+  /**
+   * タイムラインの起点（PR #419 レビュー対応）。
+   *
+   * - **初回ロード（SSR された HTML がトップ）**: ナビゲーション起点（0）。オーバーレイは
+   *   SSR で早く描かれているため、ハイドレーションの遅れ分だけ暗転が伸びないよう
+   *   残り時間を切る（低速回線対策）。
+   * - **soft nav（下層 → `<Link href="/">` でトップへ）**: マウント起点。`performance.now()` は
+   *   ドキュメントの timeOrigin 起点でクライアント遷移ではリセットされないため、ナビ起点の
+   *   ままだと「下層を 11 秒以上見てから戻る」と残り時間が全て 0 になり、**オーバーレイが
+   *   1 フレームだけ描かれて即消える黒フラッシュ**になる（演出も一度も走らない）。
+   * - **e2e 高速モード**: マウント起点。全予算が 1.65 秒しかなく、ナビ起点だとハイドレーションが
+   *   それを超えた瞬間に演出が一度も走らないままテストだけ緑になる。
+   */
+  const [originMs] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 0;
+    }
+    const isInitialTopLoad =
+      getLoaderTimeScale() === 1 && !!document.querySelector('[data-top-loader]');
+    return isInitialTopLoad ? 0 : performance.now();
+  });
   const remaining = (budgetMs: number) =>
     Math.max(0, budgetMs * timeScale - (elapsedAtMount - originMs));
+  /** framer の duration も delay と同じ物差しで導く（切り詰めた分だけ縮める）。 */
+  const spanMs = (fromMs: number, toMs: number) => remaining(toMs) - remaining(fromMs);
 
   useEffect(() => {
     if (reduceMotion || !detectWebGLSupport()) {
@@ -224,9 +241,18 @@ export default function TopParticleLoader() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
       // 確保したリソースは即 disposers に積む — 以降のどの時点で失敗しても解放漏れしない
-      // （PR #413 レビュー対応。forceContextLoss で GL コンテキストも即時返却する）
+      // （PR #413 レビュー対応。forceContextLoss で GL コンテキストも即時返却する）。
+      // 非破壊コピーを逆順に回し、冪等にする — reverse() を直接呼ぶと二度目の dispose が
+      // 元順で再実行され forceContextLoss が二重発火する（PR #419 レビュー対応）
       const disposers: Array<() => void> = [];
-      dispose = () => disposers.reverse().forEach((run) => run());
+      let disposed = false;
+      dispose = () => {
+        if (disposed) {
+          return;
+        }
+        disposed = true;
+        [...disposers].reverse().forEach((run) => run());
+      };
       disposers.push(() => {
         renderer.dispose();
         renderer.forceContextLoss();
@@ -420,15 +446,21 @@ export default function TopParticleLoader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduceMotion, visible]);
 
-  // a11y: 演出中はヒーローが不可視のためフォーカスリングが見えない（WCAG 2.4.7）。
-  // キーボード操作を検知したら演出を即スキップして本体を見せる（PR #419 レビュー対応）
+  // a11y: 演出中はヒーローが不可視なので、キーボードのフォーカスリングも
+  // クリック対象も見えない（WCAG 2.4.7）。ユーザー操作を検知したら演出を即スキップして
+  // 本体を見せる。オーバーレイは pointer-events-none のままなので操作自体は背後に通る
+  // （PR #419 レビュー対応）
   useEffect(() => {
     if (!visible) {
       return;
     }
     const skip = () => setVisible(false);
     window.addEventListener('keydown', skip, { once: true });
-    return () => window.removeEventListener('keydown', skip);
+    window.addEventListener('pointerdown', skip, { once: true });
+    return () => {
+      window.removeEventListener('keydown', skip);
+      window.removeEventListener('pointerdown', skip);
+    };
   }, [visible]);
 
   if (!visible) {
@@ -446,7 +478,9 @@ export default function TopParticleLoader() {
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       transition={{
-        duration: (LOADER_TIMELINE_MS.fade * timeScale) / 1000,
+        // duration も delay と同じ物差しで導く — 固定にすると、ハイドレーションが遅れて
+        // delay だけ切り詰められたとき粒子（シェーダ時計）と食い違う（PR #419 レビュー対応）
+        duration: spanMs(LOADER_FADE_START_MS, LOADER_TOTAL_MS) / 1000,
         // ハイドレーションが遅れた分を差し引く（低速回線で暗転が伸びないように）
         delay: remaining(LOADER_FADE_START_MS) / 1000,
       }}
@@ -469,7 +503,8 @@ export default function TopParticleLoader() {
         initial={{ opacity: LOGO_GHOST_OPACITY }}
         animate={{ opacity: 1 }}
         transition={{
-          duration: (LOADER_TIMELINE_MS.handoff * timeScale) / 1000,
+          // 粒子の uHandoff（シェーダ時計）と同じ区間を共有する
+          duration: spanMs(LOADER_SNAP_END_MS, LOADER_HANDOFF_END_MS) / 1000,
           delay: remaining(LOADER_SNAP_END_MS) / 1000,
           ease: 'easeInOut',
         }}

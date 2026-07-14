@@ -144,6 +144,9 @@ function enableParticles() {
 beforeEach(() => {
   mockUseReducedMotion.mockReturnValue(false);
   mockDetectWebGLSupport.mockReturnValue(true);
+  // タイムラインはナビゲーション起点（performance.now()）で残り時間を切るため、
+  // テストの実行時間に結果が左右されないよう 0 に固定する（PR #419 レビュー対応）
+  vi.spyOn(performance, 'now').mockReturnValue(0);
   // jsdom の Image は decode() 未実装（spy 不可）のため直接生やす。
   // 失敗させることで「粒子演出が始まらない」経路を再現する
   (window.Image.prototype as { decode?: () => Promise<void> }).decode = () =>
@@ -153,6 +156,9 @@ beforeEach(() => {
 
 afterEach(() => {
   delete (window.Image.prototype as { decode?: () => Promise<void> }).decode;
+  // defineProperty は restoreAllMocks では戻らないため明示的に消す（prototype 汚染防止）
+  delete (window.Image.prototype as { naturalWidth?: number }).naturalWidth;
+  delete (window.Image.prototype as { naturalHeight?: number }).naturalHeight;
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
@@ -186,6 +192,21 @@ describe('TopParticleLoader', () => {
 
     await vi.advanceTimersByTimeAsync(LOADER_FALLBACK_MS + 100);
     await waitFor(() => expect(queryByTestId('page-loader')).toBeNull());
+  });
+
+  it('soft nav（下層 → トップ）でも演出が最初から走る（黒フラッシュ回帰ガード・#419）', async () => {
+    // performance.now() はドキュメントの timeOrigin 起点で soft nav ではリセットされない。
+    // 下層を長く見てからトップへ戻った状況を再現する
+    vi.spyOn(performance, 'now').mockReturnValue(60_000);
+    // soft nav では SSR されたオーバーレイが DOM にない（クライアント描画のみ）
+    expect(document.querySelector('[data-top-loader]')).toBeNull();
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { queryByTestId } = render(<TopParticleLoader />);
+
+    // 即消え（黒フラッシュ）ではなく、演出の尺だけ表示され続けること
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(queryByTestId('page-loader')).not.toBeNull();
   });
 
   it('キーボード操作で演出を即スキップする（WCAG 2.4.7 の緩和・#419 レビュー対応）', async () => {

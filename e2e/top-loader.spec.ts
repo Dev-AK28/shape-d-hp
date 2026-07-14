@@ -14,6 +14,27 @@ import {
  * 他のスペックは e2e/fixtures.ts 経由で短縮版が適用される。
  */
 test.describe('Top particle loader (#412 / #414 / #418)', () => {
+  test('soft nav（下層 → トップ）でも演出が最初から走る（黒フラッシュ回帰ガード・#419）', async ({
+    page,
+  }) => {
+    // performance.now() はドキュメントの timeOrigin 起点で soft nav ではリセットされない。
+    // 下層を演出の全予算より長く見てからトップへ戻ると、ナビ起点のままでは残り時間が
+    // すべて 0 になり「オーバーレイが 1 フレームだけ描かれて即消える」黒フラッシュになる
+    await page.goto('/services');
+    await page.waitForTimeout(LOADER_E2E_TIMEOUT_MS);
+
+    await page.locator('nav a[href="/"]').first().click();
+    const loader = page.getByTestId('page-loader');
+
+    // 即消えではなく、演出の尺だけ表示され続けること
+    await expect(loader).toHaveCount(1);
+    await page.waitForTimeout(LOADER_SNAP_END_MS - 1500);
+    await expect(loader).toHaveCount(1);
+
+    // 最終的にはきちんと消える
+    await expect(loader).toHaveCount(0, { timeout: LOADER_E2E_TIMEOUT_MS });
+  });
+
   test('オーバーレイは SSR され、初期 HTML の時点でヒーローを完全に覆う（#418 / #416）', async ({
     page,
   }) => {
@@ -74,12 +95,23 @@ test.describe('Top particle loader (#412 / #414 / #418)', () => {
     const loader = page.getByTestId('page-loader');
     await loader.waitFor({ state: 'attached', timeout: 5000 });
 
-    // ハイドレーション完了を待ってから Tab（ローダーが keydown を購読するのは effect 内）
-    await expect(page.locator('#hero .hero-mark')).toBeVisible({ timeout: 15_000 });
-    await page.keyboard.press('Tab');
+    // ローダーが keydown を購読するのは effect 内（＝ハイドレーション後）。ヒーローは SSR で
+    // 即描画されるため「見えたら押す」ではリスナー登録前に押してしまう競合がある。
+    // Tab を押しながら消滅をポーリングして、押下タイミングに依存しないようにする
+    await expect
+      .poll(
+        async () => {
+          await page.keyboard.press('Tab');
+          return loader.count();
+        },
+        { timeout: 8000, intervals: [200, 300, 500] },
+      )
+      .toBe(0);
 
-    // 10 秒待たずに消える（演出の残り時間を待たない）
-    await expect(loader).toHaveCount(0, { timeout: 3000 });
+    // 演出の尺（10 秒）を待たずに消えていること
+    expect(Number(await page.evaluate(() => performance.now()))).toBeLessThan(
+      LOADER_TOTAL_MS,
+    );
   });
 
   test('演出中も pointer-events を奪わず背後の操作をブロックしない', async ({ page }) => {

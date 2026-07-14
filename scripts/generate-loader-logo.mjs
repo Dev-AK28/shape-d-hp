@@ -118,11 +118,15 @@ console.log(`wrote ${REVEAL_OUTPUT} (transparent reveal logo)`);
 // 生成結果の寸法は lib/loader/particle-logo.ts の LOGO_SOURCE_*_PX と一致していなければ
 // ならない（実ロゴ <img> の CSS 幅がこの定数からアスペクト比を導くため）。
 // クロップ条件を変えて寸法が変わったら、定数も更新すること
+// 幅は OUTPUT_WIDTH で決まる。高さはクロップ比から決まるため、変わったら定数側の更新が必要。
+// 逆向き（定数を変えたら落ちる）は tests/loader/particle-logo.test.ts が PNG ヘッダを読んで担保する
 const revealMeta = await sharp(REVEAL_OUTPUT).metadata();
-const expected = { width: 360, height: 286 }; // = LOGO_SOURCE_WIDTH_PX / LOGO_SOURCE_HEIGHT_PX
-if (revealMeta.width !== expected.width || revealMeta.height !== expected.height) {
+if (revealMeta.width !== OUTPUT_WIDTH) {
   throw new Error(
-    `寸法が LOGO_SOURCE_*_PX と一致しません: ${revealMeta.width}x${revealMeta.height} ` +
-      `(期待 ${expected.width}x${expected.height})。lib/loader/particle-logo.ts の定数を更新してください`,
+    `幅が OUTPUT_WIDTH と一致しません: ${revealMeta.width} (期待 ${OUTPUT_WIDTH})`,
   );
 }
+console.log(
+  `reveal size: ${revealMeta.width}x${revealMeta.height} ` +
+    '(lib/loader/particle-logo.ts の LOGO_SOURCE_*_PX と一致していること)',
+);
