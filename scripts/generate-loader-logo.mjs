@@ -91,8 +91,16 @@ const reveal = await sharp(SOURCE)
 const px = reveal.data;
 for (let i = 0; i < px.length; i += 4) {
   const lum = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
-  const alpha = (lum - ALPHA_FLOOR) / (ALPHA_CEIL - ALPHA_FLOOR);
-  px[i + 3] = Math.round(Math.min(Math.max(alpha, 0), 1) * 255);
+  const alpha = Math.min(Math.max((lum - ALPHA_FLOOR) / (ALPHA_CEIL - ALPHA_FLOOR), 0), 1);
+  px[i + 3] = Math.round(alpha * 255);
+  // アルファを起こした分だけ RGB を持ち上げる（un-premultiply 相当）。
+  // 据え置きにすると「暗い RGB × 低アルファ」で二重に沈み、ダーク地に合成したとき
+  // 元より暗くなる（粒子は加算ブレンドで明るいため handoff で明度が跳ねる）
+  if (alpha > 0) {
+    for (let c = 0; c < 3; c += 1) {
+      px[i + c] = Math.round(Math.min(px[i + c] / alpha, 255));
+    }
+  }
 }
 
 await sharp(px, {
