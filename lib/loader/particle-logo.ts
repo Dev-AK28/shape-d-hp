@@ -140,9 +140,15 @@ export const LOGO_DISPLAY_WIDTH_MAX_PX = 520;
  */
 export const LOGO_DISPLAY_HEIGHT_RATIO = 0.7;
 
-/** サンプリング元 = 実ロゴ画像の原寸（public/loader/logo-particle-source.png）。 */
+/**
+ * サンプリング元 = 実ロゴ画像の原寸（public/loader/logo-particle-source.png）。
+ * #424 で元画像を public/image.png（1024x1024）に差し替えたことでクロップ結果の
+ * アスペクト比が変わり、286 → 284 になった（scripts/generate-loader-logo.mjs が
+ * 動的に算出した値。定数側の更新を怠ると tests/loader/particle-logo.test.ts が
+ * PNG ヘッダとの不一致で落ちる）。
+ */
 export const LOGO_SOURCE_WIDTH_PX = 360;
-export const LOGO_SOURCE_HEIGHT_PX = 286;
+export const LOGO_SOURCE_HEIGHT_PX = 284;
 
 /**
  * 実ロゴ <img> の CSS 幅。粒子側のスケール計算（TopParticleLoader）と同じ式を
@@ -160,7 +166,15 @@ export const LOGO_DISPLAY_WIDTH_CSS = `min(${LOGO_DISPLAY_WIDTH_RATIO * 100}vw, 
  * 1px にすると現行ロゴで 12,555 個の候補が得られ、上限 12,000 を満たせる。
  */
 export const SAMPLE_STEP_PX = 1;
-export const SAMPLE_LUMINANCE_THRESHOLD = 60;
+/**
+ * #424: 元画像を public/image.png（真の透過 PNG）に差し替えたことで閾値を
+ * 60 → 150 に変更した。新画像は alpha=0 の背景に平均輝度 135 前後のグレー値が
+ * 残留しているため、旧来の閾値 60 のままだと背景ごと拾ってしまう
+ * （sampleLogoParticles の alpha >= 128 フィルタと組み合わせて、ロゴ本体のうち
+ * 明るい銀色のハイライト部分だけを候補にする）。150 で候補 12,396 個が得られ、
+ * 上限 12,000 を満たす（実測）。
+ */
+export const SAMPLE_LUMINANCE_THRESHOLD = 150;
 /** 粒子数の上限。#420 で 6,000 → 12,000（密度を上げてロゴの線をはっきり出す）。 */
 export const PARTICLE_MAX_COUNT = 12_000;
 

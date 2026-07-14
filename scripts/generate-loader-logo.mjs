@@ -1,14 +1,23 @@
 /**
- * トップページ パーティクルローダーのサンプリング用ロゴ生成 — Issue #412
+ * トップページ パーティクルローダーのサンプリング用ロゴ生成 — Issue #412 / #424
  *
- * public/image_2.png（1408x768・不透過ダーク地・右下に装飾✦あり）から、
- * ロゴ+ワードマーク部分だけを切り出して幅 360px に縮小した PNG を
- * public/loader/logo-particle-source.png へ出力する。
+ * public/image.png（1024x1024・真の透過 PNG）から、ロゴ+ワードマーク部分だけを
+ * 切り出して幅 360px に縮小した PNG を public/loader/logo-particle-source.png へ
+ * 出力する。
+ *
+ * #424 で元画像を public/image_2.png（1408x768・不透過ダーク地・右下に装飾✦あり）
+ * から public/image.png（1024x1024・透過・ワードマーク付き・✦なし）へ差し替えた。
+ * 新画像は alpha=0 の完全透明領域が全体の約89%を占める**真の透過 PNG**で、
+ * 残りの不透明〜半透明領域がロゴ本体（頭部シルエット + ∞マーク + 下部の
+ * 「SHAPE∞D」ワードマーク）。透明領域にも背景っぽいグレーの RGB 値が
+ * 残留しているため、旧スクリプトのように輝度だけでロゴ範囲を判定すると
+ * 背景ごと拾ってしまう（実測: 輝度 60 以上のピクセルは全体の 96.8%）。
+ * alpha チャンネルは既に正確なロゴ形状マスクなので、alpha を主軸に据える。
  *
  * 手順:
- * 1. 中央領域（右下の✦を除外できる範囲）に限定して輝度の高いピクセルの
- *    バウンディングボックスを求める
- * 2. パディングを付けて切り出し、幅 360px に縮小して出力する
+ * 1. alpha >= ALPHA_BBOX_THRESHOLD のピクセルのバウンディングボックスを求める
+ *    （新画像に✦のような除外すべき装飾はないため、旧来の SCAN_REGION は不要）
+ * 2. パディングを付けて切り出し、幅 360px に縮小して出力する（alpha はそのまま保持）
  *
  * 実行: node scripts/generate-loader-logo.mjs
  */
@@ -16,38 +25,30 @@ import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
-const SOURCE = 'public/image_2.png';
+const SOURCE = 'public/image.png';
 const OUTPUT = 'public/loader/logo-particle-source.png';
 /** handoff で立ち上げる表示用ロゴ（背景透過・Issue #418）。粒子と同じクロップ・寸法。 */
 const REVEAL_OUTPUT = 'public/loader/logo-reveal.png';
-/** 輝度 → アルファの変換域。この下は完全透過、上は完全不透過。 */
-const ALPHA_FLOOR = 28;
-const ALPHA_CEIL = 150;
 const OUTPUT_WIDTH = 360;
-const LUMINANCE_THRESHOLD = 60;
-// ✦（右下 x≈95% / y≈92%）を除外しつつロゴ全体が収まる走査範囲。
-const SCAN_REGION = { left: 0.15, top: 0.08, right: 0.85, bottom: 0.9 };
+/** ロゴ本体（alpha が乗った領域）のバウンディングボックスを求めるための alpha 閾値。 */
+const ALPHA_BBOX_THRESHOLD = 128;
 const PADDING_PX = 24;
 
 const { data, info } = await sharp(SOURCE)
+  .ensureAlpha()
   .raw()
   .toBuffer({ resolveWithObject: true });
 
 const { width, height, channels } = info;
-const x0 = Math.floor(width * SCAN_REGION.left);
-const x1 = Math.ceil(width * SCAN_REGION.right);
-const y0 = Math.floor(height * SCAN_REGION.top);
-const y1 = Math.ceil(height * SCAN_REGION.bottom);
 
 let minX = Infinity;
 let minY = Infinity;
 let maxX = -Infinity;
 let maxY = -Infinity;
-for (let y = y0; y < y1; y += 1) {
-  for (let x = x0; x < x1; x += 1) {
+for (let y = 0; y < height; y += 1) {
+  for (let x = 0; x < width; x += 1) {
     const i = (y * width + x) * channels;
-    const luminance = 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
-    if (luminance < LUMINANCE_THRESHOLD) {
+    if (data[i + 3] < ALPHA_BBOX_THRESHOLD) {
       continue;
     }
     minX = Math.min(minX, x);
@@ -58,7 +59,7 @@ for (let y = y0; y < y1; y += 1) {
 }
 
 if (!Number.isFinite(minX)) {
-  throw new Error(`no bright pixels found in ${SOURCE} scan region`);
+  throw new Error(`no opaque pixels found in ${SOURCE} (alpha >= ${ALPHA_BBOX_THRESHOLD})`);
 }
 
 const left = Math.max(0, minX - PADDING_PX);
@@ -67,6 +68,13 @@ const cropWidth = Math.min(width, maxX + PADDING_PX) - left;
 const cropHeight = Math.min(height, maxY + PADDING_PX) - top;
 
 await mkdir(path.dirname(OUTPUT), { recursive: true });
+
+// サンプリング元。alpha は加工せずそのまま保持する — sampleLogoParticles()
+// (lib/loader/particle-logo.ts) が実行時に alpha >= 128 を安全フィルタとして
+// 適用するため、透明な背景ピクセルはここで潰さなくても自動的に除外される。
+// SAMPLE_LUMINANCE_THRESHOLD と組み合わせることで、ロゴのうち明るい銀色の
+// ハイライト部分だけが粒子候補になる（暗い縁取り部分をそのまま粒子色にすると
+// --ink 背景上でほぼ見えなくなるため除外する）。
 await sharp(SOURCE)
   .extract({ left, top, width: cropWidth, height: cropHeight })
   .resize({ width: OUTPUT_WIDTH })
@@ -79,37 +87,12 @@ console.log(
 
 // 表示用（handoff で立ち上げる実ロゴ・Issue #418）。
 // サンプリング元と同じクロップ・同じ寸法にすることで、粒子と実ロゴの位置が一致する。
-// 元画像はダークなテクスチャ背景を持つため、そのまま重ねると矩形の枠として見えてしまう。
-// 輝度からアルファを起こして背景を透過させ、--ink のオーバーレイに溶け込ませる。
-const reveal = await sharp(SOURCE)
+// 新画像は既に正しい透過マスクを持っているため、旧スクリプトのような
+// 「輝度からアルファを起こす」変換（un-premultiply 含む）は不要。
+// crop + resize のみでネイティブの alpha をそのまま活かす。
+await sharp(SOURCE)
   .extract({ left, top, width: cropWidth, height: cropHeight })
   .resize({ width: OUTPUT_WIDTH })
-  .ensureAlpha()
-  .raw()
-  .toBuffer({ resolveWithObject: true });
-
-const px = reveal.data;
-for (let i = 0; i < px.length; i += 4) {
-  const lum = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
-  const alpha = Math.min(Math.max((lum - ALPHA_FLOOR) / (ALPHA_CEIL - ALPHA_FLOOR), 0), 1);
-  px[i + 3] = Math.round(alpha * 255);
-  // アルファを起こした分だけ RGB を持ち上げる（un-premultiply 相当）。
-  // 据え置きにすると「暗い RGB × 低アルファ」で二重に沈み、ダーク地に合成したとき
-  // 元より暗くなる（粒子は加算ブレンドで明るいため handoff で明度が跳ねる）
-  if (alpha > 0) {
-    for (let c = 0; c < 3; c += 1) {
-      px[i + c] = Math.round(Math.min(px[i + c] / alpha, 255));
-    }
-  }
-}
-
-// palette（8-bit colormap）は輝度由来のアルファ勾配を量子化するため、バンディングを
-// 実測して採用可否を判断した（PR #419 レビュー対応）。true color 版との差は
-// アルファ最大 11/255・平均 0.24/255、可視領域の RGB も平均 1.9/255 で目視不可能な一方、
-// サイズは 180KB → 21KB と大きく効く。実ロゴは LCP 候補要素なので軽さを優先する
-await sharp(px, {
-  raw: { width: reveal.info.width, height: reveal.info.height, channels: 4 },
-})
   .png({ compressionLevel: 9, palette: true, quality: 90, dither: 1.0 })
   .toFile(REVEAL_OUTPUT);
 

@@ -23,10 +23,11 @@ Issue: #214 / Part of #210
 | `image_6.webp` | 24 KB | ✅ 変換済 |
 | `image_8.webp` | 28 KB | ✅ 変換済 |
 | `image_10.webp` | 68 KB | ✅ 変換済 |
-| `image_2.png` | 1,500 KB（PNG のまま） | ⚠️ 未変換 |
 | `image_13.png` | 1,500 KB（PNG のまま） | ⚠️ 未変換 |
 
-> 未変換 PNG 2ファイルは `npm run optimize:images` で WebP 化すること（`lib/performance/image-assets.ts` 参照リストを更新してから実行）。
+> 未変換 PNG 1ファイルは `npm run optimize:images` で WebP 化すること（`lib/performance/image-assets.ts` 参照リストを更新してから実行）。
+>
+> **#424**: `image_2.png`（旧パーティクルローダーのロゴ元ネタ）は `public/image.png` への差し替えに伴い削除した。`image.png` はクライアントに配信されず、`node scripts/generate-loader-logo.mjs` のビルド時入力としてのみ使われ、実際に配信されるのは生成後の `public/loader/logo-particle-source.png`（約22KB）と `public/loader/logo-reveal.png`（約27KB）のみなので、本テーブルの WebP 化対象には含めない。
 
 ---
 
