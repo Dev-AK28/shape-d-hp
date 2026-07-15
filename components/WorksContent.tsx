@@ -95,7 +95,7 @@ export default function WorksContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
         >
-          <h2 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 300, color: colors.blueLight, marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
             PROJECTS
           </h2>
           {projects.map((work, index) => (
@@ -137,7 +137,7 @@ export default function WorksContent() {
                       backgroundSize: `${spacing.md}px ${spacing.md}px`,
                     }}
                   />
-                  <div style={{ position: 'relative', textAlign: 'center', color: '#60a5fa' }}>
+                  <div style={{ position: 'relative', textAlign: 'center', color: colors.blue }}>
                     <div
                       style={{
                         width: `${spacing.xxl}px`,
@@ -152,12 +152,12 @@ export default function WorksContent() {
                         fontWeight: 300,
                         fontFamily: 'serif',
                         letterSpacing: '0.05em',
-                        color: '#93c5fd',
+                        color: colors.blueLight,
                       }}
                     >
                       {work.monogram}
                     </div>
-                    <p style={{ fontSize: '14px', letterSpacing: '0.1em', fontFamily: 'serif', color: '#9ca3af' }}>{work.imagePlaceholder}</p>
+                    <p style={{ fontSize: '14px', letterSpacing: '0.1em', fontFamily: 'serif', color: colors.muted }}>{work.imagePlaceholder}</p>
                   </div>
                 </m.div>
 
@@ -165,23 +165,23 @@ export default function WorksContent() {
                 <div>
                   <div style={{ marginBottom: '32px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '12px', color: '#60a5fa', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                      <span style={{ fontSize: '12px', color: colors.blue, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                         {work.category}
                       </span>
-                      <span style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                      <span style={{ fontSize: '12px', color: colors.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                         {work.status}
                       </span>
                     </div>
                     <h3 style={{ fontSize: 'clamp(28px, 4vw, 36px)', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif', lineHeight: 1.3 }}>
                       {work.title}
                     </h3>
-                    <p style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em', fontFamily: 'serif' }}>
+                    <p style={{ fontSize: '14px', color: colors.muted, letterSpacing: '0.1em', fontFamily: 'serif' }}>
                       {work.tech}
                     </p>
                   </div>
 
                   <div style={{ marginBottom: '32px' }}>
-                    <h4 style={{ fontSize: '14px', color: '#93c5fd', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                    <h4 style={{ fontSize: '14px', color: colors.blueLight, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                       背景・課題
                     </h4>
                     <p style={{ color: '#d1d5db', lineHeight: 2, fontSize: '16px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -190,7 +190,7 @@ export default function WorksContent() {
                   </div>
 
                   <div style={{ marginBottom: '32px' }}>
-                    <h4 style={{ fontSize: '14px', color: '#93c5fd', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                    <h4 style={{ fontSize: '14px', color: colors.blueLight, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                       解決策
                     </h4>
                     <p style={{ color: '#d1d5db', lineHeight: 2, fontSize: '16px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -199,7 +199,7 @@ export default function WorksContent() {
                   </div>
 
                   <div style={{ padding: '32px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(59, 130, 246, 0.08), rgba(147, 51, 234, 0.08))', backdropFilter: 'blur(10px)' }}>
-                    <h4 style={{ fontSize: '14px', color: '#93c5fd', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                    <h4 style={{ fontSize: '14px', color: colors.blueLight, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                       結果
                     </h4>
                     <p style={{ color: '#d1d5db', lineHeight: 2, fontSize: '16px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -218,7 +218,7 @@ export default function WorksContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px' }}
         >
-          <h2 style={{ fontSize: '24px', fontWeight: 300, color: '#93c5fd', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 300, color: colors.blueLight, marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.1em' }}>
             CONCEPT WORKS
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
@@ -254,23 +254,23 @@ export default function WorksContent() {
                 {/* Content */}
                 <div style={{ marginBottom: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '11px', color: '#60a5fa', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '11px', color: colors.blue, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                       {work.category}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '11px', color: colors.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                       {work.status}
                     </span>
                   </div>
                   <h3 style={{ fontSize: '24px', fontWeight: 300, color: 'white', marginBottom: '12px', fontFamily: 'serif', lineHeight: 1.3 }}>
                     {work.title}
                   </h3>
-                  <p style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '0.1em', fontFamily: 'serif' }}>
+                  <p style={{ fontSize: '12px', color: colors.muted, letterSpacing: '0.1em', fontFamily: 'serif' }}>
                     {work.tech}
                   </p>
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                  <h4 style={{ fontSize: '12px', color: '#93c5fd', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                  <h4 style={{ fontSize: '12px', color: colors.blueLight, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                     背景・課題
                   </h4>
                   <p style={{ color: '#d1d5db', lineHeight: 1.9, fontSize: '14px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -279,7 +279,7 @@ export default function WorksContent() {
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                  <h4 style={{ fontSize: '12px', color: '#93c5fd', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                  <h4 style={{ fontSize: '12px', color: colors.blueLight, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                     解決策
                   </h4>
                   <p style={{ color: '#d1d5db', lineHeight: 1.9, fontSize: '14px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -288,7 +288,7 @@ export default function WorksContent() {
                 </div>
 
                 <div style={{ padding: '24px', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', background: 'linear-gradient(to right, rgba(59, 130, 246, 0.08), rgba(147, 51, 234, 0.08))' }}>
-                  <h4 style={{ fontSize: '12px', color: '#93c5fd', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+                  <h4 style={{ fontSize: '12px', color: colors.blueLight, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
                     結果
                   </h4>
                   <p style={{ color: '#d1d5db', lineHeight: 1.9, fontSize: '14px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -306,13 +306,13 @@ export default function WorksContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.8, isMobile: isTouchDevice })}
           style={{ textAlign: 'center', paddingTop: '64px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
         >
-          <p style={{ fontSize: '14px', color: '#9ca3af', letterSpacing: '0.1em', fontFamily: 'serif' }}>
+          <p style={{ fontSize: '14px', color: colors.muted, letterSpacing: '0.1em', fontFamily: 'serif' }}>
             Technology powered by{' '}
             <a
               href="https://www.getgodd.dev/"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: '#60a5fa', textDecoration: 'none', borderBottom: '1px solid rgba(96, 165, 250, 0.3)' }}
+              style={{ color: colors.blue, textDecoration: 'none', borderBottom: '1px solid rgba(96, 165, 250, 0.3)' }}
             >
               GoDD
             </a>

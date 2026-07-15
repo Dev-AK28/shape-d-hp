@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { m } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
+import { colors } from '@/lib/design/tokens';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
@@ -96,7 +97,7 @@ export default function ConsultingContent() {
           }} />
           
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '32px', fontFamily: 'serif', lineHeight: 1.3 }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 300, color: colors.purple, marginBottom: '32px', fontFamily: 'serif', lineHeight: 1.3 }}>
               「自分を語れない人間は、選ばれない時代」
             </h2>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '24px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
@@ -114,7 +115,7 @@ export default function ConsultingContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
         >
-          <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 300, color: colors.purple, marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             3 Steps Process
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
@@ -141,7 +142,7 @@ export default function ConsultingContent() {
                     justifyContent: 'center',
                     fontSize: '36px',
                     fontWeight: 300,
-                    color: '#a78bfa',
+                    color: colors.purple,
                     fontFamily: 'serif',
                     background: 'rgba(167, 139, 250, 0.1)',
                     marginBottom: '24px'
@@ -151,7 +152,7 @@ export default function ConsultingContent() {
                   <h3 style={{ fontSize: '24px', fontWeight: 300, color: 'white', marginBottom: '16px', fontFamily: 'serif', lineHeight: 1.3 }}>
                     {step.title}
                   </h3>
-                  <h4 style={{ fontSize: '12px', color: '#a78bfa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  <h4 style={{ fontSize: '12px', color: colors.purple, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '8px' }}>
                     {step.subtitle}
                   </h4>
                 </div>
@@ -161,18 +162,18 @@ export default function ConsultingContent() {
                 </p>
 
                 <div style={{ padding: '24px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', marginBottom: '24px' }}>
-                  <p style={{ color: '#9ca3af', lineHeight: 1.9, fontSize: '14px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
+                  <p style={{ color: colors.muted, lineHeight: 1.9, fontSize: '14px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
                     {step.detail}
                   </p>
                 </div>
 
                 <div style={{ display: 'flex', gap: '24px', fontSize: '13px', flexWrap: 'wrap' }}>
                   <div>
-                    <span style={{ color: '#a78bfa', letterSpacing: '0.1em', textTransform: 'uppercase' }}>所要時間: </span>
+                    <span style={{ color: colors.purple, letterSpacing: '0.1em', textTransform: 'uppercase' }}>所要時間: </span>
                     <span style={{ color: '#d1d5db', marginLeft: '8px' }}>{step.duration}</span>
                   </div>
                   <div>
-                    <span style={{ color: '#a78bfa', letterSpacing: '0.1em', textTransform: 'uppercase' }}>成果物: </span>
+                    <span style={{ color: colors.purple, letterSpacing: '0.1em', textTransform: 'uppercase' }}>成果物: </span>
                     <span style={{ color: '#d1d5db', marginLeft: '8px' }}>{step.output}</span>
                   </div>
                 </div>
@@ -187,33 +188,33 @@ export default function ConsultingContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.6, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px', padding: '64px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
         >
-          <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '48px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 300, color: colors.purple, marginBottom: '48px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             なぜ「自己表現力」が最も必要なスキルなのか
           </h2>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              まず、<span style={{ color: '#a78bfa', fontWeight: 500 }}>時代の変化</span>だ。終身雇用・年功序列が崩壊し、転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく<span style={{ color: '#a78bfa', fontWeight: 500 }}>「自分が何者で、何を提供できるか」を語れる</span>ことが生存戦略として機能する。つまり、個を語れない人間は選ばれない時代になった。
+              まず、<span style={{ color: colors.purple, fontWeight: 500 }}>時代の変化</span>だ。終身雇用・年功序列が崩壊し、転職・副業・独立が当たり前になった現代では、「組織に属していること」ではなく<span style={{ color: colors.purple, fontWeight: 500 }}>「自分が何者で、何を提供できるか」を語れる</span>ことが生存戦略として機能する。つまり、個を語れない人間は選ばれない時代になった。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              <span style={{ color: '#a78bfa', fontWeight: 500 }}>AI時代の到来</span>も重要だ。AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが<span style={{ color: '#a78bfa', fontWeight: 500 }}>個性・価値観・視点・言語化力</span>であり、それを形にする力こそが自己表現力に他ならない。
+              <span style={{ color: colors.purple, fontWeight: 500 }}>AI時代の到来</span>も重要だ。AIが多くの業務を代替できるようになった結果、逆説的に「AIには代替できないもの」の価値が急騰している。それが<span style={{ color: colors.purple, fontWeight: 500 }}>個性・価値観・視点・言語化力</span>であり、それを形にする力こそが自己表現力に他ならない。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              <span style={{ color: '#a78bfa', fontWeight: 500 }}>日本社会の構造的問題</span>も無視できない。教育・文化的背景が集団の調和を優先する価値観を強く持っていることで、多くの日本人は幼少期から「自分の本音を表に出すことを抑圧される経験」を積み重ねてきた。この<span style={{ color: '#a78bfa', fontWeight: 500 }}>抑圧</span>が自己不一致を生み、大多数が損をし続けている。
+              <span style={{ color: colors.purple, fontWeight: 500 }}>日本社会の構造的問題</span>も無視できない。教育・文化的背景が集団の調和を優先する価値観を強く持っていることで、多くの日本人は幼少期から「自分の本音を表に出すことを抑圧される経験」を積み重ねてきた。この<span style={{ color: colors.purple, fontWeight: 500 }}>抑圧</span>が自己不一致を生み、大多数が損をし続けている。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              <span style={{ color: '#a78bfa', fontWeight: 500 }}>既存の解決策</span>にも限界がある。カウンセリングは「精神的に末期の人が行く場所」という認識が強く、日常的に通うことへの心理的ハードルが極めて高い。コーチングはコンフォートゾーンを抜け出すことを前提とするため、ある程度の精神的強さが必要。コミュニケーション研修は抽象的・再現性が弱く、現場に落ちないという問題が多い。
+              <span style={{ color: colors.purple, fontWeight: 500 }}>既存の解決策</span>にも限界がある。カウンセリングは「精神的に末期の人が行く場所」という認識が強く、日常的に通うことへの心理的ハードルが極めて高い。コーチングはコンフォートゾーンを抜け出すことを前提とするため、ある程度の精神的強さが必要。コミュニケーション研修は抽象的・再現性が弱く、現場に落ちないという問題が多い。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              <span style={{ color: '#a78bfa', fontWeight: 500 }}>心理学的根拠</span>も明確だ。カール・ロジャーズが提唱した「自己一致（Congruence）」の概念によれば、自分の内的経験・自己概念・表現が一致している状態が、人間の心理的健康の根本である。自己表現力を磨くプロセスは、この<span style={{ color: '#a78bfa', fontWeight: 500 }}>自己一致を促す</span>プロセスと本質的に同じだ。
+              <span style={{ color: colors.purple, fontWeight: 500 }}>心理学的根拠</span>も明確だ。カール・ロジャーズが提唱した「自己一致（Congruence）」の概念によれば、自分の内的経験・自己概念・表現が一致している状態が、人間の心理的健康の根本である。自己表現力を磨くプロセスは、この<span style={{ color: colors.purple, fontWeight: 500 }}>自己一致を促す</span>プロセスと本質的に同じだ。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              <span style={{ color: '#a78bfa', fontWeight: 500 }}>スキルとして定義</span>することの意義も大きい。「性格の問題」「生まれつきの才能」として諦められてきたものを、習得可能なスキルとして再定義することで、これまで「自分はそういう人間だから」と諦めてきた人に、初めて<span style={{ color: '#a78bfa', fontWeight: 500 }}>具体的な出口</span>を提示できる。
+              <span style={{ color: colors.purple, fontWeight: 500 }}>スキルとして定義</span>することの意義も大きい。「性格の問題」「生まれつきの才能」として諦められてきたものを、習得可能なスキルとして再定義することで、これまで「自分はそういう人間だから」と諦めてきた人に、初めて<span style={{ color: colors.purple, fontWeight: 500 }}>具体的な出口</span>を提示できる。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              <span style={{ color: '#a78bfa', fontWeight: 500 }}>組織レベル</span>でも、個人の自己表現力が組織のパフォーマンスに直結する。会話設計が変わることで認識ズレがなくなり、手戻り・修正が減り、マネジメント工数が削減される。部下が自走できる組織になる。
+              <span style={{ color: colors.purple, fontWeight: 500 }}>組織レベル</span>でも、個人の自己表現力が組織のパフォーマンスに直結する。会話設計が変わることで認識ズレがなくなり、手戻り・修正が減り、マネジメント工数が削減される。部下が自走できる組織になる。
             </p>
             <p style={{ color: '#d1d5db', fontSize: '16px', lineHeight: 2, fontFamily: 'serif', letterSpacing: '0.02em' }}>
-              <span style={{ color: '#a78bfa', fontWeight: 500 }}>社会レベル</span>では、自己表現力の普及が国力の向上につながる。自分らしく生きられる人が増え、真性的な努力の積み重ねができる人間が増え、個人の成長が社会の成長につながる。
+              <span style={{ color: colors.purple, fontWeight: 500 }}>社会レベル</span>では、自己表現力の普及が国力の向上につながる。自分らしく生きられる人が増え、真性的な努力の積み重ねができる人間が増え、個人の成長が社会の成長につながる。
             </p>
           </div>
         </m.div>
@@ -230,7 +231,7 @@ export default function ConsultingContent() {
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#c4b5fd', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 48px', border: '1px solid #a78bfa', borderRadius: '9999px', color: colors.purple, background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
             <BrandLogo width={16} />
             『自分の言葉』を取り戻す対話を始める（初回無料）
