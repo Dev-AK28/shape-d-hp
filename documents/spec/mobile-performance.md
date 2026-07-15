@@ -109,7 +109,7 @@ window.addEventListener('resize', debouncedStoreChange);
 - 最適化スクリプト: `npm run optimize:images`（`image-assets.ts` で参照される PNG のみ対象）
 - 参照マップ: `lib/performance/image-assets.ts`
 - PNG 原画像はビルド用ソースとして `public/` に残し、ランタイム参照は WebP のみ
-- `image_13.png` は未参照のためスクリプト対象外
+- `image_13.png` はどこからも参照されていない未使用アセットだったため削除済み（#436）
 
 ## 受け入れ基準（Given-When-Then）
 
