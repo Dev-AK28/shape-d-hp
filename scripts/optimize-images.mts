@@ -1,3 +1,14 @@
+/**
+ * public/ 直下の元PNGを .webp に変換するスクリプト（Issue #438）。
+ *
+ * 運用ルール: 変換後、アプリからは `.webp` 版のみが参照される（`OPTIMIZED_PUBLIC_IMAGES`
+ * 参照）ため、元PNG（`image_4.png` 等）は変換完了を確認したら `public/` から削除する。
+ * 元PNGを残したまま git commit すると、Vercel のデプロイ成果物にも git リポジトリにも
+ * 実行時に使われない静的アセットが残ってしまう。新しい元画像を追加する場合は、変換 →
+ * 確認 → 元PNG削除 → コミット、の順で行うこと。
+ *
+ * 実行: npx tsx scripts/optimize-images.mts
+ */
 import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
