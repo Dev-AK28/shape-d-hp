@@ -31,6 +31,16 @@ describe('page scroll profile (#312)', () => {
     }
   });
 
+  // #444: #426 (100vh→100svh統一) 適用後もモバイル実機でスクロール時の縦ブレが解消
+  // していなかった問題への対応。Lenis のタッチ入力をネイティブスクロールへ1:1追従
+  // させ、iOS のネイティブタッチ慣性と Lenis の仮想慣性の二重駆動を防ぐ。
+  it('enables syncTouch on both top and sub pages to avoid double-driving native touch scroll (#444)', () => {
+    for (const path of ['/', '/services', '/works', '/process', '/philosophy', '/contact']) {
+      const profile = getPageScrollProfile(path);
+      expect(profile.lenis.syncTouch).toBe(true);
+    }
+  });
+
   it('selects the profile by a top/sub boundary boolean (used as effect dep)', () => {
     expect(getScrollProfile(true)).toEqual(getPageScrollProfile('/'));
     expect(getScrollProfile(false)).toEqual(getPageScrollProfile('/services'));
