@@ -58,6 +58,15 @@ test.describe('Security response headers', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
+    // The top page's WebGL canvas (see e2e/top-hero.spec.ts) must still attach
+    // and receive a non-zero backing store under the CSP.
+    const canvas = page.getByTestId('hero-rain-canvas');
+    await expect(canvas).toBeAttached();
+    const pixelCount = await canvas.evaluate(
+      (el) => (el as HTMLCanvasElement).width * (el as HTMLCanvasElement).height,
+    );
+    expect(pixelCount).toBeGreaterThan(0);
+
     expect(cspViolations).toEqual([]);
   });
 });
