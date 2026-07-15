@@ -13,7 +13,7 @@
 | `X-Frame-Options` | `DENY` | 他オリジンからの `iframe` 埋め込みを禁止（クリックジャッキング対策）。本サイトを他所に埋め込む用途はないため `DENY` を採用 |
 | `X-Content-Type-Options` | `nosniff` | ブラウザによる Content-Type の推測（MIME スニッフィング）を防止 |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | 同一オリジンには完全な URL、クロスオリジンにはオリジンのみを送信 |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | 本サイトが使わないセンサー系 API を明示的に無効化 |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), browsing-topics=()` | 本サイトが使わないセンサー系 API と Topics API（トラッキング用途）を明示的に無効化 |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | HTTPS 強制（Vercel 本番は元々 HTTPS のみのため副作用なし） |
 
 ## 対象外（意図的な未実装）
@@ -29,7 +29,7 @@ When 任意のページ（例: "/"）にリクエストする
 Then レスポンスに X-Frame-Options: DENY が含まれる
 And レスポンスに X-Content-Type-Options: nosniff が含まれる
 And レスポンスに Referrer-Policy: strict-origin-when-cross-origin が含まれる
-And レスポンスに Permissions-Policy: camera=(), microphone=(), geolocation=() が含まれる
+And レスポンスに Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=() が含まれる
 And レスポンスに Strict-Transport-Security: max-age=63072000; includeSubDomains; preload が含まれる
 ```
 

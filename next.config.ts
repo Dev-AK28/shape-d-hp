@@ -15,10 +15,11 @@ const SECURITY_HEADERS = [
   // Send the full URL only to same-origin requests; send just the origin
   // cross-origin, and nothing when downgrading to a less secure protocol.
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  // Deny access to sensor/media APIs the site never uses.
+  // Deny access to sensor/media APIs the site never uses, and opt out of
+  // the Topics API (FLoC's successor ad-tracking mechanism).
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
   },
   // Force HTTPS for two years, including subdomains, and allow preload
   // list submission. Safe here because production is already HTTPS-only
