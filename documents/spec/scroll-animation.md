@@ -29,6 +29,7 @@ Octaboot 風のスクロール連動体験を、Lenis + GSAP ScrollTrigger + fra
 - `gsap.registerPlugin(ScrollTrigger)` — client のみ
 - Lenis 統合: `gsap.ticker.add((time) => lenis.raf(time * 1000))` + `lenis.on('scroll', ...)` で `ScrollTrigger.update` + velocity skewY を同時処理
 - `shouldDisableGsapAnimation(profile)` — Lenis と同条件（`prefers-reduced-motion` のみ）で GSAP pin 無効。モバイル・coarse pointer でも GSAP は有効
+- **`syncTouch: true`（#444）**: `lib/scroll/lenis-config.ts` の全ページプロファイルで明示指定。デフォルト（`syncTouch: false`）はタッチジェスチャーをネイティブスクロールに委ねるため、ネイティブスクロールと Lenis raf ループが同時にスクロール位置へ関与し、モバイル実機で縦ブレが発生していた（#425 → #426 で `100vh→100svh` のみ対応、モバイル縦ブレ再発 #444）。`syncTouch: true` で Lenis をタッチの唯一のドライバーにし、二重駆動を解消する
 
 **Velocity skewY（`VELOCITY_SKEW` トークン）**:
 

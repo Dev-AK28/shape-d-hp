@@ -31,6 +31,17 @@ describe('page scroll profile (#312)', () => {
     }
   });
 
+  // #444: モバイル実機の縦ブレ（#426 の 100svh 対応後も残存）は、ネイティブタッチスクロールと
+  // Lenis raf ループの二重駆動が原因の可能性が高い。syncTouch を明示的に有効化し、
+  // Lenis をタッチジェスチャーの唯一のドライバーにすることで二重駆動を防ぐ。
+  it('explicitly enables syncTouch on every page to avoid double-driving scroll with native touch (#444)', () => {
+    for (const path of ['/', '/services', '/works', '/process', '/philosophy', '/contact']) {
+      const profile = getPageScrollProfile(path);
+      expect(profile.lenis.syncTouch).toBe(true);
+      expect(profile.lenis.touchMultiplier).toBe(1);
+    }
+  });
+
   it('selects the profile by a top/sub boundary boolean (used as effect dep)', () => {
     expect(getScrollProfile(true)).toEqual(getPageScrollProfile('/'));
     expect(getScrollProfile(false)).toEqual(getPageScrollProfile('/services'));
