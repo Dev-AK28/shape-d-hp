@@ -3,6 +3,7 @@
 import { m } from 'framer-motion';
 import Link from 'next/link';
 import PageHeader from '@/components/ui/PageHeader';
+import { colors } from '@/lib/design/tokens';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
 import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
@@ -148,9 +149,9 @@ export default function DevelopmentContent() {
           </p>
           <MotionLink
             href="/contact"
-            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
+            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: colors.blueLight, transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-            className="inline-flex items-center gap-2 px-12 py-4 border border-[color:var(--section-blue)] rounded-full text-[#93c5fd] bg-transparent cursor-pointer text-base type-font-serif no-underline"
+            className="inline-flex items-center gap-2 px-12 py-4 border border-[color:var(--section-blue)] rounded-full text-[color:var(--section-blue-light)] bg-transparent cursor-pointer text-base type-font-serif no-underline"
           >
             <BrandLogo width={16} />
             爆速でプロトタイプを試す（初回相談）

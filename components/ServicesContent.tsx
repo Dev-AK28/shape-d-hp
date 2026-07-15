@@ -96,7 +96,7 @@ export default function ServicesContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, isMobile: isTouchDevice })}
           style={{ marginBottom: '160px' }}
         >
-          <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#60a5fa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 300, color: colors.blue, marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             Digital Solution
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
@@ -109,7 +109,7 @@ export default function ServicesContent() {
                 style={{ padding: '48px', border: '1px solid rgba(96, 165, 250, 0.2)', borderRadius: '8px', background: 'rgba(96, 165, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
                 <div style={{ marginBottom: '24px' }}>
-                  <span style={{ fontSize: '12px', color: '#60a5fa', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: '12px', color: colors.blue, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                     {service.category}
                   </span>
                 </div>
@@ -120,18 +120,18 @@ export default function ServicesContent() {
                   {service.description}
                 </p>
                 <div style={{ marginBottom: '32px', padding: '24px', background: 'rgba(96, 165, 250, 0.08)', borderRadius: '6px', border: '1px solid rgba(96, 165, 250, 0.15)' }}>
-                  <p style={{ color: '#60a5fa', lineHeight: 1.6, fontSize: '14px', fontFamily: 'serif', fontWeight: 300, letterSpacing: '0.05em' }}>
+                  <p style={{ color: colors.blue, lineHeight: 1.6, fontSize: '14px', fontFamily: 'serif', fontWeight: 300, letterSpacing: '0.05em' }}>
                     {service.tagline}
                   </p>
                 </div>
                 <div style={{ marginBottom: '32px' }}>
-                  <h4 style={{ fontSize: '14px', color: '#93c5fd', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  <h4 style={{ fontSize: '14px', color: colors.blueLight, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                     提供内容
                   </h4>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {service.features.map((feature, idx) => (
                       <li key={idx} style={{ marginBottom: '12px', paddingLeft: '20px', position: 'relative', color: '#d1d5db', fontSize: '15px' }}>
-                        <span style={{ position: 'absolute', left: 0, color: '#60a5fa' }}>›</span>
+                        <span style={{ position: 'absolute', left: 0, color: colors.blue }}>›</span>
                         {feature}
                       </li>
                     ))}
@@ -139,13 +139,13 @@ export default function ServicesContent() {
                 </div>
                 {service.tool && (
                   <div style={{ marginBottom: '24px' }}>
-                    <span style={{ fontSize: '12px', color: '#9ca3af', letterSpacing: '0.1em' }}>
+                    <span style={{ fontSize: '12px', color: colors.muted, letterSpacing: '0.1em' }}>
                       活用ツール:{' '}
                       <a
                         href={service.toolUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: '#60a5fa', textDecoration: 'none', borderBottom: '1px solid rgba(96, 165, 250, 0.3)' }}
+                        style={{ color: colors.blue, textDecoration: 'none', borderBottom: '1px solid rgba(96, 165, 250, 0.3)' }}
                       >
                         {service.tool}
                       </a>
@@ -154,15 +154,15 @@ export default function ServicesContent() {
                 )}
                 <div style={{ paddingTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <span style={{ fontSize: '14px', color: '#9ca3af' }}>
-                      料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
+                    <span style={{ fontSize: '14px', color: colors.muted }}>
+                      料金: <span style={{ color: colors.blueLight, fontFamily: 'serif' }}>{service.price}</span>
                     </span>
                   </div>
                   <MotionLink
                     href={service.processUrl}
-                    whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)', boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)' }}
+                    whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: colors.blue, background: 'rgba(96, 165, 250, 0.1)', boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)' }}
                     whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-                    style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #60a5fa', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
+                    style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #60a5fa', borderRadius: '9999px', color: colors.blue, background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
                   </MotionLink>
@@ -178,7 +178,7 @@ export default function ServicesContent() {
           {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.4, isMobile: isTouchDevice })}
           style={{ marginBottom: '120px' }}
         >
-          <h2 style={{ fontSize: '28px', fontWeight: 300, color: '#a78bfa', marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 300, color: colors.purple, marginBottom: '64px', fontFamily: 'serif', letterSpacing: '0.05em' }}>
             Human Solution
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '48px' }}>
@@ -197,7 +197,7 @@ export default function ServicesContent() {
                 style={{ padding: '48px', border: '1px solid rgba(167, 139, 250, 0.2)', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.05)', backdropFilter: 'blur(10px)' }}
               >
                 <div style={{ marginBottom: '24px' }}>
-                  <span style={{ fontSize: '12px', color: '#a78bfa', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: '12px', color: colors.purple, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                     {service.category}
                   </span>
                 </div>
@@ -208,18 +208,18 @@ export default function ServicesContent() {
                   {service.description}
                 </p>
                 <div style={{ marginBottom: '32px', padding: '24px', background: 'rgba(167, 139, 250, 0.08)', borderRadius: '6px', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
-                  <p style={{ color: '#a78bfa', lineHeight: 1.6, fontSize: '14px', fontFamily: 'serif', fontWeight: 300, letterSpacing: '0.05em' }}>
+                  <p style={{ color: colors.purple, lineHeight: 1.6, fontSize: '14px', fontFamily: 'serif', fontWeight: 300, letterSpacing: '0.05em' }}>
                     {service.tagline}
                   </p>
                 </div>
                 <div style={{ marginBottom: '32px' }}>
-                  <h4 style={{ fontSize: '14px', color: '#93c5fd', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  <h4 style={{ fontSize: '14px', color: colors.blueLight, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                     提供内容
                   </h4>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {service.features.map((feature, idx) => (
                       <li key={idx} style={{ marginBottom: '12px', paddingLeft: '20px', position: 'relative', color: '#d1d5db', fontSize: '15px' }}>
-                        <span style={{ position: 'absolute', left: 0, color: '#a78bfa' }}>›</span>
+                        <span style={{ position: 'absolute', left: 0, color: colors.purple }}>›</span>
                         {feature}
                       </li>
                     ))}
@@ -227,15 +227,15 @@ export default function ServicesContent() {
                 </div>
                 <div style={{ paddingTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <span style={{ fontSize: '14px', color: '#9ca3af' }}>
-                      料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
+                    <span style={{ fontSize: '14px', color: colors.muted }}>
+                      料金: <span style={{ color: colors.blueLight, fontFamily: 'serif' }}>{service.price}</span>
                     </span>
                   </div>
                   <MotionLink
                     href={service.processUrl}
-                    whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#a78bfa', background: 'rgba(167, 139, 250, 0.1)', boxShadow: '0 0 20px rgba(167, 139, 250, 0.3)' }}
+                    whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: colors.purple, background: 'rgba(167, 139, 250, 0.1)', boxShadow: '0 0 20px rgba(167, 139, 250, 0.3)' }}
                     whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-                    style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
+                    style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #a78bfa', borderRadius: '9999px', color: colors.purple, background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
                   </MotionLink>
@@ -258,9 +258,9 @@ export default function ServicesContent() {
           </p>
           <MotionLink
             href="/contact"
-            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
+            whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: colors.blueLight, transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
-            style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
+            style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: colors.blueLight, background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
             お問い合わせ
           </MotionLink>
