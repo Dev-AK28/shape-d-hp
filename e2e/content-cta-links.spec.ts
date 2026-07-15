@@ -27,8 +27,17 @@ for (const { page: path, linkName, expectedPath } of cases) {
       (window as unknown as { __e2eNavMarker?: boolean }).__e2eNavMarker = true;
     });
 
+    // useStaticReveal 消費コンポーネントは、ハイドレーション完了時の staticReveal: true→false
+    // 遷移で該当サブツリー（CTAリンク含む）が1回だけ remount する（documents/spec/scroll-animation.md）。
+    // この remount と scrollIntoViewIfNeeded が重なると要素が detach され
+    // "Element is not attached to the DOM" で失敗することがある。
+    // 毎回フレッシュな Locator を再取得して再試行することで、remount 後の安定した要素に対して操作する。
+    await expect(async () => {
+      const link = page.getByRole('link', { name: linkName }).first();
+      await link.scrollIntoViewIfNeeded();
+    }).toPass({ timeout: 10_000 });
+
     const link = page.getByRole('link', { name: linkName }).first();
-    await link.scrollIntoViewIfNeeded();
     await link.click();
 
     await expect(page).toHaveURL(new RegExp(`${expectedPath.replace('/', '\\/')}$`));
