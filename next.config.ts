@@ -31,6 +31,12 @@ const isDev = process.env.NODE_ENV === "development";
 //   (kept for browsers that don't yet honor frame-ancestors).
 // - 'unsafe-eval' is only needed in dev, for React's dev-mode eval-based
 //   stack trace reconstruction; production React/Next.js never use eval.
+//
+// If a future change adds a third-party script/style/font/connect source
+// (analytics, a CDN-hosted font, an embedded widget, ...), add its origin
+// to the relevant directive below and update the audit above and
+// documents/spec/security-headers.md - don't just widen to 'unsafe-inline'
+// further or drop a directive.
 const CSP_DIRECTIVES = [
   `default-src 'self'`,
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,

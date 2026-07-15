@@ -57,13 +57,23 @@ test.describe('Security response headers', () => {
         consoleViolations.push(msg.text());
       }
     });
+    // Also catch uncaught exceptions a CSP violation could trigger (e.g. a
+    // blocked inline script throwing instead of merely logging a warning).
+    const pageErrors: string[] = [];
+    page.on('pageerror', (error) => {
+      if (/Content Security Policy/i.test(error.message)) {
+        pageErrors.push(error.message);
+      }
+    });
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     expect(consoleViolations).toEqual([]);
+    expect(pageErrors).toEqual([]);
 
     await page.goto('/contact');
     await page.waitForLoadState('networkidle');
     expect(consoleViolations).toEqual([]);
+    expect(pageErrors).toEqual([]);
   });
 });
