@@ -1,6 +1,7 @@
 'use client';
 
 import { m } from 'framer-motion';
+import Link from 'next/link';
 import PageHeader from '@/components/ui/PageHeader';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
@@ -8,6 +9,8 @@ import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import BrandLogo from '@/components/BrandLogo';
+
+const MotionLink = m.create(Link);
 
 export default function DevelopmentContent() {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
@@ -143,7 +146,7 @@ export default function DevelopmentContent() {
           <p className="text-gray-300 text-base max-w-[48rem] mx-auto leading-[2] mb-[var(--space-4)] type-font-serif tracking-[0.02em]">
             GoDDの手法は、AIを効果的に活用しつつ、厳格な品質管理とコードレビューを行います。スピードと品質の両立を可能にする、論理的で丁寧な開発プロセスです。
           </p>
-          <m.a
+          <MotionLink
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
@@ -151,7 +154,7 @@ export default function DevelopmentContent() {
           >
             <BrandLogo width={16} />
             爆速でプロトタイプを試す（初回相談）
-          </m.a>
+          </MotionLink>
         </m.div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { m } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
@@ -10,6 +11,8 @@ import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
 import BrandLogo from '@/components/BrandLogo';
 import { OPTIMIZED_PUBLIC_IMAGES } from '@/lib/performance/image-assets';
+
+const MotionLink = m.create(Link);
 
 export default function ConsultingContent() {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
@@ -223,7 +226,7 @@ export default function ConsultingContent() {
           <h2 style={{ fontSize: '28px', fontWeight: 300, color: 'white', marginBottom: '24px', fontFamily: 'serif' }}>
             自己表現力は、個人の幸福・組織の生産性・社会の活力、この三つを同時に底上げできる唯一のスキルである。
           </h2>
-          <m.a
+          <MotionLink
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#c4b5fd', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
@@ -231,7 +234,7 @@ export default function ConsultingContent() {
           >
             <BrandLogo width={16} />
             『自分の言葉』を取り戻す対話を始める（初回無料）
-          </m.a>
+          </MotionLink>
         </m.div>
         </div>
       </section>

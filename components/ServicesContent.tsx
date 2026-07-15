@@ -1,6 +1,7 @@
 'use client';
 
 import { m } from 'framer-motion';
+import Link from 'next/link';
 import { colors, layout, spacing } from '@/lib/design/tokens';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
 import { useStaticReveal } from '@/lib/hooks/useStaticReveal';
@@ -8,6 +9,8 @@ import { useFocusRestore } from '@/lib/hooks/useFocusRestore';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { getServiceById } from '@/lib/data/services';
 import { ANIMATION_DURATION } from '@/lib/scroll/animation-tokens';
+
+const MotionLink = m.create(Link);
 
 export default function ServicesContent() {
   const { reduceMotion, staticReveal, profile } = useStaticReveal();
@@ -155,14 +158,14 @@ export default function ServicesContent() {
                       料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
                     </span>
                   </div>
-                  <m.a
+                  <MotionLink
                     href={service.processUrl}
                     whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)', boxShadow: '0 0 20px rgba(96, 165, 250, 0.3)' }}
                     whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                     style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #60a5fa', borderRadius: '9999px', color: '#60a5fa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
-                  </m.a>
+                  </MotionLink>
                 </div>
               </m.div>
             ))}
@@ -228,14 +231,14 @@ export default function ServicesContent() {
                       料金: <span style={{ color: '#93c5fd', fontFamily: 'serif' }}>{service.price}</span>
                     </span>
                   </div>
-                  <m.a
+                  <MotionLink
                     href={service.processUrl}
                     whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#a78bfa', background: 'rgba(167, 139, 250, 0.1)', boxShadow: '0 0 20px rgba(167, 139, 250, 0.3)' }}
                     whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                     style={{ display: 'inline-block', padding: '12px 28px', border: '2px solid #a78bfa', borderRadius: '9999px', color: '#a78bfa', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontFamily: 'serif', textDecoration: 'none', fontWeight: 500, transition: 'all 0.3s ease' }}
                   >
                     Process Details
-                  </m.a>
+                  </MotionLink>
                 </div>
               </m.div>
             ))}
@@ -253,14 +256,14 @@ export default function ServicesContent() {
           <p style={{ color: '#d1d5db', fontSize: '16px', maxWidth: '48rem', margin: '0 auto', lineHeight: 2, marginBottom: '32px', fontFamily: 'serif', letterSpacing: '0.02em' }}>
             プロジェクトの規模や要件に合わせて、最適なソリューションをご提案します。まずはお気軽にご相談ください。
           </p>
-          <m.a
+          <MotionLink
             href="/contact"
             whileHover={reduceMotion ? undefined : { scale: 1.05, borderColor: '#93c5fa', transition: { duration: ANIMATION_DURATION.cardHover } }}
             whileTap={reduceMotion ? undefined : { scale: 0.95 }}
             style={{ display: 'inline-block', padding: '16px 48px', border: '1px solid #60a5fa', borderRadius: '9999px', color: '#93c5fd', background: 'transparent', cursor: 'pointer', fontSize: '16px', fontFamily: 'serif', textDecoration: 'none' }}
           >
             お問い合わせ
-          </m.a>
+          </MotionLink>
         </m.div>
       </div>
     </section>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { m } from 'framer-motion';
+import Link from 'next/link';
 import PhilosophyProgressDots from '@/components/PhilosophyProgressDots';
 import TextReveal from '@/components/scroll/TextReveal';
 import { isTouchInputDevice } from '@/lib/performance/device-profile';
@@ -21,6 +22,9 @@ import {
 import { PHILOSOPHY_HORIZONTAL } from '@/lib/scroll/animation-tokens';
 import { getScrollRevealProps } from '@/lib/scroll/reveal-props';
 import { PHILOSOPHY_PANEL_INTERSECTION_OPTIONS } from '@/lib/performance/visibility-options';
+
+const MotionLink = m.create(Link);
+
 const sections = [
   {
     letter: 'S',
@@ -331,14 +335,14 @@ export default function PhilosophyContent() {
             <br />
             自己一致への道を照らす
           </m.h2>
-          <m.a
+          <MotionLink
             key={staticReveal ? 'static-closing-cta' : 'reveal-closing-cta'}
             href="/contact"
             {...getScrollRevealProps(reduceMotion, { staticReveal, delay: 0.2, isMobile: isTouchDevice })}
             className="inline-block rounded-full border border-[var(--accent)] py-[var(--space-2)] px-[var(--space-4)] no-underline type-font-serif-jp text-[color:var(--accent)] transition-opacity duration-[var(--duration-base)] ease-[var(--ease-base)]"
           >
             お問い合わせ
-          </m.a>
+          </MotionLink>
         </div>
       </div>
     </section>
