@@ -1,12 +1,55 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
+// Content-Security-Policy allow-list, audited against this codebase
+// (see documents/spec/security-headers.md for the full writeup):
+// - script-src/style-src need 'unsafe-inline': this site has no
+//   third-party scripts or CSS-in-JS runtime, but Next.js itself injects
+//   inline <script> tags for RSC payload streaming
+//   (`self.__next_f.push(...)`) on every page, confirmed via
+//   `next build && next start` output inspection. Every page route is
+//   statically prerendered; adopting nonces instead would require Proxy
+//   (this Next.js version's renamed middleware) plus forcing every page
+//   into dynamic rendering, which throws away that static optimization -
+//   not worth it for a site with no third-party script/style sources to
+//   defend against in the first place.
+// - img-src needs 'data:' for the inline SVG background in
+//   app/globals.css (`background-image: url("data:image/svg+xml...")`).
+// - font-src/connect-src only need 'self': next/font/google
+//   (app/layout.tsx, components/top/top-fonts.ts) self-hosts font files
+//   at build time (no fonts.gstatic.com requests), and the only
+//   browser-side fetch() is same-origin (app/(site)/contact/page.tsx ->
+//   /api/contact). The Resend API call and Upstash Redis client run
+//   server-side only (lib/contact/send-email.ts,
+//   lib/contact/rate-limit-redis.ts), so they never touch the browser's
+//   connect-src.
+// - the hand-written WebGL2 renderer (lib/webgl/starfield-renderer.ts)
+//   compiles inline GLSL via gl.shaderSource/gl.compileShader, which is a
+//   JS API call, not a network fetch, so it needs no extra directive.
+// - frame-ancestors 'none' complements the existing X-Frame-Options below
+//   (kept for browsers that don't yet honor frame-ancestors).
+// - 'unsafe-eval' is only needed in dev, for React's dev-mode eval-based
+//   stack trace reconstruction; production React/Next.js never use eval.
+const CSP_DIRECTIVES = [
+  `default-src 'self'`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `style-src 'self' 'unsafe-inline'`,
+  `img-src 'self' data:`,
+  `font-src 'self'`,
+  `connect-src 'self'${isDev ? " ws:" : ""}`,
+  `object-src 'none'`,
+  `base-uri 'self'`,
+  `form-action 'self'`,
+  `frame-ancestors 'none'`,
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+].join("; ");
+
 // Baseline security response headers applied to every route.
-// Content-Security-Policy is intentionally NOT included here: this site
-// loads three.js (WebGL), inline styles, and web fonts, so a CSP needs a
-// careful allow-list audit before it can be added safely. Track that as a
-// separate follow-up rather than blocking these low-risk, broadly-safe
-// headers (see documents/spec/security-headers.md).
 const SECURITY_HEADERS = [
+  // Restrict script/style/font/image sources and inline-script/style
+  // injection surface site-wide (see CSP_DIRECTIVES above for rationale).
+  { key: "Content-Security-Policy", value: CSP_DIRECTIVES },
   // Prevent the site from being framed by another origin (clickjacking).
   { key: "X-Frame-Options", value: "DENY" },
   // Stop browsers from MIME-sniffing responses away from the declared
