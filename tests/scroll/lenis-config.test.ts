@@ -41,6 +41,18 @@ describe('page scroll profile (#312)', () => {
     }
   });
 
+  // #448: syncTouch導入（#444/#445）後、syncTouchLerp/touchInertiaExponentのチューニング
+  // 要否を実機確認する issue。現時点で実機からの負のフィードバック（硬すぎる/緩慢すぎる等）
+  // は報告されていないため、Lenisのデフォルト（0.075 / 1.7）を明示的に維持する判断とした。
+  // 値を変更する場合は本テストと lib/scroll/lenis-config.ts 冒頭コメントを合わせて更新する。
+  it('keeps syncTouchLerp/touchInertiaExponent unset (uses Lenis defaults) pending real-device feedback (#448)', () => {
+    for (const path of ['/', '/services', '/works', '/process', '/philosophy', '/contact']) {
+      const profile = getPageScrollProfile(path);
+      expect(profile.lenis.syncTouchLerp).toBeUndefined();
+      expect(profile.lenis.touchInertiaExponent).toBeUndefined();
+    }
+  });
+
   it('selects the profile by a top/sub boundary boolean (used as effect dep)', () => {
     expect(getScrollProfile(true)).toEqual(getPageScrollProfile('/'));
     expect(getScrollProfile(false)).toEqual(getPageScrollProfile('/services'));

@@ -17,6 +17,14 @@
  * `tests/scroll/mobile-reduced-motion-policy.test.ts` の方針（`shouldDisableSmoothScroll`
  * は `prefers-reduced-motion` のみで判定し、モバイルでは Lenis 自体を無効化しない）
  * と矛盾しないよう、Lenis 自体は有効のまま維持し、タッチ挙動のみを調整する。
+ *
+ * `syncTouchLerp` / `touchInertiaExponent`（Issue #448）: `syncTouch: true` 導入（#444/#445）
+ * 時点では Lenis のデフォルト（`syncTouchLerp: 0.075`, `touchInertiaExponent: 1.7`）を
+ * そのまま据え置いた。#448 はその後の実機（iOS Safari 等）確認でチューニング要否を判断
+ * する目的だったが、現時点で「追従が硬すぎる/緩慢すぎる」等の負のフィードバックは報告
+ * されていない。根拠のない値の調整はかえって体感を損なうリスクがあるため、現時点では
+ * デフォルト値を意図的に維持する判断とした。将来、本番実機での追加フィードバックが
+ * あれば #448 の判断を再検討し、値を調整のうえ本コメントと下記テストを更新すること。
  */
 
 export type LenisPageOptions = {
@@ -26,6 +34,16 @@ export type LenisPageOptions = {
   easing?: (t: number) => number;
   /** タッチ入力をwheelと同じ慣性ではなく指に1:1追従させる（#444: モバイル縦ブレ対策） */
   syncTouch: boolean;
+  /**
+   * タッチの追従の柔らかさ（lerp係数）。未設定 = Lenis ライブラリの既定値 0.075 を使用。
+   * #448: 実機での負のフィードバックが現時点でないため、明示的に既定値のまま維持する。
+   */
+  syncTouchLerp?: number;
+  /**
+   * タッチのインクリメンタルな慣性を計算する指数。未設定 = Lenis ライブラリの既定値 1.7 を使用。
+   * #448: 実機での負のフィードバックが現時点でないため、明示的に既定値のまま維持する。
+   */
+  touchInertiaExponent?: number;
 };
 
 export type PageScrollProfile = {
