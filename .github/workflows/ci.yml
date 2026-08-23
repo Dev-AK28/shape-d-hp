@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: Docs-only check
         id: docs_only
@@ -45,6 +43,9 @@ jobs:
       - name: Test
         run: npm test
 
+      # 以下、Playwright/E2E/Lighthouseなど「重い」ステップは docs-only な
+      # 変更ではスキップする（#491）。新しく重いステップを追加する場合は
+      # 同じ if: 条件を必ず付けること。
       - name: Remove broken Microsoft apt repos
         if: steps.docs_only.outputs.docs_only != 'true'
         run: |
@@ -67,8 +68,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: Docs-only check
         id: docs_only
@@ -79,6 +78,9 @@ jobs:
           node-version: 22
           cache: npm
 
+      # 以下、build〜Lighthouse計測まで一式が「重い」処理のため docs-only な
+      # 変更ではスキップする（#491）。新しく重いステップを追加する場合は
+      # 同じ if: 条件を必ず付けること。
       - name: Install dependencies
         if: steps.docs_only.outputs.docs_only != 'true'
         run: npm ci

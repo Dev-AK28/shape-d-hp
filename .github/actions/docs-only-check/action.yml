@@ -1,9 +1,11 @@
 name: 'Docs-only change check'
 description: >-
-  変更されたファイルがすべてドキュメント系パス（documents/**, *.md,
-  .github/ISSUE_TEMPLATE/**, LICENSE）に該当するかどうかを判定する。
-  呼び出し側のジョブは actions/checkout を fetch-depth: 0 で
-  実行しておく必要がある（base/head 双方のコミットが必要なため）。
+  変更されたファイルがすべてドキュメント系パス（*.md（documents/配下含む
+  任意のディレクトリのMarkdownファイル）, .github/ISSUE_TEMPLATE/**,
+  LICENSE）に該当するかどうかを判定する。GitHub API（pulls/files /
+  compare）でサーバー側に差分ファイル一覧を計算させるため、呼び出し側の
+  actions/checkout は通常のデフォルト（shallow）設定でよく、ローカルの
+  git履歴・merge-base計算には依存しない。
 outputs:
   docs_only:
     description: 'true if all changed files are docs-only paths, otherwise false'
@@ -13,37 +15,48 @@ runs:
   steps:
     - id: filter
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
       run: |
+        bail_false() {
+          echo "$1 のため docs_only=false とします"
+          echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        }
+
+        # ローカルのgit履歴に依存すると、shallow checkout環境ではPRの
+        # base/headコミット間のmerge-baseを計算できない（該当コミットの
+        # 親を辿れない）ことがあるため、GitHub APIにdiffの計算自体を
+        # 任せる。pulls/files は元々マージベース基準（三点diff相当）で
+        # 差分を返すため、mainが並行開発されていてもbase側の無関係な
+        # 変更を拾わない。
         if [ "${{ github.event_name }}" = "pull_request" ]; then
-          BASE="${{ github.event.pull_request.base.sha }}"
-          HEAD="${{ github.event.pull_request.head.sha }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          if [ -z "$PR_NUMBER" ]; then
+            bail_false "PR番号を取得できない"
+          fi
+          if ! CHANGED_FILES=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/files" --paginate --jq '.[].filename'); then
+            bail_false "GitHub API(pulls/files)の取得に失敗した"
+          fi
         else
           BASE="${{ github.event.before }}"
           HEAD="${{ github.event.after }}"
-        fi
-
-        # base/head が取れない場合は安全側に倒してフルセットのジョブを実行する
-        # （docs_only=false）。
-        if [ -z "$BASE" ] || [ -z "$HEAD" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
-          echo "base/head SHA を判定できないため docs_only=false とします"
-          echo "docs_only=false" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
-
-        # stderr はジョブログにそのまま流し、CHANGED_FILES には stdout
-        # （ファイル一覧）のみを取り込む。混在させると警告出力が誤って
-        # 「変更ファイル」として扱われ、docs_only 判定が壊れるため。
-        if ! CHANGED_FILES=$(git diff --name-only "$BASE" "$HEAD"); then
-          echo "git diff に失敗したため docs_only=false とします"
-          echo "docs_only=false" >> "$GITHUB_OUTPUT"
-          exit 0
+          if [ -z "$BASE" ] || [ -z "$HEAD" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            bail_false "base/head SHA を判定できない"
+          fi
+          if ! CHANGED_FILES=$(gh api "repos/${REPO}/compare/${BASE}...${HEAD}" --paginate --jq '.files[].filename'); then
+            bail_false "GitHub API(compare)の取得に失敗した"
+          fi
         fi
 
         echo "Changed files:"
         echo "$CHANGED_FILES"
 
         if [ -z "$CHANGED_FILES" ]; then
-          echo "docs_only=false" >> "$GITHUB_OUTPUT"
+          # 変更ファイルなし（no-opイベント等）はテスト対象がないため
+          # docs_only=true として安全にスキップしてよい。
+          echo "docs_only=true" >> "$GITHUB_OUTPUT"
           exit 0
         fi
 
@@ -51,7 +64,7 @@ runs:
         while IFS= read -r file; do
           [ -z "$file" ] && continue
           case "$file" in
-            documents/*|*.md|.github/ISSUE_TEMPLATE/*|LICENSE)
+            *.md|.github/ISSUE_TEMPLATE/*|LICENSE)
               ;;
             *)
               DOCS_ONLY=false
