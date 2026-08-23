@@ -45,39 +45,103 @@ function asNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
+/** Keys of `NormalizedCspViolation` whose value is `string | undefined`. */
+type StringFieldKey = {
+  [K in keyof NormalizedCspViolation]-?: NonNullable<NormalizedCspViolation[K]> extends string
+    ? K
+    : never;
+}[keyof NormalizedCspViolation];
+
+/** Keys of `NormalizedCspViolation` whose value is `number | undefined`. */
+type NumberFieldKey = {
+  [K in keyof NormalizedCspViolation]-?: NonNullable<NormalizedCspViolation[K]> extends number
+    ? K
+    : never;
+}[keyof NormalizedCspViolation];
+
+/** Source key names for one field, in each report format. */
+type KeyMapping = {
+  /** Reporting API v1 `body` key (camelCase). */
+  reportingApiKey: string;
+  /** Legacy `report-uri` `csp-report` key (kebab-case). */
+  legacyKey: string;
+};
+
+/**
+ * Declarative field table (#478): both report formats carry the same 8
+ * fields below under different key casings. Adding/renaming a field here
+ * automatically keeps both normalizers in sync — previously each field had
+ * to be listed twice (once per ~30-line normalizer function), and an
+ * omission in one would silently log as `undefined` with no test/type
+ * error to catch it.
+ */
+const FIELD_MAPPINGS: (
+  | (KeyMapping & { key: StringFieldKey; kind: 'string' })
+  | (KeyMapping & { key: NumberFieldKey; kind: 'number' })
+)[] = [
+  { key: 'documentUri', reportingApiKey: 'documentURL', legacyKey: 'document-uri', kind: 'string' },
+  { key: 'blockedUri', reportingApiKey: 'blockedURL', legacyKey: 'blocked-uri', kind: 'string' },
+  { key: 'disposition', reportingApiKey: 'disposition', legacyKey: 'disposition', kind: 'string' },
+  { key: 'sourceFile', reportingApiKey: 'sourceFile', legacyKey: 'source-file', kind: 'string' },
+  { key: 'lineNumber', reportingApiKey: 'lineNumber', legacyKey: 'line-number', kind: 'number' },
+  { key: 'columnNumber', reportingApiKey: 'columnNumber', legacyKey: 'column-number', kind: 'number' },
+  { key: 'statusCode', reportingApiKey: 'statusCode', legacyKey: 'status-code', kind: 'number' },
+  { key: 'sample', reportingApiKey: 'sample', legacyKey: 'script-sample', kind: 'string' },
+];
+
+/**
+ * `effectiveDirective` is not table-driven above because `violatedDirective`
+ * has a special fallback rule (below): it is handled explicitly, kept apart
+ * from the generic field loop.
+ */
+const EFFECTIVE_DIRECTIVE_MAPPING: KeyMapping = {
+  reportingApiKey: 'effectiveDirective',
+  legacyKey: 'effective-directive',
+};
+const VIOLATED_DIRECTIVE_MAPPING: KeyMapping = {
+  reportingApiKey: 'violatedDirective',
+  legacyKey: 'violated-directive',
+};
+
+/**
+ * Normalizes a raw violation record using `sourceKeyOf` to pick the source
+ * key casing (camelCase for the Reporting API, kebab-case for legacy
+ * `report-uri`) for each field in `FIELD_MAPPINGS`.
+ */
+function normalizeViolation(
+  record: Record<string, unknown>,
+  sourceKeyOf: (mapping: KeyMapping) => string,
+): NormalizedCspViolation {
+  const result: NormalizedCspViolation = {};
+
+  for (const mapping of FIELD_MAPPINGS) {
+    const rawValue = record[sourceKeyOf(mapping)];
+    if (mapping.kind === 'string') {
+      result[mapping.key] = asString(rawValue);
+    } else {
+      result[mapping.key] = asNumber(rawValue);
+    }
+  }
+
+  // violatedDirective falls back to effectiveDirective when absent/empty —
+  // some reporters (e.g. `*-elem`/`*-attr` fallback directives) only send
+  // the effective directive.
+  const effectiveDirective = asString(record[sourceKeyOf(EFFECTIVE_DIRECTIVE_MAPPING)]);
+  result.effectiveDirective = effectiveDirective;
+  result.violatedDirective =
+    asString(record[sourceKeyOf(VIOLATED_DIRECTIVE_MAPPING)]) ?? effectiveDirective;
+
+  return result;
+}
+
 /** Normalizes a Reporting API v1 `body` object (camelCase field names). */
 function normalizeReportingApiViolation(body: unknown): NormalizedCspViolation {
-  const record = isRecord(body) ? body : {};
-  return {
-    documentUri: asString(record.documentURL),
-    violatedDirective: asString(record.violatedDirective) ?? asString(record.effectiveDirective),
-    effectiveDirective: asString(record.effectiveDirective),
-    blockedUri: asString(record.blockedURL),
-    disposition: asString(record.disposition),
-    sourceFile: asString(record.sourceFile),
-    lineNumber: asNumber(record.lineNumber),
-    columnNumber: asNumber(record.columnNumber),
-    statusCode: asNumber(record.statusCode),
-    sample: asString(record.sample),
-  };
+  return normalizeViolation(isRecord(body) ? body : {}, (mapping) => mapping.reportingApiKey);
 }
 
 /** Normalizes a legacy `report-uri` `csp-report` object (kebab-case field names). */
 function normalizeLegacyViolation(report: unknown): NormalizedCspViolation {
-  const record = isRecord(report) ? report : {};
-  return {
-    documentUri: asString(record['document-uri']),
-    violatedDirective:
-      asString(record['violated-directive']) ?? asString(record['effective-directive']),
-    effectiveDirective: asString(record['effective-directive']),
-    blockedUri: asString(record['blocked-uri']),
-    disposition: asString(record.disposition),
-    sourceFile: asString(record['source-file']),
-    lineNumber: asNumber(record['line-number']),
-    columnNumber: asNumber(record['column-number']),
-    statusCode: asNumber(record['status-code']),
-    sample: asString(record['script-sample']),
-  };
+  return normalizeViolation(isRecord(report) ? report : {}, (mapping) => mapping.legacyKey);
 }
 
 /**
