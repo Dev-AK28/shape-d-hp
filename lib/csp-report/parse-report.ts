@@ -26,9 +26,19 @@ function asString(value: unknown): string | undefined {
   if (typeof value !== 'string' || value.length === 0) {
     return undefined;
   }
-  return value.length > MAX_LOGGED_FIELD_LENGTH
-    ? `${value.slice(0, MAX_LOGGED_FIELD_LENGTH)}…`
-    : value;
+  if (value.length <= MAX_LOGGED_FIELD_LENGTH) {
+    return value;
+  }
+
+  // Avoid slicing a surrogate pair in half (e.g. an emoji straddling the
+  // truncation boundary), which would leave a lone/unpaired surrogate in
+  // the logged string.
+  let sliceLength = MAX_LOGGED_FIELD_LENGTH;
+  const lastCode = value.charCodeAt(sliceLength - 1);
+  if (lastCode >= 0xd800 && lastCode <= 0xdbff) {
+    sliceLength -= 1;
+  }
+  return `${value.slice(0, sliceLength)}…`;
 }
 
 function asNumber(value: unknown): number | undefined {
@@ -57,7 +67,8 @@ function normalizeLegacyViolation(report: unknown): NormalizedCspViolation {
   const record = isRecord(report) ? report : {};
   return {
     documentUri: asString(record['document-uri']),
-    violatedDirective: asString(record['violated-directive']),
+    violatedDirective:
+      asString(record['violated-directive']) ?? asString(record['effective-directive']),
     effectiveDirective: asString(record['effective-directive']),
     blockedUri: asString(record['blocked-uri']),
     disposition: asString(record.disposition),

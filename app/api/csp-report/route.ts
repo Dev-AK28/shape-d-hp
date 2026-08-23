@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { readRequestBodyWithLimit } from '@/lib/http/read-body';
+import { readBodyWithSizeGuard } from '@/lib/http/read-body';
 import { MAX_CSP_REPORT_BODY_BYTES } from '@/lib/csp-report/constants';
 import { parseCspReportBody } from '@/lib/csp-report/parse-report';
 
@@ -13,15 +13,7 @@ import { parseCspReportBody } from '@/lib/csp-report/parse-report';
  * function logs) to avoid introducing a new billing dependency.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const contentLength = request.headers.get('content-length');
-  if (contentLength) {
-    const length = Number.parseInt(contentLength, 10);
-    if (!Number.isNaN(length) && length > MAX_CSP_REPORT_BODY_BYTES) {
-      return new NextResponse(null, { status: 413 });
-    }
-  }
-
-  const bodyResult = await readRequestBodyWithLimit(request, MAX_CSP_REPORT_BODY_BYTES);
+  const bodyResult = await readBodyWithSizeGuard(request, MAX_CSP_REPORT_BODY_BYTES);
   if (!bodyResult.ok) {
     return new NextResponse(null, { status: 413 });
   }

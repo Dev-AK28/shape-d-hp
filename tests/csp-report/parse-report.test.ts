@@ -109,6 +109,19 @@ describe('parseCspReportBody', () => {
     });
   });
 
+  it('falls back to effective-directive when the legacy violated-directive is an explicit empty string', () => {
+    const body = JSON.stringify({
+      'csp-report': {
+        'violated-directive': '',
+        'effective-directive': 'style-src-attr',
+      },
+    });
+
+    const result = parseCspReportBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.violations[0]?.violatedDirective).toBe('style-src-attr');
+  });
+
   it('caps the number of violations parsed from an oversized batch', () => {
     const entries = Array.from({ length: MAX_CSP_REPORTS_PER_REQUEST + 5 }, (_, i) => ({
       type: 'csp-violation',
@@ -132,6 +145,23 @@ describe('parseCspReportBody', () => {
     expect(blockedUri).toBeDefined();
     expect(blockedUri?.length).toBeLessThanOrEqual(MAX_LOGGED_FIELD_LENGTH + 1);
     expect(blockedUri?.endsWith('…')).toBe(true);
+  });
+
+  it('does not split a surrogate pair (e.g. an emoji) when truncating', () => {
+    // Places a 2-code-unit emoji so its high surrogate lands exactly at
+    // index MAX_LOGGED_FIELD_LENGTH - 1 (the last code unit kept by a naive
+    // slice), which would otherwise leave an unpaired trailing surrogate.
+    const sample = `${'a'.repeat(MAX_LOGGED_FIELD_LENGTH - 1)}😀${'b'.repeat(10)}`;
+    const body = JSON.stringify([{ type: 'csp-violation', body: { sample } }]);
+
+    const result = parseCspReportBody(body);
+    expect(result.ok).toBe(true);
+    const truncated = result.ok ? result.violations[0]?.sample : undefined;
+    expect(truncated).toBeDefined();
+    // Valid UTF-16: no lone surrogate anywhere in the truncated string.
+    expect(truncated).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);
+    expect(truncated).not.toMatch(/(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/);
+    expect(truncated?.endsWith('…')).toBe(true);
   });
 
   it('handles a report-to entry with a missing/malformed body gracefully', () => {
