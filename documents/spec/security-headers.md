@@ -34,6 +34,8 @@
 | `form-action` | `'self'` | フォーム送信先を自オリジンに限定 |
 | `frame-ancestors` | `'none'` | `X-Frame-Options: DENY` と同等の効果を CSP でも明示（新しいブラウザ向け） |
 | （末尾） | `upgrade-insecure-requests` | 混在コンテンツを HTTPS に自動アップグレード |
+| `report-to` | `csp-endpoint` | 下記「CSP 違反レポーティング」参照 |
+| `report-uri` | `/api/csp-report` | 同上（フォールバック） |
 
 洗い出し済みの許可元監査（三行まとめ）:
 
@@ -45,7 +47,43 @@
 ### 今後の検討事項（段階的強化）
 
 - `script-src`/`style-src` の `'unsafe-inline'` は、per-request nonce（Next.js の proxy 経由）または Subresource Integrity（実験的機能）に置き換えることで強化できる。ただし nonce 化は全ページを動的レンダリングにする必要があり（ISR/静的キャッシュ不可）、本サイトのパフォーマンス方針と衝突するため、今回は見送り
-- 上記の強化を検討する場合は別途 Issue を起票すること
+- 上記の強化を検討する場合は別途 Issue を起票すること（検討状況: #455）
+
+## CSP 違反レポーティング（#457、#450 のフォローアップ）
+
+`'unsafe-inline'` を許可しているため CSP による XSS 防御効果は限定的（上記参照）だが、想定外のインラインスクリプト/スタイルやサードパーティ由来のリソース読み込みが発生した場合に検知できるよう、CSP 違反レポートを収集するエンドポイントを用意している。
+
+### エンドポイント形式
+
+ブラウザの実装状況が割れているため、2 つのレポート形式を同一エンドポイント（`/api/csp-report`）で両方受理する:
+
+| 形式 | 発火条件 | Content-Type | ボディ形状 |
+|------|---------|--------------|-----------|
+| Reporting API v1（`report-to`） | `Reporting-Endpoints` ヘッダーで宣言したグループ名を CSP の `report-to` ディレクティブが参照 | `application/reports+json` | `Report` オブジェクトの JSON 配列（複数件がバッチ送信されうる） |
+| 従来方式（`report-uri`） | CSP の `report-uri` ディレクティブ | `application/csp-report` | `{ "csp-report": {...} }` の単一オブジェクト |
+
+`report-to` を優先しつつ `report-uri` も併記しているのは、Reporting API 未対応のブラウザ（代表例: Safari）を CSP 違反検知の対象外にしないため。`Report-To`（旧仕様の宣言ヘッダー）は、Chrome が新しい `Reporting-Endpoints` ヘッダーへの一本化を進めており非推奨のため採用せず、`Reporting-Endpoints` ヘッダーのみを宣言している。
+
+エンドポイントの実装:
+
+- ヘッダー宣言: `next.config.ts`（`Reporting-Endpoints` ヘッダー、CSP の `report-to`/`report-uri` ディレクティブ）
+- 定数: `lib/csp-report/constants.ts`（エンドポイントのグループ名/パス、ボディサイズ上限など）
+- パース: `lib/csp-report/parse-report.ts`（上記 2 形式を共通の形へ正規化。ボディ形状で判定し、`Content-Type` は参考情報として扱う）
+- ルートハンドラー: `app/api/csp-report/route.ts`
+
+### 保管/閲覧方法
+
+外部ログ集約サービスは導入せず（新規課金要因を避けるため）、受信したレポートは `console.error('CSP violation report', ...)` でサーバーログに出力するのみとする。本番（Vercel）では Function Logs から確認できる。ボディは 64KB 上限・レポート件数は 1 リクエストあたり最大 20 件・文字列フィールドは 500 文字で切り詰めており、悪意あるリクエストによるログ肥大化/DoS を抑制している。
+
+### 受け入れ基準（追加）
+
+```gherkin
+Given Content-Security-Policy に report-to（csp-endpoint）と report-uri のディレクティブが設定されている
+And Reporting-Endpoints ヘッダーで csp-endpoint="/api/csp-report" が宣言されている
+When ブラウザが CSP 違反を検知する
+Then 違反レポートが /api/csp-report に送信される
+And サーバーログに違反内容が出力される
+```
 
 ## 受け入れ基準
 
@@ -70,13 +108,17 @@ And レスポンスヘッダーに適切な Content-Security-Policy が含まれ
 ## 検証
 
 ```bash
+npm run test -- tests/csp-report tests/http
 npm run build
 npm run test:e2e -- e2e/security-headers.spec.ts
 ```
 
-- E2E: `e2e/security-headers.spec.ts`（ページ / API ルートの両方でヘッダー付与を検証。CSP の主要ディレクティブの存在も確認）
+- Unit: `tests/csp-report/parse-report.test.ts`（2 形式の正規化、上限/切り詰め）、`tests/csp-report/route.test.ts`（`/api/csp-report` の 204/400/413 応答）、`tests/http/read-body.test.ts`
+- E2E: `e2e/security-headers.spec.ts`（ページ / API ルートの両方でヘッダー付与を検証。CSP の主要ディレクティブ・`Reporting-Endpoints` ヘッダーの存在、`/api/csp-report` への実際の POST も確認）
 
 ## 関連 Issue
 
 - #437 fix(security): next.config.ts にセキュリティヘッダー(X-Frame-Options等)が未設定
 - #450 fix(security): Content-Security-Policy ヘッダーの段階的導入を検討する（#437 のフォローアップ）
+- #457 chore(security): CSP違反のレポーティング（report-to/report-uri）導入（#450 のフォローアップ、本ドキュメントの対応範囲）
+- #455 chore(security): CSPのscript-src/style-srcからunsafe-inlineを除去（検討中、未着手）

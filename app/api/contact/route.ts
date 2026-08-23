@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MAX_CONTACT_BODY_BYTES } from '@/lib/contact/constants';
-import { readRequestBodyWithLimit } from '@/lib/contact/read-body';
+import { readBodyWithSizeGuard } from '@/lib/http/read-body';
 import { extractClientIp } from '@/lib/contact/rate-limit';
 import { getRateLimitService, type RateLimitService } from '@/lib/contact/rate-limit-service';
 import { contactFormSchema } from '@/lib/contact/schema';
@@ -40,18 +40,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const contentLength = request.headers.get('content-length');
-    if (contentLength) {
-      const length = Number.parseInt(contentLength, 10);
-      if (!Number.isNaN(length) && length > MAX_CONTACT_BODY_BYTES) {
-        return NextResponse.json(
-          { success: false, error: 'Payload too large' },
-          { status: 413 },
-        );
-      }
-    }
-
-    const bodyResult = await readRequestBodyWithLimit(request, MAX_CONTACT_BODY_BYTES);
+    const bodyResult = await readBodyWithSizeGuard(request, MAX_CONTACT_BODY_BYTES);
     if (!bodyResult.ok) {
       return NextResponse.json(
         { success: false, error: 'Payload too large' },

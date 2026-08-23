@@ -124,7 +124,7 @@ Then 進捗ドットが対応セクションに追従する
 | 未知フィールド（`to` 等）無視 | `tests/contact/schema.test.ts` |
 | レート制限（429） | `tests/contact/rate-limit.test.ts`, `tests/contact/route.test.ts` |
 | 不正 JSON / 空ボディ → 400 | `tests/contact/route.test.ts` |
-| 413 / Content-Length 過小申告 | `tests/contact/route.test.ts`, `tests/contact/read-body.test.ts` |
+| 413 / Content-Length 過小申告 | `tests/contact/route.test.ts`, `tests/http/read-body.test.ts` |
 | 413 / 枠非消費 | `tests/contact/route.test.ts` |
 | メール形式 | `tests/contact/email-format.test.ts` |
 | Redis フォールバック | `tests/contact/rate-limit-service.test.ts` |

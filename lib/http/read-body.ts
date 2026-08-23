@@ -37,3 +37,26 @@ export async function readRequestBodyWithLimit(
   body += decoder.decode();
   return { ok: true, body };
 }
+
+/**
+ * Rejects an oversized body cheaply via `Content-Length` when present and
+ * accurate, then falls back to the streaming `readRequestBodyWithLimit`
+ * (which also catches a missing/understated `Content-Length`). Shared by
+ * every route handler that needs a size-bounded read so the two checks
+ * can't drift apart between routes (see app/api/contact/route.ts and
+ * app/api/csp-report/route.ts).
+ */
+export async function readBodyWithSizeGuard(
+  request: NextRequest,
+  maxBytes: number,
+): Promise<ReadBodyResult> {
+  const contentLength = request.headers.get('content-length');
+  if (contentLength) {
+    const length = Number.parseInt(contentLength, 10);
+    if (!Number.isNaN(length) && length > maxBytes) {
+      return { ok: false, reason: 'too_large' };
+    }
+  }
+
+  return readRequestBodyWithLimit(request, maxBytes);
+}

@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import {
+  CSP_REPORT_ENDPOINT_GROUP,
+  CSP_REPORT_PATH,
+} from "./lib/csp-report/constants";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -44,6 +48,16 @@ const CSP_HEADER_VALUE = [
   `form-action 'self'`,
   `frame-ancestors 'none'`,
   `upgrade-insecure-requests`,
+  // CSP violation reporting (#457, follow-up to #450). `report-to` targets
+  // the modern Reporting API group declared via the Reporting-Endpoints
+  // header below; `report-uri` is kept alongside it as a fallback for
+  // browsers that only support the older report-uri mechanism (notably
+  // Safari, which has no Reporting API support at all). Both point at the
+  // same same-origin endpoint (app/api/csp-report/route.ts), which only
+  // logs violations server-side — no external log aggregation service is
+  // wired up, to avoid a new billing dependency.
+  `report-to ${CSP_REPORT_ENDPOINT_GROUP}`,
+  `report-uri ${CSP_REPORT_PATH}`,
 ].join("; ");
 
 // Baseline security response headers applied to every route.
@@ -70,6 +84,13 @@ const SECURITY_HEADERS = [
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
+  },
+  // Declares the `csp-endpoint` Reporting API group used by the CSP's
+  // `report-to` directive above. The endpoint URL is relative to this
+  // response's URL, per the Reporting API spec (#457).
+  {
+    key: "Reporting-Endpoints",
+    value: `${CSP_REPORT_ENDPOINT_GROUP}="${CSP_REPORT_PATH}"`,
   },
   // See the allow-list audit above CSP_HEADER_VALUE for what each directive
   // permits and why.
