@@ -11,73 +11,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changes:
-    # ドキュメントのみの変更かどうかを判定する軽量ジョブ。
-    # quality/lighthouse からは needs で参照するのみで、両ジョブ自体は
-    # 常に実行される（job-level skip はしない）。skip すると required
-    # status check として登録された場合に conclusion=skipped の扱いが
-    # 曖昧になり得るため、重いステップだけを step 単位で条件分岐させる方が安全。
+  quality:
     runs-on: ubuntu-latest
-    outputs:
-      docs_only: ${{ steps.filter.outputs.docs_only }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Determine if change is docs-only
-        id: filter
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="${{ github.event.pull_request.base.sha }}"
-            HEAD="${{ github.event.pull_request.head.sha }}"
-          else
-            BASE="${{ github.event.before }}"
-            HEAD="${{ github.event.after }}"
-          fi
-
-          # base/head が取れない、または diff できない場合は安全側に倒して
-          # フルセットのジョブを実行する（docs_only=false）。
-          if [ -z "$BASE" ] || [ -z "$HEAD" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
-            echo "base/head SHA を判定できないため docs_only=false とします"
-            echo "docs_only=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if ! CHANGED_FILES=$(git diff --name-only "$BASE" "$HEAD" 2>&1); then
-            echo "git diff に失敗したため docs_only=false とします"
-            echo "$CHANGED_FILES"
-            echo "docs_only=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "docs_only=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          DOCS_ONLY=true
-          while IFS= read -r file; do
-            [ -z "$file" ] && continue
-            case "$file" in
-              documents/*|*.md|.github/ISSUE_TEMPLATE/*|LICENSE)
-                ;;
-              *)
-                DOCS_ONLY=false
-                ;;
-            esac
-          done <<< "$CHANGED_FILES"
-
-          echo "docs_only=$DOCS_ONLY" >> "$GITHUB_OUTPUT"
-
-  quality:
-    needs: changes
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
+      - name: Docs-only check
+        id: docs_only
+        uses: ./.github/actions/docs-only-check
 
       - uses: actions/setup-node@v7
         with:
@@ -103,28 +46,33 @@ jobs:
         run: npm test
 
       - name: Remove broken Microsoft apt repos
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: |
           sudo find /etc/apt/sources.list.d/ \( -name "*.list" -o -name "*.sources" \) \
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
       - name: Install Playwright browsers
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npx playwright install --with-deps chromium
 
       - name: E2E tests
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm run test:e2e
         env:
           CI: true
           CONTACT_TRUST_PROXY_IP_HEADERS: 'true'
 
   lighthouse:
-    needs: changes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Docs-only check
+        id: docs_only
+        uses: ./.github/actions/docs-only-check
 
       - uses: actions/setup-node@v7
         with:
@@ -132,36 +80,36 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm ci
 
       - name: Build
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm run build
 
       - name: Remove broken Microsoft apt repos
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: |
           sudo find /etc/apt/sources.list.d/ \( -name "*.list" -o -name "*.sources" \) \
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
       - name: Install Playwright browsers
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Start server
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm run start -- -p 3000 &
         env:
           CI: true
 
       - name: Wait for server
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npx wait-on http://127.0.0.1:3000 --timeout 120000
 
       - name: Warm up server
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: |
           curl -sf http://127.0.0.1:3000/services > /dev/null
           sleep 5
@@ -174,7 +122,7 @@ jobs:
       # 誤魔化さない（詳細: documents/spec/top-particle-loader.md）。
       # 下層ページはローダーが軽量なため、バンドル肥大やレンダリング回帰はここで検知できる。
       - name: Lighthouse mobile performance (下層ページで性能ゲート)
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: node scripts/lighthouse-check.mjs http://127.0.0.1:3000/services
         env:
           LIGHTHOUSE_MIN_PERFORMANCE: '0.9'
@@ -186,7 +134,7 @@ jobs:
       # 「ゲート対象外」と決めたページのスコアで無関係な PR がブロックされてしまう
       # （PR #419 2 巡目レビュー対応）。
       - name: Lighthouse mobile performance (トップ・演出込みの参考値／ゲートではない)
-        if: needs.changes.outputs.docs_only != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true'
         continue-on-error: true
         run: node scripts/lighthouse-check.mjs http://127.0.0.1:3000/
         env:
