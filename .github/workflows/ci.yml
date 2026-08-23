@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# docs-only-check（quality/lighthouse両ジョブから利用）が
+# `gh api pulls/{number}/files` / `gh api compare/...` を呼ぶために必要な
+# 最小権限を明示する。リポジトリのdefault workflow permissionsが将来
+# 変更されても、この機能が権限不足で静かに無効化（常にdocs_only=false）
+# されないようにするため。
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -16,11 +25,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Docs-only check
+        id: docs_only
+        uses: ./.github/actions/docs-only-check
+
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
 
+      # npm ci 〜 Test までは docs-only な変更でもスキップしない。
+      # lint/型チェック/build/npm audit/vitest は元々軽量で、
+      # branch protectionのrequired checkとして安定して短時間で完走する
+      # gateを維持したいため（#491のissue提案どおり）。
       - name: Install dependencies
         run: npm ci
 
@@ -39,17 +56,23 @@ jobs:
       - name: Test
         run: npm test
 
+      # 以下、Playwright/E2E/Lighthouseなど「重い」ステップは docs-only な
+      # 変更ではスキップする（#491）。新しく重いステップを追加する場合は
+      # 同じ if: 条件を必ず付けること。
       - name: Remove broken Microsoft apt repos
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: |
           sudo find /etc/apt/sources.list.d/ \( -name "*.list" -o -name "*.sources" \) \
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
       - name: Get installed Playwright version
+        if: steps.docs_only.outputs.docs_only != 'true'
         id: playwright-version
         run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
+        if: steps.docs_only.outputs.docs_only != 'true'
         id: playwright-cache
         uses: actions/cache@v4
         with:
@@ -58,15 +81,18 @@ jobs:
 
       # ブラウザバイナリがキャッシュ済みでも OS 依存パッケージは runner ごとに
       # インストールし直す必要があるため常時実行し、バイナリ本体（数十〜100MB超の
-      # ダウンロード＋展開）だけキャッシュヒット時にスキップする。
+      # ダウンロード＋展開）だけキャッシュヒット時にスキップする
+      # （docs-onlyな変更ではこのステップ自体もスキップする、#491）。
       - name: Install Playwright OS dependencies
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npx playwright install-deps chromium
 
       - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
 
       - name: E2E tests
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm run test:e2e
         env:
           CI: true
@@ -77,28 +103,42 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Docs-only check
+        id: docs_only
+        uses: ./.github/actions/docs-only-check
+
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
 
+      # lighthouseジョブは「Lighthouse計測」自体がジョブの目的そのもの
+      # なので、quality（lint/型チェック等の軽量gateを常時維持したい）とは
+      # 異なり、npm ci / build を含む全ステップを docs-only な変更で
+      # スキップしてよい（#491）。新しく重いステップを追加する場合は
+      # 同じ if: 条件を必ず付けること。
       - name: Install dependencies
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm ci
 
       - name: Build
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm run build
 
       - name: Remove broken Microsoft apt repos
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: |
           sudo find /etc/apt/sources.list.d/ \( -name "*.list" -o -name "*.sources" \) \
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
       - name: Get installed Playwright version
+        if: steps.docs_only.outputs.docs_only != 'true'
         id: playwright-version
         run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
+        if: steps.docs_only.outputs.docs_only != 'true'
         id: playwright-cache
         uses: actions/cache@v4
         with:
@@ -107,23 +147,28 @@ jobs:
 
       # lighthouse ジョブは E2E テスト自体は実行しないが、lighthouse-check.mjs が
       # Chrome 実行ファイルのフォールバック先として Playwright の Chromium キャッシュを
-      # 利用するため、quality ジョブと同じキャッシュ戦略でインストールする。
+      # 利用するため、quality ジョブと同じキャッシュ戦略でインストールする
+      # （docs-onlyな変更ではこのステップ自体もスキップする、#491）。
       - name: Install Playwright OS dependencies
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npx playwright install-deps chromium
 
       - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.docs_only.outputs.docs_only != 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
 
       - name: Start server
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npm run start -- -p 3000 &
         env:
           CI: true
 
       - name: Wait for server
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: npx wait-on http://127.0.0.1:3000 --timeout 120000
 
       - name: Warm up server
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: |
           curl -sf http://127.0.0.1:3000/services > /dev/null
           sleep 5
@@ -136,6 +181,7 @@ jobs:
       # 誤魔化さない（詳細: documents/spec/top-particle-loader.md）。
       # 下層ページはローダーが軽量なため、バンドル肥大やレンダリング回帰はここで検知できる。
       - name: Lighthouse mobile performance (下層ページで性能ゲート)
+        if: steps.docs_only.outputs.docs_only != 'true'
         run: node scripts/lighthouse-check.mjs http://127.0.0.1:3000/services
         env:
           LIGHTHOUSE_MIN_PERFORMANCE: '0.9'
@@ -147,6 +193,7 @@ jobs:
       # 「ゲート対象外」と決めたページのスコアで無関係な PR がブロックされてしまう
       # （PR #419 2 巡目レビュー対応）。
       - name: Lighthouse mobile performance (トップ・演出込みの参考値／ゲートではない)
+        if: steps.docs_only.outputs.docs_only != 'true'
         continue-on-error: true
         run: node scripts/lighthouse-check.mjs http://127.0.0.1:3000/
         env:
