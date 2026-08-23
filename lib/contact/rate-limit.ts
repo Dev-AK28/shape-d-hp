@@ -1,6 +1,4 @@
 import {
-  isRateLimited as genericIsRateLimited,
-  pruneExpiredEntries as genericPruneExpiredEntries,
   releaseRateLimitSlot as genericReleaseRateLimitSlot,
   tryAcquireRateLimitSlot as genericTryAcquireRateLimitSlot,
   type RateLimitEntry,
@@ -23,22 +21,6 @@ export const RATE_LIMIT_WINDOW_MS = 60_000;
 export type { RateLimitEntry, RateLimitStore };
 
 const OPTIONS = { max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS };
-
-export function pruneExpiredEntries(
-  store: RateLimitStore,
-  now: number = Date.now(),
-): void {
-  genericPruneExpiredEntries(store, now);
-}
-
-/** Returns true when the IP has reached the limit (read-only). */
-export function isRateLimited(
-  ip: string,
-  store: RateLimitStore,
-  now: number = Date.now(),
-): boolean {
-  return genericIsRateLimited(ip, store, OPTIONS, now);
-}
 
 /**
  * Atomically acquires a rate-limit slot before processing.

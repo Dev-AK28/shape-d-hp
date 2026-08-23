@@ -3,8 +3,6 @@ import {
   RATE_LIMIT_MAX,
   RATE_LIMIT_WINDOW_MS,
   extractClientIp,
-  isRateLimited,
-  pruneExpiredEntries,
   releaseRateLimitSlot,
   tryAcquireRateLimitSlot,
   type RateLimitStore,
@@ -18,8 +16,6 @@ describe('tryAcquireRateLimitSlot', () => {
     for (let i = 0; i < RATE_LIMIT_MAX; i += 1) {
       expect(tryAcquireRateLimitSlot('1.2.3.4', store, now)).toBe(true);
     }
-
-    expect(isRateLimited('1.2.3.4', store, now)).toBe(true);
   });
 
   it('blocks the 6th acquisition within the window', () => {
@@ -125,19 +121,5 @@ describe('extractClientIp', () => {
 
     expect(extractClientIp(headers)).toBeNull();
     vi.unstubAllEnvs();
-  });
-});
-
-describe('pruneExpiredEntries', () => {
-  it('removes expired keys from the store', () => {
-    const store: RateLimitStore = new Map([
-      ['expired', { count: 5, resetAt: 100 }],
-      ['active', { count: 1, resetAt: 9_999_999 }],
-    ]);
-
-    pruneExpiredEntries(store, 200);
-
-    expect(store.has('expired')).toBe(false);
-    expect(store.has('active')).toBe(true);
   });
 });
