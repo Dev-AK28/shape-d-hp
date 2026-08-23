@@ -24,7 +24,7 @@
 | ディレクティブ | 値 | 根拠 |
 |---------|-----|------|
 | `default-src` | `'self'` | 明示していないリソース種別のデフォルトを自オリジンに限定 |
-| `script-src` | `'self' 'unsafe-inline'`（開発時のみ `'unsafe-eval'` も追加） | Next.js App Router のインライン bootstrap/hydration スクリプトは per-request nonce 配線（proxy/middleware）が無く、本サイトは静的レンダリングに強く依存しているため（`components/top/top-fonts.ts` の `preload: false` 判断等）、今回は nonce 化を見送り `'unsafe-inline'` を許可。外部スクリプトの読み込みは引き続きブロックされる |
+| `script-src` | `'self' 'unsafe-inline'`（開発時のみ `'unsafe-eval'` も追加） | Next.js App Router のインライン bootstrap/hydration スクリプトは per-request nonce 配線（proxy）が無く、本サイトは `revalidate` を使わない純粋な静的生成（SSG）構成のため、今回は nonce 化を見送り `'unsafe-inline'` を許可。外部スクリプトの読み込みは引き続きブロックされる。除去の実現可能性は #455 で実機検証済み（下記「`unsafe-inline` 除去の実現可能性調査」参照） |
 | `style-src` | `'self' 'unsafe-inline'` | React の `style={{ ... }}`（インラインスタイル）を使うコンポーネントが複数存在するため必要 |
 | `img-src` | `'self' data: blob:` | 自オリジン画像に加え、`data:`/`blob:` を許容 |
 | `font-src` | `'self'` | `next/font/google`（`components/top/top-fonts.ts`）はビルド時にダウンロードして `/_next/static` から自己ホストするため外部オリジン不要 |
