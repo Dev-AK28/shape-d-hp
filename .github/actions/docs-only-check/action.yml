@@ -53,6 +53,17 @@ runs:
         echo "Changed files:"
         echo "$CHANGED_FILES"
 
+        # GitHubのcompare API（push時に使用）は files を最大300件で打ち切り、
+        # Linkヘッダーによる続きページングにも対応していない（--paginate では
+        # 拾いきれない）。300件ちょうどは打ち切りの可能性があるため、
+        # 全ファイルを把握できたと保証できず安全側（docs_only=false）に倒す。
+        # pulls/files（PRイベント時）は標準的なページングに対応しているため
+        # --paginate で全件取得できる。
+        FILE_COUNT=$(printf '%s\n' "$CHANGED_FILES" | grep -c .)
+        if [ "${{ github.event_name }}" != "pull_request" ] && [ "$FILE_COUNT" -ge 300 ]; then
+          bail_false "compare APIの結果が300件に達し打ち切られている可能性がある"
+        fi
+
         if [ -z "$CHANGED_FILES" ]; then
           # 変更ファイルなし（no-opイベント等）はテスト対象がないため
           # docs_only=true として安全にスキップしてよい。
