@@ -19,6 +19,8 @@ function expectCspDirectives(headers: Record<string, string>): void {
   expect(csp).toContain(`form-action 'self'`);
   expect(csp).toContain(`frame-ancestors 'none'`);
   expect(csp).toContain('upgrade-insecure-requests');
+  expect(csp).toContain('report-to csp-endpoint');
+  expect(csp).toContain('report-uri /api/csp-report');
 }
 
 test.describe('Security response headers', () => {
@@ -32,6 +34,7 @@ test.describe('Security response headers', () => {
       'camera=(), microphone=(), geolocation=(), browsing-topics=()',
     );
     expect(headers['strict-transport-security']).toBe('max-age=63072000; includeSubDomains; preload');
+    expect(headers['reporting-endpoints']).toBe('csp-endpoint="/api/csp-report"');
     expectCspDirectives(headers);
   });
 
@@ -68,5 +71,50 @@ test.describe('Security response headers', () => {
     expect(pixelCount).toBeGreaterThan(0);
 
     expect(cspViolations).toEqual([]);
+  });
+});
+
+test.describe('CSP violation reporting endpoint (#457)', () => {
+  test('accepts a Reporting API v1 (report-to) batch and responds 204', async ({ request }) => {
+    const response = await request.post('/api/csp-report', {
+      headers: { 'content-type': 'application/reports+json' },
+      data: [
+        {
+          type: 'csp-violation',
+          body: {
+            documentURL: 'https://example.com/',
+            effectiveDirective: 'script-src-elem',
+            disposition: 'enforce',
+            blockedURL: 'https://evil.example/x.js',
+          },
+        },
+      ],
+    });
+
+    expect(response.status()).toBe(204);
+  });
+
+  test('accepts a legacy report-uri payload and responds 204', async ({ request }) => {
+    const response = await request.post('/api/csp-report', {
+      headers: { 'content-type': 'application/csp-report' },
+      data: {
+        'csp-report': {
+          'document-uri': 'https://example.com/',
+          'violated-directive': 'style-src-attr',
+          'blocked-uri': 'inline',
+        },
+      },
+    });
+
+    expect(response.status()).toBe(204);
+  });
+
+  test('rejects a malformed report body with 400', async ({ request }) => {
+    const response = await request.post('/api/csp-report', {
+      headers: { 'content-type': 'application/json' },
+      data: 'not-a-report',
+    });
+
+    expect(response.status()).toBe(400);
   });
 });
