@@ -1,8 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  extractClientIp,
   isRateLimited,
   pruneExpiredEntries,
   releaseRateLimitSlot,
+  shouldTrustCloudflareIp,
+  shouldTrustProxyIpHeaders,
   tryAcquireRateLimitSlot,
   type RateLimitOptions,
   type RateLimitStore,
@@ -100,5 +103,50 @@ describe('pruneExpiredEntries', () => {
 
     expect(store.has('expired')).toBe(false);
     expect(store.has('active')).toBe(true);
+  });
+});
+
+describe('shouldTrustProxyIpHeaders / shouldTrustCloudflareIp (#475 review: generic env var, deployment-wide)', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('prefers the generic TRUST_PROXY_IP_HEADERS over the legacy CONTACT_ prefixed one', () => {
+    vi.stubEnv('TRUST_PROXY_IP_HEADERS', 'false');
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'true');
+
+    expect(shouldTrustProxyIpHeaders()).toBe(false);
+  });
+
+  it('falls back to the legacy CONTACT_TRUST_PROXY_IP_HEADERS when the generic var is unset', () => {
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'true');
+
+    expect(shouldTrustProxyIpHeaders()).toBe(true);
+  });
+
+  it('prefers the generic TRUST_CLOUDFLARE_IP over the legacy CONTACT_ prefixed one', () => {
+    vi.stubEnv('TRUST_CLOUDFLARE_IP', 'true');
+    vi.stubEnv('CONTACT_TRUST_CLOUDFLARE_IP', 'false');
+
+    expect(shouldTrustCloudflareIp()).toBe(true);
+  });
+
+  it('extractClientIp trusts forwarded headers under the generic env var alone (no CONTACT_ var set)', () => {
+    vi.stubEnv('TRUST_PROXY_IP_HEADERS', 'true');
+    const headers = new Headers({ 'x-forwarded-for': '203.0.113.5' });
+
+    expect(extractClientIp(headers)).toBe('203.0.113.5');
+  });
+
+  it('a CONTACT_-scoped false does not disable IP resolution when the generic var explicitly trusts it', () => {
+    // Regression guard for the review finding: an operator who sets
+    // CONTACT_TRUST_PROXY_IP_HEADERS=false believing it only scopes the
+    // contact form must not silently disable csp-report's rate limiting —
+    // the generic var, when explicitly set, takes precedence.
+    vi.stubEnv('TRUST_PROXY_IP_HEADERS', 'true');
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'false');
+    const headers = new Headers({ 'x-forwarded-for': '203.0.113.6' });
+
+    expect(extractClientIp(headers)).toBe('203.0.113.6');
   });
 });

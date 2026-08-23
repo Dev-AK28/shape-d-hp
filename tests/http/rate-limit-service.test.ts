@@ -1,4 +1,44 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
+import { tryAcquireRateLimitSlotFailOpen, type RateLimitService } from '@/lib/http/rate-limit-service';
+
+describe('tryAcquireRateLimitSlotFailOpen', () => {
+  it('returns allowed=true, acquired=true when the underlying acquire succeeds', async () => {
+    const service: RateLimitService = {
+      tryAcquire: vi.fn().mockResolvedValue(true),
+      release: vi.fn(),
+    };
+
+    const result = await tryAcquireRateLimitSlotFailOpen(service, 'key', 'unused');
+
+    expect(result).toEqual({ allowed: true, acquired: true });
+  });
+
+  it('returns allowed=false, acquired=false when the underlying acquire reports over-limit', async () => {
+    const service: RateLimitService = {
+      tryAcquire: vi.fn().mockResolvedValue(false),
+      release: vi.fn(),
+    };
+
+    const result = await tryAcquireRateLimitSlotFailOpen(service, 'key', 'unused');
+
+    expect(result).toEqual({ allowed: false, acquired: false });
+  });
+
+  it('fails open (allowed=true, acquired=false) and logs when the backend throws', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const service: RateLimitService = {
+      tryAcquire: vi.fn().mockRejectedValue(new Error('Upstash unreachable')),
+      release: vi.fn(),
+    };
+
+    const result = await tryAcquireRateLimitSlotFailOpen(service, 'key', 'acquire failed');
+
+    expect(result).toEqual({ allowed: true, acquired: false });
+    expect(consoleErrorSpy).toHaveBeenCalledWith('acquire failed', { name: 'Error' });
+
+    consoleErrorSpy.mockRestore();
+  });
+});
 
 describe('createRateLimitServiceFactory (memory fallback)', () => {
   afterEach(() => {

@@ -7,6 +7,16 @@ import {
   type RateLimitStore,
 } from '@/lib/http/rate-limit';
 
+// extractClientIp/shouldTrustProxyIpHeaders/shouldTrustCloudflareIp moved to
+// lib/http/rate-limit.ts (#475 review): they now also gate /api/csp-report,
+// not just /api/contact, so they're re-exported here for backward
+// compatibility rather than owned by this contact-specific module.
+export {
+  extractClientIp,
+  shouldTrustCloudflareIp,
+  shouldTrustProxyIpHeaders,
+} from '@/lib/http/rate-limit';
+
 export const RATE_LIMIT_MAX = 5;
 export const RATE_LIMIT_WINDOW_MS = 60_000;
 
@@ -51,43 +61,3 @@ export function releaseRateLimitSlot(
   genericReleaseRateLimitSlot(ip, store, now);
 }
 
-export function shouldTrustCloudflareIp(): boolean {
-  return process.env.CONTACT_TRUST_CLOUDFLARE_IP?.trim().toLowerCase() === 'true';
-}
-
-/**
- * Whether to trust `x-forwarded-for` / `x-real-ip`.
- * On Vercel the edge overwrites these headers; clients cannot forge them.
- * Set `CONTACT_TRUST_PROXY_IP_HEADERS=false` to disable when not behind a trusted proxy.
- */
-export function shouldTrustProxyIpHeaders(): boolean {
-  const explicit = process.env.CONTACT_TRUST_PROXY_IP_HEADERS?.trim().toLowerCase();
-  if (explicit === 'false') {
-    return false;
-  }
-  if (explicit === 'true') {
-    return true;
-  }
-  return process.env.VERCEL === '1';
-}
-
-export function extractClientIp(headers: Headers): string | null {
-  if (shouldTrustCloudflareIp()) {
-    const cfConnectingIp = headers.get('cf-connecting-ip')?.trim();
-    if (cfConnectingIp) {
-      return cfConnectingIp;
-    }
-  }
-
-  if (!shouldTrustProxyIpHeaders()) {
-    return null;
-  }
-
-  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  if (forwarded) {
-    return forwarded;
-  }
-
-  const realIp = headers.get('x-real-ip')?.trim();
-  return realIp || null;
-}

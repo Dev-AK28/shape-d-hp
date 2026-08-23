@@ -92,3 +92,68 @@ export function releaseRateLimitSlot(
 
   entry.count -= 1;
 }
+
+/**
+ * Reads a boolean trust flag, preferring the generic env var name and
+ * falling back to the legacy `CONTACT_`-prefixed one for backward
+ * compatibility with deployments that already set it (#475 review).
+ */
+function readTrustFlag(genericVar: string, legacyVar: string): string | undefined {
+  return (
+    process.env[genericVar]?.trim().toLowerCase() ||
+    process.env[legacyVar]?.trim().toLowerCase()
+  );
+}
+
+/**
+ * Whether to trust `cf-connecting-ip`. Prefer `TRUST_CLOUDFLARE_IP`; the
+ * legacy `CONTACT_TRUST_CLOUDFLARE_IP` name is still honored so existing
+ * deployment config keeps working.
+ */
+export function shouldTrustCloudflareIp(): boolean {
+  return readTrustFlag('TRUST_CLOUDFLARE_IP', 'CONTACT_TRUST_CLOUDFLARE_IP') === 'true';
+}
+
+/**
+ * Whether to trust `x-forwarded-for` / `x-real-ip`.
+ * On Vercel the edge overwrites these headers; clients cannot forge them.
+ *
+ * Prefer `TRUST_PROXY_IP_HEADERS` (`false` to disable when not behind a
+ * trusted proxy); the legacy `CONTACT_TRUST_PROXY_IP_HEADERS` name is still
+ * honored so existing deployment config keeps working. Using the generic
+ * name is deployment-wide — it now also governs `/api/csp-report`, not just
+ * `/api/contact` (#475 review: a `CONTACT_`-prefixed var reads as
+ * contact-form-scoped and could be set to `false` believing it only
+ * affected that form, silently disabling CSP-report rate limiting too).
+ */
+export function shouldTrustProxyIpHeaders(): boolean {
+  const explicit = readTrustFlag('TRUST_PROXY_IP_HEADERS', 'CONTACT_TRUST_PROXY_IP_HEADERS');
+  if (explicit === 'false') {
+    return false;
+  }
+  if (explicit === 'true') {
+    return true;
+  }
+  return process.env.VERCEL === '1';
+}
+
+export function extractClientIp(headers: Headers): string | null {
+  if (shouldTrustCloudflareIp()) {
+    const cfConnectingIp = headers.get('cf-connecting-ip')?.trim();
+    if (cfConnectingIp) {
+      return cfConnectingIp;
+    }
+  }
+
+  if (!shouldTrustProxyIpHeaders()) {
+    return null;
+  }
+
+  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  if (forwarded) {
+    return forwarded;
+  }
+
+  const realIp = headers.get('x-real-ip')?.trim();
+  return realIp || null;
+}

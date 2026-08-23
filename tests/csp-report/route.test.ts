@@ -33,11 +33,21 @@ describe('POST /api/csp-report', () => {
 
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    // Force the in-memory rate-limit backend regardless of the ambient
+    // environment (mirrors tests/csp-report/rate-limit-service.test.ts and
+    // tests/http/rate-limit-service.test.ts) — otherwise real Upstash/KV
+    // credentials present in the environment would route these assertions
+    // through Redis, making them flaky/order-dependent against remote state.
+    vi.stubEnv('UPSTASH_REDIS_REST_URL', '');
+    vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', '');
+    vi.stubEnv('KV_REST_API_URL', '');
+    vi.stubEnv('KV_REST_API_TOKEN', '');
     resetRateLimitServiceForTests();
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+    vi.unstubAllEnvs();
     resetRateLimitServiceForTests();
   });
 
@@ -146,6 +156,24 @@ describe('POST /api/csp-report', () => {
 
       expect(blocked.status).toBe(429);
       expect(consoleErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns 429 (not 413) for an oversized body once the IP is rate-limited, so an oversized-body flood cannot dodge the limiter', async () => {
+      const validPayload = JSON.stringify({ 'csp-report': { 'blocked-uri': 'inline' } });
+
+      for (let i = 0; i < CSP_REPORT_RATE_LIMIT_MAX; i += 1) {
+        await POST(
+          createRequest(validPayload, { contentType: 'application/csp-report', ip: '203.0.113.10' }),
+        );
+      }
+
+      const oversized = JSON.stringify([
+        { type: 'csp-violation', body: { blockedURL: 'x'.repeat(MAX_CSP_REPORT_BODY_BYTES) } },
+      ]);
+
+      const response = await POST(createRequest(oversized, { ip: '203.0.113.10' }));
+
+      expect(response.status).toBe(429);
     });
 
     it('does not rate-limit one IP based on another IP’s volume', async () => {
