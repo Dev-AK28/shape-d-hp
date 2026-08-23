@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MAX_CONTACT_BODY_BYTES } from '@/lib/contact/constants';
-import { readRequestBodyWithLimit } from '@/lib/contact/read-body';
+import { readRequestBodyWithLimit } from '@/lib/http/read-body';
 import { extractClientIp } from '@/lib/contact/rate-limit';
 import { getRateLimitService, type RateLimitService } from '@/lib/contact/rate-limit-service';
 import { contactFormSchema } from '@/lib/contact/schema';

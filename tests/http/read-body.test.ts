@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
-import { readRequestBodyWithLimit } from '@/lib/contact/read-body';
+import { readRequestBodyWithLimit } from '@/lib/http/read-body';
 
 describe('readRequestBodyWithLimit', () => {
   it('returns an empty body when the request has no readable stream', async () => {

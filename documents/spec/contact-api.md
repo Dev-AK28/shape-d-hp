@@ -17,7 +17,7 @@
 
 - リクエストボディ上限: **32KB**（超過時 413）
 - `Content-Length` ヘッダーが存在する場合はボディ読み込み前に拒否
-- `Content-Length` が無い、または実サイズが上限を超える場合はストリーム読込で 32KB 超過時点で 413 を返す（`lib/contact/read-body.ts`）
+- `Content-Length` が無い、または実サイズが上限を超える場合はストリーム読込で 32KB 超過時点で 413 を返す（共通ユーティリティ `lib/http/read-body.ts`。#457 で `lib/contact/` から `lib/http/` へ移動し、`/api/csp-report` からも再利用している）
 - 定義外フィールド（例: `to`）は Zod により**無視**され、400 にはならない（宛先はサーバー側 `CONTACT_EMAIL` 固定）
 
 ## レスポンス
