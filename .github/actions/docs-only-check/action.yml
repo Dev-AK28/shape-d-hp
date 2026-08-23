@@ -2,7 +2,8 @@ name: 'Docs-only change check'
 description: >-
   変更されたファイルがすべてドキュメント系パス（*.md（documents/配下含む
   任意のディレクトリのMarkdownファイル）, .github/ISSUE_TEMPLATE/**,
-  LICENSE）に該当するかどうかを判定する。GitHub API（pulls/files /
+  LICENSE*（LICENSE, LICENSE.txt等））に該当するかどうかを判定する。
+  GitHub API（pulls/files /
   compare）でサーバー側に差分ファイル一覧を計算させるため、呼び出し側の
   actions/checkout は通常のデフォルト（shallow）設定でよく、ローカルの
   git履歴・merge-base計算には依存しない。
@@ -45,7 +46,10 @@ runs:
           if [ -z "$BASE" ] || [ -z "$HEAD" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             bail_false "base/head SHA を判定できない"
           fi
-          if ! CHANGED_FILES=$(gh api "repos/${REPO}/compare/${BASE}...${HEAD}" --paginate --jq '.files[].filename'); then
+          # compare APIはLinkヘッダーによる継続ページングに対応していないため
+          # --paginate は付けない（付けても実質no-op）。300件打ち切りに対する
+          # 安全策は後段のCAPチェックで担保する。
+          if ! CHANGED_FILES=$(gh api "repos/${REPO}/compare/${BASE}...${HEAD}" --jq '.files[].filename'); then
             bail_false "GitHub API(compare)の取得に失敗した"
           fi
         fi
@@ -78,7 +82,12 @@ runs:
         else
           CAP=300
         fi
-        FILE_COUNT=$(printf '%s\n' "$CHANGED_FILES" | grep -c .)
+        # CHANGED_FILES は非空であることが保証されているが、万一すべて
+        # 空行のような内容であれば grep -c . は0件マッチで終了コード1を
+        # 返し、GitHub Actionsのデフォルト errexit（bash -eo pipefail）で
+        # このステップごと落ちてしまう。件数カウント自体の成否は
+        # docs_only判定に影響しないため、`|| true` で無害化する。
+        FILE_COUNT=$(printf '%s\n' "$CHANGED_FILES" | grep -c . || true)
         if [ "$FILE_COUNT" -ge "$CAP" ]; then
           bail_false "GitHub APIの結果が上限(${CAP}件)に達し打ち切られている可能性がある"
         fi
@@ -87,7 +96,7 @@ runs:
         while IFS= read -r file; do
           [ -z "$file" ] && continue
           case "$file" in
-            *.md|.github/ISSUE_TEMPLATE/*|LICENSE)
+            *.md|.github/ISSUE_TEMPLATE/*|LICENSE*)
               ;;
             *)
               DOCS_ONLY=false

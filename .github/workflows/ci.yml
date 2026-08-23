@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# docs-only-check（quality/lighthouse両ジョブから利用）が
+# `gh api pulls/{number}/files` / `gh api compare/...` を呼ぶために必要な
+# 最小権限を明示する。リポジトリのdefault workflow permissionsが将来
+# 変更されても、この機能が権限不足で静かに無効化（常にdocs_only=false）
+# されないようにするため。
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -25,6 +34,10 @@ jobs:
           node-version: 22
           cache: npm
 
+      # npm ci 〜 Test までは docs-only な変更でもスキップしない。
+      # lint/型チェック/build/npm audit/vitest は元々軽量で、
+      # branch protectionのrequired checkとして安定して短時間で完走する
+      # gateを維持したいため（#491のissue提案どおり）。
       - name: Install dependencies
         run: npm ci
 
@@ -78,8 +91,10 @@ jobs:
           node-version: 22
           cache: npm
 
-      # 以下、build〜Lighthouse計測まで一式が「重い」処理のため docs-only な
-      # 変更ではスキップする（#491）。新しく重いステップを追加する場合は
+      # lighthouseジョブは「Lighthouse計測」自体がジョブの目的そのもの
+      # なので、quality（lint/型チェック等の軽量gateを常時維持したい）とは
+      # 異なり、npm ci / build を含む全ステップを docs-only な変更で
+      # スキップしてよい（#491）。新しく重いステップを追加する場合は
       # 同じ if: 条件を必ず付けること。
       - name: Install dependencies
         if: steps.docs_only.outputs.docs_only != 'true'
