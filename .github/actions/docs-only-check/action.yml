@@ -53,22 +53,34 @@ runs:
         echo "Changed files:"
         echo "$CHANGED_FILES"
 
-        # GitHubのcompare API（push時に使用）は files を最大300件で打ち切り、
-        # Linkヘッダーによる続きページングにも対応していない（--paginate では
-        # 拾いきれない）。300件ちょうどは打ち切りの可能性があるため、
-        # 全ファイルを把握できたと保証できず安全側（docs_only=false）に倒す。
-        # pulls/files（PRイベント時）は標準的なページングに対応しているため
-        # --paginate で全件取得できる。
-        FILE_COUNT=$(printf '%s\n' "$CHANGED_FILES" | grep -c .)
-        if [ "${{ github.event_name }}" != "pull_request" ] && [ "$FILE_COUNT" -ge 300 ]; then
-          bail_false "compare APIの結果が300件に達し打ち切られている可能性がある"
-        fi
-
         if [ -z "$CHANGED_FILES" ]; then
           # 変更ファイルなし（no-opイベント等）はテスト対象がないため
           # docs_only=true として安全にスキップしてよい。
+          # ここで早期returnすることで、直後の grep -c . が「0件マッチ」で
+          # 終了コード1を返し、GitHub Actionsのbashステップがデフォルトで
+          # 有効にしている errexit（bash -eo pipefail）によりステップ自体が
+          # 失敗する事故を避ける（「安全側にフォールバックする」設計の
+          # 意図に反して落ちてしまうバグだったため、CHANGED_FILESが
+          # 非空であることが保証された後でのみ件数カウントに進む）。
           echo "docs_only=true" >> "$GITHUB_OUTPUT"
           exit 0
+        fi
+
+        # GitHubのAPIは変更ファイル一覧を無制限には返さない:
+        #   - compare API（push時）: files を最大300件で打ち切り、Linkヘッダーに
+        #     よる継続ページングにも対応していない（--paginate では拾いきれない）
+        #   - pulls/files API（PRイベント時）: 標準的なページングには対応して
+        #     いるが、公式に3000件でハード上限が設定されている
+        # 上限ちょうどに達した場合は全ファイルを把握できたと保証できないため、
+        # 安全側（docs_only=false、フルセットのジョブ実行）に倒す。
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          CAP=3000
+        else
+          CAP=300
+        fi
+        FILE_COUNT=$(printf '%s\n' "$CHANGED_FILES" | grep -c .)
+        if [ "$FILE_COUNT" -ge "$CAP" ]; then
+          bail_false "GitHub APIの結果が上限(${CAP}件)に達し打ち切られている可能性がある"
         fi
 
         DOCS_ONLY=true
