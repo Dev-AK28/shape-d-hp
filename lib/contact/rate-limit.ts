@@ -1,18 +1,24 @@
+import {
+  isRateLimited as genericIsRateLimited,
+  pruneExpiredEntries as genericPruneExpiredEntries,
+  releaseRateLimitSlot as genericReleaseRateLimitSlot,
+  tryAcquireRateLimitSlot as genericTryAcquireRateLimitSlot,
+  type RateLimitEntry,
+  type RateLimitStore,
+} from '@/lib/http/rate-limit';
+
 export const RATE_LIMIT_MAX = 5;
 export const RATE_LIMIT_WINDOW_MS = 60_000;
 
-export type RateLimitEntry = { count: number; resetAt: number };
-export type RateLimitStore = Map<string, RateLimitEntry>;
+export type { RateLimitEntry, RateLimitStore };
+
+const OPTIONS = { max: RATE_LIMIT_MAX, windowMs: RATE_LIMIT_WINDOW_MS };
 
 export function pruneExpiredEntries(
   store: RateLimitStore,
   now: number = Date.now(),
 ): void {
-  for (const [key, entry] of store) {
-    if (now > entry.resetAt) {
-      store.delete(key);
-    }
-  }
+  genericPruneExpiredEntries(store, now);
 }
 
 /** Returns true when the IP has reached the limit (read-only). */
@@ -21,14 +27,7 @@ export function isRateLimited(
   store: RateLimitStore,
   now: number = Date.now(),
 ): boolean {
-  pruneExpiredEntries(store, now);
-
-  const entry = store.get(ip);
-  if (!entry || now > entry.resetAt) {
-    return false;
-  }
-
-  return entry.count >= RATE_LIMIT_MAX;
+  return genericIsRateLimited(ip, store, OPTIONS, now);
 }
 
 /**
@@ -40,21 +39,7 @@ export function tryAcquireRateLimitSlot(
   store: RateLimitStore,
   now: number = Date.now(),
 ): boolean {
-  pruneExpiredEntries(store, now);
-
-  const entry = store.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    store.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-
-  if (entry.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-
-  entry.count += 1;
-  return true;
+  return genericTryAcquireRateLimitSlot(ip, store, OPTIONS, now);
 }
 
 /** Releases a slot when email sending fails after acquire. */
@@ -63,19 +48,7 @@ export function releaseRateLimitSlot(
   store: RateLimitStore,
   now: number = Date.now(),
 ): void {
-  pruneExpiredEntries(store, now);
-
-  const entry = store.get(ip);
-  if (!entry || now > entry.resetAt) {
-    return;
-  }
-
-  if (entry.count <= 1) {
-    store.delete(ip);
-    return;
-  }
-
-  entry.count -= 1;
+  genericReleaseRateLimitSlot(ip, store, now);
 }
 
 export function shouldTrustCloudflareIp(): boolean {
