@@ -50,14 +50,14 @@
 
 **nonce 方式（Next.js の proxy/middleware でリクエスト毎に nonce を発行）**
 
-`next start` でビルド済みの本番相当サーバーを起動し、`middleware.ts` で per-request nonce を発行して `script-src 'nonce-xxx' 'strict-dynamic'` を返す構成を実際に組んで検証した。
+`next start` でビルド済みの本番相当サーバーを起動し、`proxy.ts`（Next.js 16 で `middleware.ts` から改称された正式な file convention。旧 `middleware.ts` は非推奨で使用するとビルド時に警告が出る）で per-request nonce を発行して `script-src 'nonce-xxx' 'strict-dynamic'` を返す構成を実際に組んで検証した。
 
 - ビルド出力上はページが `○ (Static)` のまま変化しない（`middleware` 自体はビルド時の静的判定に影響しない）
 - しかし実際のレスポンスを2回取得して比較すると、**HTML 側の `<script>` タグには nonce 属性が一切付与されない**（`grep -o 'nonce="[^"]*"'` が0件）一方、CSP ヘッダーの nonce はリクエスト毎に異なる値になる
   - 理由: 静的ページは *ビルド時に一度だけ* プリレンダリングされる。nonce 属性の注入は Next.js がレンダリング時に「リクエストの CSP ヘッダーから nonce を読む」処理（`getScriptNonceFromHeader`）に依存しており、ビルド時には実際のリクエストが存在しないため nonce を注入できない
   - さらに、各ページには App Router の RSC flight data を運ぶインライン `<script>`（`self.__next_f.push(...)`）が **1ページあたり約10個**存在し、内容はページ毎に異なる（固定ハッシュでの許可も非現実的）
 - 結果として `'nonce-xxx' 'strict-dynamic'` を採用すると、静的ページのインラインスクリプト（RSC hydration に必須）が nonce 不一致で軒並みブロックされ、**サイトが機能しなくなる**ことを実機で確認した
-- 回避するには全ページを動的レンダリング（`force-dynamic` 相当）にするほかなく、これは `components/top/top-fonts.ts` の `preload: false` 判断等、本サイトが前提とする静的レンダリング/ISR 方針と正面から衝突する
+- 回避するには全ページを動的レンダリング（`force-dynamic` 相当）にするほかない。本サイトは `revalidate` を一切使わない純粋な静的生成（SSG）構成（`grep -rn "revalidate" app/` は 0 件）であり、これを動的レンダリングへ切り替えることは全ページを毎リクエスト SSR に変えることを意味し、本サイトの静的配信によるパフォーマンス方針と正面から衝突する
 
 **SRI（`experimental.sri`、実験的機能）**
 
