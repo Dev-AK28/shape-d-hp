@@ -66,9 +66,30 @@ jobs:
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
-      - name: Install Playwright browsers
+      - name: Get installed Playwright version
         if: steps.docs_only.outputs.docs_only != 'true'
-        run: npx playwright install --with-deps chromium
+        id: playwright-version
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        if: steps.docs_only.outputs.docs_only != 'true'
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      # ブラウザバイナリがキャッシュ済みでも OS 依存パッケージは runner ごとに
+      # インストールし直す必要があるため常時実行し、バイナリ本体（数十〜100MB超の
+      # ダウンロード＋展開）だけキャッシュヒット時にスキップする
+      # （docs-onlyな変更ではこのステップ自体もスキップする、#491）。
+      - name: Install Playwright OS dependencies
+        if: steps.docs_only.outputs.docs_only != 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Install Playwright browsers
+        if: steps.docs_only.outputs.docs_only != 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
 
       - name: E2E tests
         if: steps.docs_only.outputs.docs_only != 'true'
@@ -111,9 +132,30 @@ jobs:
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
-      - name: Install Playwright browsers
+      - name: Get installed Playwright version
         if: steps.docs_only.outputs.docs_only != 'true'
-        run: npx playwright install --with-deps chromium
+        id: playwright-version
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        if: steps.docs_only.outputs.docs_only != 'true'
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      # lighthouse ジョブは E2E テスト自体は実行しないが、lighthouse-check.mjs が
+      # Chrome 実行ファイルのフォールバック先として Playwright の Chromium キャッシュを
+      # 利用するため、quality ジョブと同じキャッシュ戦略でインストールする
+      # （docs-onlyな変更ではこのステップ自体もスキップする、#491）。
+      - name: Install Playwright OS dependencies
+        if: steps.docs_only.outputs.docs_only != 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Install Playwright browsers
+        if: steps.docs_only.outputs.docs_only != 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
 
       - name: Start server
         if: steps.docs_only.outputs.docs_only != 'true'
