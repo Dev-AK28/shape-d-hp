@@ -40,7 +40,7 @@ function normalizeReportingApiViolation(body: unknown): NormalizedCspViolation {
   const record = isRecord(body) ? body : {};
   return {
     documentUri: asString(record.documentURL),
-    violatedDirective: asString(record.violatedDirective ?? record.effectiveDirective),
+    violatedDirective: asString(record.violatedDirective) ?? asString(record.effectiveDirective),
     effectiveDirective: asString(record.effectiveDirective),
     blockedUri: asString(record.blockedURL),
     disposition: asString(record.disposition),

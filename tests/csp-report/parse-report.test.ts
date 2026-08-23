@@ -61,6 +61,19 @@ describe('parseCspReportBody', () => {
     });
   });
 
+  it('falls back to effectiveDirective when violatedDirective is an explicit empty string', () => {
+    const body = JSON.stringify([
+      {
+        type: 'csp-violation',
+        body: { violatedDirective: '', effectiveDirective: 'script-src-elem' },
+      },
+    ]);
+
+    const result = parseCspReportBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.violations[0]?.violatedDirective).toBe('script-src-elem');
+  });
+
   it('normalizes a legacy report-uri (application/csp-report) object', () => {
     const body = JSON.stringify({
       'csp-report': {
