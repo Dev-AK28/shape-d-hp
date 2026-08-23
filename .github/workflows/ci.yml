@@ -45,8 +45,26 @@ jobs:
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      # ブラウザバイナリがキャッシュ済みでも OS 依存パッケージは runner ごとに
+      # インストールし直す必要があるため常時実行し、バイナリ本体（数十〜100MB超の
+      # ダウンロード＋展開）だけキャッシュヒット時にスキップする。
+      - name: Install Playwright OS dependencies
+        run: npx playwright install-deps chromium
+
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
 
       - name: E2E tests
         run: npm run test:e2e
@@ -76,8 +94,26 @@ jobs:
             -exec grep -l "packages.microsoft.com" {} \; \
             | xargs sudo rm -f 2>/dev/null || true
 
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      # lighthouse ジョブは E2E テスト自体は実行しないが、lighthouse-check.mjs が
+      # Chrome 実行ファイルのフォールバック先として Playwright の Chromium キャッシュを
+      # 利用するため、quality ジョブと同じキャッシュ戦略でインストールする。
+      - name: Install Playwright OS dependencies
+        run: npx playwright install-deps chromium
+
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
 
       - name: Start server
         run: npm run start -- -p 3000 &
