@@ -1,13 +1,56 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
+// Content-Security-Policy — staged introduction (#450, follow-up to #437).
+//
+// Allow-list audit performed for this codebase (full write-up in
+// documents/spec/security-headers.md):
+// - three.js (lib/webgl/): renders to a same-origin <canvas> and compiles
+//   GLSL shaders on the GPU driver (not JS eval); it never loads external
+//   textures or scripts. No extra allow-list entries needed.
+// - Inline styles: several components use the React `style={{ ... }}` prop,
+//   which renders as a `style="..."` attribute. There is no per-request
+//   nonce plumbing (no proxy/middleware) and this site relies on static
+//   rendering for performance (see components/top/top-fonts.ts), so
+//   per-request nonces are out of scope for this pass — `'unsafe-inline'`
+//   is required for style-src, matching the Next.js-documented "without
+//   nonces" CSP recipe (node_modules/next/dist/docs/01-app/02-guides/
+//   content-security-policy.md).
+// - Next.js App Router's inline bootstrap/hydration scripts are also
+//   un-nonced for the same static-rendering reason, so `'unsafe-inline'` is
+//   required for script-src too. This does not protect against inline-script
+//   injection, but it still blocks loading any *external* script and
+//   restricts framing/forms/fetches to same-origin — a strict improvement
+//   over having no CSP at all.
+// - Web fonts (next/font/google in components/top/top-fonts.ts) are
+//   downloaded at build time and self-hosted under /_next/static, so no
+//   external font-src origin is needed.
+// - /api/contact calls the Resend API server-side only
+//   (lib/contact/send-email.ts); CSP only governs browser-issued requests,
+//   so no connect-src allowance is needed for it.
+// - No analytics/CDN scripts, no images.remotePatterns, no web workers, and
+//   no external blob:/data: URL producers were found anywhere else in the
+//   app.
+const CSP_HEADER_VALUE = [
+  `default-src 'self'`,
+  `script-src 'self' 'unsafe-inline'${isDev ? ` 'unsafe-eval'` : ""}`,
+  `style-src 'self' 'unsafe-inline'`,
+  `img-src 'self' data: blob:`,
+  `font-src 'self'`,
+  `connect-src 'self'`,
+  `object-src 'none'`,
+  `base-uri 'self'`,
+  `form-action 'self'`,
+  `frame-ancestors 'none'`,
+  `upgrade-insecure-requests`,
+].join("; ");
+
 // Baseline security response headers applied to every route.
-// Content-Security-Policy is intentionally NOT included here: this site
-// loads three.js (WebGL), inline styles, and web fonts, so a CSP needs a
-// careful allow-list audit before it can be added safely. Track that as a
-// separate follow-up rather than blocking these low-risk, broadly-safe
-// headers (see documents/spec/security-headers.md).
 const SECURITY_HEADERS = [
   // Prevent the site from being framed by another origin (clickjacking).
+  // Kept alongside the CSP's frame-ancestors 'none' below for defense in
+  // depth on browsers that don't support the CSP directive.
   { key: "X-Frame-Options", value: "DENY" },
   // Stop browsers from MIME-sniffing responses away from the declared
   // Content-Type.
@@ -28,6 +71,9 @@ const SECURITY_HEADERS = [
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
+  // See the allow-list audit above CSP_HEADER_VALUE for what each directive
+  // permits and why.
+  { key: "Content-Security-Policy", value: CSP_HEADER_VALUE },
 ] as const;
 
 const nextConfig: NextConfig = {
