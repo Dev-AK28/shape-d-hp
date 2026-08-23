@@ -97,10 +97,20 @@ export function releaseRateLimitSlot(
  * Reads a boolean trust flag, preferring the generic env var name and
  * falling back to the legacy `CONTACT_`-prefixed one for backward
  * compatibility with deployments that already set it (#475 review).
+ *
+ * Uses `??`, not `||`: an *unset* generic var (`undefined`) falls through to
+ * the legacy var, but an *explicitly set, empty-string* generic var
+ * (`process.env.TRUST_PROXY_IP_HEADERS=""`, e.g. a blank `.env` line) is
+ * treated as present-but-not-`'true'`/`'false'` and does NOT silently defer
+ * to the legacy var — it falls straight through to the caller's own
+ * VERCEL-default fallback instead. `||` would treat that empty string the
+ * same as unset and read the (possibly stale/differently-intended) legacy
+ * var, which is the same kind of surprising cross-var coupling this
+ * generic/legacy split was written to avoid.
  */
 function readTrustFlag(genericVar: string, legacyVar: string): string | undefined {
   return (
-    process.env[genericVar]?.trim().toLowerCase() ||
+    process.env[genericVar]?.trim().toLowerCase() ??
     process.env[legacyVar]?.trim().toLowerCase()
   );
 }

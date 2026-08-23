@@ -149,4 +149,20 @@ describe('shouldTrustProxyIpHeaders / shouldTrustCloudflareIp (#475 review: gene
 
     expect(extractClientIp(headers)).toBe('203.0.113.6');
   });
+
+  it('an explicitly empty generic var does not silently fall back to the legacy var (uses `??`, not `||`)', () => {
+    // Regression guard: if readTrustFlag used `||`, an explicitly empty
+    // string on the generic var (e.g. a blank ".env" line) would be
+    // treated as falsy and silently defer to the legacy CONTACT_ var below
+    // — reintroducing the exact cross-var coupling surprise this
+    // generic/legacy split exists to avoid. With `??`, an empty string is
+    // a present (if meaningless) value, so it stops here and the caller
+    // falls through to its own VERCEL-based default instead of the legacy
+    // var.
+    vi.stubEnv('TRUST_PROXY_IP_HEADERS', '');
+    vi.stubEnv('CONTACT_TRUST_PROXY_IP_HEADERS', 'false');
+    vi.stubEnv('VERCEL', '1');
+
+    expect(shouldTrustProxyIpHeaders()).toBe(true);
+  });
 });
