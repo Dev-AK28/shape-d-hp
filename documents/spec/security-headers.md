@@ -44,10 +44,30 @@
 - `/api/contact`: Resend API 呼び出しはサーバーサイドのみ（`lib/contact/send-email.ts`）。ブラウザからの fetch 先ではないため `connect-src` に追加不要
 - アナリティクス/CDN スクリプト、`images.remotePatterns`、Web Worker は本コードベースに存在しない
 
-### 今後の検討事項（段階的強化）
+### `unsafe-inline` 除去の実現可能性調査（#455、クローズ）
 
-- `script-src`/`style-src` の `'unsafe-inline'` は、per-request nonce（Next.js の proxy 経由）または Subresource Integrity（実験的機能）に置き換えることで強化できる。ただし nonce 化は全ページを動的レンダリングにする必要があり（ISR/静的キャッシュ不可）、本サイトのパフォーマンス方針と衝突するため、今回は見送り
-- 上記の強化を検討する場合は別途 Issue を起票すること（検討状況: #455）
+`script-src`/`style-src` から `'unsafe-inline'` を除去できないか、nonce 方式と SRI（実験的機能）の 2 案で実機検証した。結論として、本サイトの静的レンダリング構成では**どちらも採用不可**と判断し、Issue #455 はクローズした。
+
+**nonce 方式（Next.js の proxy/middleware でリクエスト毎に nonce を発行）**
+
+`next start` でビルド済みの本番相当サーバーを起動し、`middleware.ts` で per-request nonce を発行して `script-src 'nonce-xxx' 'strict-dynamic'` を返す構成を実際に組んで検証した。
+
+- ビルド出力上はページが `○ (Static)` のまま変化しない（`middleware` 自体はビルド時の静的判定に影響しない）
+- しかし実際のレスポンスを2回取得して比較すると、**HTML 側の `<script>` タグには nonce 属性が一切付与されない**（`grep -o 'nonce="[^"]*"'` が0件）一方、CSP ヘッダーの nonce はリクエスト毎に異なる値になる
+  - 理由: 静的ページは *ビルド時に一度だけ* プリレンダリングされる。nonce 属性の注入は Next.js がレンダリング時に「リクエストの CSP ヘッダーから nonce を読む」処理（`getScriptNonceFromHeader`）に依存しており、ビルド時には実際のリクエストが存在しないため nonce を注入できない
+  - さらに、各ページには App Router の RSC flight data を運ぶインライン `<script>`（`self.__next_f.push(...)`）が **1ページあたり約10個**存在し、内容はページ毎に異なる（固定ハッシュでの許可も非現実的）
+- 結果として `'nonce-xxx' 'strict-dynamic'` を採用すると、静的ページのインラインスクリプト（RSC hydration に必須）が nonce 不一致で軒並みブロックされ、**サイトが機能しなくなる**ことを実機で確認した
+- 回避するには全ページを動的レンダリング（`force-dynamic` 相当）にするほかなく、これは `components/top/top-fonts.ts` の `preload: false` 判断等、本サイトが前提とする静的レンダリング/ISR 方針と正面から衝突する
+
+**SRI（`experimental.sri`、実験的機能）**
+
+Next.js のソース（`node_modules/next/dist/server/app-render/required-scripts.js`、`app-render.js`）を確認したところ、この機能は `/_next/static/chunks/*.js` を読み込む `<script src="...">` タグに `integrity="sha256-..."` 属性を付与するのみで、CSP の `script-src`/`style-src` ディレクティブ自体には一切関与しない。上記のインライン RSC flight data スクリプトや `style={{ ... }}` によるインラインスタイル属性の許可問題は解決しないため、`'unsafe-inline'` 除去には寄与しない。
+
+**style-src について**
+
+`components/PhilosophyContent.tsx` 等、複数コンポーネントが `style={{ ... }}`（動的に計算される値を含む）を使用している。CSP の nonce/hash はインラインスタイル**属性**（`style="..."`）には適用できず（`<style>` 要素のみ対象）、`'unsafe-hashes'`（CSP3）で属性値のハッシュを許可する手も値が動的なため事実上運用不可。全箇所を CSS クラス/CSS カスタムプロパティへ移行する大規模リファクタが前提になり、本 Issue のスコープ外。
+
+**再検討する場合の条件**: 本サイトが動的レンダリング前提に移行する場合、または Next.js が RSC flight data を静的ページでも nonce/hash 整合させる仕組みを正式サポートした場合は、本調査を前提に再評価すること。
 
 ## CSP 違反レポーティング（#457、#450 のフォローアップ）
 
@@ -121,4 +141,4 @@ npm run test:e2e -- e2e/security-headers.spec.ts
 - #437 fix(security): next.config.ts にセキュリティヘッダー(X-Frame-Options等)が未設定
 - #450 fix(security): Content-Security-Policy ヘッダーの段階的導入を検討する（#437 のフォローアップ）
 - #457 chore(security): CSP違反のレポーティング（report-to/report-uri）導入（#450 のフォローアップ、本ドキュメントの対応範囲）
-- #455 chore(security): CSPのscript-src/style-srcからunsafe-inlineを除去（検討中、未着手）
+- #455 chore(security): CSPのscript-src/style-srcからunsafe-inlineを除去（実現可能性を実機検証し、静的レンダリングと非互換と判断してクローズ。詳細は上記「`unsafe-inline` 除去の実現可能性調査」参照）

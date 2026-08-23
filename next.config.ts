@@ -27,6 +27,15 @@ const isDev = process.env.NODE_ENV === "development";
 //   injection, but it still blocks loading any *external* script and
 //   restricts framing/forms/fetches to same-origin — a strict improvement
 //   over having no CSP at all.
+//   Removing `'unsafe-inline'` (nonce-based `script-src`, or the
+//   `experimental.sri` build flag) was investigated in #455 and closed as
+//   infeasible: swapping in a per-request nonce leaves statically
+//   prerendered pages with zero `nonce="..."` attributes on their RSC
+//   hydration `<script>` tags (verified against a real `next start`
+//   response), so every static page's hydration breaks; `experimental.sri`
+//   only adds `integrity="..."` to externally-loaded chunk `<script src>`
+//   tags and doesn't touch inline scripts at all. See "`unsafe-inline`
+//   除去の実現可能性調査" in documents/spec/security-headers.md.
 // - Web fonts (next/font/google in components/top/top-fonts.ts) are
 //   downloaded at build time and self-hosted under /_next/static, so no
 //   external font-src origin is needed.
