@@ -30,20 +30,20 @@
     "@opentelemetry/core": "^2.8.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
-    "@testing-library/react": "^16.3.2",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.185.3",
     "eslint": "^9",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.3.6",
     "jsdom": "^29.1.1",
-    "lighthouse": "^13.4.1",
+    "lighthouse": "^13.5.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10",
-    "wait-on": "^9.1.0"
+    "wait-on": "^9.4.0"
   }
 }
